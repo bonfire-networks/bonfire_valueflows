@@ -1,0 +1,12 @@
+ecto_sql = "~> 3.4"
+faker = "~> 0.14" # fake data generation
+gettext = "~> 0.11"
+jason = "~> 1.0"
+ok = "~> 2.3.0"
+pointers_ulid = "~> 0.2"
+pointers = "~> 0.5.1"
+postgrex = ">= 0.0.0"
+telemetry_metrics = "~> 0.4"
+telemetry_poller = "~> 0.4"
+# for this extension:
+geocoder = "~> 1.0"
