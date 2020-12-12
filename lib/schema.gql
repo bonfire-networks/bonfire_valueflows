@@ -1,0 +1,4105 @@
+"""
+A boundary or context grouped around some other record- used for documenting, accounting, planning.
+"""
+union AccountingScope =
+    User
+  | Organisation
+  | Person
+  | Organization
+  | Community
+  | Collection
+  | Category
+  | Taggable
+## extended for CPub (default was `Person | Organization`)
+
+"""
+An action verb defining the kind of event, commitment, or intent.
+It is recommended that the lowercase action verb should be used as the record ID
+in order that references to `Action`s elsewhere in the system are easily readable.
+"""
+type Action {
+  id: ID!
+
+  """
+  A unique verb which defines the action.
+  """
+  label: String!
+
+  """
+  The accounting effect of an economic event on a resource, increment, decrement, no effect, or decrement resource and increment 'to' resource.
+  """
+  resourceEffect: String!
+
+  """
+  Denotes if a process input or output, or not related to a process.
+  """
+  inputOutput: String
+
+  """
+  The action that should be included on the other direction of the process, for example accept with modify.
+  """
+  pairsWith: String
+
+  """
+  The onhand effect of an economic event on a resource, increment, decrement, no effect, or decrement resource and increment 'to' resource.
+  """
+  onhandEffect: String
+
+  note: String ## added for CPub
+}
+
+"""
+A person or group or organization with economic agency.
+"""
+interface Agent {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for an agent. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The uri to an image relevant to the agent, such as a logo, avatar, photo, etc.
+  """
+  image: URI
+
+  """
+  A textual description or comment.
+  """
+  note: String
+  relationships(roleId: ID): [AgentRelationship!]
+  relationshipsAsSubject(roleId: ID): [AgentRelationship!]
+  relationshipsAsObject(roleId: ID): [AgentRelationship!]
+  roles: [AgentRelationshipRole!]
+
+  """
+  The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
+  """
+  primaryLocation: SpatialThing
+  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
+  inventoriedEconomicResources(
+    filter: agentResourceSearchParams
+  ): [EconomicResource!]
+  processes(filter: agentProcessSearchParams): [Process!]
+  plans(filter: agentPlanSearchParams): [Plan!]
+  commitments(filter: agentCommitmentSearchParams): [Commitment!]
+  intents(filter: agentIntentSearchParams): [Intent!]
+
+  proposals: [Proposal!] ## added for CPub
+  agentType: AgentType ## added for CPub
+  canonicalUrl: String ## added for CPub
+  displayUsername: String ## added for CPub
+}
+
+"""
+Query parameters for reading `Commitment`s related to an `Agent`
+"""
+input agentCommitmentSearchParams {
+  searchString: String
+  action: ID
+  startDate: DateTime
+  endDate: DateTime
+  finished: Boolean
+}
+
+input AgentCreateParams {
+  """
+  An informal or formal textual identifier for an agent. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The uri to an image relevant to the agent, such as a logo, avatar, photo, etc.
+  """
+  image: URI
+
+  """
+  (`SpatialThing`) The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
+  """
+  primaryLocation: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Query parameters for reading `EconomicEvent`s related to an `Agent`
+"""
+input agentEventSearchParams {
+  searchString: String
+  action: ID
+  startDate: DateTime
+  endDate: DateTime
+}
+
+"""
+Query parameters for reading `Intent`s related to an `Agent`
+"""
+input agentIntentSearchParams {
+  searchString: String
+  action: ID
+  startDate: DateTime
+  endDate: DateTime
+  finished: Boolean
+}
+
+"""
+Query parameters for reading `Plan`s related to an `Agent`
+"""
+input agentPlanSearchParams {
+  searchString: String
+  finished: Boolean
+}
+
+"""
+Query parameters for reading `Process`es related to an `Agent`
+"""
+input agentProcessSearchParams {
+  searchString: String
+  finished: Boolean
+}
+
+"""
+The role of an economic relationship that exists between 2 agents, such as member, trading partner.
+"""
+type AgentRelationship {
+  id: ID!
+
+  """
+  The subject of a relationship between 2 agents.  For example, if Mary is a member of a group, then Mary is the subject.
+  """
+  subject: Agent!
+
+  """
+  The object of a relationship between 2 agents.  For example, if Mary is a member of a group, then the group is the object.
+  """
+  object: Agent!
+
+  """
+  A kind of relationship that exists between 2 agents.
+  """
+  relationship: AgentRelationshipRole!
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input AgentRelationshipCreateParams {
+  """
+  (`Agent`) The subject of a relationship between 2 agents.  For example, if Mary is a member of a group, then Mary is the subject.
+  """
+  subject: ID!
+
+  """
+  (`Agent`) The object of a relationship between 2 agents.  For example, if Mary is a member of a group, then the group is the object.
+  """
+  object: ID!
+
+  """
+  (`AgentRelationshipRole`) The role of an economic relationship that exists between 2 agents, such as member, trading partner.
+  """
+  relationship: ID!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type AgentRelationshipResponse {
+  agentRelationship: AgentRelationship!
+}
+
+"""
+A relationship role defining the kind of association one agent can have with another.
+"""
+type AgentRelationshipRole {
+  id: ID!
+
+  """
+  The human readable name of the role, from the subject to the object.
+  """
+  roleLabel: String!
+
+  """
+  The human readable name of the role, from the object to the subject.
+  """
+  inverseRoleLabel: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input AgentRelationshipRoleCreateParams {
+  """
+  The human readable name of the role, inverse from the object to the subject. For example, 'is member of'.
+  """
+  roleLabel: String!
+
+  """
+  The human readable name of the role, inverse from the object to the subject. For example, 'has member'.
+  """
+  inverseRoleLabel: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type AgentRelationshipRoleResponse {
+  agentRelationshipRole: AgentRelationshipRole
+}
+
+input AgentRelationshipRoleUpdateParams {
+  id: ID!
+
+  """
+  The human readable name of the role, inverse from the object to the subject. For example, 'is member of'.
+  """
+  roleLabel: String
+
+  """
+  The human readable name of the role, inverse from the object to the subject. For example, 'has member'.
+  """
+  inverseRoleLabel: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input AgentRelationshipUpdateParams {
+  id: ID!
+
+  """
+  (`Agent`) The subject of a relationship between 2 agents.  For example, if Mary is a member of a group, then Mary is the subject.
+  """
+  subject: ID
+
+  """
+  (`Agent`) The object of a relationship between 2 agents.  For example, if Mary is a member of a group, then the group is the object.
+  """
+  object: ID
+
+  """
+  (`AgentRelationshipRole`) The role of an economic relationship that exists between 2 agents, such as member, trading partner.
+  """
+  relationship: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Query parameters for reading `EconomicResource`s related to an `Agent`
+"""
+input agentResourceSearchParams {
+  searchString: String
+  resourceClassification: URI
+  page: Int
+}
+
+enum AgentType { ## added for CPub
+  Person
+  Organization
+}
+
+input AgentUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for an agent. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The uri to an image relevant to the agent, such as a logo, avatar, photo, etc.
+  """
+  image: URI
+
+  """
+  (`SpatialThing`) The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
+  """
+  primaryLocation: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Any type of agreement among economic agents.
+"""
+type Agreement {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for an agreement. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The date and time the agreement was created.
+  """
+  created: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+  involvedAgents: [Agent!]
+  economicEvents: [EconomicEvent!]
+  commitments: [Commitment!]
+}
+
+input AgreementCreateParams {
+  """
+  An informal or formal textual identifier for an agreement. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The date and time the agreement was created.
+  """
+  created: DateTime!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type AgreementResponse {
+  agreement: Agreement
+}
+
+input AgreementUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for an agreement. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The date and time the agreement was created.
+  """
+  created: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+A way to tie an economic event that is given in loose fulfilment for another economic event, without commitments or expectations. 
+Supports the gift economy.
+"""
+type Appreciation {
+  id: ID!
+
+  """
+  The economic event this appreciation has been given in acknowledgement of.
+  """
+  appreciationOf: EconomicEvent!
+
+  """
+  The economic event provided as a gift in this appreciation.
+  """
+  appreciationWith: EconomicEvent!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input AppreciationCreateParams {
+  """
+  (`EconomicEvent`) The economic event this appreciation has been given in acknowledgement of.
+  """
+  appreciationOf: ID!
+
+  """
+  (`EconomicEvent`) The economic event provided as a gift in this appreciation.
+  """
+  appreciationWith: ID!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type AppreciationResponse {
+  appreciation: Appreciation
+}
+
+input AppreciationUpdateParams {
+  id: ID!
+
+  """
+  (`EconomicEvent`) The economic event this appreciation has been given in acknowledgement of.
+  """
+  appreciationOf: ID
+
+  """
+  (`EconomicEvent`) The economic event provided as a gift in this appreciation.
+  """
+  appreciationWith: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+A claim for a future economic event(s) in reciprocity for an economic event that already occurred. For example, a claim for payment for goods received.
+"""
+type Claim {
+  id: ID!
+
+  """
+  Relates a claim to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
+
+  """
+  The economic agent from whom the claim is initiated.
+  """
+  provider: Agent!
+
+  """
+  The economic agent whom the claim is for.
+  """
+  receiver: Agent!
+
+  """
+  Specifies if a calculation will be applied to this claim when an economic event is logged.
+  """
+  calculatedUsing: ValueCalculation
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ResourceSpecification
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  The economic event which already occurred which this claim has been made against.
+  """
+  triggeredBy: EconomicEvent!
+
+  """
+  The time the claim is expected to be settled.
+  """
+  due: DateTime
+
+  """
+  The data on which the claim was made.
+  """
+  created: DateTime
+
+  """
+  The claim is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this claim.
+  """
+  agreedIn: URI
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+}
+
+input ClaimCreateParams {
+  """
+  (`Action`) Relates a claim to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: ID!
+
+  """
+  (`Agent`) The economic agent from whom the claim is initiated.
+  """
+  provider: ID!
+
+  """
+  (`Agent`) The economic agent whom the claim is for.
+  """
+  receiver: ID!
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is the quantity that could be used to increment or decrement a resource, depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  The time the claim is expected to be settled.
+  """
+  due: DateTime
+
+  """
+  (`EconomicEvent`) The economic event which already occurred which this claim has been made against.
+  """
+  triggeredBy: ID
+
+  """
+  The data on which the claim was made.
+  """
+  created: DateTime
+
+  """
+  The claim is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this claim.
+  """
+  agreedIn: URI
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+}
+
+type ClaimResponse {
+  claim: Claim
+}
+
+input ClaimUpdateParams {
+  id: ID!
+
+  """
+  (`Action`) Relates a claim to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: ID
+
+  """
+  (`Agent`) The economic agent from whom the claim is initiated.
+  """
+  provider: ID
+
+  """
+  (`Agent`) The economic agent whom the claim is for.
+  """
+  receiver: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  The time the claim is expected to be settled.
+  """
+  due: DateTime
+
+  """
+  (`EconomicEvent`) The economic event which already occurred which this claim has been made against.
+  """
+  triggeredBy: ID
+
+  """
+  The data on which the claim was made.
+  """
+  created: DateTime
+
+  """
+  The claim is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this claim.
+  """
+  agreedIn: URI
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+}
+
+"""
+A calculation performed using custom formulas for a certain context.
+"""
+type ValueCalculation {
+  formula: String!
+
+  """
+  References the unit used for the claim.
+  """
+  valueUnit: Unit!,
+
+  """
+  Relates a value calculation to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
+
+  """
+  Relates a value calculation to a verb, like action, but for the related claim.
+  """
+  valueAction: Action!
+
+  """
+  Used to filter valueCalculations to find the one that matches the event.
+  """
+  resourceConformsTo: ResourceSpecification
+  
+  """
+  The resource specification the claim will apply to.
+  """
+  valueResourceConformsTo: ResourceSpecification
+
+  """
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+}
+
+type ValueCalculationCreateParams {
+  formula: String!
+
+  valueUnit: ID!
+
+  action: Action!
+  valueAction: Action!
+
+  # resourceConformsTo: ID
+  # valueResourceConformsTo: ID
+  resourceClassifiedAs: [URI!]
+  inScopeOf: [ID!]
+}
+
+type ValueCalculationUpdateParams {
+  formula: String!
+}
+
+type ValueCalculationResponse {
+  valueCalculation: ValueCalculation
+}
+
+"""
+A planned economic flow that has been promised by an agent to another agent.
+"""
+type Commitment {
+  id: ID!
+
+  """
+  Relates a commitment to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
+
+  """
+  Defines the process to which this commitment is an input.
+  """
+  inputOf: Process
+
+  """
+  Defines the process for which this commitment is an output.
+  """
+  outputOf: Process
+
+  """
+  The economic agent from whom the commitment is initiated.
+  """
+  provider: Agent!
+
+  """
+  The economic agent whom the commitment is for.
+  """
+  receiver: Agent!
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ResourceSpecification
+
+  """
+  Exact economic resource involved in the commitment.
+  """
+  resourceInventoriedAs: EconomicResource
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  The planned beginning of the commitment.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the commitment.
+  """
+  hasEnd: DateTime
+
+  """
+  The planned date/time for the commitment. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  The time something is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  The creation time of the commitment.
+  """
+  created: DateTime
+
+  """
+  The commitment is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this commitment.
+  """
+  agreedIn: URI
+
+  """
+  The economic event which completely or partially fulfills a commitment.
+  """
+  fulfilledBy: [Fulfillment!]
+
+  """
+  An intent satisfied fully or partially by an economic event or commitment.
+  """
+  satisfies: [Satisfaction!]
+  involvedAgents: [Agent!]
+
+  """
+  The commitment can be safely deleted, has no dependent information.
+  """
+  deletable: Boolean
+
+  """
+  This commitment is part of the exchange agreement.
+  """
+  clauseOf: Agreement
+
+  """
+  The place where a commitment occurs. Usually mappable.
+  """
+  atLocation: SpatialThing
+
+  """
+  Represents a desired deliverable expected from this plan.
+  """
+  independentDemandOf: Plan
+}
+
+input CommitmentCreateParams {
+  """
+  (`Action`) Relates a commitment to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: ID!
+
+  """
+  (`Process`) Defines the process to which this commitment is an input.
+  """
+  inputOf: ID
+
+  """
+  (`Process`) Defines the process for which this commitment is an output.
+  """
+  outputOf: ID
+
+  """
+  (`Agent`) The economic agent from whom the commitment is initiated.
+  """
+  provider: ID!
+
+  """
+  (`Agent`) The economic agent whom the commitment is for.
+  """
+  receiver: ID!
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  (`EconomicResource`) Exact economic resource involved in the commitment.
+  """
+  resourceInventoriedAs: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  The planned beginning of the commitment.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the commitment.
+  """
+  hasEnd: DateTime
+
+  """
+  The planned date/time for the commitment. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  The time something is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  The commitment is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`Plan`) Represents a desired deliverable expected from this plan.
+  """
+  independentDemandOf: ID
+
+  """
+  (`SpatialThing`) The place where an commitment occurs.  Usually mappable.
+  """
+  atLocation: ID
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this commitment.
+  """
+  agreedIn: URI
+
+  """
+  (`Agreement`) This commitment is part of the agreement.
+  """
+  clauseOf: ID
+}
+
+type CommitmentResponse {
+  commitment: Commitment
+}
+
+input CommitmentUpdateParams {
+  id: ID!
+
+  """
+  (`Process`) Defines the process to which this commitment is an input.
+  """
+  inputOf: ID
+
+  """
+  (`Process`) Defines the process for which this commitment is an output.
+  """
+  outputOf: ID
+
+  """
+  (`Agent`) The economic agent from whom the commitment is initiated.
+  """
+  provider: ID
+
+  """
+  (`Agent`) The economic agent whom the commitment is for.
+  """
+  receiver: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  (`EconomicResource`) Exact economic resource involved in the commitment.
+  """
+  resourceInventoriedAs: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  The planned beginning of the commitment.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the commitment.
+  """
+  hasEnd: DateTime
+
+  """
+  The planned date/time for the commitment. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  The time something is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  The commitment is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`Plan`) Represents a desired deliverable expected from this plan.
+  """
+  independentDemandOf: ID
+
+  """
+  (`SpatialThing`) The place where an commitment occurs.  Usually mappable.
+  """
+  atLocation: ID
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this commitment.
+  """
+  agreedIn: URI
+
+  """
+  (`Agreement`) This commitment is part of the agreement.
+  """
+  clauseOf: ID
+}
+
+"""
+An observed economic flow, as opposed to a flow planned to happen in the future. This could reflect a change in the quantity of an economic resource. It is also defined by its behavior in relation to the economic resource (see `Action`)
+"""
+type EconomicEvent {
+  id: ID!
+
+  """
+  Relates an economic event to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
+
+  """
+  Defines the process to which this event is an input.
+  """
+  inputOf: Process
+
+  """
+  Defines the process for which this event is an output.
+  """
+  outputOf: Process
+
+  """
+  The economic agent from whom the actual economic event is initiated.
+  """
+  provider: Agent!
+
+  """
+  The economic agent whom the actual economic event is for.
+  """
+  receiver: Agent!
+
+  """
+  Economic resource involved in the economic event.
+  """
+  resourceInventoriedAs: EconomicResource
+
+  """
+  Additional economic resource on the economic event when needed by the receiver. Used when a transfer or move, or sometimes other actions, requires explicitly identifying an economic resource on the receiving side.
+  """
+  toResourceInventoriedAs: EconomicResource
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ResourceSpecification
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is the quantity that could be used to increment or decrement a resource, depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  The beginning of the economic event.
+  """
+  hasBeginning: DateTime
+
+  """
+  The end of the economic event.
+  """
+  hasEnd: DateTime
+
+  """
+  The date/time at which the economic event occurred. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this economic event.
+  """
+  agreedIn: URI
+
+  """
+  References another economic event that implied this economic event, often based on a prior agreement.
+  """
+  triggeredBy: EconomicEvent
+  track: [ProductionFlowItem!]
+  trace: [ProductionFlowItem!]
+
+  """
+  The economic event can be safely deleted, has no dependent information.
+  """
+  deletable: Boolean
+
+  """
+  This economic event occurs as part of this agreement.
+  """
+  realizationOf: Agreement
+  appreciationOf: [Appreciation!]
+  appreciatedBy: [Appreciation!]
+
+  """
+  The place where an economic event occurs.  Usually mappable.
+  """
+  atLocation: SpatialThing
+
+  """
+  The commitment which is completely or partially fulfilled by an economic event.
+  """
+  fulfills: [Fulfillment!]
+
+  """
+  An intent satisfied fully or partially by an economic event or commitment.
+  """
+  satisfies: [Satisfaction!]
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext] ## added for CPub
+}
+
+input EconomicEventCreateParams {
+  """
+  (`Action`) Relates an economic event to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: ID!
+
+  """
+  (`Process`) Defines the process to which this event is an input.
+  """
+  inputOf: ID
+
+  """
+  (`Process`) Defines the process for which this event is an output.
+  """
+  outputOf: ID
+
+  """
+  (`Agent`) The economic agent from whom the actual economic event is initiated.
+  """
+  provider: ID ## changed for CPub (was required)
+  """
+  (`Agent`) The economic agent whom the actual economic event is for.
+  """
+  receiver: ID ## changed for CPub (was required)
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`EconomicResource`) Economic resource involved in the economic event.
+  """
+  resourceInventoriedAs: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is the quantity that could be used to increment or decrement a resource, depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  (`SpatialThing`) The place where an economic event occurs.  Usually mappable.
+  """
+  atLocation: ID
+
+  """
+  The beginning of the economic event.
+  """
+  hasBeginning: DateTime
+
+  """
+  The end of the economic event.
+  """
+  hasEnd: DateTime
+
+  """
+  The date/time at which the economic event occurred. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this economic event.
+  """
+  agreedIn: URI
+
+  """
+  (`Agreement`) This economic event occurs as part of this agreement.
+  """
+  realizationOf: ID
+
+  """
+  (`EconomicEvent`) References another economic event that implied this economic event, often based on a prior agreement.
+  """
+  triggeredBy: ID
+
+  """
+  (`EconomicResource`) Additional economic resource on the economic event when needed by the receiver. Used when a transfer or move, or sometimes other actions, requires explicitly identifying an economic resource on the receiving side.
+  """
+  toResourceInventoriedAs: ID
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!] ## added for CPub
+}
+
+type EconomicEventResponse {
+  """
+  Details of the newly created event.
+  """
+  economicEvent: EconomicEvent!
+
+  """
+  Details of any newly created `EconomicResource`, for events that create new resources.
+  """
+  economicResource: EconomicResource
+}
+
+input EconomicEventUpdateParams {
+  id: ID!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this economic event.
+  """
+  agreedIn: URI
+
+  """
+  (`Agreement`) This economic event occurs as part of this agreement.
+  """
+  realizationOf: ID
+
+  """
+  (`EconomicEvent`) References another economic event that implied this economic event, often based on a prior agreement.
+  """
+  triggeredBy: ID
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+}
+
+"""
+A resource which is useful to people or the ecosystem.
+"""
+type EconomicResource {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for an item. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  classifiedAs: [URI!]
+
+  """
+  The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  conformsTo: ResourceSpecification!
+
+  """
+  Sometimes called serial number, used when each item must have a traceable identifier (like a computer). Could also be used for other unique tracking identifiers needed for resources.
+  """
+  trackingIdentifier: String
+
+  """
+  Lot or batch of an economic resource, used to track forward or backwards to all occurrences of resources of that lot. Note more than one resource can be of the same lot.
+  """
+  lot: ProductBatch
+
+  """
+  The uri to an image relevant to the resource, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  The current amount and unit of the economic resource for which the agent has primary rights and responsibilities, sometimes thought of as ownership. This can be either stored or derived from economic events affecting the resource.
+  """
+  accountingQuantity: Measure
+
+  """
+  The current amount and unit of the economic resource which is under direct control of the agent.  It may be more or less than the accounting quantity. This can be either stored or derived from economic events affecting the resource.
+  """
+  onhandQuantity: Measure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  The unit used for use or work or cite actions for this resource.
+  """
+  unitOfEffort: Unit
+
+  """
+  References the ProcessSpecification of the last process the desired economic resource went through. Stage is used when the last process is important for finding proper resources, such as where the publishing process wants only documents that have gone through the editing process.
+  """
+  stage: ProcessSpecification
+
+  """
+  The state of the desired economic resource (pass or fail), after coming out of a test or review process. Can be derived from the last event if a pass or fail event.
+  """
+  state: Action
+
+  """
+  Used when a stock economic resource contains items also defined as economic resources.
+  """
+  containedIn: EconomicResource
+
+  """
+  The agent currently with primary rights and responsibilites for the economic resource. It is the agent that is associated with the accountingQuantity of the economic resource.
+  """
+  primaryAccountable: Agent
+
+  """
+  Used when a stock economic resource contains units also defined as economic resources.
+  """
+  contains: [EconomicResource!]
+  trace: [EconomicEvent!]
+  track: [EconomicEvent!]
+
+  """
+  The current place an economic resource is located. Could be at any level of granularity, from a town to an address to a warehouse location. Usually mappable.
+  """
+  currentLocation: SpatialThing
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!] ## added for CPub
+}
+
+"""
+Input `EconomicResource` type used when sending events to setup initial resource recordings
+"""
+input EconomicResourceCreateParams {
+  """
+  An informal or formal textual identifier for an item. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  conformsTo: ID
+
+  """
+  Sometimes called serial number, used when each item must have a traceable identifier (like a computer). Could also be used for other unique tracking identifiers needed for resources.
+  """
+  trackingIdentifier: String
+
+  """
+  (`ProductBatch`) Lot or batch of an economic resource, used to track forward or backwards to all occurrences of resources of that lot. Note more than one resource can be of the same lot.
+  """
+  lot: ID
+
+  """
+  The uri to an image relevant to the resource, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  (`EconomicResource`) Used when a stock economic resource contains items also defined as economic resources.
+  """
+  containedIn: ID
+
+  """
+  (`SpatialThing`) The current place an economic resource is located.  Could be at any level of granularity, from a town to an address to a warehouse location.  Usually mappable.
+  """
+  currentLocation: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!] ## added for CPub
+}
+
+type EconomicResourceResponse {
+  economicResource: EconomicResource!
+}
+
+input EconomicResourceUpdateParams {
+  id: ID!
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  classifiedAs: [URI!]
+
+  """
+  The uri to an image relevant to the resource, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  (`EconomicResource`) Used when a stock economic resource contains items also defined as economic resources.
+  """
+  containedIn: ID
+
+  """
+  (`Unit`) The unit used for use or work or cite actions for this resource.
+  """
+  unitOfEffort: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+union EventOrCommitment = EconomicEvent | Commitment
+
+
+"""
+Represents many-to-many relationships between commitments and economic events that fully or partially satisfy one or more commitments.
+"""
+type Fulfillment {
+  id: ID!
+
+  """
+  The economic event which completely or partially fulfills a commitment.
+  """
+  fulfilledBy: EconomicEvent!
+
+  """
+  The commitment which is completely or partially fulfilled by an economic event.
+  """
+  fulfills: Commitment!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input FulfillmentCreateParams {
+  """
+  (`EconomicEvent`) The economic event which completely or partially fulfills a commitment.
+  """
+  fulfilledBy: ID!
+
+  """
+  (`Commitment`) The commitment which is completely or partially fulfilled by an economic event.
+  """
+  fulfills: ID!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type FulfillmentResponse {
+  fulfillment: Fulfillment
+}
+
+input FulfillmentUpdateParams {
+  id: ID!
+
+  """
+  (`EconomicEvent`) The economic event which completely or partially fulfills a commitment.
+  """
+  fulfilledBy: ID
+
+  """
+  (`Commitment`) The commitment which is completely or partially fulfilled by an economic event.
+  """
+  fulfills: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+A planned economic flow which has not been committed to, which can lead to economic events (sometimes through commitments).
+"""
+type Intent {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for an intent. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  Relates an intent to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
+
+  """
+  Defines the process to which this intent is an input.
+  """
+  inputOf: Process
+
+  """
+  Defines the process to which this intent is an output.
+  """
+  outputOf: Process
+
+  """
+  The economic agent from whom the intent is initiated. This implies that the intent is an offer.
+  """
+  provider: Agent
+
+  """
+  The economic agent whom the intent is for.  This implies that the intent is a request.
+  """
+  receiver: Agent
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext] ## added for CPub
+
+  """
+  The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ResourceSpecification
+
+  """
+  When a specific `EconomicResource` is known which can service the `Intent`, this defines that resource.
+  """
+  resourceInventoriedAs: EconomicResource
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is the quantity that could be used to increment or decrement a resource, depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  The total quantity of the offered resource available.
+  """
+  availableQuantity: Measure
+
+  """
+  The planned beginning of the intent.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the intent.
+  """
+  hasEnd: DateTime
+
+  """
+  The planned date/time for the intent. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  The time something is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  The intent is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  The uri to an image relevant to the intent, such as a photo. 
+  """
+  image: URI 
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this intent.
+  """
+  agreedIn: URI
+
+  """
+  The intent can be safely deleted, has no dependent information.
+  """
+  deletable: Boolean
+  satisfiedBy: [Satisfaction!]
+
+  """
+  The place where an intent would occur. Usually mappable.
+  """
+  atLocation: SpatialThing
+  publishedIn: [ProposedIntent!]
+
+  canonicalUrl: URI ## added for CPub
+}
+
+input IntentCreateParams {
+  """
+  (`Action`) Relates an intent to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: String!
+
+  """
+  An informal or formal textual identifier for an intent. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  (`Process`) Defines the process to which this intent is an input.
+  """
+  inputOf: ID
+
+  """
+  (`Process`) Defines the process to which this intent is an output.
+  """
+  outputOf: ID
+
+  """
+  (`Agent`) The economic agent from whom the intent is initiated. This implies that the intent is an offer.
+  """
+  provider: ID
+
+  """
+  (`Agent`) The economic agent whom the intent is for.  This implies that the intent is a request.
+  """
+  receiver: ID
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!] ## added for CPub
+
+  """
+  (`EconomicResource`) When a specific `EconomicResource` is known which can service the `Intent`, this defines that resource.
+  """
+  resourceInventoriedAs: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is the quantity that could be used to increment or decrement a resource, depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  The total quantity of the offered resource available.
+  """
+  availableQuantity: IMeasure
+
+  """
+  The planned beginning of the intent.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the intent.
+  """
+  hasEnd: DateTime
+
+  """
+  The planned date/time for the intent. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  The time something is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  The uri to an image relevant to the intent, such as a photo.
+  """
+  image: URI
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`SpatialThing`) The place where an intent occurs. Usually mappable.
+  """
+  atLocation: ID
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this intent.
+  """
+  agreedIn: URI
+
+  """
+  The intent is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+}
+
+type IntentResponse {
+  intent: Intent!
+}
+
+input IntentUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for an intent. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  (`Action`) Relates an intent to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: String
+
+  """
+  (`Process`) Defines the process to which this intent is an input.
+  """
+  inputOf: ID
+
+  """
+  (`Process`) Defines the process to which this intent is an output.
+  """
+  outputOf: ID
+
+  """
+  (`Agent`) The economic agent from whom the intent is initiated. This implies that the intent is an offer.
+  """
+  provider: ID
+
+  """
+  (`Agent`) The economic agent whom the intent is for.  This implies that the intent is a request.
+  """
+  receiver: ID
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  (`EconomicResource`) When a specific `EconomicResource` is known which can service the `Intent`, this defines that resource.
+  """
+  resourceInventoriedAs: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is the quantity that could be used to increment or decrement a resource, depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  The total quantity of the offered resource available.
+  """
+  availableQuantity: IMeasure
+
+  """
+  The planned beginning of the intent.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the intent.
+  """
+  hasEnd: DateTime
+
+  """
+  The planned date/time for the intent. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  The time something is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  The uri to an image relevant to the intent, such as a photo.
+  """
+  image: URI
+
+  """
+  The intent is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`SpatialThing`) The place where an intent occurs. Usually mappable.
+  """
+  atLocation: ID
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies or calculations which govern this intent.
+  """
+  agreedIn: URI
+}
+
+"""
+A formal or informal group, or legal organization.
+"""
+type Organization implements Agent {
+  id: ID!
+
+  """
+  The name that this agent will be referred to by.
+  """
+  name: String!
+
+  """
+  The uri to an image relevant to the agent, such as a logo, avatar, photo, etc.
+  """
+  image: URI
+
+  """
+  A textual description or comment.
+  """
+  note: String
+  relationships(roleId: ID): [AgentRelationship!]
+  relationshipsAsSubject(roleId: ID): [AgentRelationship!]
+  relationshipsAsObject(roleId: ID): [AgentRelationship!]
+  roles: [AgentRelationshipRole!]
+
+  """
+  The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
+  """
+  primaryLocation: SpatialThing
+  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
+  inventoriedEconomicResources(
+    filter: agentResourceSearchParams
+  ): [EconomicResource!]
+  processes(filter: agentProcessSearchParams): [Process!]
+  plans(filter: agentPlanSearchParams): [Plan!]
+  commitments(filter: agentCommitmentSearchParams): [Commitment!]
+  intents(filter: agentIntentSearchParams): [Intent!]
+
+  proposals: [Proposal!] ## added for CPub
+  agentType: AgentType ## added for CPub
+  canonicalUrl: String ## added for CPub
+  displayUsername: String ## added for CPub
+  inScopeOf: [AccountingScope!] ## added for CPub
+}
+
+type OrganizationResponse {
+  agent: Organization!
+}
+
+"""
+A natural person.
+"""
+type Person implements Agent {
+  id: ID!
+
+  """
+  The name that this agent will be referred to by.
+  """
+  name: String!
+
+  """
+  The uri to an image relevant to the agent, such as a logo, avatar, photo, etc.
+  """
+  image: URI
+
+  """
+  A textual description or comment.
+  """
+  note: String
+  relationships(roleId: ID): [AgentRelationship!]
+  relationshipsAsSubject(roleId: ID): [AgentRelationship!]
+  relationshipsAsObject(roleId: ID): [AgentRelationship!]
+  roles: [AgentRelationshipRole!]
+
+  """
+  The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
+  """
+  primaryLocation: SpatialThing
+  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
+  inventoriedEconomicResources(
+    filter: agentResourceSearchParams
+  ): [EconomicResource!]
+  processes(filter: agentProcessSearchParams): [Process!]
+  plans(filter: agentPlanSearchParams): [Plan!]
+  commitments(filter: agentCommitmentSearchParams): [Commitment!]
+  intents(filter: agentIntentSearchParams): [Intent!]
+
+  proposals: [Proposal!] ## added for CPub
+  agentType: AgentType ## added for CPub
+  canonicalUrl: String ## added for CPub
+  displayUsername: String ## added for CPub
+}
+
+type PersonResponse {
+  agent: Person!
+}
+
+"""
+A logical collection of processes that constitute a body of planned work with defined deliverable(s).
+"""
+type Plan {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a plan. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The time the plan was made.
+  """
+  created: DateTime
+
+  """
+  The time the plan is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  This plan refines a scenario, making it operational.
+  """
+  refinementOf: Scenario
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  The plan is able to be deleted or not.
+  """
+  deletable: Boolean
+  processes(filter: planProcessSearchParams): [Process!]
+  independentDemands: [Commitment!]
+}
+
+input PlanCreateParams {
+  """
+  An informal or formal textual identifier for a plan. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The time the plan was made.
+  """
+  created: DateTime
+
+  """
+  The time the plan is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  (`Scenario`) This plan refines a scenario, making it operational.
+  """
+  refinementOf: ID
+}
+
+"""
+Query parameters for reading `Process`es related to a `Plan`
+"""
+input planProcessSearchParams {
+  searchString: String
+  after: DateTime
+  before: DateTime
+  finished: Boolean
+}
+
+type PlanResponse {
+  plan: Plan
+}
+
+input PlanUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a plan. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The time the plan was made.
+  """
+  created: DateTime
+
+  """
+  The time the plan is expected to be complete.
+  """
+  due: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  (`Scenario`) This plan refines a scenario, making it operational.
+  """
+  refinementOf: ID
+}
+
+"""
+An activity that changes inputs into outputs.  It could transform or transport economic resource(s).
+"""
+type Process {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a process. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The planned beginning of the process.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the process.
+  """
+  hasEnd: DateTime
+
+  """
+  The process is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  The definition or specification for a process.
+  """
+  basedOn: ProcessSpecification
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  classifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+  inputs(action: ID): [EconomicEvent!]
+  outputs(action: ID): [EconomicEvent!]
+  unplannedEconomicEvents(action: ID): [EconomicEvent!]
+  nextProcesses: [Process!]
+  previousProcesses: [Process!]
+  workingAgents: [Agent!]
+  trace: [EconomicEvent!]
+  track: [EconomicEvent!]
+
+  """
+  The process can be safely deleted, has no dependent information.
+  """
+  deletable: Boolean
+
+  """
+  The process with its inputs and outputs is part of the plan.
+  """
+  plannedWithin: Plan
+  committedInputs(action: ID): [Commitment!]
+  committedOutputs(action: ID): [Commitment!]
+  intendedInputs(action: ID): [Intent!]
+  intendedOutputs(action: ID): [Intent!]
+
+  """
+  The process with its inputs and outputs is part of the scenario.
+  """
+  nestedIn: Scenario
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext!] ## added for CPub
+}
+
+input ProcessCreateParams {
+  """
+  An informal or formal textual identifier for a process. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The planned beginning of the process.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the process.
+  """
+  hasEnd: DateTime
+
+  """
+  The process is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`Plan`) The process with its inputs and outputs is part of the plan.
+  """
+  plannedWithin: ID
+
+  """
+  (`ProcessSpecification`) The definition or specification for a process.
+  """
+  basedOn: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  classifiedAs: [URI!]
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!] ## added for CPub
+}
+
+type ProcessResponse {
+  process: Process
+}
+
+"""
+Specifies the kind of process.
+"""
+type ProcessSpecification {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for the process. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input ProcessSpecificationCreateParams {
+  """
+  An informal or formal textual identifier for the process. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type ProcessSpecificationResponse {
+  processSpecification: ProcessSpecification
+}
+
+input ProcessSpecificationUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for the process. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input ProcessUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a process. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The planned beginning of the process.
+  """
+  hasBeginning: DateTime
+
+  """
+  The planned end of the process.
+  """
+  hasEnd: DateTime
+
+  """
+  The process is complete or not.  This is irrespective of if the original goal has been met, and indicates that no more will be done.
+  """
+  finished: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`Plan`) The process with its inputs and outputs is part of the plan.
+  """
+  plannedWithin: ID
+
+  """
+  (`ProcessSpecification`) The definition or specification for a process.
+  """
+  basedOn: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  classifiedAs: [URI!]
+}
+
+"""
+A lot or batch, defining a resource produced at the same time in the same way.
+From DataFoodConsortium vocabulary https://datafoodconsortium.gitbook.io/dfc-standard-documentation/.
+"""
+type ProductBatch {
+  id: ID!
+
+  """
+  The standard unique identifier of the batch.
+  """
+  batchNumber: String!
+
+  """
+  Expiration date of the batch, commonly used for food.
+  """
+  expiryDate: DateTime
+
+  """
+  Date the batch was produced.  Can be derived from the economic event of production.
+  """
+  productionDate: DateTime
+}
+
+input ProductBatchCreateParams {
+  """
+  The standard unique identifier of the batch.
+  """
+  batchNumber: String!
+
+  """
+  Expiration date of the batch, commonly used for food.
+  """
+  expiryDate: DateTime
+
+  """
+  Date the batch was produced.  Can be derived from the economic event of production.
+  """
+  productionDate: DateTime
+}
+
+type ProductBatchResponse {
+  productBatch: ProductBatch!
+}
+
+input ProductBatchUpdateParams {
+  id: ID!
+
+  """
+  The standard unique identifier of the batch.
+  """
+  batchNumber: String
+
+  """
+  Expiration date of the batch, commonly used for food.
+  """
+  expiryDate: DateTime
+
+  """
+  Date the batch was produced.  Can be derived from the economic event of production.
+  """
+  productionDate: DateTime
+}
+
+union ProductionFlowItem = Process | EconomicResource
+
+"""
+Published requests or offers, sometimes with what is expected in return.
+"""
+type Proposal {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a proposal. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The beginning time of proposal publication.
+  """
+  hasBeginning: DateTime
+
+  """
+  The end time of proposal publication.
+  """
+  hasEnd: DateTime
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  This proposal contains unit based quantities, which can be multipied to create commitments; commonly seen in a price list or e-commerce.
+  """
+  unitBased: Boolean
+
+  """
+  The date and time the proposal was created.
+  """
+  created: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Intent(s) published as part of to this proposal
+  """
+  publishes: [ProposedIntent!]
+
+  """
+  Which Agent(s) (if any were specified) was this proposed to?
+  """
+  publishedTo: [ProposedTo!]
+
+  """
+  Location or area where the proposal is valid.
+  """
+  eligibleLocation: SpatialThing
+
+  canonicalUrl: URI ## added for CPub
+  creator: Agent ## added for CPub
+}
+
+input ProposalCreateParams {
+  """
+  An informal or formal textual identifier for a proposal. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The beginning time of proposal publication.
+  """
+  hasBeginning: DateTime
+
+  """
+  The end time of proposal publication.
+  """
+  hasEnd: DateTime
+
+  """
+  (`SpatialThing`) The location at which this proposal is eligible.
+  """
+  eligibleLocation: ID
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  This proposal contains unit based quantities, which can be multipied to create commitments; commonly seen in a price list or e-commerce.
+  """
+  unitBased: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  The date and time the proposal was created.
+  """
+  created: DateTime
+}
+
+type ProposalResponse {
+  proposal: Proposal
+}
+
+input ProposalUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a proposal. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The beginning date/time of proposal publication.
+  """
+  hasBeginning: DateTime
+
+  """
+  The end time of proposal publication.
+  """
+  hasEnd: DateTime
+
+  """
+  (`SpatialThing`) The location at which this proposal is eligible.
+  """
+  eligibleLocation: ID
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  This proposal contains unit based quantities, which can be multipied to create commitments; commonly seen in a price list or e-commerce.
+  """
+  unitBased: Boolean
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Represents many-to-many relationships between Proposals and Intents, supporting including intents in multiple proposals, as well as a proposal including multiple intents.
+"""
+type ProposedIntent {
+  id: ID!
+
+  """
+  This is a reciprocal intent of this proposal, not primary. Not meant to be used for intent matching.
+  """
+  reciprocal: Boolean
+
+  """
+  The intent which is part of this published proposal.
+  """
+  publishes: Intent!
+
+  """
+  The published proposal which this intent is part of.
+  """
+  publishedIn: Proposal!
+}
+
+type ProposedIntentResponse {
+  proposedIntent: ProposedIntent
+}
+
+"""
+An agent to which the proposal is to be published.  A proposal can be published to many agents.
+"""
+type ProposedTo {
+  id: ID!
+
+  """
+  The agent to which the proposal is published.
+  """
+  proposedTo: Agent!
+
+  """
+  The proposal that is published to a specific agent.
+  """
+  proposed: Proposal!
+}
+
+type ProposedToResponse {
+  proposedTo: ProposedTo
+}
+
+"""
+The specification of a resource inflow to, or outflow from, a recipe process.
+"""
+type RecipeFlow {
+  id: ID!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  The resource definition referenced by this flow in the recipe.
+  """
+  recipeFlowResource: RecipeResource
+
+  """
+  Relates a process input or output to a verb, such as consume, produce, work, modify, etc.
+  """
+  action: Action!
+
+  """
+  Relates an input flow to its process in a recipe.
+  """
+  recipeInputOf: RecipeProcess
+
+  """
+  Relates an output flow to its process in a recipe.
+  """
+  recipeOutputOf: RecipeProcess
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input RecipeFlowCreateParams {
+  """
+  (`Action`) Relates a process input or output to a verb, such as consume, produce, work, modify, etc.
+  """
+  action: ID!
+
+  """
+  (`RecipeResource`) The resource definition referenced by this flow in the recipe.
+  """
+  recipeFlowResource: ID!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  (`RecipeProcess`) Relates an input flow to its process in a recipe.
+  """
+  recipeInputOf: ID
+
+  """
+  (`RecipeProcess`) Relates an output flow to its process in a recipe.
+  """
+  recipeOutputOf: ID
+
+  """
+  (`RecipeExchange`) Relates a flow to its exchange agreement in a recipe.
+  """
+  recipeClauseOf: ID
+
+  """
+  (`ProcessSpecification`) References the ProcessSpecification of the last process the economic resource went through. Stage is used when the last process is important for finding proper resources, such as where the publishing process wants only documents that have gone through the editing process.
+  """
+  stage: ID
+
+  """
+  The state of the desired economic resource (pass or fail), after coming out of a test or review process.
+  """
+  state: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type RecipeFlowResponse {
+  recipeFlow: RecipeFlow
+}
+
+input RecipeFlowUpdateParams {
+  id: ID!
+
+  """
+  (`Action`) Relates a process input or output to a verb, such as consume, produce, work, modify, etc.
+  """
+  action: ID
+
+  """
+  (`RecipeResource`) The resource definition referenced by this flow in the recipe.
+  """
+  recipeFlowResource: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  (`RecipeProcess`) Relates an input flow to its process in a recipe.
+  """
+  recipeInputOf: ID
+
+  """
+  (`RecipeProcess`) Relates an output flow to its process in a recipe.
+  """
+  recipeOutputOf: ID
+
+  """
+  (`ProcessSpecification`) References the ProcessSpecification of the last process the economic resource went through. Stage is used when the last process is important for finding proper resources, such as where the publishing process wants only documents that have gone through the editing process.
+  """
+  stage: ID
+
+  """
+  The state of the desired economic resource (pass or fail), after coming out of a test or review process.
+  """
+  state: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+
+input RecipeExchangeCreateParams {
+  """
+  An informal or formal textual identifier for a recipe exchange. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input RecipeExchangeUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a recipe exchange. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type RecipeExchangeResponse {
+  recipeExchange: RecipeExchange
+}
+
+
+"""
+Specifies a process in a recipe for use in planning from recipe.
+"""
+type RecipeProcess {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a recipe process. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The planned calendar duration of the process as defined for the recipe batch.
+  """
+  hasDuration: Duration
+
+  """
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization.
+  """
+  processClassifiedAs: [URI!]
+
+  """
+  The standard specification or definition of a process.
+  """
+  processConformsTo: ProcessSpecification!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input RecipeProcessCreateParams {
+  """
+  An informal or formal textual identifier for a recipe process. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The planned calendar duration of the process as defined for the recipe batch.
+  """
+  hasDuration: IDuration
+
+  """
+  (`ProcessSpecification`) The standard specification or definition of a process.
+  """
+  processConformsTo: ID!
+
+  """
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization.
+  """
+  processClassifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type RecipeProcessResponse {
+  recipeProcess: RecipeProcess
+}
+
+input RecipeProcessUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a recipe process. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The planned calendar duration of the process as defined for the recipe batch.
+  """
+  hasDuration: IDuration
+
+  """
+  (`ProcessSpecification`) The standard specification or definition of a process.
+  """
+  processConformsTo: ID!
+
+  """
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization.
+  """
+  processClassifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Specifies the resource as part of a recipe, for use in planning from recipe.
+"""
+type RecipeResource {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a recipe resource. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The unit of inventory used for this resource in the recipe.
+  """
+  unitOfResource: Unit
+
+  """
+  The unit used for use action on this resource or work action in the recipe.
+  """
+  unitOfEffort: Unit
+
+  """
+  The uri to an image relevant to the entity, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ResourceSpecification
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  Defines if any resource of that type can be freely substituted for any other resource of that type when used, consumed, traded, etc.
+  """
+  substitutable: Boolean
+}
+
+"""
+Specifies an exchange agreement as part of a recipe.
+"""
+type RecipeExchange {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a recipe exchange. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input RecipeResourceCreateParams {
+  """
+  An informal or formal textual identifier for a recipe resource. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  (`Unit`) The unit of inventory used for this resource in the recipe.
+  """
+  unitOfResource: ID
+
+  """
+  (`Unit`) The unit used for use action on this resource or work action in the recipe.
+  """
+  unitOfEffort: ID
+
+  """
+  Defines if any resource of that type can be freely substituted for any other resource of that type when used, consumed, traded, etc.
+  """
+  substitutable: Boolean
+
+  """
+  The uri to an image relevant to the entity, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type RecipeResourceResponse {
+  recipeResource: RecipeResource
+}
+
+input RecipeResourceUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a recipe resource. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  (`Unit`) The unit of inventory used for this resource in the recipe.
+  """
+  unitOfResource: ID
+
+  """
+  (`Unit`) The unit used for use action on this resource or work action in the recipe.
+  """
+  unitOfEffort: ID
+
+  """
+  Defines if any resource of that type can be freely substituted for any other resource of that type when used, consumed, traded, etc.
+  """
+  substitutable: Boolean
+
+  """
+  The uri to an image relevant to the entity, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Specification of a kind of resource. Could define a material item, service, digital item, currency account, etc.
+Used instead of a classification when more information is needed, particularly for recipes.
+"""
+type ResourceSpecification {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a type of resource. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The uri to an image relevant to the entity, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  The default unit used for the resource itself.
+  """
+  defaultUnitOfResource: Unit ## TODO
+
+  """
+  The default unit used for use or work.
+  """
+  defaultUnitOfEffort: Unit
+
+  conformingResources: [EconomicResource!]
+}
+
+input ResourceSpecificationCreateParams {
+  """
+  An informal or formal textual identifier for a type of resource. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The uri to an image relevant to the entity, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  (`Unit`) The default unit used for the resource itself.
+  """
+  defaultUnitOfResource: ID ## TODO
+
+  """
+  (`Unit`) The default unit used for use or work.
+  """
+  defaultUnitOfEffort: ID
+}
+
+type ResourceSpecificationResponse {
+  resourceSpecification: ResourceSpecification
+}
+
+input ResourceSpecificationUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a type of resource. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The uri to an image relevant to the entity, such as a photo, diagram, etc.
+  """
+  image: URI
+
+  """
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  (`Unit`) The default unit used for the resource itself.
+  """
+  defaultUnitOfResource: ID ## TODO
+
+  """
+  (`Unit`) The default unit used for use or work.
+  """
+  defaultUnitOfEffort: ID
+}
+
+"""
+Represents many-to-many relationships between intents and commitments or events that partially or full satisfy one or more intents.
+"""
+type Satisfaction {
+  id: ID!
+
+  """
+  An intent satisfied fully or partially by an economic event or commitment.
+  """
+  satisfies: Intent!
+
+  """
+  A commitment or economic event fully or partially satisfying an intent.
+  """
+  satisfiedBy: EventOrCommitment!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input SatisfactionCreateParams {
+  """
+  (`Intent`) An intent satisfied fully or partially by an economic event or commitment.
+  """
+  satisfies: ID!
+
+  """
+  (`Commitment`|`EconomicEvent`) A commitment or economic event fully or partially satisfying an intent.
+  """
+  satisfiedBy: ID!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type SatisfactionResponse {
+  satisfaction: Satisfaction
+}
+
+input SatisfactionUpdateParams {
+  id: ID!
+
+  """
+  (`Intent`) An intent satisfied fully or partially by an economic event or commitment.
+  """
+  satisfies: ID
+
+  """
+  (`Commitment`|`EconomicEvent`) A commitment or economic event fully or partially satisfying an intent.
+  """
+  satisfiedBy: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+An estimated or analytical logical collection of higher level processes used for budgeting, analysis, plan refinement, etc.
+"""
+type Scenario {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a scenario. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The beginning date/time of the scenario, often the beginning of an accounting period.
+  """
+  hasBeginning: DateTime
+
+  """
+  The ending date/time of the scenario, often the end of an accounting period.
+  """
+  hasEnd: DateTime
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  The scenario definition for this scenario, for example yearly budget.
+  """
+  definedAs: ScenarioDefinition
+
+  """
+  This scenario refines another scenario, often as time moves closer or for more detail.
+  """
+  refinementOf: Scenario
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input ScenarioCreateParams {
+  """
+  An informal or formal textual identifier for a scenario. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  (`ScenarioDefinition`) The scenario definition for this scenario, for example yearly budget.
+  """
+  definedAs: ID!
+
+  """
+  The beginning date/time of the scenario, often the beginning of an accounting period.
+  """
+  hasBeginning: DateTime
+
+  """
+  The ending date/time of the scenario, often the end of an accounting period.
+  """
+  hasEnd: DateTime
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`Scenario`) This scenario refines another scenario, often as time moves closer or for more detail.
+  """
+  refinementOf: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+The type definition of one or more scenarios, such as Yearly Budget.
+"""
+type ScenarioDefinition {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a scenario definition. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The duration of the scenario, often an accounting period.
+  """
+  hasDuration: Duration
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input ScenarioDefinitionCreateParams {
+  """
+  An informal or formal textual identifier for a scenario definition. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  The duration of the scenario, often an accounting period.
+  """
+  hasDuration: IDuration
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type ScenarioDefinitionResponse {
+  scenarioDefinition: ScenarioDefinition
+}
+
+input ScenarioDefinitionUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a scenario definition. Does not imply uniqueness.
+  """
+  name: String!
+
+  """
+  The duration of the scenario, often an accounting period.
+  """
+  hasDuration: IDuration
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type ScenarioResponse {
+  scenario: Scenario
+}
+
+input ScenarioUpdateParams {
+  id: ID!
+
+  """
+  An informal or formal textual identifier for a scenario. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  (`ScenarioDefinition`) The scenario definition for this scenario, for example yearly budget.
+  """
+  definedAs: ID!
+
+  """
+  The beginning date/time of the scenario, often the beginning of an accounting period.
+  """
+  hasBeginning: DateTime
+
+  """
+  The ending date/time of the scenario, often the end of an accounting period.
+  """
+  hasEnd: DateTime
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`Scenario`) This scenario refines another scenario, often as time moves closer or for more detail.
+  """
+  refinementOf: ID
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Represents many-to-many relationships between claim and economic events that fully or partially settle one or more claims.
+"""
+type Settlement {
+  id: ID!
+
+  """
+  A claim which is fully or partially settled by an economic event.
+  """
+  settles: Claim!
+
+  """
+  The economic event fully or partially settling a claim.
+  """
+  settledBy: EconomicEvent!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+input SettlementCreateParams {
+  """
+  (`Claim`) A claim which is fully or partially settled by an economic event.
+  """
+  settles: ID!
+
+  """
+  (`EconomicEvent`) The economic event fully or partially settling a claim.
+  """
+  settledBy: ID!
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+type SettlementResponse {
+  settlement: Settlement
+}
+
+input SettlementUpdateParams {
+  id: ID!
+
+  """
+  (`Claim`) A claim which is fully or partially settled by an economic event.
+  """
+  settles: ID
+
+  """
+  (`EconomicEvent`) The economic event fully or partially settling a claim.
+  """
+  settledBy: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This is often a time duration, but also could be cycle counts or other measures of effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+The `URI` type simply declares a reference to an external web URL, Holochain entry or other resource.
+"""
+scalar URI
+
+type ValueFlowsQuery {
+  """
+  Loads details of the currently authenticated REA agent
+  """
+  myAgent: Agent
+
+  """
+  Find an agent (person or organization) by their ID
+  """
+  agent(id: ID): Agent
+
+  """
+  Loads all agents publicly registered within this collaboration space
+  """
+  agents(start: ID, limit: Int): [Agent!]
+
+  """
+  Find an organization (group) agent by its ID
+  """
+  organization(id: ID): Organization
+
+  """
+  Loads all organizations publicly registered within this collaboration space
+  """
+  organizations(start: ID, limit: Int): [Organization!]
+
+  """
+  Find a person by their ID
+  """
+  person(id: ID): Person
+
+  """
+  Loads all people who have publicly registered with this collaboration space.
+  """
+  people(start: ID, limit: Int): [Person!]
+
+  """
+  Retrieve details of an agent relationship by its ID
+  """
+  agentRelationship(id: ID): AgentRelationship
+
+  """
+  Retrieve details of all the relationships between all agents registered in this collaboration space
+  """
+  agentRelationships(start: ID, limit: Int): [AgentRelationship!]
+
+  """
+  Retrieve details of an agent relationship role by its ID
+  """
+  agentRelationshipRole(id: ID): AgentRelationshipRole
+
+  """
+  Retrieve all possible kinds of associations that agents may have with one another in this collaboration space
+  """
+  agentRelationshipRoles(start: ID, limit: Int): [AgentRelationshipRole!]
+
+  agreement(id: ID): Agreement
+  agreements(start: ID, limit: Int): [Agreement!]
+
+  claim(id: ID): Claim
+  claims(start: ID, limit: Int): [Claim!]
+  valueCalculation(id: ID): ValueCalculation
+  valueCalculations(start: ID, limit: Int): [ValueCalculation!]
+  settlement(id: ID): Settlement
+  settlements(start: ID, limit: Int): [Settlement!]
+
+  action(id: ID): Action
+  actions: [Action!]
+
+  resourceSpecification(id: ID): ResourceSpecification
+  resourceSpecifications(start: ID, limit: Int): [ResourceSpecification!]
+
+  processSpecification(id: ID): ProcessSpecification
+  processSpecifications(start: ID, limit: Int): [ProcessSpecification!]
+
+  economicEvent(id: ID): EconomicEvent
+  economicEvents(start: ID, limit: Int): [EconomicEvent!]
+  economicEventsFiltered(
+    providerId: ID
+    receiverId: ID
+    resourceClassifiedAs: [URI!]
+    action: ID
+    startDate: String
+    endDate: String
+  ): [EconomicEvent!]
+
+  economicResource(id: ID): EconomicResource
+  economicResources(start: ID, limit: Int): [EconomicResource!]
+
+  productBatch(id: ID): ProductBatch
+  productBatches(start: ID, limit: Int): [ProductBatch!]
+
+  process(id: ID): Process
+  processes(start: ID, limit: Int): [Process!]
+
+  plan(id: ID): Plan
+  plans(start: ID, limit: Int): [Plan!]
+
+  commitment(id: ID): Commitment
+  commitments(start: ID, limit: Int): [Commitment!]
+
+  intent(id: ID): Intent
+  intents(start: ID, limit: Int): [Intent!]
+
+  fulfillment(id: ID): Fulfillment
+  fulfillments(start: ID, limit: Int): [Fulfillment!]
+
+  satisfaction(id: ID): Satisfaction
+  satisfactions(start: ID, limit: Int): [Satisfaction!]
+
+  proposal(id: ID): Proposal
+  proposals(start: ID, limit: Int): [Proposal!]
+
+  recipeResource(id: ID): RecipeResource
+  recipeResources(start: ID, limit: Int): [RecipeResource!]
+  recipeProcess(id: ID): RecipeProcess
+  recipeProcesses(start: ID, limit: Int): [RecipeProcess!]
+  recipeFlow(id: ID): RecipeFlow
+  recipeFlows(start: ID, limit: Int): [RecipeFlow!]
+
+  recipeExchange(id: ID): RecipeExchange
+  recipeExchanges(start: ID, limit: Int): [RecipeExchange!]
+
+  scenario(id: ID): Scenario
+  scenarios(start: ID, limit: Int): [Scenario!]
+  scenarioDefinition(id: ID): ScenarioDefinition
+  scenarioDefinitions(start: ID, limit: Int): [ScenarioDefinition!]
+
+  ## CPub additional queries:
+
+  "Get paginated list of proposals"
+  proposalsPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): ProposalsPage!
+
+  "Get paginated list of intents"
+  intentsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
+
+  "TEMPORARY - get filtered but non-paginated list of intents"
+  intentsFiltered(
+    inScopeOf: [ID]
+    tagIds: [ID]
+    atLocation: [ID]
+    geolocation: GeolocationFilters
+    agent: [ID]
+    provider: [ID]
+    receiver: [ID]
+    action: [ID]
+  ): [Intent]
+
+  "TEMPORARY - get filtered but non-paginated list of proposals"
+  proposalsFiltered(
+    inScopeOf: [ID]
+    # tagIds: [ID]
+    atLocation: [ID]
+    geolocation: GeolocationFilters
+    agent: [ID]
+  ): [Proposal]
+
+  "Get paginated list of active offers (intents with no receiver)"
+  offersPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
+
+  "Get paginated list of active needs (intents with no provider)"
+  needsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
+
+  "Get paginated list of economic events"
+  economicEventsPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): EconomicEventPage!
+
+  "Get paginated list of processes"
+  processesPages(limit: Int, before: [Cursor!], after: [Cursor!]): ProcessPage!
+
+  "Get paginated list of economic resources"
+  economicResourcesPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): EconomicResourcePage!
+
+  "TEMPORARY - get filtered but non-paginated list of resources"
+  economicResourcesFiltered(
+    inScopeOf: [ID]
+    tagIds: [ID]
+    currentLocation: [ID]
+    geolocation: GeolocationFilters
+    agent: [ID]
+    state: [ID]
+  ): [EconomicResource]
+
+  "Get paginated list of people"
+  peoplePages(limit: Int, before: [Cursor!], after: [Cursor!]): AgentsPage!
+
+  "Get paginated list of organizations"
+  organizationsPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): AgentsPage!
+}
+
+
+
+type ValueFlowsMutation {
+  """
+  Registers a new (human) person with the collaboration space
+  """
+  createPerson(person: AgentCreateParams!): PersonResponse
+
+  """
+  Update profile details
+  """
+  updatePerson(person: AgentUpdateParams!): PersonResponse
+
+  """
+  Erase record of a person and thus remove them from the collaboration space
+  """
+  deletePerson(id: ID!): Boolean
+
+  """
+  Registers a new organization (group agent) with the collaboration space
+  """
+  createOrganization(organization: AgentCreateParams!): OrganizationResponse
+
+  """
+  Update organization profile details
+  """
+  updateOrganization(organization: AgentUpdateParams!): OrganizationResponse
+
+  """
+  Erase record of an organization and thus remove it from the collaboration space
+  """
+  deleteOrganization(id: ID!): Boolean
+  
+  createAgentRelationship(
+    relationship: AgentRelationshipCreateParams!
+  ): AgentRelationshipResponse
+  updateAgentRelationship(
+    relationship: AgentRelationshipUpdateParams!
+  ): AgentRelationshipResponse
+  deleteAgentRelationship(id: ID!): Boolean
+  createAgentRelationshipRole(
+    agentRelationshipRole: AgentRelationshipRoleCreateParams
+  ): AgentRelationshipRoleResponse
+  updateAgentRelationshipRole(
+    agentRelationshipRole: AgentRelationshipRoleUpdateParams
+  ): AgentRelationshipRoleResponse
+  deleteAgentRelationshipRole(id: ID!): Boolean
+
+  createAgreement(agreement: AgreementCreateParams): AgreementResponse
+  updateAgreement(agreement: AgreementUpdateParams): AgreementResponse
+  deleteAgreement(id: ID!): Boolean
+
+  createAppreciation(
+    appreciation: AppreciationCreateParams!
+  ): AppreciationResponse
+  updateAppreciation(
+    appreciation: AppreciationUpdateParams!
+  ): AppreciationResponse
+  deleteAppreciation(id: ID!): Boolean
+
+  createClaim(claim: ClaimCreateParams!): ClaimResponse
+  updateClaim(claim: ClaimUpdateParams!): ClaimResponse
+  deleteClaim(id: ID!): Boolean
+
+  createSettlement(settlement: SettlementCreateParams!): SettlementResponse
+  updateSettlement(s0ettlement: SettlementUpdateParams!): SettlementResponse
+  deleteSettlement(id: ID!): Boolean
+
+  createResourceSpecification(
+    resourceSpecification: ResourceSpecificationCreateParams
+  ): ResourceSpecificationResponse
+  updateResourceSpecification(
+    resourceSpecification: ResourceSpecificationUpdateParams
+  ): ResourceSpecificationResponse
+  deleteResourceSpecification(id: ID!): Boolean
+
+  createProcessSpecification(
+    processSpecification: ProcessSpecificationCreateParams
+  ): ProcessSpecificationResponse
+  updateProcessSpecification(
+    processSpecification: ProcessSpecificationUpdateParams
+  ): ProcessSpecificationResponse
+  deleteProcessSpecification(id: ID!): Boolean
+  
+  createEconomicEvent(
+    event: EconomicEventCreateParams!
+    newInventoriedResource: EconomicResourceCreateParams
+  ): EconomicEventResponse
+  updateEconomicEvent(event: EconomicEventUpdateParams!): EconomicEventResponse
+  deleteEconomicEvent(id: ID!): Boolean
+
+  updateEconomicResource(
+    resource: EconomicResourceUpdateParams!
+  ): EconomicResourceResponse
+  deleteEconomicResource(id: ID!): Boolean
+
+  createProductBatch(
+    productBatch: ProductBatchCreateParams!
+  ): ProductBatchResponse
+  updateProductBatch(
+    productBatch: ProductBatchUpdateParams!
+  ): ProductBatchResponse
+  deleteProductBatch(id: ID!): Boolean
+
+  createProcess(process: ProcessCreateParams!): ProcessResponse
+  updateProcess(process: ProcessUpdateParams!): ProcessResponse
+  deleteProcess(id: ID!): Boolean
+
+  createPlan(plan: PlanCreateParams!): PlanResponse
+  updatePlan(plan: PlanUpdateParams!): PlanResponse
+  deletePlan(id: ID!): Boolean
+
+  createCommitment(commitment: CommitmentCreateParams): CommitmentResponse
+  updateCommitment(commitment: CommitmentUpdateParams): CommitmentResponse
+  deleteCommitment(id: ID!): Boolean
+
+  createIntent(intent: IntentCreateParams): IntentResponse
+
+  """
+  Creates a new offer for the logged in user, will ignore any provider specified.
+  """
+  createOffer(intent: IntentCreateParams): IntentResponse
+
+  """
+  Creates a new need for the logged in user, will ignore any receiver specified.
+  """
+  createNeed(intent: IntentCreateParams): IntentResponse
+
+  updateIntent(intent: IntentUpdateParams): IntentResponse
+  deleteIntent(id: ID!): Boolean
+
+  createFulfillment(fulfillment: FulfillmentCreateParams!): FulfillmentResponse
+  updateFulfillment(fulfillment: FulfillmentUpdateParams!): FulfillmentResponse
+  deleteFulfillment(id: ID!): Boolean
+
+  createSatisfaction(
+    satisfaction: SatisfactionCreateParams
+  ): SatisfactionResponse
+  updateSatisfaction(
+    satisfaction: SatisfactionUpdateParams
+  ): SatisfactionResponse
+  deleteSatisfaction(id: ID!): Boolean
+
+  createProposal(proposal: ProposalCreateParams): ProposalResponse
+  updateProposal(proposal: ProposalUpdateParams): ProposalResponse
+  deleteProposal(id: ID!): Boolean
+
+  """
+  Include an existing intent as part of a proposal.
+  @param publishedIn the (`Proposal`) to include the intent in
+  @param publishes the (`Intent`) to include as part of the proposal
+  """
+  proposeIntent(
+    publishedIn: ID!
+    publishes: ID!
+    reciprocal: Boolean
+  ): ProposedIntentResponse
+  deleteProposedIntent(id: ID!): Boolean
+
+  """
+  Send a proposal to another agent.
+  @param proposed the (`Proposal`) to send to an involved agent
+  @param proposedTo the (`Agent`) to include in the proposal
+  """
+  proposeTo(proposed: ID!, proposedTo: ID!): ProposedToResponse
+  deleteProposedTo(id: ID!): Boolean
+
+  createRecipeFlow(recipeFlow: RecipeFlowCreateParams): RecipeFlowResponse
+  updateRecipeFlow(recipeFlow: RecipeFlowUpdateParams): RecipeFlowResponse
+  deleteRecipeFlow(id: ID!): Boolean
+  createRecipeProcess(
+    recipeProcess: RecipeProcessCreateParams
+  ): RecipeProcessResponse
+  updateRecipeProcess(
+    recipeProcess: RecipeProcessUpdateParams
+  ): RecipeProcessResponse
+  deleteRecipeProcess(id: ID!): Boolean
+  createRecipeResource(
+    recipeResource: RecipeResourceCreateParams
+  ): RecipeResourceResponse
+  updateRecipeResource(
+    recipeResource: RecipeResourceUpdateParams
+  ): RecipeResourceResponse
+  deleteRecipeResource(id: ID!): Boolean
+
+  createRecipeExchange(
+    recipeExchange: RecipeExchangeCreateParams
+  ): RecipeExchangeResponse
+  updateRecipeExchange(
+    recipeExchange: RecipeExchangeUpdateParams
+  ): RecipeExchangeResponse
+  deleteRecipeExchange(id: ID!): Boolean
+
+  createScenario(plan: ScenarioCreateParams!): ScenarioResponse
+  updateScenario(plan: ScenarioUpdateParams!): ScenarioResponse
+  deleteScenario(id: ID!): Boolean
+  createScenarioDefinition(
+    plan: ScenarioDefinitionCreateParams!
+  ): ScenarioDefinitionResponse
+  updateScenarioDefinition(
+    plan: ScenarioDefinitionUpdateParams!
+  ): ScenarioDefinitionResponse
+  deleteScenarioDefinition(id: ID!): Boolean
+}
+
+
+
+## CPub additional types:
+
+"A page of agents"
+type AgentsPage {
+  pageInfo: PageInfo!
+  edges: [Agent!]!
+  totalCount: Int!
+}
+
+"A page of intents"
+type IntentsPage {
+  pageInfo: PageInfo!
+  edges: [Intent!]!
+  totalCount: Int!
+}
+
+"A page of proposals"
+type ProposalsPage {
+  pageInfo: PageInfo!
+  edges: [Proposal!]!
+  totalCount: Int!
+}
+
+"A page of Economic Events"
+type EconomicEventPage {
+  pageInfo: PageInfo!
+  edges: [EconomicEvent!]!
+  totalCount: Int!
+}
+
+"A page of Processes"
+type ProcessPage {
+  pageInfo: PageInfo!
+  edges: [Process!]!
+  totalCount: Int!
+}
+
+"A page of Economic Resources"
+type EconomicResourcePage {
+  pageInfo: PageInfo!
+  edges: [EconomicResource!]!
+  totalCount: Int!
+}
+
+

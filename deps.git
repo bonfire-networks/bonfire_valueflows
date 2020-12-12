@@ -1,4 +1,4 @@
-bonfire_common = "https://github.com/bonfire-ecosystem/bonfire_common#with_repo"
+bonfire_common = "https://github.com/bonfire-ecosystem/bonfire_common#with_error"
 # bonfire_web_phoenix = "https://github.com/bonfire-ecosystem/bonfire_web_phoenix#main"
 pointers = "https://github.com/bonfire-ecosystem/pointers#main"
 ecto_ulid = "https://github.com/irresponsible/ecto-ulid#moodlenet"
