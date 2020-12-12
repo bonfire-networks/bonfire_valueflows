@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Claim.GraphQL do
   require Logger
 
@@ -78,4 +79,5 @@ defmodule ValueFlows.Claim.GraphQL do
       {:ok, true}
     end
   end
+end
 end

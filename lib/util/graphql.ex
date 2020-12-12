@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Util.GraphQL do
   @repo Application.get_env(:bonfire_valueflows, :repo_module)
   alias Bonfire.GraphQL
@@ -133,4 +134,5 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def image_content_url(_, _, _), do: {:ok, nil}
+end
 end

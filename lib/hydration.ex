@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Hydration do
 
   @user Application.get_env(:bonfire_valueflows, :user_schema)
@@ -590,4 +591,5 @@ defmodule ValueFlows.Hydration do
 
   def production_flow_item_resolve_type(%EconomicResource{}, _), do: :economic_resource
   def production_flow_item_resolve_type(%Process{}, _), do: :process
+end
 end

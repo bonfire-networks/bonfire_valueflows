@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   require Logger
 
@@ -223,4 +224,5 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   #   [User, Community, Organisation]
   #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   # end
+end
 end

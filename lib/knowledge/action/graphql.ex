@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Knowledge.Action.GraphQL do
 
 
@@ -24,4 +25,5 @@ defmodule ValueFlows.Knowledge.Action.GraphQL do
   def action_edge(_, _, _) do
     {:ok, nil}
   end
+end
 end

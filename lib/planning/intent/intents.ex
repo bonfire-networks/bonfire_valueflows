@@ -98,6 +98,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   @spec create(any(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%{} = creator, attrs) when is_map(attrs) do
+    IO.inspect(repo: @repo)
     attrs = prepare_attrs(attrs)
 
     @repo.transact_with(fn ->

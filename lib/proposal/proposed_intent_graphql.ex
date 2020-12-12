@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   use Absinthe.Schema.Notation
 
@@ -75,4 +76,5 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
       {:ok, true}
     end
   end
+end
 end

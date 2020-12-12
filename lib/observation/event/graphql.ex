@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   # default to 100 km radius
   @radius_default_distance 100_000
@@ -384,4 +385,5 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   #   [User, Community, Organisation]
   #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   # end
+end
 end

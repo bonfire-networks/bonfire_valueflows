@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Agent.GraphQL do
   alias Bonfire.GraphQL
 
@@ -112,4 +113,5 @@ defmodule ValueFlows.Agent.GraphQL do
     {:error,
      "Please use one of these instead (notice the spelling difference): createOrganisation, updateOrganisation, delete"}
   end
+end
 end

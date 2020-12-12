@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Proposal.ProposedToGraphQL do
   use Absinthe.Schema.Notation
 
@@ -79,4 +80,5 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   def valid_contexts do
     Application.get_env(:bonfire_valueflows, :valid_agent_schemas, [@user])
   end
+end
 end
