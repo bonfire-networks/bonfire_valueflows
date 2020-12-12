@@ -8,6 +8,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   alias Bonfire.GraphQL.ResolveField
 
   @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  @user Application.get_env(:bonfire_valueflows, :user_schema)
 
   def proposed_to(%{id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -76,7 +77,6 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   end
 
   def valid_contexts do
-    Application.get_env(:bonfire_valueflows, Proposals)
-    |> Keyword.fetch!(:valid_agent_contexts)
+    Application.get_env(:bonfire_valueflows, :valid_agent_schemas, [@user])
   end
 end
