@@ -5,6 +5,7 @@ defmodule ValueFlows.Agent.Agents do
   import Bonfire.Common.Utils, only: [maybe_put: 3]
 
   @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @org_schema Application.get_env(:bonfire_valueflows, :org_schema)
 
   # TODO - change approach to allow pagination
   def agents(signed_in_user) do
@@ -63,7 +64,7 @@ defmodule ValueFlows.Agent.Agents do
     |> Map.put(:agent_type, :person)
   end
 
-  def add_type(%Organisation{} = a) do
+  def add_type(%@org_schema{} = a) do
     a
     |> Map.put(:agent_type, :organization)
   end

@@ -6,7 +6,7 @@
   "bamboo": {:hex, :bamboo, "1.6.0", "adfb583bef028923aae6f22deaea6667290561da1246058556ecaeb0fec5a175", [:mix], [{:hackney, ">= 1.13.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm", "454e67feacbc9b6e00553ce1d2fba003c861e0035600d59b09d6159985b17f9b"},
   "bamboo_smtp": {:hex, :bamboo_smtp, "3.0.0", "b7f0c371af96a1cb7131908918b02abb228f9db234910bf10cf4fb177c083259", [:mix], [{:bamboo, "~> 1.2", [hex: :bamboo, repo: "hexpm", optional: false]}, {:gen_smtp, "~> 0.15.0", [hex: :gen_smtp, repo: "hexpm", optional: false]}], "hexpm", "77cb1fa3076b24109e54df622161fe1e5619376b4ecf86d8b99b46f327acc49f"},
   "bonfire_api_graphql": {:git, "https://github.com/bonfire-ecosystem/bonfire_api_graphql", "9dfdb586e7ef979805a68a81add22dc1a10c9891", [branch: "main"]},
-  "bonfire_common": {:git, "https://github.com/bonfire-ecosystem/bonfire_common", "39b27f7551a83c52b2284aecd20563fec9d91498", [branch: "with_error"]},
+  "bonfire_common": {:git, "https://github.com/bonfire-ecosystem/bonfire_common", "4d752397b2ba2ced39ce9b3422179d74d7c0c3e4", [branch: "with_error"]},
   "bonfire_data_access_control": {:git, "https://github.com/bonfire-ecosystem/bonfire_data_access_control", "d7f10871aaf3ef25138f52f9b0432cfb47328217", [branch: "main"]},
   "bonfire_data_activity_pub": {:git, "https://github.com/bonfire-ecosystem/bonfire_data_activity_pub", "fc2f653f46eabda1fe20097cdbc631212920b721", [branch: "main"]},
   "bonfire_data_identity": {:git, "https://github.com/bonfire-ecosystem/bonfire_data_identity", "65bc2fb5914bea90e1ba0aa9fe65cea81fbfc7ed", [branch: "main"]},

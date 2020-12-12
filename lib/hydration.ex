@@ -1,6 +1,7 @@
 defmodule ValueFlows.Hydration do
 
   @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @org_schema Application.get_env(:bonfire_valueflows, :org_schema)
 
   alias ValueFlows.Observation.{
     Process,
@@ -574,7 +575,7 @@ defmodule ValueFlows.Hydration do
           :organization | :person
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
-  # def agent_resolve_type(%Organisation{}, _), do: :organization
+  def agent_resolve_type(%@org_schema{}, _), do: :organization
   def agent_resolve_type(%@user{}, _), do: :person
   def agent_resolve_type(_, _), do: :person
 
@@ -582,7 +583,7 @@ defmodule ValueFlows.Hydration do
   # def organization_is_type_of(_), do: true
 
   def resolve_context_type(%@user{}, _), do: :person
-  # def resolve_context_type(%Organisation{}, _), do: :organization
+  def resolve_context_type(%@org_schema{}, _), do: :organization
   # def resolve_context_type(%CommonsPub.Communities.Community{}, _), do: :community
   # def resolve_context_type(%CommonsPub.Collections.Collection{}, _), do: :collection
   def resolve_context_type(_, _), do: :agent

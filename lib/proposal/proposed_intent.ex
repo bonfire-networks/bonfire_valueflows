@@ -1,5 +1,5 @@
 defmodule ValueFlows.Proposal.ProposedIntent do
-  use Ecto.Schema
+  use Bonfire.Repo.Schema
 
   alias Ecto.Changeset
   alias ValueFlows.Proposal

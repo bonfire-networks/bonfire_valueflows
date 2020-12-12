@@ -1,7 +1,5 @@
 defmodule CommonsPub.Web.My.PublishAdLive do
-  use CommonsPub.Web, :live_component
-
-  import CommonsPub.Utils.Web.CommonHelper
+  use Bonfire.Web, :live_component
 
   def update(assigns, socket) do
     {

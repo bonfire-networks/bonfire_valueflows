@@ -1,8 +1,8 @@
 defmodule CommonsPub.Web.MemberLive.MemberAdsLive do
-  use CommonsPub.Web, :live_component
+  use Bonfire.Web, :live_component
 
 
-  alias CommonsPub.Web.Component.{
+  alias Bonfire.Web.Component.{
     # DiscussionPreviewLive,
     AdsPreviewLive
   }
