@@ -1,8 +1,9 @@
 # Bonfire:Valueflows
 
-An extension that brings (ValueFlows)[https://valueflo.ws/] to [Bonfire](https://bonfire.cafe/). 
+An extension that brings [ValueFlows](https://valueflo.ws/) to [Bonfire](https://bonfire.cafe/) apps.
 
 Implemented so far:
+
 - Intent
 - Proposal
 - Economic Event
@@ -11,8 +12,10 @@ Implemented so far:
 - Economic Resource
 - Process Specification
 - Process
-- Claim
-- Optional GraphQL API for all of the above
+- Claim (WIP)
+- Value Calculations (WIP)
+
+As well as an optional GraphQL API for all of the above...
 
 
 ## Handy commands
