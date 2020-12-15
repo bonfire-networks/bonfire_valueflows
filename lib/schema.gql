@@ -1,16 +1,16 @@
 """
 A boundary or context grouped around some other record- used for documenting, accounting, planning.
+## extended for Bonfire (default was `Person | Organization`)
 """
 union AccountingScope =
-    User
-  | Organisation
+  #   User
+  # | Organisation
   | Person
   | Organization
-  | Community
-  | Collection
-  | Category
-  | Taggable
-## extended for CPub (default was `Person | Organization`)
+  # | Community
+  # | Collection
+  # | Category
+  # | Taggable
 
 """
 An action verb defining the kind of event, commitment, or intent.
@@ -45,7 +45,7 @@ type Action {
   """
   onhandEffect: String
 
-  note: String ## added for CPub
+  note: String ## added for Bonfire
 }
 
 """
@@ -86,10 +86,10 @@ interface Agent {
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
 
-  proposals: [Proposal!] ## added for CPub
-  agentType: AgentType ## added for CPub
-  canonicalUrl: String ## added for CPub
-  displayUsername: String ## added for CPub
+  proposals: [Proposal!] ## added for Bonfire
+  agentType: AgentType ## added for Bonfire
+  canonicalUrl: String ## added for Bonfire
+  displayUsername: String ## added for Bonfire
 }
 
 """
@@ -315,7 +315,7 @@ input agentResourceSearchParams {
   page: Int
 }
 
-enum AgentType { ## added for CPub
+enum AgentType { ## added for Bonfire
   Person
   Organization
 }
@@ -1245,7 +1245,7 @@ type EconomicEvent {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [AnyContext] ## added for CPub
+  tags: [AnyContext] ## added for Bonfire
 }
 
 input EconomicEventCreateParams {
@@ -1267,11 +1267,11 @@ input EconomicEventCreateParams {
   """
   (`Agent`) The economic agent from whom the actual economic event is initiated.
   """
-  provider: ID ## changed for CPub (was required)
+  provider: ID ## changed for Bonfire (was required)
   """
   (`Agent`) The economic agent whom the actual economic event is for.
   """
-  receiver: ID ## changed for CPub (was required)
+  receiver: ID ## changed for Bonfire (was required)
   """
   Grouping around something to create a boundary or context, used for documenting, accounting, planning.
   """
@@ -1351,7 +1351,7 @@ input EconomicEventCreateParams {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [ID!] ## added for CPub
+  tags: [ID!] ## added for Bonfire
 }
 
 type EconomicEventResponse {
@@ -1487,7 +1487,7 @@ type EconomicResource {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [ID!] ## added for CPub
+  tags: [ID!] ## added for Bonfire
 }
 
 """
@@ -1538,7 +1538,7 @@ input EconomicResourceCreateParams {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [ID!] ## added for CPub
+  tags: [ID!] ## added for Bonfire
 }
 
 type EconomicResourceResponse {
@@ -1714,7 +1714,7 @@ type Intent {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [AnyContext] ## added for CPub
+  tags: [AnyContext] ## added for Bonfire
 
   """
   The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
@@ -1798,7 +1798,7 @@ type Intent {
   atLocation: SpatialThing
   publishedIn: [ProposedIntent!]
 
-  canonicalUrl: URI ## added for CPub
+  canonicalUrl: URI ## added for Bonfire
 }
 
 input IntentCreateParams {
@@ -1846,7 +1846,7 @@ input IntentCreateParams {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [ID!] ## added for CPub
+  tags: [ID!] ## added for Bonfire
 
   """
   (`EconomicResource`) When a specific `EconomicResource` is known which can service the `Intent`, this defines that resource.
@@ -2075,11 +2075,11 @@ type Organization implements Agent {
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
 
-  proposals: [Proposal!] ## added for CPub
-  agentType: AgentType ## added for CPub
-  canonicalUrl: String ## added for CPub
-  displayUsername: String ## added for CPub
-  inScopeOf: [AccountingScope!] ## added for CPub
+  proposals: [Proposal!] ## added for Bonfire
+  agentType: AgentType ## added for Bonfire
+  canonicalUrl: String ## added for Bonfire
+  displayUsername: String ## added for Bonfire
+  inScopeOf: [AccountingScope!] ## added for Bonfire
 }
 
 type OrganizationResponse {
@@ -2124,10 +2124,10 @@ type Person implements Agent {
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
 
-  proposals: [Proposal!] ## added for CPub
-  agentType: AgentType ## added for CPub
-  canonicalUrl: String ## added for CPub
-  displayUsername: String ## added for CPub
+  proposals: [Proposal!] ## added for Bonfire
+  agentType: AgentType ## added for Bonfire
+  canonicalUrl: String ## added for Bonfire
+  displayUsername: String ## added for Bonfire
 }
 
 type PersonResponse {
@@ -2325,7 +2325,7 @@ type Process {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [AnyContext!] ## added for CPub
+  tags: [AnyContext!] ## added for Bonfire
 }
 
 input ProcessCreateParams {
@@ -2378,7 +2378,7 @@ input ProcessCreateParams {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [ID!] ## added for CPub
+  tags: [ID!] ## added for Bonfire
 }
 
 type ProcessResponse {
@@ -2602,8 +2602,8 @@ type Proposal {
   """
   eligibleLocation: SpatialThing
 
-  canonicalUrl: URI ## added for CPub
-  creator: Agent ## added for CPub
+  canonicalUrl: URI ## added for Bonfire
+  creator: Agent ## added for Bonfire
 }
 
 input ProposalCreateParams {
@@ -3774,7 +3774,7 @@ type ValueFlowsQuery {
   scenarioDefinition(id: ID): ScenarioDefinition
   scenarioDefinitions(start: ID, limit: Int): [ScenarioDefinition!]
 
-  ## CPub additional queries:
+  ## Bonfire additional queries:
 
   "Get paginated list of proposals"
   proposalsPages(
@@ -4058,7 +4058,7 @@ type ValueFlowsMutation {
 
 
 
-## CPub additional types:
+## Bonfire additional types:
 
 "A page of agents"
 type AgentsPage {

@@ -1,7 +1,7 @@
   # def ap_object_format_attempt1(obj) do
   #   obj = preloads(obj)
-  #   # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
-  #   # image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
+  #
+  #   # image = ValueFlows.Util.image_url(obj)
 
   #   Map.merge(
   #     %{

@@ -163,7 +163,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   end
 
   def indexing_object_format(obj) do
-    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+
     %{
       "index_type" => "Process",
       "id" => obj.id,

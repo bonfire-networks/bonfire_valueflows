@@ -178,8 +178,8 @@ defmodule ValueFlows.Proposal.Proposals do
   def delete_proposed_to(proposed_to), do: Bonfire.Repo.Delete.soft_delete(proposed_to)
 
   def indexing_object_format(obj) do
-    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
-    # image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
+
+    # image = ValueFlows.Util.image_url(obj)
 
     %{
       "index_type" => "Proposal",
@@ -194,8 +194,8 @@ defmodule ValueFlows.Proposal.Proposals do
     }
   end
 
-  def ap_publish_activity(activity_name, proposal) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, proposal, 3, [
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, thing, 3, [
       :published_in
     ])
   end

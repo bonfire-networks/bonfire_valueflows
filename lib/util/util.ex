@@ -150,12 +150,6 @@ defmodule ValueFlows.Util do
     "/" <> id
   end
 
-  def image_url(%{profile_id: profile_id} = thing) when not is_nil(profile_id) do
-    Bonfire.Repo.maybe_preload(thing, :profile)
-    |> Map.get(:profile)
-    |> image_url()
-  end
-
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
     Bonfire.Repo.maybe_preload(thing, icon: [:content_upload, :content_mirror])
     # |> IO.inspect()
@@ -168,6 +162,12 @@ defmodule ValueFlows.Util do
     Bonfire.Repo.maybe_preload(thing, image: [:content_upload, :content_mirror])
     |> Map.get(:image)
     |> content_url_or_path()
+  end
+
+  def image_url(%{profile: _} = thing) do
+    Bonfire.Repo.maybe_preload(thing, profile: [image: [:content_upload, :content_mirror], icon: [:content_upload, :content_mirror]])
+    |> Map.get(:profile)
+    |> image_url()
   end
 
   def image_url(_) do

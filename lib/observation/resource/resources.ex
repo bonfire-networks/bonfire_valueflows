@@ -155,8 +155,8 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   end
 
   def indexing_object_format(obj) do
-    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
-    image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
+
+    image = ValueFlows.Util.image_url(obj)
 
     %{
       "index_type" => "EconomicResource",
