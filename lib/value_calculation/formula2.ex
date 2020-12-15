@@ -26,17 +26,31 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   end
 
   @doc "Execute the AST over the environment."
-  @spec execute(ast(), env()) :: {:ok, value()} | {:error, term()}
-  def execute(ast, %{} = env) when is_list(ast) do
-    # reduce the AST
+  @spec eval(ast(), env()) :: {:ok, value()} | {:error, term()}
+  def eval(ast, %{} = env) do
+    case ast do
+      [operator | args] when is_list(args) ->
+        do_apply(eval(operator, env), eval_parameters(args, env))
 
-    # fetch functions from env
+      value when is_integer(value) or is_float(value) ->
+        value
 
-    # pass parameters
+      variable when is_binary(variable) ->
+        lookup_variable_value(variable, env)
 
-    # accumulate
+      _ -> # TODO: throw error
+    end
+  end
 
-    # final result
+  def do_apply(operator, args) when is_function(operator, 1) do
+    # :erlang.apply(operator, args)
+    operator.(args)
+  end
+
+  defp eval_parameters(args, env), do: Enum.map(args, &eval(&1, env))
+
+  defp lookup_variable_value(var_name, env) do
+    Map.fetch!(env, var_name)
   end
 
   defp tokenize(str) do
