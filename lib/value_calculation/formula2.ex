@@ -5,6 +5,16 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   @type ast :: [var_ref() | value()]
   @type env :: %{var_ref() => ([value()] -> value())}
 
+  def default_env do
+    %{
+      # TODO: make variadic
+      "+" => fn [a, b] -> a + b end,
+      "-" => fn [a, b] -> a - b end,
+      "/" => fn [a, b] -> a / b end,
+      "*" => fn [a, b] -> a * b end,
+    }
+  end
+
   @doc "Return the AST for a binary"
   @spec parse(binary()) :: ast()
   def parse(raw_string) when is_binary(raw_string) do
@@ -15,14 +25,17 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   end
 
   @doc """
-  Validate that the AST only contains references to functions defined in
-  the environment.
-
-  May do replacement of function/variable names.
+  Run property tests against the given
   """
-  @spec validate(ast(), env()) :: {:ok, ast()} | {:error, term()}
-  def validate(ast, %{} = env) when is_list(ast) do
-    with :ok <- do_validate(ast, env), do: {:ok, ast}
+  @spec validate(ast(), env(), [var_ref()]) :: :ok | {:error, term()}
+  def validate(ast, %{} = env, var_names) when is_list(var_names) do
+    value_gen = StreamData.one_of([StreamData.integer(), StreamData.float()])
+
+    env_gen = StreamData.fixed_map(for v <- var_names, do: {v, value_gen})
+
+    for new_env <- Enum.take(env_gen, 100) do
+       eval(ast, Map.merge(env, new_env))
+    end
   end
 
   @doc "Execute the AST over the environment."
@@ -42,7 +55,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     end
   end
 
-  def do_apply(operator, args) when is_function(operator, 1) do
+  defp do_apply(operator, args) when is_function(operator, 1) do
     # :erlang.apply(operator, args)
     operator.(args)
   end
@@ -93,26 +106,5 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
           :error -> token
         end
     end
-  end
-
-  # TODO: make generic lisp walk ;)
-  defp do_validate([sub_tree | tail], env) when is_list(sub_tree) do
-    with :ok <- do_validate(sub_tree, env), do: do_validate(tail, env)
-  end
-
-  defp do_validate([head | tail], env) when is_binary(head) do
-    if Map.has_key?(env, head) do
-      do_validate(tail, env)
-    else
-      {:error, "Unknown variable name: #{head}"}
-    end
-  end
-
-  defp do_validate([value | tail], env) do
-    do_validate(tail, env)
-  end
-
-  defp do_validate([], env) do
-    :ok
   end
 end
