@@ -1,6 +1,6 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.Migrations do
   use Ecto.Migration
-  # @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  # import Bonfire.Common.Config, only: [repo: 0]
   # alias Ecto.ULID
   import Pointers.Migration
 

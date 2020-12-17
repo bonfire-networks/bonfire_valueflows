@@ -3,7 +3,7 @@ if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Observation.Process.GraphQL do
   require Logger
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -202,7 +202,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   def fetch_based_on_edge(%{based_on_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = @repo.preload(thing, :based_on)
+    thing = repo().preload(thing, :based_on)
     {:ok, Map.get(thing, :based_on)}
   end
 
@@ -239,7 +239,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   end
 
   def create_process(%{process: process_attrs}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, process_attrs, info),
            process_attrs = Map.merge(process_attrs, uploads),
@@ -262,7 +262,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   end
 
   def delete_process(%{id: id}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, process} <- process(%{id: id}, info),
            :ok <- ensure_update_permission(user, process),
@@ -290,7 +290,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
+  #   # Keyword.fetch!(Bonfire.Common.Config.get(Threads), :valid_contexts)
   # end
 end
 end

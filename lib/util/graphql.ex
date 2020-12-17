@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Util.GraphQL do
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
   alias Bonfire.GraphQL
 
   require Logger
@@ -47,7 +47,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = @repo.preload(thing, tags: :character)
+    thing = repo().preload(thing, tags: :character)
     urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
@@ -57,7 +57,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def current_location_edge(%{current_location_id: id} = thing, _, _) when not is_nil(id) do
-    thing = @repo.preload(thing, :current_location)
+    thing = repo().preload(thing, :current_location)
 
     {:ok,
      Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(thing, :current_location, nil))}
@@ -68,7 +68,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def at_location_edge(%{at_location_id: id} = thing, _, _) when not is_nil(id) do
-    thing = @repo.preload(thing, :at_location)
+    thing = repo().preload(thing, :at_location)
     {:ok, Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(thing, :at_location, nil))}
   end
 
@@ -78,7 +78,7 @@ defmodule ValueFlows.Util.GraphQL do
 
   def fetch_resource_conforms_to_edge(%{resource_conforms_to_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = @repo.preload(thing, :resource_conforms_to)
+    thing = repo().preload(thing, :resource_conforms_to)
     {:ok, Map.get(thing, :resource_conforms_to)}
   end
 
@@ -87,7 +87,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def available_quantity_edge(%{available_quantity_id: id} = thing, _, _) when not is_nil(id) do
-    thing = @repo.preload(thing, available_quantity: [:unit])
+    thing = repo().preload(thing, available_quantity: [:unit])
     {:ok, Map.get(thing, :available_quantity)}
   end
 
@@ -96,7 +96,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def resource_quantity_edge(%{resource_quantity_id: id} = thing, _, _) when not is_nil(id) do
-    thing = @repo.preload(thing, resource_quantity: [:unit])
+    thing = repo().preload(thing, resource_quantity: [:unit])
     {:ok, Map.get(thing, :resource_quantity)}
   end
 
@@ -105,7 +105,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def effort_quantity_edge(%{effort_quantity_id: id} = thing, _, _) when not is_nil(id) do
-    thing = @repo.preload(thing, effort_quantity: [:unit])
+    thing = repo().preload(thing, effort_quantity: [:unit])
     {:ok, Map.get(thing, :effort_quantity)}
   end
 
@@ -114,7 +114,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def accounting_quantity_edge(%{accounting_quantity_id: id} = thing, _, _) when not is_nil(id) do
-    thing = @repo.preload(thing, accounting_quantity: [:unit])
+    thing = repo().preload(thing, accounting_quantity: [:unit])
     {:ok, Map.get(thing, :accounting_quantity)}
   end
 
@@ -123,7 +123,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def onhand_quantity_edge(%{onhand_quantity_id: id} = thing, _, _) when not is_nil(id) do
-    thing = @repo.preload(thing, onhand_quantity: [:unit])
+    thing = repo().preload(thing, onhand_quantity: [:unit])
     {:ok, Map.get(thing, :onhand_quantity)}
   end
 

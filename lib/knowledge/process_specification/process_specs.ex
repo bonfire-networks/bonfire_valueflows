@@ -2,12 +2,12 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   import Bonfire.Common.Utils, only: [maybe: 2, maybe_put: 3]
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
 
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
@@ -22,14 +22,14 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: @repo.single(Queries.query(ProcessSpecification, filters))
+  def one(filters), do: repo().single(Queries.query(ProcessSpecification, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(ProcessSpecification, filters))}
+  def many(filters \\ []), do: {:ok, repo().all(Queries.query(ProcessSpecification, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -50,7 +50,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -87,10 +87,10 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   @spec create(any(), attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
   def create(%{} = creator, attrs) when is_map(attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, item} <- @repo.insert(ProcessSpecification.create_changeset(creator, attrs)),
+      with {:ok, item} <- repo().insert(ProcessSpecification.create_changeset(creator, attrs)),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -107,10 +107,10 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   # TODO: take the user who is performing the update
   # @spec update(%ProcessSpecification{}, attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
   def update(%ProcessSpecification{} = process_spec, attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, process_spec} <- @repo.update(ProcessSpecification.update_changeset(process_spec, attrs)),
+      with {:ok, process_spec} <- repo().update(ProcessSpecification.update_changeset(process_spec, attrs)),
            {:ok, process_spec} <- ValueFlows.Util.try_tag_thing(nil, process_spec, attrs),
            :ok <- ValueFlows.Util.publish(process_spec, :updated) do
         {:ok, process_spec}
@@ -119,7 +119,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   end
 
   def soft_delete(%ProcessSpecification{} = process_spec) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, process_spec} <- Bonfire.Repo.Delete.soft_delete(process_spec),
            :ok <- ValueFlows.Util.publish(process_spec, :deleted) do
         {:ok, process_spec}

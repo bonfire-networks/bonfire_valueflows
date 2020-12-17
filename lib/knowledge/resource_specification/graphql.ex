@@ -3,7 +3,7 @@ if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   require Logger
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -56,7 +56,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   def fetch_default_unit_of_effort_edge(%{default_unit_of_effort_id: id} = thing, _, _)
       when not is_nil(id) do
-    thing = @repo.preload(thing, :default_unit_of_effort)
+    thing = repo().preload(thing, :default_unit_of_effort)
     {:ok, Map.get(thing, :default_unit_of_effort)}
   end
 
@@ -171,7 +171,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def create_resource_spec(%{resource_specification: resource_spec_attrs}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
            resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
@@ -194,7 +194,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def delete_resource_spec(%{id: id}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, resource_spec} <- resource_spec(%{id: id}, info),
            :ok <- ensure_update_permission(user, resource_spec),
@@ -222,7 +222,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
+  #   # Keyword.fetch!(Bonfire.Common.Config.get(Threads), :valid_contexts)
   # end
 end
 end

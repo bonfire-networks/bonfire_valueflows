@@ -1,7 +1,7 @@
 defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   # import Logger
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   alias ValueFlows.Observation.EconomicEvent
   # alias ValueFlows.Observation.EconomicEvent.EconomicEvents
@@ -15,7 +15,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         } = event
       ) do
     event =
-      @repo.preload(event,
+      repo().preload(event,
         resource_inventoried_as: [:accounting_quantity, :onhand_quantity],
         to_resource_inventoried_as: [:accounting_quantity, :onhand_quantity]
       )

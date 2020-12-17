@@ -2,12 +2,12 @@
 defmodule ValueFlows.Observation.Process.Processes do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
 
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Queries
@@ -23,14 +23,14 @@ defmodule ValueFlows.Observation.Process.Processes do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: @repo.single(Queries.query(Process, filters))
+  def one(filters), do: repo().single(Queries.query(Process, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(Process, filters))}
+  def many(filters \\ []), do: {:ok, repo().all(Queries.query(Process, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -51,7 +51,7 @@ defmodule ValueFlows.Observation.Process.Processes do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -124,10 +124,10 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   # @spec create(any(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def create(%{} = creator, attrs) when is_map(attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, process} <- @repo.insert(Process.create_changeset(creator, attrs)),
+      with {:ok, process} <- repo().insert(Process.create_changeset(creator, attrs)),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -142,10 +142,10 @@ defmodule ValueFlows.Observation.Process.Processes do
   # TODO: take the user who is performing the update
   # @spec update(%Process{}, attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def update(%Process{} = process, attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, process} <- @repo.update(Process.update_changeset(process, attrs)),
+      with {:ok, process} <- repo().update(Process.update_changeset(process, attrs)),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
            :ok <- ValueFlows.Util.publish(process, :updated) do
         {:ok, preload_all(process)}
@@ -154,7 +154,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   end
 
   def soft_delete(%Process{} = process) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, process} <- Bonfire.Repo.Delete.soft_delete(process),
            :ok <- ValueFlows.Util.publish(process, :deleted) do
         {:ok, process}

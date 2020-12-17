@@ -6,7 +6,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   require Logger
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -273,7 +273,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
       when not is_nil(id) do
-    thing = @repo.preload(thing, :resource_inventoried_as)
+    thing = repo().preload(thing, :resource_inventoried_as)
     {:ok, Map.get(thing, :resource_inventoried_as)}
   end
 
@@ -286,7 +286,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   def fetch_to_resource_inventoried_as_edge(%{to_resource_inventoried_as_id: id} = thing, _, _)
     when not is_nil(id) do
-      thing = @repo.preload(thing, :to_resource_inventoried_as)
+      thing = repo().preload(thing, :to_resource_inventoried_as)
       {:ok, Map.get(thing, :to_resource_inventoried_as)}
   end
 
@@ -295,7 +295,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def fetch_output_of_edge(%{output_of_id: id} = thing, _, _) when is_binary(id) do
-    thing = @repo.preload(thing, :output_of)
+    thing = repo().preload(thing, :output_of)
     {:ok, Map.get(thing, :output_of)}
   end
 
@@ -304,7 +304,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def fetch_input_of_edge(%{input_of_id: id} = thing, _, _) when is_binary(id) do
-    thing = @repo.preload(thing, :input_of)
+    thing = repo().preload(thing, :input_of)
     {:ok, Map.get(thing, :input_of)}
   end
 
@@ -313,7 +313,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def fetch_triggered_by_edge(%{triggered_by_id: id} = thing, _, _) when is_binary(id) do
-    thing = @repo.preload(thing, :triggered_by)
+    thing = repo().preload(thing, :triggered_by)
     {:ok, Map.get(thing, :triggered_by)}
   end
 
@@ -332,7 +332,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   # Mutations
 
   def create_event(%{event: event_attrs} = params, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, event_attrs, info),
            event_attrs = Map.merge(event_attrs, uploads),
@@ -355,7 +355,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def delete_event(%{id: id}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, event} <- event(%{id: id}, info),
            :ok <- ensure_update_permission(user, event),
@@ -383,7 +383,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
+  #   # Keyword.fetch!(Bonfire.Common.Config.get(Threads), :valid_contexts)
   # end
 end
 end

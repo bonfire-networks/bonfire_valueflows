@@ -4,8 +4,8 @@ defmodule ValueFlows.Agent.Agents do
   require Logger
   import Bonfire.Common.Utils, only: [maybe_put: 3]
 
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
-  @org_schema Application.get_env(:bonfire_valueflows, :org_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @org_schema Bonfire.Common.Config.get_ext(:bonfire_valueflows, :org_schema)
 
   # TODO - change approach to allow pagination
   def agents(signed_in_user) do

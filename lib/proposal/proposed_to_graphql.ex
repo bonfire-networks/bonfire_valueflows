@@ -8,8 +8,8 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
   alias Bonfire.GraphQL.ResolveField
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  import Bonfire.Common.Config, only: [repo: 0]
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
 
   def proposed_to(%{id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -41,7 +41,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
   def fetch_proposed_edge(%{proposed_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = @repo.preload(thing, :proposed)
+    thing = repo().preload(thing, :proposed)
     {:ok, Map.get(thing, :proposed)}
   end
 
@@ -78,7 +78,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   end
 
   def valid_contexts do
-    Application.get_env(:bonfire_valueflows, :valid_agent_schemas, [@user])
+    Bonfire.Common.Config.get_ext(:bonfire_valueflows, :valid_agent_schemas, [@user])
   end
 end
 end

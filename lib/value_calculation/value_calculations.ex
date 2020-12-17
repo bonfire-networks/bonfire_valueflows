@@ -2,15 +2,15 @@
 defmodule ValueFlows.ValueCalculation.ValueCalculations do
   import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2]
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  import Bonfire.Common.Config, only: [repo: 0]
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
 
   alias ValueFlows.ValueCalculation
   alias ValueFlows.ValueCalculation.Queries
 
-  def one(filters), do: @repo.single(Queries.query(ValueCalculation, filters))
+  def one(filters), do: repo().single(Queries.query(ValueCalculation, filters))
 
-  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(ValueCalculation, filters))}
+  def many(filters \\ []), do: {:ok, repo().all(Queries.query(ValueCalculation, filters))}
 
   def preload_all(%ValueCalculation{} = calculation) do
     # should always succeed
@@ -21,8 +21,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   def create(%{} = user, attrs) do
     attrs = prepare_attrs(attrs)
 
-    @repo.transact_with(fn ->
-      with {:ok, calculation} <- @repo.insert(ValueCalculation.create_changeset(user, attrs)) do
+    repo().transact_with(fn ->
+      with {:ok, calculation} <- repo().insert(ValueCalculation.create_changeset(user, attrs)) do
         {:ok, preload_all(calculation)}
       end
     end)
@@ -31,8 +31,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   def update(%ValueCalculation{} = calculation, attrs) do
     attrs = prepare_attrs(attrs)
 
-    @repo.transact_with(fn ->
-      with {:ok, calculation} <- @repo.update(ValueCalculation.update_changeset(calculation, attrs)) do
+    repo().transact_with(fn ->
+      with {:ok, calculation} <- repo().update(ValueCalculation.update_changeset(calculation, attrs)) do
         {:ok, preload_all(calculation)}
       end
     end)

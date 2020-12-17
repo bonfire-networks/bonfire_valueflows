@@ -1,3 +1,5 @@
+# check that this extension is configured
+Bonfire.Common.Config.require_extension_config!(:bonfire_valueflows)
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Simulate do
   @moduledoc false

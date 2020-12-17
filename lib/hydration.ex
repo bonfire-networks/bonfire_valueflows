@@ -1,8 +1,8 @@
 if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Hydration do
 
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
-  @org_schema Application.get_env(:bonfire_valueflows, :org_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @org_schema Bonfire.Common.Config.get_ext(:bonfire_valueflows, :org_schema)
 
   alias ValueFlows.Observation.{
     Process,

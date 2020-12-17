@@ -6,7 +6,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   require Logger
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -277,7 +277,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = @repo.preload(thing, :resource_inventoried_as)
+    thing = repo().preload(thing, :resource_inventoried_as)
     {:ok, Map.get(thing, :resource_inventoried_as)}
   end
 
@@ -287,7 +287,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def fetch_input_of_edge(%{input_of_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = @repo.preload(thing, :input_of)
+    thing = repo().preload(thing, :input_of)
     {:ok, Map.get(thing, :input_of)}
   end
 
@@ -297,7 +297,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def fetch_output_of_edge(%{output_of_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = @repo.preload(thing, :output_of)
+    thing = repo().preload(thing, :output_of)
     {:ok, Map.get(thing, :output_of)}
   end
 
@@ -356,7 +356,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def create_intent(%{intent: intent_attrs}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, intent_attrs, info),
            intent_attrs = Map.merge(intent_attrs, uploads),
@@ -379,7 +379,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def delete_intent(%{id: id}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, intent} <- intent(%{id: id}, info),
            :ok <- ensure_update_permission(user, intent),
@@ -407,7 +407,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
+  #   # Keyword.fetch!(Bonfire.Common.Config.get(Threads), :valid_contexts)
   # end
 end
 end

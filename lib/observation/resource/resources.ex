@@ -2,12 +2,12 @@
 defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe_get_id: 1, maybe: 2, map_key_replace: 3]
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
 
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.Queries
@@ -23,14 +23,14 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: @repo.single(Queries.query(EconomicResource, filters))
+  def one(filters), do: repo().single(Queries.query(EconomicResource, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(EconomicResource, filters))}
+  def many(filters \\ []), do: {:ok, repo().all(Queries.query(EconomicResource, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -51,7 +51,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -113,10 +113,10 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   # @spec create(any(), attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
   def create(%{} = creator, attrs) when is_map(attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       attrs = prepare_attrs(attrs, creator)
 
-      with {:ok, resource} <- @repo.insert(EconomicResource.create_changeset(creator, attrs)),
+      with {:ok, resource} <- repo().insert(EconomicResource.create_changeset(creator, attrs)),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -134,10 +134,10 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   # TODO: take the user who is performing the update
   # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
   def update(%EconomicResource{} = resource, attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, resource} <- @repo.update(EconomicResource.update_changeset(resource, attrs)),
+      with {:ok, resource} <- repo().update(EconomicResource.update_changeset(resource, attrs)),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
            :ok <- ValueFlows.Util.publish(resource, :updated) do
         {:ok, preload_all(resource)}
@@ -146,7 +146,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   end
 
   def soft_delete(%EconomicResource{} = resource) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, resource} <- Bonfire.Repo.Delete.soft_delete(resource),
            :ok <- ValueFlows.Util.publish(resource, :deleted) do
         {:ok, resource}

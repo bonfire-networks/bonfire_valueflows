@@ -2,11 +2,11 @@
 defmodule ValueFlows.Proposal.Proposals do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
@@ -31,30 +31,30 @@ defmodule ValueFlows.Proposal.Proposals do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: @repo.single(Queries.query(Proposal, filters))
+  def one(filters), do: repo().single(Queries.query(Proposal, filters))
 
   @spec one_proposed_intent(filters :: [any]) :: {:ok, ProposedIntent.t()} | {:error, term}
   def one_proposed_intent(filters),
-    do: @repo.single(ProposedIntentQueries.query(ProposedIntent, filters))
+    do: repo().single(ProposedIntentQueries.query(ProposedIntent, filters))
 
   @spec one_proposed_to(filters :: [any]) :: {:ok, ProposedTo.t()} | {:error, term}
   def one_proposed_to(filters),
-    do: @repo.single(ProposedToQueries.query(ProposedTo, filters))
+    do: repo().single(ProposedToQueries.query(ProposedTo, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(Proposal, filters))}
+  def many(filters \\ []), do: {:ok, repo().all(Queries.query(Proposal, filters))}
 
   @spec many_proposed_intents(filters :: [any]) :: {:ok, [ProposedIntent.t()]} | {:error, term}
   def many_proposed_intents(filters \\ []),
-    do: {:ok, @repo.all(ProposedIntentQueries.query(ProposedIntent, filters))}
+    do: {:ok, repo().all(ProposedIntentQueries.query(ProposedIntent, filters))}
 
   @spec many_proposed_to(filters :: [any]) :: {:ok, [ProposedTo]} | {:error, term}
   def many_proposed_to(filters \\ []),
-    do: {:ok, @repo.all(ProposedToQueries.query(ProposedTo, filters))}
+    do: {:ok, repo().all(ProposedToQueries.query(ProposedTo, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -75,7 +75,7 @@ defmodule ValueFlows.Proposal.Proposals do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -109,7 +109,7 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def preload_all(proposal) do
-    @repo.preload(proposal, [
+    repo().preload(proposal, [
       :creator,
       :eligible_location,
       # pointers, not supported
@@ -123,8 +123,8 @@ defmodule ValueFlows.Proposal.Proposals do
   def create(%{} = creator, attrs) when is_map(attrs) do
     attrs = prepare_attrs(attrs)
 
-    @repo.transact_with(fn ->
-      with {:ok, proposal} <- @repo.insert(Proposal.create_changeset(creator, attrs)),
+    repo().transact_with(fn ->
+      with {:ok, proposal} <- repo().insert(Proposal.create_changeset(creator, attrs)),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, proposal, act_attrs),
@@ -140,8 +140,8 @@ defmodule ValueFlows.Proposal.Proposals do
   def update(%Proposal{} = proposal, attrs) do
     attrs = prepare_attrs(attrs)
 
-    @repo.transact_with(fn ->
-      with {:ok, proposal} <- @repo.update(Proposal.update_changeset(proposal, attrs)),
+    repo().transact_with(fn ->
+      with {:ok, proposal} <- repo().update(Proposal.update_changeset(proposal, attrs)),
            :ok <- ValueFlows.Util.publish(proposal, :updated) do
         {:ok, proposal}
       end
@@ -149,7 +149,7 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def soft_delete(%Proposal{} = proposal) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, proposal} <- Bonfire.Repo.Delete.soft_delete(proposal),
            :ok <- ValueFlows.Util.publish(proposal, :deleted) do
         {:ok, proposal}
@@ -160,7 +160,7 @@ defmodule ValueFlows.Proposal.Proposals do
   @spec propose_intent(Proposal.t(), Intent.t(), map) ::
           {:ok, ProposedIntent.t()} | {:error, term}
   def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
-    @repo.insert(ProposedIntent.changeset(proposal, intent, attrs))
+    repo().insert(ProposedIntent.changeset(proposal, intent, attrs))
   end
 
   @spec delete_proposed_intent(ProposedIntent.t()) :: {:ok, ProposedIntent.t()} | {:error, term}
@@ -171,7 +171,7 @@ defmodule ValueFlows.Proposal.Proposals do
   # if you like it then you should put a ring on it
   @spec propose_to(any, Proposal.t()) :: {:ok, ProposedTo.t()} | {:error, term}
   def propose_to(proposed_to, %Proposal{} = proposed) do
-    @repo.insert(ProposedTo.changeset(proposed_to, proposed))
+    repo().insert(ProposedTo.changeset(proposed_to, proposed))
   end
 
   @spec delete_proposed_to(ProposedTo.t()) :: {:ok, ProposedTo.t()} | {:error, term}

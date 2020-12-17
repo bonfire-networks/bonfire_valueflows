@@ -3,7 +3,7 @@ if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Claim.GraphQL do
   require Logger
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   alias Bonfire.Common.Pointers
   alias Bonfire.GraphQL
@@ -47,7 +47,7 @@ defmodule ValueFlows.Claim.GraphQL do
 
 
   def fetch_triggered_by_edge(%{triggered_by_id: id} = thing, _, _) when is_binary(id) do
-    thing = @repo.preload(thing, :triggered_by)
+    thing = repo().preload(thing, :triggered_by)
     {:ok, Map.get(thing, :triggered_by)}
   end
 

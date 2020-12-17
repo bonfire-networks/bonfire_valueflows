@@ -2,12 +2,12 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2]
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
@@ -22,14 +22,14 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: @repo.single(Queries.query(ResourceSpecification, filters))
+  def one(filters), do: repo().single(Queries.query(ResourceSpecification, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(ResourceSpecification, filters))}
+  def many(filters \\ []), do: {:ok, repo().all(Queries.query(ResourceSpecification, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -50,7 +50,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -87,10 +87,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   @spec create(any(), attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
   def create(%{} = creator, attrs) when is_map(attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, item} <- @repo.insert(ResourceSpecification.create_changeset(creator, attrs)),
+      with {:ok, item} <- repo().insert(ResourceSpecification.create_changeset(creator, attrs)),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -107,14 +107,14 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   # TODO: take the user who is performing the update
   # @spec update(%ResourceSpecification{}, attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
   def update(%ResourceSpecification{} = resource_spec, attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       resource_spec =
-        @repo.preload(resource_spec, [
+        repo().preload(resource_spec, [
           :default_unit_of_effort
         ])
 
       attrs = prepare_attrs(attrs)
-      with {:ok, resource_spec} <- @repo.update(ResourceSpecification.update_changeset(resource_spec, attrs)),
+      with {:ok, resource_spec} <- repo().update(ResourceSpecification.update_changeset(resource_spec, attrs)),
            {:ok, resource_spec} <- ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs) do
         ValueFlows.Util.publish(resource_spec, :updated)
         {:ok, resource_spec}
@@ -123,7 +123,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   end
 
   def soft_delete(%ResourceSpecification{} = resource_spec) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, resource_spec} <- Bonfire.Repo.Delete.soft_delete(resource_spec),
            :ok <- ValueFlows.Util.publish(resource_spec, :deleted) do
         {:ok, resource_spec}

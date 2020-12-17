@@ -6,7 +6,7 @@ defmodule ValueFlows.Proposal.GraphQL do
 
   require Logger
 
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -44,7 +44,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   end
 
   def eligible_location_edge(%{eligible_location_id: id} = proposal, _, _) when not is_nil(id) do
-    proposal = @repo.preload(proposal, :eligible_location)
+    proposal = repo().preload(proposal, :eligible_location)
 
     location =
       proposal
@@ -249,7 +249,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   end
 
   def delete_proposal(%{id: id}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, proposal} <- proposal(%{id: id}, info),
            :ok <- ensure_update_permission(user, proposal),
@@ -277,7 +277,7 @@ defmodule ValueFlows.Proposal.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
+  #   # Keyword.fetch!(Bonfire.Common.Config.get(Threads), :valid_contexts)
   # end
 end
 end

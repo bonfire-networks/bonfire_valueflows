@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util do
   import Bonfire.Common.Utils
-  @repo Application.get_env(:bonfire_valueflows, :repo_module)
-  # @user Application.get_env(:bonfire_valueflows, :user_schema)
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  import Bonfire.Common.Config, only: [repo: 0]
+  # @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
   @image_schema CommonsPub.Uploads.Content
 
   require Logger
@@ -55,7 +55,7 @@ defmodule ValueFlows.Util do
   end
 
   def publish(creator, %{character: _context_character} = context, thing, activity, :created) do
-    @repo.maybe_preload(context, :character)
+    repo().maybe_preload(context, :character)
     publish(creator, Map.get(context, :character), thing, activity, :created)
   end
 
@@ -130,7 +130,7 @@ defmodule ValueFlows.Util do
   end
 
   def canonical_url(%{character: _character} = thing) do
-    @repo.maybe_preload(thing, :character)
+    repo().maybe_preload(thing, :character)
     canonical_url(Map.get(thing, :character))
   end
 

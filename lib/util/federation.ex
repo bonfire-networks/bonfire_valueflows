@@ -2,7 +2,7 @@ defmodule ValueFlows.Util.Federation do
   import Bonfire.Common.Utils, only: [maybe_put: 3]
 
   @schema CommonsPub.Web.GraphQL.Schema
-  @all_types Application.get_env(:bonfire_valueflows, :all_types)
+  @all_types Bonfire.Common.Config.get_ext(:bonfire_valueflows, :all_types)
 
   @graphql_ignore_fields [
     :communities,
@@ -49,61 +49,69 @@ defmodule ValueFlows.Util.Federation do
         query_depth \\ 2,
         extra_field_filters \\ []
       )
-      when is_binary(id) do
-    with activity_params <-
-           ap_prepare_activity(
-             activity_type,
-             thing,
-             ap_prepare_object(id, schema_type, query_depth, extra_field_filters)
-           ),
-         {:ok, activity} <- ActivityPub.create(activity_params, id) do
-      # IO.inspect(activity_created: activity)
+    when is_binary(id) do
 
-      IO.puts(struct_to_json(activity.data))
-      IO.puts(struct_to_json(activity.object.data))
+    if Code.ensure_loaded?(ActivityPub) do
 
-      if is_map_key(thing, :canonical_url) do
-        Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
-        |> Bonfire.Repo.update()
+      with activity_params <-
+            ap_prepare_activity(
+              activity_type,
+              thing,
+              ap_prepare_object(id, schema_type, query_depth, extra_field_filters)
+            ),
+          {:ok, activity} <- ActivityPub.create(activity_params, id) do
+        # IO.inspect(activity_created: activity)
+
+        IO.puts(struct_to_json(activity.data))
+        IO.puts(struct_to_json(activity.object.data))
+
+        if is_map_key(thing, :canonical_url) do
+          Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
+          |> Bonfire.Repo.update()
+        end
+
+        {:ok, activity}
+      else
+        e -> {:error, e}
       end
-
-      {:ok, activity}
-    else
-      e -> {:error, e}
     end
   end
 
   def ap_prepare_activity("create", thing, object, author_id \\ nil) do
-    with context <-
-           CommonsPub.ActivityPub.Utils.get_cached_actor_by_local_id!(Map.get(thing, :context_id)),
-         author <-
-           author_id || Map.get(thing, :creator_id) || Map.get(thing, :primary_accountable_id) ||
-             Map.get(thing, :provider_id) || Map.get(thing, :receiver_id),
-         actor <- CommonsPub.ActivityPub.Utils.get_cached_actor_by_local_id!(author),
-         ap_id <- CommonsPub.ActivityPub.Utils.generate_object_ap_id(thing),
-         object <-
-           Map.merge(object, %{
-             "id" => ap_id,
-             "actor" => actor.ap_id,
-             "attributedTo" => actor.ap_id
-           })
-           |> maybe_put("context", context.ap_id)
-           |> maybe_put("name", Map.get(thing, :name, Map.get(thing, :label)))
-           #  |> maybe_put(
-           #    "summary",
-           #    Map.get(thing, :note, Map.get(thing, :summary))
-           #  )
-           |> maybe_put("icon", Map.get(object, "image")),
-         activity_params = %{
-           actor: actor,
-           to: [CommonsPub.ActivityPub.Utils.public_uri(), context.ap_id],
-           object: object,
-           context: context.ap_id,
-           additional: %{
-             "cc" => [actor.data["followers"]]
-           }
-         } do
-      activity_params
+
+    if Code.ensure_loaded?(CommonsPub.ActivityPub.Utils) do
+
+      with context <-
+            CommonsPub.ActivityPub.Utils.get_cached_actor_by_local_id!(Map.get(thing, :context_id)),
+          author <-
+            author_id || Map.get(thing, :creator_id) || Map.get(thing, :primary_accountable_id) ||
+              Map.get(thing, :provider_id) || Map.get(thing, :receiver_id),
+          actor <- CommonsPub.ActivityPub.Utils.get_cached_actor_by_local_id!(author),
+          ap_id <- CommonsPub.ActivityPub.Utils.generate_object_ap_id(thing),
+          object <-
+            Map.merge(object, %{
+              "id" => ap_id,
+              "actor" => actor.ap_id,
+              "attributedTo" => actor.ap_id
+            })
+            |> maybe_put("context", context.ap_id)
+            |> maybe_put("name", Map.get(thing, :name, Map.get(thing, :label)))
+            #  |> maybe_put(
+            #    "summary",
+            #    Map.get(thing, :note, Map.get(thing, :summary))
+            #  )
+            |> maybe_put("icon", Map.get(object, "image")),
+          activity_params = %{
+            actor: actor,
+            to: [CommonsPub.ActivityPub.Utils.public_uri(), context.ap_id],
+            object: object,
+            context: context.ap_id,
+            additional: %{
+              "cc" => [actor.data["followers"]]
+            }
+          } do
+        activity_params
+      end
     end
   end
 

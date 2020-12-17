@@ -2,7 +2,7 @@
 defmodule ValueFlows.Observation.EconomicResource.Queries do
   alias ValueFlows.Observation.{EconomicResource, EconomicEvent}
   # alias ValueFlows.Observation.EconomicResources
-  @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
