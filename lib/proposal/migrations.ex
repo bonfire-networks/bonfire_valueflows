@@ -1,15 +1,6 @@
 defmodule ValueFlows.Proposal.Migrations do
   use Ecto.Migration
-  # alias Ecto.ULID
   import Pointers.Migration
-
-  # defp proposal_table(), do: ValueFlows.Proposal.__schema__(:source)
-
-  defp proposed_intent_table(),
-    do: ValueFlows.Proposal.ProposedIntent.__schema__(:source)
-
-  defp proposed_to_table(),
-    do: ValueFlows.Proposal.ProposedTo.__schema__(:source)
 
   def up do
     create_pointable_table(ValueFlows.Proposal) do
@@ -36,7 +27,7 @@ defmodule ValueFlows.Proposal.Migrations do
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
-    create table(proposed_intent_table()) do
+    create_pointable_table(ValueFlows.Proposal.ProposedIntent) do
       # Note: null allowed
       add(:reciprocal, :boolean, null: true)
       add(:deleted_at, :timestamptz)
@@ -44,7 +35,7 @@ defmodule ValueFlows.Proposal.Migrations do
       add(:published_in_id, strong_pointer(ValueFlows.Proposal), null: false)
     end
 
-    create table(proposed_to_table()) do
+    create_pointable_table(ValueFlows.Proposal.ProposedTo) do
       add(:deleted_at, :timestamptz)
       add(:proposed_to_id, weak_pointer(), null: false)
       add(:proposed_id, weak_pointer(), null: false)
@@ -52,8 +43,8 @@ defmodule ValueFlows.Proposal.Migrations do
   end
 
   def down do
-    drop_table(proposed_to_table())
-    drop_table(proposed_intent_table())
+    drop_pointable_table(ValueFlows.Proposal.ProposedTo)
+    drop_pointable_table(ValueFlows.Proposal.ProposedIntent)
     drop_pointable_table(ValueFlows.Proposal)
   end
 end

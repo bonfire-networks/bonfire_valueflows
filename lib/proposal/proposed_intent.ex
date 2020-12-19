@@ -1,5 +1,10 @@
 defmodule ValueFlows.Proposal.ProposedIntent do
-  use Bonfire.Repo.Schema
+
+  # use Bonfire.Repo.Schema
+  use Pointers.Pointable,
+    otp_app: :commons_pub,
+    source: "vf_proposed_intent",
+    table_id: "PVB11SHEDPR0P0SED1NTENT10N"
 
   alias Ecto.Changeset
   alias ValueFlows.Proposal
@@ -7,7 +12,8 @@ defmodule ValueFlows.Proposal.ProposedIntent do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_proposed_intent" do
+  # table_schema "vf_proposed_intent" do
+  pointable_schema do
     # Note: allows null
     field(:reciprocal, :boolean)
     field(:deleted_at, :utc_datetime_usec)

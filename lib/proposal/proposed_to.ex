@@ -1,12 +1,18 @@
 defmodule ValueFlows.Proposal.ProposedTo do
-  use Bonfire.Repo.Schema
+
+  # use Bonfire.Repo.Schema
+  use Pointers.Pointable,
+    otp_app: :commons_pub,
+    source: "vf_proposed_to",
+    table_id: "PR0P0SA1HASBEENADDRESSEDT0"
 
   alias Ecto.Changeset
   alias ValueFlows.Proposal
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_proposed_to" do
+  # table_schema "vf_proposed_to" do
+  pointable_schema do
     field(:deleted_at, :utc_datetime_usec)
     belongs_to(:proposed_to, Pointer)
     belongs_to(:proposed, Proposal)
