@@ -16,7 +16,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   alias ValueFlows.Observation.Process.Processes
 
-  import Bonfire.Common.Error
+  import Bonfire.Fail.Error
 
   require Logger
 
