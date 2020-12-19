@@ -36,6 +36,8 @@ defmodule ValueFlows.Agent.Agents do
     # a = Bonfire.Repo.maybe_preload(a, [icon: [:content], image: [:content]])
 
     a
+    |> Map.merge(a.profile)
+    |> Map.merge(a.character)
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> maybe_put(:primary_location, agent_location(a))
     |> maybe_put(:note, Map.get(a, :summary))

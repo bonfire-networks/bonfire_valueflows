@@ -38,8 +38,18 @@ defmodule ValueFlows.Agent.GraphQL do
           }
         end
       else
-        []
-      end
+        people = ValueFlows.Agent.People.people(nil)
+        |> Enum.map(
+            &(&1
+              |> ValueFlows.Agent.Agents.character_to_agent())
+          )
+
+        %{
+          edges: people,
+          page_info: nil,
+          total_count: length(people)
+        }
+    end
 
     {:ok, people_pages}
   end
@@ -72,7 +82,7 @@ defmodule ValueFlows.Agent.GraphQL do
           }
         end
       else
-        []
+        %{}
       end
 
     {:ok, orgz_pages}
