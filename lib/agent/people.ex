@@ -24,13 +24,21 @@ defmodule ValueFlows.Agent.People do
   end
 
   def person(id, signed_in_user) do
-    if Code.ensure_loaded?(CommonsPub.Users) do
-      with {:ok, user} =
-             CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
-        ValueFlows.Agent.Agents.character_to_agent(user)
-      end
+    person = if Code.ensure_loaded?(Bonfire.Me.Identity.Users) do
+         with {:ok, user} =
+              Bonfire.Me.Identity.Users.by_id(id) do
+          user
+        end
     else
-      %{}
+      if Code.ensure_loaded?(CommonsPub.Users) do
+        with {:ok, user} =
+              CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
+          user
+        end
+      end
     end
+
+    ValueFlows.Agent.Agents.character_to_agent(person || %{})
   end
+
 end
