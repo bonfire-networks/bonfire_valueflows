@@ -35,14 +35,16 @@ defmodule ValueFlows.Agent.Agents do
   def character_to_agent(a) do
     # a = Bonfire.Repo.maybe_preload(a, [icon: [:content], image: [:content]])
 
-    a
+    a = a
     |> Map.merge(Map.get(a, :profile, %{}))
     |> Map.merge(Map.get(a, :character, %{}))
+
+    a
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> maybe_put(:primary_location, agent_location(a))
     |> maybe_put(:note, Map.get(a, :summary))
+    |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
-
     # |> IO.inspect()
   end
 
@@ -73,5 +75,6 @@ defmodule ValueFlows.Agent.Agents do
 
   def add_type(a) do
     a
+    |> Map.put(:agent_type, :person)
   end
 end

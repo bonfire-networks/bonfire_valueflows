@@ -142,12 +142,25 @@ defmodule ValueFlows.Util do
     end
   end
 
-  defp generate_canonical_url(%{id: id}) when is_binary(id) do
-    generate_canonical_url(id)
+  defp generate_canonical_url(%{id: id} = thing) when is_binary(id) do
+    generate_canonical_url(display_username(thing) || id)
   end
 
-  defp generate_canonical_url(id) when is_binary(id) do
-    "/" <> id
+  defp generate_canonical_url(id_or_username) when is_binary(id_or_username) do
+    "/" <> id_or_username
+  end
+
+  def display_username(%{username: username}) when not is_nil(username) do
+    "@" <> username
+  end
+
+  def display_username(%{profile: _} = thing) do
+    repo().maybe_preload(thing, :profile)
+    display_username(Map.get(thing, :profile))
+  end
+
+  def display_username(_) do
+    nil
   end
 
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do

@@ -65,7 +65,7 @@ defmodule ValueFlows.Claim.GraphQL do
   end
 
   def update_claim(%{claim: %{id: id} = attrs}, info) do
-    with {:ok, _user} <- GraphQL.current_user_or_not_logged_in(info),
+    with :ok <- GraphQL.is_authenticated(info),
          {:ok, claim} <- claim(%{id: id}, info),
          {:ok, claim} <- Claims.update(claim, attrs) do
       {:ok, %{claim: claim}}
@@ -73,7 +73,7 @@ defmodule ValueFlows.Claim.GraphQL do
   end
 
   def delete_claim(%{id: id}, info) do
-    with {:ok, _user} <- GraphQL.current_user_or_not_logged_in(info),
+    with :ok <- GraphQL.is_authenticated(info),
          {:ok, claim} <- claim(%{id: id}, info),
          {:ok, _} <- Claims.soft_delete(claim) do
       {:ok, true}

@@ -58,7 +58,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
         %{published_in: published_in_proposal_id, publishes: publishes_intent_id} = params,
         info
       ) do
-    with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
+    with :ok <- GraphQL.is_authenticated(info),
          {:ok, published_in} <-
            ValueFlows.Proposal.GraphQL.proposal(%{id: published_in_proposal_id}, info),
          {:ok, publishes} <-
@@ -70,7 +70,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   end
 
   def delete_proposed_intent(%{id: id}, info) do
-    with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
+    with :ok <- GraphQL.is_authenticated(info),
          {:ok, proposed_intent} <- proposed_intent(%{id: id}, info),
          {:ok, _} <- Proposals.delete_proposed_intent(proposed_intent) do
       {:ok, true}

@@ -14,9 +14,9 @@ defmodule ValueFlows.Hydration do
       canonical_url: [
         resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
       ],
-      # display_username: [
-      #   resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
-      # ],
+      display_username: [
+        resolve: &ValueFlows.Util.GraphQL.display_username_edge/3
+      ],
       proposals: [
         resolve: &ValueFlows.Proposal.GraphQL.agent_proposals/3
       ],

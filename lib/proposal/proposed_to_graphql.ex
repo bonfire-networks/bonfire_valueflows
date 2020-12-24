@@ -51,7 +51,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
 
   def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
-    with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
+    with :ok <- GraphQL.is_authenticated(info),
          {:ok, pointer} <- Pointers.one(id: agent_id),
          :ok <- validate_context(pointer),
          agent = Pointers.follow!(pointer),
@@ -62,7 +62,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   end
 
   def delete_proposed_to(%{id: id}, info) do
-    with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
+    with :ok <- GraphQL.is_authenticated(info),
          {:ok, proposed_to} <- proposed_to(%{id: id}, info),
          {:ok, _} <- Proposals.delete_proposed_to(proposed_to) do
       {:ok, true}
