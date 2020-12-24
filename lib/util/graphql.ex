@@ -25,9 +25,9 @@ defmodule ValueFlows.Util.GraphQL do
     do: {:ok, ValueFlows.Util.canonical_url(obj)}
 
   def display_username_edge(object, _, _) do
-    IO.inspect(display_username_edge: object)
+    # IO.inspect(display_username_edge: object)
     if Code.ensure_loaded?(CommonsPub.Characters.GraphQL.Resolver) do
-      CommonsPub.Characters.GraphQL.Resolver.display_username_edge(object)
+      CommonsPub.Characters.GraphQL.Resolver.display_username_edge(object, _, _)
     else
       {:ok, ValueFlows.Util.display_username(object)}
     end
