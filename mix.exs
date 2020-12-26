@@ -15,7 +15,8 @@ defmodule Bonfire.ValueFlows.MixProject do
       deps: Mess.deps [
         {:floki, ">= 0.0.0", only: [:dev, :test]},
         {:bonfire_api_graphql, git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql", branch: "main", optional: true},
-        {:activity_pub, "https://gitlab.com/bonfire-ecosystem/activitypub.git", branch: "main", optional: true}
+        {:activity_pub, "https://gitlab.com/bonfire-ecosystem/activitypub.git", branch: "main", optional: true},
+        {:zest, "~> 0.1", only: :test},
       ]
     ]
   end

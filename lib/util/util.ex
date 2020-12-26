@@ -87,11 +87,11 @@ defmodule ValueFlows.Util do
   end
 
   defp do_publish_feed_activity(activity, feeds) do
-    if Code.ensure_loaded?(CommonsPub.Feeds) and !is_nil(activity) and is_list(feeds) and
-         length(feeds) > 0 do
+    if Code.ensure_loaded?(CommonsPub.Feeds.FeedActivities) and !is_nil(activity) and is_list(feeds) and
+         length(feeds) > 0 and Kernel.function_exported?(CommonsPub.Feeds.FeedActivities, :publish, 2) do
       CommonsPub.Feeds.FeedActivities.publish(activity, feeds)
     else
-      Logger.warn("Could not publish activity")
+      Logger.info("Could not publish activity")
     end
 
     :ok
@@ -210,18 +210,20 @@ defmodule ValueFlows.Util do
   end
 
   def user_schema() do
-    if Code.ensure_loaded?(@user) do
-      @user
+    Bonfire.Common.Config.maybe_schema_or_pointer(@user)
+  end
+
+  def is_admin(user) do
+    if Map.get(user, :local_user) do
+      Map.get(user.local_user, :is_instance_admin)
     else
-      Pointers.Pointer
+      false # FIXME
     end
   end
 
   def image_schema() do
-    if Code.ensure_loaded?(@image_schema) do
-      @image_schema
-    else
-      Pointers.Pointer
-    end
+    Bonfire.Common.Config.maybe_schema_or_pointer(@image_schema)
   end
+
+
 end

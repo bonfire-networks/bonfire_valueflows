@@ -1,117 +1,213 @@
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.ValueFlows.Test.ConnHelpers do
-
+  require Phoenix.ConnTest
+  alias Phoenix.{ConnTest, Controller}
+  alias Plug.{Conn, Session}
   import ExUnit.Assertions
-  import Plug.Conn
-  import Phoenix.ConnTest
-  import Phoenix.LiveViewTest
-  # alias CommonsPub.Accounts
-  alias Bonfire.Data.Identity.Account
-  alias Bonfire.Data.Identity.User
 
-  @endpoint Bonfire.ValueFlows.Web.Endpoint
+  @endpoint Bonfire.Common.Config.get_ext(:bonfire_valueflows, :endpoint_module)
 
-  ### conn
+  def conn(), do: ConnTest.build_conn()
 
-  def session_conn(conn \\ build_conn()), do: Plug.Test.init_test_session(conn, %{})
+  def with_method(conn, :get), do: %{conn | method: "GET"}
 
-  def conn(), do: conn(session_conn(), [])
-  def conn(%Plug.Conn{}=conn), do: conn(conn, [])
-  def conn(filters) when is_list(filters), do: conn(session_conn(), filters)
+  def with_method(conn, :post), do: %{conn | method: "POST"}
 
-  def conn(conn, filters) when is_list(filters),
-    do: Enum.reduce(filters, conn, &conn(&2, &1))
+  def with_params(conn, %{} = params), do: %{conn | params: params}
 
-  def conn(conn, {:account, %Account{id: id}}),
-    do: put_session(conn, :account_id, id)
+  def with_user(conn, %{} = user), do: Conn.assign(conn, :current_user, user)
 
-  def conn(conn, {:account, account_id}) when is_binary(account_id),
-    do: put_session(conn, :account_id, account_id)
+  def with_accept_json(conn),
+    do: Conn.put_req_header(conn, "accept", "application/json")
 
-  def conn(conn, {:user, %{id: id}}),
-    do: put_session(conn, :user_id, id)
+  def with_request_json(conn),
+    do: Conn.put_resp_content_type(conn, "application/json")
 
-  def conn(conn, {:user, user_id}) when is_binary(user_id),
-    do: put_session(conn, :user_id, user_id)
+  def with_accept_html(conn),
+    do: Conn.put_req_header(conn, "accept", "text/html")
 
-  def find_flash(doc) do
-    messages = Floki.find(doc, "#flash-messages p")
-    case messages do
-      [_, _ | _] -> throw :too_many_flashes
-      short -> short
+  def with_authorization(conn, %{id: id}),
+    do: Conn.put_req_header(conn, "authorization", "Bearer #{id}")
+
+  def json_conn(), do: conn() |> with_accept_json() |> with_request_json()
+
+  def html_conn(), do: with_accept_html(conn())
+
+  def user_conn(conn \\ json_conn(), user), do: with_user(conn, user)
+
+  def token_conn(conn \\ json_conn(), token), do: with_authorization(conn, token)
+
+  @default_opts [
+    store: :cookie,
+    key: "foobar",
+    encryption_salt: "encrypted cookie salt",
+    signing_salt: "signing salt",
+    log: false
+  ]
+  @secret String.duplicate("abcdef0123456789", 8)
+  @signing_opts Plug.Session.init(Keyword.put(@default_opts, :encrypt, false))
+
+  def plugged(conn) do
+    conn
+    |> Conn.put_private(:phoenix_endpoint, @endpoint)
+    |> Map.put(:secret_key_base, @secret)
+    |> Session.call(@signing_opts)
+    |> Controller.accepts(["html", "json"])
+    |> Conn.fetch_query_params()
+    |> Conn.fetch_session()
+    |> Controller.fetch_flash()
+  end
+
+  def gql_post(conn, query, code, show_output \\ false) do
+    # IO.inspect(graphql_query: query)
+    with %{status: status} = go <- ConnTest.post(conn, "/api/graphql", query) do
+      if status != code || show_output ||
+           Bonfire.Common.Config.get([:logging, :tests_output_graphql]),
+         do: IO.inspect(graphql_query: query)
+
+      go
+      |> ConnTest.json_response(code)
+    else
+      e ->
+        IO.inspect(graphql_failed: e)
+        IO.inspect(graphql_query: query)
     end
   end
 
-  def assert_flash(p, kind, message) do
-    assert_flash_kind(p, kind)
-    assert_flash_message(p, message)
+  def gql_post_200(conn, query, show_output \\ false),
+    do: gql_post(conn, query, 200, show_output)
+
+  def gql_post_data(conn, query, show_output \\ false) do
+    case gql_post_200(conn, query, show_output) do
+      %{"data" => data, "errors" => errors} ->
+        # IO.inspect(graphql_query: query)
+        IO.inspect(graphql_response: data)
+        throw({:additional_errors, errors})
+
+      %{"errors" => errors} ->
+        # IO.inspect(graphql_query: query)
+        throw({:unexpected_errors, errors})
+
+      %{"data" => data} ->
+        if(show_output || Bonfire.Common.Config.get([:logging, :tests_output_graphql])) do
+          # IO.inspect(graphql_query: query)
+          IO.inspect(graphql_response: data)
+        end
+
+        data
+
+      other ->
+        # IO.inspect(graphql_query: query)
+        throw({:horribly_wrong, other})
+    end
   end
 
-  def assert_flash_kind(flash, :error) do
-    classes = floki_attr(flash, :class)
-    assert "alert" in classes
-    assert "alert-danger" in classes
+  def grumble_post_data(query, conn, vars \\ %{}, name \\ "test", show_output \\ false) do
+    query = Grumble.PP.to_string(query)
+    vars = camel_map(vars)
+    # IO.puts("query: " <> query)
+    # IO.inspect(vars: vars)
+    query =
+      extract_files(%{
+        query: query,
+        variables: vars,
+        operationName: name
+      })
+
+    gql_post_data(conn, query, show_output)
   end
 
-  def assert_flash_kind(flash, :info) do
-    classes = floki_attr(flash, :class)
-    assert "alert" in classes
-    assert "alert-info" in classes
+  def grumble_post_key(query, conn, key, vars \\ %{}, name \\ "test", show_output \\ false) do
+    key = camel(key)
+    assert %{^key => val} = grumble_post_data(query, conn, vars, name, show_output)
+    val
   end
 
-  def assert_flash_message(flash, %Regex{}=r),
-    do: assert(Floki.text(flash) =~ r)
-  def assert_flash_message(flash, bin) when is_binary(bin),
-    do: assert(Floki.text(flash) == bin)
+  def gql_post_errors(conn \\ json_conn(), query),
+    do: Map.fetch!(gql_post_200(conn, query), :errors)
 
-  def find_form_error(doc, name),
-    do: Floki.find(doc, "span.invalid-feedback[phx-feedback-for='#{name}']")
+  def grumble_post_errors(query, conn, vars \\ %{}, name \\ "test") do
+    query = Grumble.PP.to_string(query)
+    vars = camel_map(vars)
+    # IO.inspect(query: query)
+    # IO.inspect(vars: vars)
+    query =
+      extract_files(%{
+        query: query,
+        variables: vars,
+        operationName: name
+      })
 
-  def assert_field_good(doc, name) do
-    assert [field] = Floki.find(doc, "#" <> name)
-    assert [] == find_form_error(doc, name)
-    field
+    Map.fetch!(gql_post_200(conn, query), "errors")
   end
 
-  def assert_field_error(doc, name, error) do
-    assert [field] = Floki.find(doc, "#" <> name)
-    assert [err] = find_form_error(doc, name)
-    assert Floki.text(err) =~ error
-    field
+  @doc false
+  def camel_map(%{} = vars) do
+    Enum.reduce(vars, %{}, fn {k, v}, acc -> Map.put(acc, camel(k), v) end)
   end
 
-  ### floki_attr
+  @doc false
+  def camel(atom) when is_atom(atom), do: camel(Atom.to_string(atom))
+  def camel(binary) when is_binary(binary), do: Recase.to_camel(binary)
 
-  def floki_attr(elem, :class),
-    do: Enum.flat_map(floki_attr(elem, "class"), &String.split(&1, ~r/\s+/, trim: true))
-
-  def floki_attr(elem, attr) when is_binary(attr),
-    do: Floki.attribute(elem, attr)
-
-  def floki_response(conn, code \\ 200) do
-    assert {:ok, html} = Floki.parse_document(html_response(conn, code))
-    html
+  @doc false
+  def uncamel_map(%{} = map) do
+    Enum.reduce(map, %{}, fn {k, v}, acc -> Map.put(acc, uncamel(k), v) end)
   end
 
-  def floki_live(conn) do
-    assert {:ok, view, html} = live(conn)
-    assert {:ok, doc} = Floki.parse_document(html)
-    {view, doc}
+  @doc false
+  def uncamel(atom) when is_atom(atom), do: atom
+  def uncamel("__typeName"), do: :typename
+  def uncamel(bin) when is_binary(bin), do: String.to_existing_atom(Recase.to_snake(bin))
+
+  def extract_files(%{variables: vars} = query) do
+    case extract_file_vars(vars) do
+      {[], []} ->
+        query
+
+      {new_files, new_vars} ->
+        query
+        |> Map.update!(:variables, &Map.merge(&1, new_vars))
+        |> Map.merge(new_files)
+    end
   end
 
-  def floki_live(conn, path) do
-    assert {:ok, view, html} = live(conn, path)
-    assert {:ok, doc} = Floki.parse_document(html)
-    {view, doc}
+  defp extract_file_vars(vars, path \\ []) do
+    {new_files, new_vars} =
+      Enum.flat_map_reduce(vars, %{}, fn {key, val}, acc ->
+        path = path ++ [key]
+
+        case val do
+          %Plug.Upload{} = file ->
+            file_key = Enum.join(path, "_")
+
+            {
+              %{String.to_atom(file_key) => file},
+              put_in_map(acc, path, file_key)
+            }
+
+          inner when not is_struct(inner) and is_map(inner) ->
+            {files, vars} = extract_file_vars(inner, path)
+            {files, Map.merge(acc, vars)}
+
+          _other ->
+            {%{}, acc}
+        end
+      end)
+
+    {Enum.into(new_files, %{}), new_vars}
   end
 
-  def floki_click(view, value \\ %{}) do
-    assert {:ok, doc} = Floki.parse_fragment(render_click(view, value))
-    doc
+  defp put_in_map(%{} = map, [key], val) do
+    Map.put(map, key, val)
   end
 
-  def floki_submit(view, event, value \\ %{}) do
-    assert {:ok, doc} = Floki.parse_fragment(render_submit(view, event, value))
-    doc
-  end
+  defp put_in_map(%{} = map, [key | path], val) when is_list(path) do
+    {_, ret} =
+      Map.get_and_update(map, key, fn existing ->
+        {val, put_in_map(existing || %{}, path, val)}
+      end)
 
+    ret
+  end
 end

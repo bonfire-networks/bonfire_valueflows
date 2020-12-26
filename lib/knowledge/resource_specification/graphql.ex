@@ -16,7 +16,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
-  alias CommonsPub.Web.GraphQL.UploadResolver
 
   ## resolvers
 
@@ -173,7 +172,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   def create_resource_spec(%{resource_specification: resource_spec_attrs}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
+           {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, resource_spec_attrs, info),
            resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
            resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
            {:ok, resource_spec} <- ResourceSpecifications.create(user, resource_spec_attrs) do
@@ -186,7 +185,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, resource_spec} <- resource_spec(%{id: id}, info),
          :ok <- ensure_update_permission(user, resource_spec),
-         {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+         {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, resource_spec} <- ResourceSpecifications.update(resource_spec, changes) do
       {:ok, %{resource_specification: resource_spec}}
@@ -205,7 +204,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def ensure_update_permission(user, resource_spec) do
-    if user.local_user.is_instance_admin or resource_spec.creator_id == user.id do
+    if ValueFlows.Util.is_admin(user) or resource_spec.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")

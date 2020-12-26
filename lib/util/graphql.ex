@@ -143,5 +143,23 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def image_content_url(_, _, _), do: {:ok, nil}
+
+  def maybe_upload(user, changes, info) do
+    if Code.ensure_loaded?(CommonsPub.Web.GraphQL.UploadResolver) do
+      CommonsPub.Web.GraphQL.UploadResolver.upload(user, changes, info)
+    else
+      Logger.info("Could not upload")
+      {:ok, %{}}
+    end
+  end
+
+  def tags_edges(a, b, c) do
+    if Code.ensure_loaded?(CommonsPub.Tag.GraphQL.TagResolver) do
+      CommonsPub.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
+    else
+      Logger.info("Could not resolve tags")
+      {:ok, nil}
+    end
+  end
 end
 end

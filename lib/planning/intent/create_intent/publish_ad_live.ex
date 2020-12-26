@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.My.PublishAdLive do
+defmodule ValueFlows.Web.My.PublishAdLive do
   use Bonfire.Web, :live_component
 
   def update(assigns, socket) do

@@ -19,7 +19,6 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicEvent.Queries
-  alias CommonsPub.Web.GraphQL.UploadResolver
 
   ## resolvers
 
@@ -334,7 +333,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   def create_event(%{event: event_attrs} = params, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, uploads} <- UploadResolver.upload(user, event_attrs, info),
+           {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, event_attrs, info),
            event_attrs = Map.merge(event_attrs, uploads),
            event_attrs = Map.merge(event_attrs, %{is_public: true}),
            {:ok, event, new_resource} <- EconomicEvents.create(user, event_attrs, params) do
@@ -347,7 +346,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, event} <- event(%{id: id}, info),
          :ok <- ensure_update_permission(user, event),
-         {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+         {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, event} <- EconomicEvents.update(user, event, changes) do
       {:ok, %{economic_event: event}}
@@ -366,7 +365,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def ensure_update_permission(user, event) do
-    if user.local_user.is_instance_admin or event.creator_id == user.id do
+    if ValueFlows.Util.is_admin(user) or event.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")

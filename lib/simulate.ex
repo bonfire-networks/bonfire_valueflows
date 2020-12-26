@@ -66,10 +66,17 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:agent_type, &agent_type/0)
   end
 
+  def maybe_fake_user(overrides) do
+    if Code.ensure_loaded?(Bonfire.Me.Fake) do
+        Bonfire.Me.Fake.fake_user!(overrides)
+      else
+        if Code.ensure_loaded?(CommonsPub.Utils.Simulate), do: CommonsPub.Utils.Simulate.fake_user!(overrides)
+      end
+  end
   def fake_agent!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    fake_agent_from_user!(
-      CommonsPub.Utils.Simulate.fake_user!(ValueFlows.Agent.Agents.agent_to_character(agent(overrides)))
-    )
+    ValueFlows.Agent.Agents.agent_to_character(agent(overrides))
+    |> maybe_fake_user()
+    |> fake_agent_from_user!()
   end
 
   def fake_agent_from_user!(user) do
@@ -265,7 +272,7 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_intent!(user, overrides \\ %{}) do
-    unit = fake_unit!(user)
+    unit = maybe_fake_unit(user)
     fake_intent!(user, overrides, unit)
   end
 
@@ -273,9 +280,9 @@ defmodule ValueFlows.Simulate do
     measure_attrs = %{unit_id: unit.id}
 
     measures = %{
-      available_quantity: measure(measure_attrs),
-      resource_quantity: measure(measure_attrs),
-      effort_quantity: measure(measure_attrs)
+      available_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+      resource_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+      effort_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs)
     }
 
     overrides = Map.merge(overrides, measures)
@@ -311,7 +318,7 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_economic_event!(user, overrides \\ %{}) do
-    unit = fake_unit!(user)
+    unit = maybe_fake_unit(user)
     fake_economic_event!(user, overrides, unit)
   end
 
@@ -325,7 +332,7 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_economic_event(user, overrides \\ %{}) do
-    unit = fake_unit!(user)
+    unit = maybe_fake_unit(user)
     fake_economic_event(user, overrides, unit)
   end
 
@@ -333,8 +340,8 @@ defmodule ValueFlows.Simulate do
     measure_attrs = %{unit_id: unit.id}
 
     measures = %{
-      resource_quantity: measure(measure_attrs),
-      effort_quantity: measure(measure_attrs)
+      resource_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+      effort_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs)
     }
 
     overrides = Map.merge(overrides, measures)
@@ -353,7 +360,7 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_economic_resource!(user, overrides \\ %{}) do
-    unit = fake_unit!(user)
+    unit = maybe_fake_unit(user)
     fake_economic_resource!(user, overrides, unit)
   end
 
@@ -361,8 +368,8 @@ defmodule ValueFlows.Simulate do
     measure_attrs = %{unit_id: unit.id}
 
     measures = %{
-      accounting_quantity: measure(measure_attrs),
-      onhand_quantity: measure(measure_attrs)
+      accounting_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+      onhand_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs)
     }
 
     overrides = Map.merge(overrides, measures)
@@ -370,4 +377,20 @@ defmodule ValueFlows.Simulate do
     {:ok, spec} = EconomicResources.create(user, economic_resource(overrides))
     spec
   end
+
+  ## Aliases for functions in other Bonfire extensions ##
+
+  def some_fake_categories(user, num \\ 5) do
+    if Code.ensure_loaded?(CommonsPub.Tag.Simulate),
+    do: some(num, fn -> CommonsPub.Tag.Simulate.fake_category!(user).id end),
+    else: []
+  end
+
+  def maybe_fake_unit(user) do
+    if Code.ensure_loaded?(Bonfire.Quantify.Simulate),
+    do: Bonfire.Quantify.Simulate.fake_unit!(user),
+    else: %{id: nil}
+  end
+
+
 end

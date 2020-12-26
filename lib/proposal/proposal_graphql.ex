@@ -260,7 +260,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   end
 
   def ensure_update_permission(user, proposal) do
-    if user.local_user.is_instance_admin or proposal.creator_id == user.id do
+    if ValueFlows.Util.is_admin(user) or proposal.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")

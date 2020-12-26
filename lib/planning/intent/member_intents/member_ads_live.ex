@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.MemberLive.MemberAdsLive do
+defmodule ValueFlows.Web.MemberLive.MemberAdsLive do
   use Bonfire.Web, :live_component
 
 

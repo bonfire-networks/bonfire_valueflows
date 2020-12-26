@@ -25,9 +25,11 @@ defmodule Bonfire.ValueFlows.ConnCase do
       import Phoenix.LiveViewTest
       import Bonfire.ValueFlows.ConnCase
       import Bonfire.ValueFlows.Test.ConnHelpers
-      import Bonfire.ValueFlows.Test.FakeHelpers
+      # import Bonfire.ValueFlows.Test.FakeHelpers
       alias Bonfire.ValueFlows.Fake
       alias Bonfire.ValueFlows.Web.Router.Helpers, as: Routes
+
+      import Bonfire.Common.Config, only: [repo: 0]
 
       # The default endpoint for testing
       @endpoint Bonfire.ValueFlows.Web.Endpoint
@@ -41,7 +43,7 @@ defmodule Bonfire.ValueFlows.ConnCase do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(repo())
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(@repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(repo(), {:shared, self()})
     end
 
     {:ok, []}

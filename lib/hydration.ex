@@ -1,6 +1,8 @@
 if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Hydration do
 
+  import ValueFlows.Util.GraphQL
+
   @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
   @org_schema Bonfire.Common.Config.get_ext(:bonfire_valueflows, :org_schema)
 
@@ -12,10 +14,10 @@ defmodule ValueFlows.Hydration do
   def hydrate() do
     agent_fields = %{
       canonical_url: [
-        resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
+        resolve: &canonical_url_edge/3
       ],
       display_username: [
-        resolve: &ValueFlows.Util.GraphQL.display_username_edge/3
+        resolve: &display_username_edge/3
       ],
       proposals: [
         resolve: &ValueFlows.Proposal.GraphQL.agent_proposals/3
@@ -37,8 +39,8 @@ defmodule ValueFlows.Hydration do
     %{
       # Type extensions
       uri: [
-        parse: &ValueFlows.Util.GraphQL.parse_cool_scalar/1,
-        serialize: &ValueFlows.Util.GraphQL.serialize_cool_scalar/1
+        parse: &parse_cool_scalar/1,
+        serialize: &serialize_cool_scalar/1
       ],
       agent: [
         resolve_type: &__MODULE__.agent_resolve_type/2
@@ -67,10 +69,10 @@ defmodule ValueFlows.Hydration do
       },
       proposal: %{
         canonical_url: [
-          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
+          resolve: &canonical_url_edge/3
         ],
         in_scope_of: [
-          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
+          resolve: &scope_edge/3
         ],
         eligible_location: [
           resolve: &ValueFlows.Proposal.GraphQL.eligible_location_edge/3
@@ -95,49 +97,49 @@ defmodule ValueFlows.Hydration do
       },
       intent: %{
         canonical_url: [
-          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
+          resolve: &canonical_url_edge/3
         ],
         provider: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
+          resolve: &fetch_provider_edge/3
         ],
         receiver: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_receiver_edge/3
+          resolve: &fetch_receiver_edge/3
         ],
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
         at_location: [
-          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+          resolve: &at_location_edge/3
         ],
         in_scope_of: [
-          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
+          resolve: &scope_edge/3
         ],
         image: [
-          resolve: &ValueFlows.Util.GraphQL.image_content_url/3
+          resolve: &image_content_url/3
         ],
         resource_classified_as: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
+          resolve: &fetch_classifications_edge/3
         ],
         tags: [
-          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+          resolve: &tags_edges/3
         ],
         published_in: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
         ],
         resource_conforms_to: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3
+          resolve: &fetch_resource_conforms_to_edge/3
         ],
         resource_inventoried_as: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_resource_inventoried_as_edge/3
         ],
         available_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.available_quantity_edge/3
+          resolve: &available_quantity_edge/3
         ],
         resource_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
+          resolve: &resource_quantity_edge/3
         ],
         effort_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
+          resolve: &effort_quantity_edge/3
         ],
         input_of: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_input_of_edge/3
@@ -151,25 +153,25 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
         provider: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
+          resolve: &fetch_provider_edge/3
         ],
         receiver: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_receiver_edge/3
+          resolve: &fetch_receiver_edge/3
         ],
         resource_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
+          resolve: &resource_quantity_edge/3
         ],
         effort_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
+          resolve: &effort_quantity_edge/3
         ],
         resource_conforms_to: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3
+          resolve: &fetch_resource_conforms_to_edge/3
         ],
         triggered_by: [
           resolve: &ValueFlows.Claim.GraphQL.fetch_triggered_by_edge/3
         ],
         in_scope_of: [
-          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
+          resolve: &scope_edge/3
         ],
         # creator: [
         #   resolve: &UsersResolver.creator_edge/3
@@ -177,28 +179,28 @@ defmodule ValueFlows.Hydration do
       },
       economic_event: %{
         canonical_url: [
-          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
+          resolve: &canonical_url_edge/3
         ],
         provider: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
+          resolve: &fetch_provider_edge/3
         ],
         receiver: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_receiver_edge/3
+          resolve: &fetch_receiver_edge/3
         ],
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
         resource_conforms_to: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3
+          resolve: &fetch_resource_conforms_to_edge/3
         ],
         resource_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
+          resolve: &resource_quantity_edge/3
         ],
         effort_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
+          resolve: &effort_quantity_edge/3
         ],
         in_scope_of: [
-          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
+          resolve: &scope_edge/3
         ],
         input_of: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_input_of_edge/3
@@ -215,16 +217,16 @@ defmodule ValueFlows.Hydration do
             &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_to_resource_inventoried_as_edge/3
         ],
         resource_classified_as: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
+          resolve: &fetch_classifications_edge/3
         ],
         at_location: [
-          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+          resolve: &at_location_edge/3
         ],
         triggered_by: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_triggered_by_edge/3
         ],
         tags: [
-          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+          resolve: &tags_edges/3
         ],
         trace: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.trace/3
@@ -235,31 +237,31 @@ defmodule ValueFlows.Hydration do
       },
       economic_resource: %{
         canonical_url: [
-          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
+          resolve: &canonical_url_edge/3
         ],
         state: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_state_edge/3
         ],
         in_scope_of: [
-          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
+          resolve: &scope_edge/3
         ],
         classified_as: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
+          resolve: &fetch_classifications_edge/3
         ],
         current_location: [
-          resolve: &ValueFlows.Util.GraphQL.current_location_edge/3
+          resolve: &current_location_edge/3
         ],
         image: [
-          resolve: &ValueFlows.Util.GraphQL.image_content_url/3
+          resolve: &image_content_url/3
         ],
         available_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.available_quantity_edge/3
+          resolve: &available_quantity_edge/3
         ],
         accounting_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.accounting_quantity_edge/3
+          resolve: &accounting_quantity_edge/3
         ],
         onhand_quantity: [
-          resolve: &ValueFlows.Util.GraphQL.onhand_quantity_edge/3
+          resolve: &onhand_quantity_edge/3
         ],
         primary_accountable: [
           resolve:
@@ -275,7 +277,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_conforms_to_edge/3
         ],
         tags: [
-          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+          resolve: &tags_edges/3
         ],
         trace: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.trace/3
@@ -286,16 +288,16 @@ defmodule ValueFlows.Hydration do
       },
       process: %{
         canonical_url: [
-          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
+          resolve: &canonical_url_edge/3
         ],
         in_scope_of: [
-          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
+          resolve: &scope_edge/3
         ],
         classified_as: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
+          resolve: &fetch_classifications_edge/3
         ],
         tags: [
-          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+          resolve: &tags_edges/3
         ],
         track: [
           resolve: &ValueFlows.Observation.Process.GraphQL.track/3
@@ -319,7 +321,7 @@ defmodule ValueFlows.Hydration do
             &ValueFlows.Knowledge.ResourceSpecification.GraphQL.fetch_default_unit_of_effort_edge/3
         ],
         image: [
-          resolve: &ValueFlows.Util.GraphQL.image_content_url/3
+          resolve: &image_content_url/3
         ]
         # conforming_resources: [
         #   resolve: %ValueFlows.Knowledge.ResourceSpecification.GraphQL.fetch_conforming_resources_edge/3

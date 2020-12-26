@@ -25,7 +25,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   alias ValueFlows.Observation.EconomicResource.Queries
   # alias ValueFlows.Knowledge.Action.Actions
   # alias Bonfire.GraphQL.CommonResolver
-  alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
   # use Absinthe.Schema.Notation
@@ -399,7 +398,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   def create_resource(%{economic_resource: resource_attrs}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, uploads} <- UploadResolver.upload(user, resource_attrs, info),
+           {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, resource_attrs, info),
            resource_attrs = Map.merge(resource_attrs, uploads),
            resource_attrs = Map.merge(resource_attrs, %{is_public: true}),
            {:ok, resource} <- EconomicResources.create(user, resource_attrs) do
@@ -420,7 +419,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, resource} <- resource(%{id: id}, info),
          :ok <- ensure_update_permission(user, resource),
-         {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+         {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, resource} <- update_fn.(resource, changes) do
       {:ok, %{economic_resource: resource}}
@@ -439,7 +438,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def ensure_update_permission(user, resource) do
-    if user.local_user.is_instance_admin or resource.creator_id == user.id do
+    if ValueFlows.Util.is_admin(user) or resource.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")

@@ -17,7 +17,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
-  alias CommonsPub.Web.GraphQL.UploadResolver
 
   ## resolvers
 
@@ -154,7 +153,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   def create_process_spec(%{process_specification: process_spec_attrs}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, uploads} <- UploadResolver.upload(user, process_spec_attrs, info),
+           {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, process_spec_attrs, info),
            process_spec_attrs = Map.merge(process_spec_attrs, uploads),
            process_spec_attrs = Map.merge(process_spec_attrs, %{is_public: true}),
            {:ok, process_spec} <- ProcessSpecifications.create(user, process_spec_attrs) do
@@ -168,7 +167,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
           {:ok, process_spec} <- process_spec(%{id: id}, info),
           :ok <- ensure_update_permission(user, process_spec),
-          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+          {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
           changes = Map.merge(changes, uploads),
           {:ok, process_spec} <- ProcessSpecifications.update(process_spec, changes) do
         {:ok, %{process_specification: process_spec}}
@@ -188,7 +187,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def ensure_update_permission(user, process_spec) do
-    if user.local_user.is_instance_admin or process_spec.creator_id == user.id do
+    if ValueFlows.Util.is_admin(user) or process_spec.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")

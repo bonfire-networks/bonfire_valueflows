@@ -19,7 +19,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Planning.Intent.Queries
-  alias CommonsPub.Web.GraphQL.UploadResolver
 
   ## resolvers
 
@@ -358,7 +357,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   def create_intent(%{intent: intent_attrs}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, uploads} <- UploadResolver.upload(user, intent_attrs, info),
+           {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, intent_attrs, info),
            intent_attrs = Map.merge(intent_attrs, uploads),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
            {:ok, intent} <- Intents.create(user, intent_attrs) do
@@ -371,7 +370,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, intent} <- intent(%{id: id}, info),
          :ok <- ensure_update_permission(user, intent),
-         {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+         {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, intent} <- Intents.update(intent, changes) do
       {:ok, %{intent: intent}}
@@ -390,7 +389,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def ensure_update_permission(user, intent) do
-    if user.local_user.is_instance_admin or intent.creator_id == user.id do
+    if ValueFlows.Util.is_admin(user) or intent.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")
