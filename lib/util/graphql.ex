@@ -27,7 +27,7 @@ defmodule ValueFlows.Util.GraphQL do
   def display_username_edge(object, _, _) do
     # IO.inspect(display_username_edge: object)
     if Code.ensure_loaded?(CommonsPub.Characters.GraphQL.Resolver) do
-      CommonsPub.Characters.GraphQL.Resolver.display_username_edge(object, _, _)
+      CommonsPub.Characters.GraphQL.Resolver.display_username_edge(object, nil, nil)
     else
       {:ok, ValueFlows.Util.display_username(object)}
     end
