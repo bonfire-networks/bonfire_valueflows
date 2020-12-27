@@ -150,7 +150,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       q = update_resource_specification_mutation()
       conn = user_conn(user)
       vars = %{resource_specification: resource_specification_input(%{"id" => spec.id})}
-      assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
+      assert {:ok, _spec} = ResourceSpecifications.soft_delete(spec)
 
       assert [
                %{

@@ -251,7 +251,6 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
     test "creates a new intent with a provider" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
       provider = fake_agent!()
 
       q = create_intent_mutation(fields: [provider: [:id]])
@@ -264,7 +263,6 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
     test "creates a new intent with a receiver" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
       receiver = fake_agent!()
 
       q = create_intent_mutation(fields: [receiver: [:id]])
@@ -277,7 +275,6 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
     test "creates a new intent with a provider and a receiver" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
       provider = fake_agent!()
       receiver = fake_agent!()
 
@@ -296,7 +293,6 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
     test "creates a new intent with a url image" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
 
       q = create_intent_mutation(fields: [:image])
       conn = user_conn(user)
@@ -334,8 +330,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
     test "fail if given an invalid action" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
-      action = action()
+      _action = action()
 
       q = create_intent_mutation(fields: [action: [:id]])
       conn = user_conn(user)
@@ -448,7 +443,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     test "fail if given an invalid action" do
       user = fake_agent!()
       intent = fake_intent!(user)
-      action = action()
+      _action = action()
 
       q = update_intent_mutation(fields: [action: [:id]])
       conn = user_conn(user)

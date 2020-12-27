@@ -34,7 +34,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
         resource_inventoried_as: resource.id,
         action: "use"
       }) end)
-      output_events = some(5, fn -> fake_economic_event!(user, %{
+      _output_events = some(5, fn -> fake_economic_event!(user, %{
         output_of: process.id,
         resource_inventoried_as: resource.id,
         action: "produce"
@@ -62,7 +62,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
       user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
-      input_events = some(3, fn -> fake_economic_event!(user, %{
+      _input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
         # to_resource_inventoried_as: resource.id,
         action: "use"

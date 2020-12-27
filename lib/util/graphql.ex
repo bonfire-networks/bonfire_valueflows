@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Bonfire.Common.Utils.module_exists?(Bonfire.GraphQL) do
 defmodule ValueFlows.Util.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
   alias Bonfire.GraphQL
@@ -26,7 +26,7 @@ defmodule ValueFlows.Util.GraphQL do
 
   def display_username_edge(object, _, _) do
     # IO.inspect(display_username_edge: object)
-    if Code.ensure_loaded?(CommonsPub.Characters.GraphQL.Resolver) do
+    if Bonfire.Common.Utils.module_exists?(CommonsPub.Characters.GraphQL.Resolver) do
       CommonsPub.Characters.GraphQL.Resolver.display_username_edge(object, nil, nil)
     else
       {:ok, ValueFlows.Util.display_username(object)}
@@ -145,7 +145,7 @@ defmodule ValueFlows.Util.GraphQL do
   def image_content_url(_, _, _), do: {:ok, nil}
 
   def maybe_upload(user, changes, info) do
-    if Code.ensure_loaded?(CommonsPub.Web.GraphQL.UploadResolver) do
+    if Bonfire.Common.Utils.module_exists?(CommonsPub.Web.GraphQL.UploadResolver) do
       CommonsPub.Web.GraphQL.UploadResolver.upload(user, changes, info)
     else
       Logger.info("Could not upload")
@@ -154,7 +154,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def tags_edges(a, b, c) do
-    if Code.ensure_loaded?(CommonsPub.Tag.GraphQL.TagResolver) do
+    if Bonfire.Common.Utils.module_exists?(CommonsPub.Tag.GraphQL.TagResolver) do
       CommonsPub.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
     else
       Logger.info("Could not resolve tags")

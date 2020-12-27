@@ -98,7 +98,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       user = fake_agent!()
       process = fake_process!(user)
 
-      output_events =
+      _output_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             output_of: process.id,
@@ -119,7 +119,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       user = fake_agent!()
       process = fake_process!(user)
 
-      input_events =
+      _input_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             input_of: process.id,
@@ -140,7 +140,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       user = fake_agent!()
       process = fake_process!(user)
 
-      input_events =
+      _input_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             input_of: process.id,
@@ -159,7 +159,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       user = fake_agent!()
       process = fake_process!(user)
 
-      input_events =
+      _input_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             input_of: process.id,
@@ -190,7 +190,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       user = fake_agent!()
       process = fake_process!(user)
 
-      output_events =
+      _output_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             output_of: process.id,
@@ -209,7 +209,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       user = fake_agent!()
       process = fake_process!(user)
 
-      output_events =
+      _output_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             output_of: process.id,
@@ -276,7 +276,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       q = update_process_mutation()
       conn = user_conn(user)
       vars = %{process: process_input(%{"id" => spec.id})}
-      assert {:ok, spec} = Processes.soft_delete(spec)
+      assert {:ok, _spec} = Processes.soft_delete(spec)
 
       assert [%{"code" => "not_found", "path" => ["updateProcess"], "status" => 404}] =
                grumble_post_errors(q, conn, vars)

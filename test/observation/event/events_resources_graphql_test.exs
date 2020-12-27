@@ -13,7 +13,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
   # import Bonfire.Geolocate.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  # @schema Bonfire.GraphQL.Schema
 
   describe "EconomicEventsResourcesMutations" do
     test "create an economic resource produced by an economic event" do

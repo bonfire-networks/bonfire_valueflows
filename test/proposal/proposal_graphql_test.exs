@@ -160,7 +160,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
     test "fetches several pages of proposals" do
       user = fake_agent!()
-      proposals = some(6, fn -> fake_proposal!(user) end)
+      _proposals = some(6, fn -> fake_proposal!(user) end)
 
       q = proposals_pages_query()
       conn = user_conn(user)

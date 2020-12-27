@@ -103,7 +103,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       q = economic_event_query()
       conn = user_conn(user)
 
-      assert {:ok, spec} = EconomicEvents.soft_delete(event)
+      assert {:ok, _spec} = EconomicEvents.soft_delete(event)
 
       assert [%{"code" => "not_found", "path" => ["economicEvent"], "status" => 404}] =
                grumble_post_errors(q, conn, %{id: event.id})

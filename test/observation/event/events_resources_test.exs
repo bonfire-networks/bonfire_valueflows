@@ -21,7 +21,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
   describe "noEffect" do
     test "passing an action with noEffect does not modify quantities" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
       resource_inventoried_as = fake_economic_resource!(user)
       to_resource_inventoried_as = fake_economic_resource!(user)
 
@@ -59,7 +58,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
   describe "Increment or decrement" do
     test "If resource inventoried as is not set, measures are not decremented" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
       to_resource_inventoried_as = fake_economic_resource!(user)
 
       event =
@@ -83,7 +81,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
 
     test "If resource inventoried as is not set, measures are not incremented" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
       to_resource_inventoried_as = fake_economic_resource!(user)
 
       event =
@@ -395,7 +392,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit2)
 
-      assert {:error, e} =
+      assert {:error, _e} =
                fake_economic_event(
                  user,
                  %{

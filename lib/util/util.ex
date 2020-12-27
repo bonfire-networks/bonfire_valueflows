@@ -23,7 +23,7 @@ defmodule ValueFlows.Util do
   # end
 
   def try_tag_thing(user, thing, tags) do
-    if Code.ensure_loaded?(CommonsPub.Tag.TagThings) do
+    if module_exists?(CommonsPub.Tag.TagThings) do
       CommonsPub.Tag.TagThings.try_tag_thing(user, thing, tags)
     else
       {:ok, thing}
@@ -31,7 +31,7 @@ defmodule ValueFlows.Util do
   end
 
   def activity_create(creator, item, act_attrs) do
-    if Code.ensure_loaded?(CommonsPub.Activities) do
+    if module_exists?(CommonsPub.Activities) do
       CommonsPub.Activities.create(creator, item, act_attrs)
     else
       {:ok, nil}
@@ -40,7 +40,7 @@ defmodule ValueFlows.Util do
 
   def publish(creator, thing, activity, :created) do
     feeds =
-      if Code.ensure_loaded?(CommonsPub.Feeds) do
+      if module_exists?(CommonsPub.Feeds) do
         [
           CommonsPub.Feeds.outbox_id(creator),
           CommonsPub.Feeds.instance_outbox_id()
@@ -62,7 +62,7 @@ defmodule ValueFlows.Util do
   def publish(creator, context_outbox_id, thing, activity, :created)
       when is_binary(context_outbox_id) do
     feeds =
-      if Code.ensure_loaded?(CommonsPub.Feeds) do
+      if module_exists?(CommonsPub.Feeds) do
         [
           context_outbox_id,
           CommonsPub.Feeds.outbox_id(creator),
@@ -87,7 +87,7 @@ defmodule ValueFlows.Util do
   end
 
   defp do_publish_feed_activity(activity, feeds) do
-    if Code.ensure_loaded?(CommonsPub.Feeds.FeedActivities) and !is_nil(activity) and is_list(feeds) and
+    if module_exists?(CommonsPub.Feeds.FeedActivities) and !is_nil(activity) and is_list(feeds) and
          length(feeds) > 0 and Kernel.function_exported?(CommonsPub.Feeds.FeedActivities, :publish, 2) do
       CommonsPub.Feeds.FeedActivities.publish(activity, feeds)
     else
@@ -113,16 +113,16 @@ defmodule ValueFlows.Util do
   end
 
   def index_for_search(object) do
-    if Code.ensure_loaded?(CommonsPub.Search.Indexer) do
-      CommonsPub.Search.Indexer.maybe_index_object(object)
+    if module_exists?(Bonfire.Search.Indexer) do
+      Bonfire.Search.Indexer.maybe_index_object(object)
     end
 
     :ok
   end
 
   def indexing_format_creator(obj) do
-    if Code.ensure_loaded?(CommonsPub.Search.Indexer),
-      do: CommonsPub.Search.Indexer.format_creator(obj)
+    if module_exists?(Bonfire.Search.Indexer),
+      do: Bonfire.Search.Indexer.format_creator(obj)
   end
 
   def canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
@@ -135,7 +135,7 @@ defmodule ValueFlows.Util do
   end
 
   def canonical_url(object) do
-    if Code.ensure_loaded?(CommonsPub.ActivityPub.Utils) do
+    if module_exists?(CommonsPub.ActivityPub.Utils) do
       CommonsPub.ActivityPub.Utils.get_object_canonical_url(object)
     else
       generate_canonical_url(object)
@@ -224,6 +224,5 @@ defmodule ValueFlows.Util do
   def image_schema() do
     Bonfire.Common.Config.maybe_schema_or_pointer(@image_schema)
   end
-
 
 end

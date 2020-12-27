@@ -4,7 +4,7 @@ defmodule ValueFlows.Agent.Organizations do
   require Logger
 
   def organizations(signed_in_user) do
-    if Code.ensure_loaded?(Organisation.Organisations) do
+    if Bonfire.Common.Utils.module_exists?(Organisation.Organisations) do
       with {:ok, orgs} = Organisation.Organisations.many([:default, user: signed_in_user]) do
         Enum.map(
           orgs,
@@ -18,7 +18,7 @@ defmodule ValueFlows.Agent.Organizations do
   end
 
   def organization(id, signed_in_user) do
-    if Code.ensure_loaded?(Organisation.Organisations) do
+    if Bonfire.Common.Utils.module_exists?(Organisation.Organisations) do
       with {:ok, org} = Organisation.Organisations.one([:default, id: id, user: signed_in_user]) do
         ValueFlows.Agent.Agents.character_to_agent(org)
       end

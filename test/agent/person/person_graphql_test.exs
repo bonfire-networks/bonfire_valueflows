@@ -31,7 +31,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
 
       unit = maybe_fake_unit(user)
 
-      intent = fake_intent!(user, %{provider: user.id})
+      _intent = fake_intent!(user, %{provider: user.id})
 
       rspec = fake_resource_specification!(user)
 
@@ -50,7 +50,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
         )
 
       pspec = fake_process_specification!(user)
-      process = fake_process!(user, %{based_on: pspec.id})
+      _process = fake_process!(user, %{based_on: pspec.id})
 
       _event =
         fake_economic_event!(

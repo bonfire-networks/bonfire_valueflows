@@ -21,7 +21,7 @@ defmodule ValueFlows.TrackAndTraceTest do
       user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
-      input_events = some(3, fn -> fake_economic_event!(user, %{
+      _input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
         resource_inventoried_as: resource.id,
         action: "use"
@@ -36,7 +36,7 @@ defmodule ValueFlows.TrackAndTraceTest do
       user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
-      input_events = some(3, fn -> fake_economic_event!(user, %{
+      _input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
         resource_inventoried_as: resource.id,
         action: "use"
@@ -54,7 +54,7 @@ defmodule ValueFlows.TrackAndTraceTest do
     test "return an economic event that is not part of a process from tracing a resource" do
       user = fake_agent!()
       resource = fake_economic_resource!(user)
-      event = fake_economic_event!(user, %{
+      _event = fake_economic_event!(user, %{
         resource_inventoried_as: resource.id,
         action: "produce"
       })

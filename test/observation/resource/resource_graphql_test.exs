@@ -72,7 +72,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
       q = economic_resource_query()
       conn = user_conn(user)
 
-      assert {:ok, spec} = EconomicResources.soft_delete(resource)
+      assert {:ok, _spec} = EconomicResources.soft_delete(resource)
 
       assert [%{"code" => "not_found", "path" => ["economicResource"], "status" => 404}] =
                grumble_post_errors(q, conn, %{id: resource.id})
@@ -127,7 +127,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
 
-      input_events =
+      _input_events =
         some(3, fn ->
           fake_economic_event!(user, %{
             input_of: process.id,
@@ -136,7 +136,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
           })
         end)
 
-      output_events =
+      _output_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             output_of: process.id,
@@ -158,7 +158,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
       resource = fake_economic_resource!(user, %{}, unit)
 
-      input_events =
+      _input_events =
         some(3, fn ->
           fake_economic_event!(user, %{
             resource_inventoried_as: resource.id,
@@ -190,7 +190,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
       resource = fake_economic_resource!(user, %{}, unit)
       process = fake_process!(user)
 
-      input_events =
+      _input_events =
         some(3, fn ->
           fake_economic_event!(user, %{
             input_of: process.id,
@@ -199,7 +199,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
           }, unit)
         end)
 
-      output_events =
+      _output_events =
         some(5, fn ->
           fake_economic_event!(user, %{
             output_of: process.id,
@@ -223,7 +223,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
       resource = fake_economic_resource!(bob, %{}, unit)
 
-      input_events =
+      _input_events =
         some(3, fn ->
           fake_economic_event!(alice, %{
             provider: alice.id,

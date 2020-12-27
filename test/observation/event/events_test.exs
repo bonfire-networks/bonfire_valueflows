@@ -73,7 +73,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
           unit
         )
 
-      event_a =
+      _event_a =
         fake_economic_event!(
           user,
           %{
@@ -84,7 +84,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
           unit
         )
 
-      event_b =
+      _event_b =
         fake_economic_event!(
           user,
           %{
@@ -177,14 +177,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
           action: "consume"
         })
 
-      event_a =
+      _event_a =
         fake_economic_event!(user, %{
           input_of: process.id,
           action: "use",
           resource_inventoried_as: resource.id
         })
 
-      event_b =
+      _event_b =
         fake_economic_event!(user, %{
           input_of: process.id,
           action: "cite",

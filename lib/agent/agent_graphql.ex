@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Bonfire.Common.Utils.module_exists?(Bonfire.GraphQL) do
 defmodule ValueFlows.Agent.GraphQL do
   alias Bonfire.GraphQL
 
@@ -22,7 +22,7 @@ defmodule ValueFlows.Agent.GraphQL do
   # with pagination
   def people(page_opts, info) do
     people_pages =
-      if Code.ensure_loaded?(CommonsPub.Web.GraphQL.UsersResolver) do
+      if Bonfire.Common.Utils.module_exists?(CommonsPub.Web.GraphQL.UsersResolver) do
         with {:ok, users_pages} <- CommonsPub.Web.GraphQL.UsersResolver.users(page_opts, info) do
           people =
             Enum.map(
@@ -66,7 +66,7 @@ defmodule ValueFlows.Agent.GraphQL do
   # with pagination
   def organizations(page_opts, info) do
     orgz_pages =
-      if Code.ensure_loaded?(Organisation.GraphQL.Resolver) do
+      if Bonfire.Common.Utils.module_exists?(Organisation.GraphQL.Resolver) do
         with {:ok, pages} <- Organisation.GraphQL.Resolver.organisations(page_opts, info) do
           orgz =
             Enum.map(
