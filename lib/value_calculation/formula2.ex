@@ -30,12 +30,18 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   @spec validate(ast(), env(), [var_ref()]) :: :ok | {:error, term()}
   def validate(ast, %{} = env, var_names) when is_list(var_names) do
     value_gen = StreamData.one_of([StreamData.integer(), StreamData.float()])
-
     env_gen = StreamData.fixed_map(for v <- var_names, do: {v, value_gen})
 
-    for new_env <- Enum.take(env_gen, 100) do
-       eval(ast, Map.merge(env, new_env))
-    end
+    options = [initial_seed: :os.timestamp(), max_runs: 100]
+    StreamData.check_all( env_gen, options,
+      fn new_env ->
+        try do
+          {:ok, eval(ast, Map.merge(env, new_env))}
+        rescue e ->
+          {:error, %{reason: e, env: new_env}}
+        end
+      end
+    )
   end
 
   @doc "Execute the AST over the environment."
@@ -51,7 +57,8 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
       variable when is_binary(variable) ->
         lookup_variable_value(variable, env)
 
-      _ -> # TODO: throw error
+      _ ->
+        {:error, "Unknown operation: #{inspect(ast)}"}
     end
   end
 
