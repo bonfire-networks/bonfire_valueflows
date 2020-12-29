@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Bonfire.Common.Utils.module_exists?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Knowledge.Action.GraphQL do
 
 
