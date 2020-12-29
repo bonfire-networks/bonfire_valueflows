@@ -10,8 +10,8 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
       # TODO: make variadic
       "+" => fn [a, b] -> a + b end,
       "-" => fn [a, b] -> a - b end,
-      "/" => fn [a, b] -> a / b end,
       "*" => fn [a, b] -> a * b end,
+      # "/" => fn [a, b] -> a / b end,
     }
   end
 
