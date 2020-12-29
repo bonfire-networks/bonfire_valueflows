@@ -42,7 +42,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     has_many(:conforming_resources, ValueFlows.Observation.EconomicResource, foreign_key: :conforms_to_id)
 
     many_to_many(:tags, Bonfire.Common.Config.maybe_schema_or_pointer(CommonsPub.Tag.Taggable),
-      join_through: "tags_things",
+      join_through: "bonfire_tagged",
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],
       on_replace: :delete

@@ -381,8 +381,8 @@ defmodule ValueFlows.Simulate do
   ## Aliases for functions in other Bonfire extensions ##
 
   def some_fake_categories(user, num \\ 5) do
-    if Bonfire.Common.Utils.module_exists?(CommonsPub.Tag.Simulate),
-    do: some(num, fn -> CommonsPub.Tag.Simulate.fake_category!(user).id end),
+    if Bonfire.Common.Utils.module_exists?(Bonfire.Classify.Simulate),
+    do: some(num, fn -> Bonfire.Classify.Simulate.fake_category!(user).id end),
     else: []
   end
 

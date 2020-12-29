@@ -23,8 +23,8 @@ defmodule ValueFlows.Util do
   # end
 
   def try_tag_thing(user, thing, tags) do
-    if module_exists?(CommonsPub.Tag.TagThings) do
-      CommonsPub.Tag.TagThings.try_tag_thing(user, thing, tags)
+    if module_exists?(Bonfire.Tag.Tags) do
+      Bonfire.Tag.Tags.maybe_tag(user, thing, tags)
     else
       {:ok, thing}
     end
