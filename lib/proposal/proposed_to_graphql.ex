@@ -1,4 +1,4 @@
-if Bonfire.Common.Utils.module_exists?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Proposal.ProposedToGraphQL do
   use Absinthe.Schema.Notation
 
