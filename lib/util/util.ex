@@ -2,8 +2,7 @@
 defmodule ValueFlows.Util do
   import Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
-  # @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
   @image_schema CommonsPub.Uploads.Content
 
   require Logger
@@ -125,43 +124,6 @@ defmodule ValueFlows.Util do
       do: Bonfire.Search.Indexer.format_creator(obj)
   end
 
-  def canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
-    canonical_url
-  end
-
-  def canonical_url(%{character: _character} = thing) do
-    repo().maybe_preload(thing, :character)
-    canonical_url(Map.get(thing, :character))
-  end
-
-  def canonical_url(object) do
-    if module_exists?(CommonsPub.ActivityPub.Utils) do
-      CommonsPub.ActivityPub.Utils.get_object_canonical_url(object)
-    else
-      generate_canonical_url(object)
-    end
-  end
-
-  defp generate_canonical_url(%{id: id} = thing) when is_binary(id) do
-    generate_canonical_url(display_username(thing) || id)
-  end
-
-  defp generate_canonical_url(id_or_username) when is_binary(id_or_username) do
-    "/" <> id_or_username
-  end
-
-  def display_username(%{username: username}) when not is_nil(username) do
-    "@" <> username
-  end
-
-  def display_username(%{profile: _} = thing) do
-    repo().maybe_preload(thing, :profile)
-    display_username(Map.get(thing, :profile))
-  end
-
-  def display_username(_) do
-    nil
-  end
 
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
     Bonfire.Repo.maybe_preload(thing, icon: [:content_upload, :content_mirror])

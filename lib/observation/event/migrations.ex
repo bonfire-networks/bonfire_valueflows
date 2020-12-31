@@ -1,6 +1,6 @@
 defmodule ValueFlows.Observation.EconomicEvent.Migrations do
   use Ecto.Migration
-  # alias Ecto.ULID
+  # alias Pointers.ULID
   import Pointers.Migration
 
   alias ValueFlows.Knowledge.ResourceSpecification

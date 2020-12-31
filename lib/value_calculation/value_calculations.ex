@@ -3,7 +3,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
 
   alias ValueFlows.ValueCalculation
   alias ValueFlows.ValueCalculation.Queries

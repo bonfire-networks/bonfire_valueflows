@@ -25,7 +25,7 @@ defmodule ValueFlows.Claim.GraphQL do
       fetcher: :fetch_claims,
       page_opts: page_opts,
       info: info,
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1]
     })
   end
 

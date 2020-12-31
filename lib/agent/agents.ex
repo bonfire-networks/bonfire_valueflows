@@ -4,8 +4,8 @@ defmodule ValueFlows.Agent.Agents do
   require Logger
   import Bonfire.Common.Utils, only: [maybe_put: 3]
 
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
-  @org_schema Bonfire.Common.Config.get_ext(:bonfire_valueflows, :org_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
+  @org_schema Bonfire.Common.Config.get!(:org_schema)
 
   # TODO - change approach to allow pagination
   def agents(signed_in_user) do
@@ -43,7 +43,7 @@ defmodule ValueFlows.Agent.Agents do
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> maybe_put(:primary_location, agent_location(a))
     |> maybe_put(:note, Map.get(a, :summary))
-    |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
+    # |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
     # |> IO.inspect()
   end

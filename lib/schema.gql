@@ -3707,8 +3707,10 @@ type ValueFlowsQuery {
 
   claim(id: ID): Claim
   claims(start: ID, limit: Int): [Claim!]
+  
   valueCalculation(id: ID): ValueCalculation
   valueCalculations(start: ID, limit: Int): [ValueCalculation!]
+
   settlement(id: ID): Settlement
   settlements(start: ID, limit: Int): [Settlement!]
 

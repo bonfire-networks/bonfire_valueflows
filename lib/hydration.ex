@@ -2,22 +2,18 @@ if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Hydration do
 
   import ValueFlows.Util.GraphQL
+  alias Bonfire.GraphQL.CommonResolver
 
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
-  @org_schema Bonfire.Common.Config.get_ext(:bonfire_valueflows, :org_schema)
-
-  alias ValueFlows.Observation.{
-    Process,
-    EconomicResource
-  }
+  @user Bonfire.Common.Config.get!(:user_schema)
+  @org_schema Bonfire.Common.Config.get!(:org_schema)
 
   def hydrate() do
     agent_fields = %{
       canonical_url: [
-        resolve: &canonical_url_edge/3
+        resolve: &CommonResolver.canonical_url_edge/3
       ],
       display_username: [
-        resolve: &display_username_edge/3
+        resolve: &CommonResolver.display_username_edge/3
       ],
       proposals: [
         resolve: &ValueFlows.Proposal.GraphQL.agent_proposals/3
@@ -69,7 +65,7 @@ defmodule ValueFlows.Hydration do
       },
       proposal: %{
         canonical_url: [
-          resolve: &canonical_url_edge/3
+          resolve: &CommonResolver.canonical_url_edge/3
         ],
         in_scope_of: [
           resolve: &scope_edge/3
@@ -97,7 +93,7 @@ defmodule ValueFlows.Hydration do
       },
       intent: %{
         canonical_url: [
-          resolve: &canonical_url_edge/3
+          resolve: &CommonResolver.canonical_url_edge/3
         ],
         provider: [
           resolve: &fetch_provider_edge/3
@@ -179,7 +175,7 @@ defmodule ValueFlows.Hydration do
       },
       economic_event: %{
         canonical_url: [
-          resolve: &canonical_url_edge/3
+          resolve: &CommonResolver.canonical_url_edge/3
         ],
         provider: [
           resolve: &fetch_provider_edge/3
@@ -237,7 +233,7 @@ defmodule ValueFlows.Hydration do
       },
       economic_resource: %{
         canonical_url: [
-          resolve: &canonical_url_edge/3
+          resolve: &CommonResolver.canonical_url_edge/3
         ],
         state: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_state_edge/3
@@ -288,7 +284,7 @@ defmodule ValueFlows.Hydration do
       },
       process: %{
         canonical_url: [
-          resolve: &canonical_url_edge/3
+          resolve: &CommonResolver.canonical_url_edge/3
         ],
         in_scope_of: [
           resolve: &scope_edge/3
@@ -591,7 +587,7 @@ defmodule ValueFlows.Hydration do
   # def resolve_context_type(%CommonsPub.Collections.Collection{}, _), do: :collection
   def resolve_context_type(_, _), do: :agent
 
-  def production_flow_item_resolve_type(%EconomicResource{}, _), do: :economic_resource
-  def production_flow_item_resolve_type(%Process{}, _), do: :process
+  def production_flow_item_resolve_type(%ValueFlows.Observation.EconomicResource{}, _), do: :economic_resource
+  def production_flow_item_resolve_type(%ValueFlows.Observation.Process{}, _), do: :process
 end
 end

@@ -2,7 +2,7 @@
 defmodule ValueFlows.Planning.Intent.Queries do
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intents
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
@@ -203,7 +203,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
     |> group_by([intent: c], c.id)
     |> having(
       [intent: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Ecto.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
     )
   end
 

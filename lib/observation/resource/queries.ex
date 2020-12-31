@@ -2,7 +2,7 @@
 defmodule ValueFlows.Observation.EconomicResource.Queries do
   alias ValueFlows.Observation.{EconomicResource, EconomicEvent}
   # alias ValueFlows.Observation.EconomicResources
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
@@ -244,7 +244,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     |> group_by([resource: c], c.id)
     |> having(
       [resource: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Ecto.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
     )
   end
 

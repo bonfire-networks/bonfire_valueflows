@@ -9,7 +9,7 @@ defmodule ValueFlows.Proposal do
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal.{ProposedIntent, ProposedTo}

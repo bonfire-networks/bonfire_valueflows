@@ -1,6 +1,6 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.Migrations do
   use Ecto.Migration
-  # alias Ecto.ULID
+  # alias Pointers.ULID
   import Pointers.Migration
 
   # alias ValueFlows.Knowledge.ResourceSpecification

@@ -8,7 +8,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
   #
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification

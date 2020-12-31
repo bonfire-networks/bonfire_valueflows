@@ -1,8 +1,8 @@
 defmodule ValueFlows.Util.Federation do
   import Bonfire.Common.Utils, only: [maybe_put: 3]
 
-  @schema Bonfire.Common.Config.get_ext!(:bonfire_valueflows, :graphql_schema_module)
-  @all_types Bonfire.Common.Config.get_ext(:bonfire_valueflows, :all_types) || []
+  @schema Bonfire.Common.Config.get!(:graphql_schema_module)
+  @all_types Bonfire.Common.Config.get!(:all_types) || []
 
   @graphql_ignore_fields [
     :communities,

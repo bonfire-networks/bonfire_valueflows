@@ -6,7 +6,7 @@ defmodule ValueFlows.ValueCalculation do
     table_id: "VA1VEF10WSVA1VECA1CV1AT10N"
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
 
   @type t :: %__MODULE__{}
 

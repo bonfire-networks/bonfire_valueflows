@@ -3,7 +3,7 @@ defmodule ValueFlows.Claim.Claims do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_ok_error: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
 
   alias ValueFlows.Claim
   alias ValueFlows.Claim.Queries

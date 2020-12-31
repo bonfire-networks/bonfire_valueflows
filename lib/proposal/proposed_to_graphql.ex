@@ -9,7 +9,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   alias Bonfire.GraphQL.ResolveField
 
   import Bonfire.Common.Config, only: [repo: 0]
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
 
   def proposed_to(%{id: id}, info) do
     ResolveField.run(%ResolveField{

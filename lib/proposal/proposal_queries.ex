@@ -2,7 +2,7 @@
 defmodule ValueFlows.Proposal.Queries do
   alias ValueFlows.Proposal
   # alias ValueFlows.Proposal.Proposals
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS

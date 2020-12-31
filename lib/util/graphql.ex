@@ -20,18 +20,6 @@ defmodule ValueFlows.Util.GraphQL do
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
-  @doc "Returns the canonical url for a thing or character"
-  def canonical_url_edge(obj, _, _),
-    do: {:ok, ValueFlows.Util.canonical_url(obj)}
-
-  def display_username_edge(object, _, _) do
-    # IO.inspect(display_username_edge: object)
-    if Bonfire.Common.Utils.module_exists?(CommonsPub.Characters.GraphQL.Resolver) do
-      CommonsPub.Characters.GraphQL.Resolver.display_username_edge(object, nil, nil)
-    else
-      {:ok, ValueFlows.Util.display_username(object)}
-    end
-  end
 
   def scope_edge(%{context_id: id}, page_opts, info),
     do: Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: [id]}, page_opts, info)

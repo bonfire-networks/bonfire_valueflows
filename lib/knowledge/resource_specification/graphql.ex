@@ -43,7 +43,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
       page_opts: page_opts,
       info: info,
       # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1]
     })
   end
 

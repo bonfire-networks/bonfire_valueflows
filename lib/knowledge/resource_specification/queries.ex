@@ -2,7 +2,7 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   alias ValueFlows.Knowledge.ResourceSpecification
   # alias ValueFlows.Knowledge.ResourceSpecifications
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS
@@ -114,7 +114,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     |> group_by([resource_spec: c], c.id)
     |> having(
       [resource_spec: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Ecto.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
     )
   end
 

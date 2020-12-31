@@ -7,7 +7,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Bonfire.Common.Config.get_ext(:bonfire_valueflows, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.Queries

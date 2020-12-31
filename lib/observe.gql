@@ -1,0 +1,114 @@
+"""
+Types of things that can be observed or measured as part of `Observation`.
+"""
+type ObservableProperty {
+  """
+  A unique name for things that can be observed (eg, temperature, weight, contamination...)
+  """
+  label: String!
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Possible qualitative assessment of an `ObservableProperty`.
+(eg. property "contamination" may have phenomenon like "high", "some", "none")
+"""
+type ObservablePhenomonon {
+  """
+  What observable property does this assessment apply to?
+  """
+  choiceOf: ObservableProperty!
+
+  """
+  A unique name for this phenomenon (eg. high, ripe, organic)
+  """
+  label: String!
+
+  """
+  A numerical representation of this phenomenon, to be used when automatic analysis is needed (like value calculation formulas). For example, a series of high/medium/low/none phenomenon could be assigned formula quantifiers of 100/50/10/0.
+  """
+  formulaQuantifier: Float
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
+
+"""
+Can contain either a unit+measure or a qualitative assessment. 
+"""
+union ObservableResult = Measure | ObservablePhenomonon
+
+
+"""
+An observation event that records the measurement or assessement of an economic resource.
+"""
+type Observation {
+  id: ID!
+
+  """
+  The economic agent who did the observing
+  """
+  observedBy: Agent!
+
+  """
+  Economic resource observed
+  """
+  hasFeatureOfInterest: EconomicResource!
+
+  """
+  The date/time at which the observation event.
+  """
+  hasPointInTime: DateTime!
+
+  """
+  Type of measurement (eg, temperature, weight...). 
+  """
+  observedProperty: ObservableProperty!
+
+  """
+  Name and other information about what was observed (in the case of qualitative measurements)
+  """
+  observedPhenomonon: ObservablePhenomonon
+
+  """
+  Unit and measurement of what was observed (in the case of quantitative measurements)
+  """
+  observedMeasure: Measure
+
+  """
+  Contains the same data as either `observedPhenomonon` or `observedMeasure`.
+  """
+  hasResult: ObservableResult!
+
+  """
+  The place where an observation occured.  Usually mappable.
+  """
+  atLocation: SpatialThing
+
+  """
+  Optionally defines the observation process for which this event is an output (eg. regular automatic measurement by a sensor)
+  """
+  outputOf: Process
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  Show the history of observations on the same `observedProperty` of the same resource.
+  Useful to analyse a series of successive observations.
+  """
+  history: [Observation!]
+
+  """
+  A textual description or comment.
+  """
+  note: String
+}
