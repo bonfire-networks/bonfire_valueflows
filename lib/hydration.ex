@@ -574,18 +574,37 @@ defmodule ValueFlows.Hydration do
           :organization | :person
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
-  def agent_resolve_type(%@org_schema{}, _), do: :organization
-  def agent_resolve_type(%@user{}, _), do: :person
-  def agent_resolve_type(_, _), do: :person
+  # def agent_resolve_type(%@org_schema{}, _), do: :organization
+  # def agent_resolve_type(%@user{}, _), do: :person
+  # def agent_resolve_type(_, _), do: :person
+  def agent_resolve_type(%{__struct__: type}, _) do
+    case type do
+      @user ->
+        :person
+      @org_schema ->
+        :organization
+      _ ->
+        :person
+    end
+  end
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true
 
-  def resolve_context_type(%@user{}, _), do: :person
-  def resolve_context_type(%@org_schema{}, _), do: :organization
+  # def resolve_context_type(%@user{}, _), do: :person
+  # def resolve_context_type(%@org_schema{}, _), do: :organization
   # def resolve_context_type(%CommonsPub.Communities.Community{}, _), do: :community
   # def resolve_context_type(%CommonsPub.Collections.Collection{}, _), do: :collection
-  def resolve_context_type(_, _), do: :agent
+  # def resolve_context_type(_, _), do: :agent
+  def resolve_context_type(%{__struct__: type}, _) do
+    # FIXME
+    case type do
+      @user ->
+        :person
+      @org_schema ->
+        :organization
+    end
+  end
 
   def production_flow_item_resolve_type(%ValueFlows.Observation.EconomicResource{}, _), do: :economic_resource
   def production_flow_item_resolve_type(%ValueFlows.Observation.Process{}, _), do: :process

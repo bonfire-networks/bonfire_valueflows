@@ -63,18 +63,27 @@ defmodule ValueFlows.Agent.Agents do
     nil
   end
 
-  def add_type(%@user{} = a) do
-    a
-    |> Map.put(:agent_type, :person)
-  end
+  # def add_type(%@user{} = a) do
+  #   a
+  #   |> Map.put(:agent_type, :person)
+  # end
 
-  def add_type(%@org_schema{} = a) do
-    a
-    |> Map.put(:agent_type, :organization)
-  end
+  # def add_type(%@org_schema{} = a) do
+  #   a
+  #   |> Map.put(:agent_type, :organization)
+  # end
 
-  def add_type(a) do
-    a
-    |> Map.put(:agent_type, :person)
+  def add_type(%{__struct__: type}= a) do
+    case type do
+      @user ->
+        a
+        |> Map.put(:agent_type, :person)
+      @org_schema ->
+        a
+        |> Map.put(:agent_type, :organization)
+      _ ->
+        a
+        |> Map.put(:agent_type, :person)
+    end
   end
 end
