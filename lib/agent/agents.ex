@@ -86,4 +86,9 @@ defmodule ValueFlows.Agent.Agents do
         |> Map.put(:agent_type, :person)
     end
   end
+
+  def add_type(a) do
+     a
+        |> Map.put(:agent_type, :person)
+  end
 end

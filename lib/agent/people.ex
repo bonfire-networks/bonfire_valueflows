@@ -23,22 +23,33 @@ defmodule ValueFlows.Agent.People do
 
   end
 
-  def person(id, signed_in_user) do
+
+  def person(id, signed_in_user) when is_binary(id) do
     person = if Bonfire.Common.Utils.module_exists?(Bonfire.Me.Identity.Users) do
-         with {:ok, user} =
-              Bonfire.Me.Identity.Users.by_id(id) do
+         with {:ok, user} <- Bonfire.Me.Identity.Users.by_id(id) do
           user
+         else _ ->
+          nil
         end
     else
       if Bonfire.Common.Utils.module_exists?(CommonsPub.Users) do
-        with {:ok, user} =
+        with {:ok, user} <-
               CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
           user
+        else _ ->
+          nil
         end
       end
     end
 
-    ValueFlows.Agent.Agents.character_to_agent(person || %{})
+    if person do
+      ValueFlows.Agent.Agents.character_to_agent(person)
+    else
+      nil
+    end
+
   end
+
+  def person(_, _), do: nil
 
 end
