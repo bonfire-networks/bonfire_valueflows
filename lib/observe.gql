@@ -2,8 +2,10 @@
 Types of things that can be observed or measured as part of `Observation`.
 """
 type ObservableProperty {
+  id: ID!
+
   """
-  A unique name for things that can be observed (eg, temperature, weight, contamination...)
+  A name for something that can be observed (eg, temperature, weight, contamination...)
   """
   label: String!
 
@@ -17,14 +19,16 @@ type ObservableProperty {
 Possible qualitative assessment of an `ObservableProperty`.
 (eg. property "contamination" may have phenomenon like "high", "some", "none")
 """
-type ObservablePhenomonon {
+type ObservablePhenomenon {
+  id: ID!
+
   """
   What observable property does this assessment apply to?
   """
   choiceOf: ObservableProperty!
 
   """
-  A unique name for this phenomenon (eg. high, ripe, organic)
+  A name for this phenomenon (eg. high, ripe, organic). Unique to each ObservableProperty.
   """
   label: String!
 
@@ -42,7 +46,17 @@ type ObservablePhenomonon {
 """
 Can contain either a unit+measure or a qualitative assessment. 
 """
-union ObservableResult = Measure | ObservablePhenomonon
+union ObservableResult = Measure | ObservablePhenomenon
+
+"""
+Things that can be observed.
+"""
+union ObservableObject = EconomicResource | Agent
+
+"""
+Agent (usually a person) or machine/sensor that conducts observations.
+"""
+union Observer = Agent | EconomicResource | ResourceSpecification
 
 
 """
@@ -52,19 +66,24 @@ type Observation {
   id: ID!
 
   """
-  The economic agent who did the observing
+  The agent who is providing the observation
   """
-  observedBy: Agent!
+  provider: Agent!
 
   """
-  Economic resource observed
+  The person (`Agent`) or machine/sensor (`EconomicResource` or `ResourceSpecification`) who actually conducted the observation 
   """
-  hasFeatureOfInterest: EconomicResource!
+  madeBySensor: Observer!
+
+  """
+  Thing that was observed (like `EconomicResource` or `Agent`)
+  """
+  hasFeatureOfInterest: ObservableObject!
 
   """
   The date/time at which the observation event.
   """
-  hasPointInTime: DateTime!
+  resultTime: DateTime!
 
   """
   Type of measurement (eg, temperature, weight...). 
@@ -72,29 +91,21 @@ type Observation {
   observedProperty: ObservableProperty!
 
   """
-  Name and other information about what was observed (in the case of qualitative measurements)
-  """
-  observedPhenomonon: ObservablePhenomonon
-
-  """
-  Unit and measurement of what was observed (in the case of quantitative measurements)
-  """
-  observedMeasure: Measure
-
-  """
-  Contains the same data as either `observedPhenomonon` or `observedMeasure`.
+  The result of the observation, which can be one of:
+  - Unit and measurement of what was observed (in the case of quantitative measurements)
+  - Name and other information (using `ObservablePhenomenon`) about what was observed (in the case of qualitative measurements)
   """
   hasResult: ObservableResult!
 
   """
-  The place where an observation occured.  Usually mappable.
+  The place where an observation occured. Usually mappable.
   """
   atLocation: SpatialThing
 
   """
-  Optionally defines the observation process for which this event is an output (eg. regular automatic measurement by a sensor)
+  Optionally defines the economic process during which this event occured
   """
-  outputOf: Process
+  observedDuring: Process
 
   """
   Grouping around something to create a boundary or context, used for documenting, accounting, planning.
@@ -102,13 +113,78 @@ type Observation {
   inScopeOf: [AccountingScope!]
 
   """
-  Show the history of observations on the same `observedProperty` of the same resource.
-  Useful to analyse a series of successive observations.
+  A textual description or comment.
   """
-  history: [Observation!]
+  note: String
+
+}
+
+input ObservationInputParams {
+
+  """
+  (`Person` or `Organization`) The agent who is providing the observation
+  """
+  provider: ID
+
+  """
+  (`Person` or `EconomicResource` or `ResourceSpecification`) The person or machine/sensor who actually conducted the observation 
+  """
+  madeBySensor: ID
+
+  """
+  (`EconomicResource` or `Agent`) Thing that was observed
+  """
+  hasFeatureOfInterest: ID!
+
+  """
+  (`ObservableProperty`) Type of measurement (eg, temperature, weight...). 
+  """
+  observedProperty: ID!
+
+  """
+  The date/time at which the observation event.
+  """
+  resultTime: DateTime
+
+  """
+  (`SpatialThing`) The place where an observation occured.  Usually mappable.
+  """
+  atLocation: ID
+
+  """
+  (`Process`) Optionally defines the economic process during which this event occured
+  """
+  observedDuring: ID
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
 
   """
   A textual description or comment.
   """
   note: String
+
+}
+
+
+type Mutation {
+
+  createObservation(
+
+    observation: ObservationInputParams!
+
+    """
+    Name and other information (`ObservablePhenomenon`) about what was observed (only in the case of qualitative measurements)
+    """
+    observedPhenomenon: ID
+
+    """
+    Unit and measurement of what was observed (only in the case of quantitative measurements)
+    """
+    observedMeasure: IMeasure
+
+  ): Observation
+
 }
