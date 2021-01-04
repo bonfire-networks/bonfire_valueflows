@@ -11,7 +11,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
       "+" => fn [a, b] -> a + b end,
       "-" => fn [a, b] -> a - b end,
       "*" => fn [a, b] -> a * b end,
-      # "/" => fn [a, b] -> a / b end,
+      "/" => fn [a, b] -> a / b end,
     }
   end
 
@@ -28,11 +28,11 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   Run property tests against the given
   """
   @spec validate(ast(), env(), [var_ref()]) :: :ok | {:error, term()}
-  def validate(ast, %{} = env, var_names) when is_list(var_names) do
+  def validate(ast, %{} = env, var_names, options \\ []) when is_list(var_names) do
     value_gen = StreamData.one_of([StreamData.integer(), StreamData.float()])
     env_gen = StreamData.fixed_map(for v <- var_names, do: {v, value_gen})
 
-    options = [initial_seed: :os.timestamp(), max_runs: 100]
+    options = Keyword.merge([initial_seed: :os.timestamp(), max_runs: 5_000], options)
     StreamData.check_all( env_gen, options,
       fn new_env ->
         try do
@@ -57,13 +57,15 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
       variable when is_binary(variable) ->
         lookup_variable_value(variable, env)
 
+      # TODO: possibly add if condition that works on numbers only (false on 0 only)
+      # TODO: so you can do (if var-a (/ 1 var-a) 1), avoiding division by 0 if var-a = 0
+
       _ ->
         {:error, "Unknown operation: #{inspect(ast)}"}
     end
   end
 
   defp do_apply(operator, args) when is_function(operator, 1) do
-    # :erlang.apply(operator, args)
     operator.(args)
   end
 
@@ -103,15 +105,26 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
 
   # parse as an atom (a binary in erlang), float or integer
   defp atom(token) do
-    case Integer.parse(token) do
-      {value, ""} ->
-        value
-
+    case parse_integer(token) do
       :error ->
         case Float.parse(token) do
           {value, ""} -> value
           :error -> token
         end
+
+      value -> value
+    end
+  end
+
+  defp parse_integer(token) do
+    case Integer.parse(token) do
+      {value, ""} ->
+        value
+
+      {_, decimal} when is_binary(decimal) ->
+        :error
+
+      :error -> :error
     end
   end
 end
