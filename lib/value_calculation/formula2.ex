@@ -7,13 +7,13 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
 
   def default_env do
     %{
-      # TODO: make variadic
-      "+" => fn [a, b] -> a + b end,
-      "-" => fn [a, b] -> a - b end,
-      "*" => fn [a, b] -> a * b end,
+      "+" => fn vals -> Enum.sum(vals) end,
+      "-" => fn [x | xs] -> Enum.reduce(xs, x, &(&2 - &1)) end,
+      "*" => fn [x | xs] -> Enum.reduce(xs, x, &(&1 * &2)) end,
       # TODO: division is disabled until an if condition is added that works on numbers only (false on 0 only)
       # TODO: so you can do (if var-a (/ 1 var-a) 1), avoiding division by 0 if var-a = 0
       # "/" => fn [a, b] -> a / b end,
+      "pow" => fn [a, b] -> :math.pow(a, b) end,
     }
   end
 

@@ -24,7 +24,11 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     end
 
     test "with an invalid formula" do
+      user = fake_agent!()
 
+      attrs = %{formula: "(* 2 missing)"}
+      assert {:error, %{original_failure: "Undefined variable: \"missing\""}} =
+        ValueCalculations.create(user, value_calculation(attrs))
     end
 
     test "with a context" do

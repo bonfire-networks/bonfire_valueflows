@@ -42,6 +42,10 @@ defmodule ValueFlows.ValueCalculation.Formula2Test do
     end
 
     test "default functions" do
+      assert {:ok, 3} = "(+ 1 1 1)" |> Formula2.parse() |> Formula2.eval(Formula2.default_env())
+      assert {:ok, 0} = "(- 3 2 1)" |> Formula2.parse() |> Formula2.eval(Formula2.default_env())
+      assert {:ok, 6} = "(* 1 2 3)" |> Formula2.parse() |> Formula2.eval(Formula2.default_env())
+      assert {:ok, 16.0} = "(pow 2 4)" |> Formula2.parse() |> Formula2.eval(Formula2.default_env())
     end
 
     test "fails if variable does not exist" do
