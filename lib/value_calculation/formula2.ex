@@ -34,7 +34,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     value_gen = StreamData.one_of([StreamData.integer(), StreamData.float()])
     env_gen = StreamData.fixed_map(for v <- var_names, do: {v, value_gen})
 
-    options = Keyword.merge([initial_seed: :os.timestamp(), max_runs: 5_000], options)
+    options = Keyword.merge([initial_seed: :os.timestamp(), max_runs: 1_000], options)
     StreamData.check_all( env_gen, options,
       fn new_env ->
         try do

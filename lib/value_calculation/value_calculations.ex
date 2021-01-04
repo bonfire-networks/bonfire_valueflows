@@ -21,35 +21,31 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   def create(%{} = user, attrs) do
     attrs = prepare_attrs(attrs)
 
-    repo().transact_with(fn ->
-      with :ok <- prepare_formula(attrs),
-           {:ok, calculation} <- repo().insert(ValueCalculation.create_changeset(user, attrs)) do
-        {:ok, preload_all(calculation)}
-      end
-    end)
+    with :ok <- prepare_formula(attrs),
+         {:ok, calculation} <- repo().insert(ValueCalculation.create_changeset(user, attrs)) do
+      {:ok, preload_all(calculation)}
+    end
   end
 
   def update(%ValueCalculation{} = calculation, attrs) do
     attrs = prepare_attrs(attrs)
 
-    repo().transact_with(fn ->
-      with :ok <- prepare_formula(attrs),
-           {:ok, calculation} <- repo().update(ValueCalculation.update_changeset(calculation, attrs)) do
-        {:ok, preload_all(calculation)}
-      end
-    end)
+    with :ok <- prepare_formula(attrs),
+          {:ok, calculation} <- repo().update(ValueCalculation.update_changeset(calculation, attrs)) do
+      {:ok, preload_all(calculation)}
+    end
   end
 
   def soft_delete(%ValueCalculation{} = calculation) do
     Bonfire.Repo.Delete.soft_delete(calculation)
   end
 
-  defp prepare_formula(%{formula: formula} = attrs) do
+  defp prepare_formula(%{formula: formula}) do
     available_vars = ["resourceQuantity", "availableQuantity", "effortQuantity"]
 
     formula
     |> Formula2.parse()
-    |> Formula2.validate(Formula2.default_env(), available_vars)
+    |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
     |> case do
       {:ok, _} -> :ok
       e -> e
@@ -65,4 +61,11 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     )
     |> maybe_put(:value_unit_id, Map.get(attrs, :value_unit))
   end
+
+  if Mix.env() == :test do
+  defp formula2_options, do: [max_runs: 100]
+  else
+  defp formula2_options, do: [max_runs: 1_000]
+  end
+
 end

@@ -51,7 +51,7 @@ defmodule ValueFlows.Simulate do
   def value_calculation(base \\ %{}) do
     base
     # TODO
-    |> Map.put_new_lazy(:formula, fn -> "(+ 1 claimEffortQuantity)" end)
+    |> Map.put_new_lazy(:formula, fn -> "(+ 1 effortQuantity)" end)
   end
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])
