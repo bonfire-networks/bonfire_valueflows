@@ -6,7 +6,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   @user Bonfire.Common.Config.get!(:user_schema)
 
   alias ValueFlows.ValueCalculation
-  alias ValueFlows.ValueCalculation.Queries
+  alias ValueFlows.ValueCalculation.{Formula2, Queries}
 
   def one(filters), do: repo().single(Queries.query(ValueCalculation, filters))
 
@@ -22,7 +22,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     attrs = prepare_attrs(attrs)
 
     repo().transact_with(fn ->
-      with {:ok, calculation} <- repo().insert(ValueCalculation.create_changeset(user, attrs)) do
+      with :ok <- prepare_formula(attrs),
+           {:ok, calculation} <- repo().insert(ValueCalculation.create_changeset(user, attrs)) do
         {:ok, preload_all(calculation)}
       end
     end)
@@ -32,7 +33,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     attrs = prepare_attrs(attrs)
 
     repo().transact_with(fn ->
-      with {:ok, calculation} <- repo().update(ValueCalculation.update_changeset(calculation, attrs)) do
+      with :ok <- prepare_formula(attrs),
+           {:ok, calculation} <- repo().update(ValueCalculation.update_changeset(calculation, attrs)) do
         {:ok, preload_all(calculation)}
       end
     end)
@@ -41,6 +43,20 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   def soft_delete(%ValueCalculation{} = calculation) do
     Bonfire.Repo.Delete.soft_delete(calculation)
   end
+
+  defp prepare_formula(%{formula: formula} = attrs) do
+    available_vars = ["resourceQuantity", "availableQuantity", "effortQuantity"]
+
+    formula
+    |> Formula2.parse()
+    |> Formula2.validate(Formula2.default_env(), available_vars)
+    |> case do
+      {:ok, _} -> :ok
+      e -> e
+    end
+  end
+
+  defp prepare_formula(_attrs), do: :ok
 
   defp prepare_attrs(attrs) do
     attrs

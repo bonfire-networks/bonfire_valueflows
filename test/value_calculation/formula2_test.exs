@@ -30,24 +30,25 @@ defmodule ValueFlows.ValueCalculation.Formula2Test do
     end
 
     test "fails if variable name does not exist" do
-      assert {:error, %{original_failure: failure}} = "(+ 1 a)" |> Formula2.parse() |> test_validate([])
-      assert %{reason: %{message: "Undefined variable \"a\""}} = failure
-    end
-
-    test "catches specific cases with specific numbers" do
-      assert {:error, _} = "(/ 1 (- 0.0158190 a))"
-      |> Formula2.parse()
-      |> Formula2.eval(Map.merge(Formula2.default_env(), %{"a" => 0.0158190}))
+      assert {:error, %{original_failure: "Undefined variable: \"a\""}} =
+        "(+ 1 a)" |> Formula2.parse() |> test_validate([])
     end
   end
 
   describe "evaluate" do
     test "self evaluating" do
-      assert 1 = "1" |> Formula2.parse() |> Formula2.eval(%{})
-      assert 3.14 = "3.14" |> Formula2.parse() |> Formula2.eval(%{})
+      assert {:ok, 1} = "1" |> Formula2.parse() |> Formula2.eval(%{})
+      assert {:ok, 3.14} = "3.14" |> Formula2.parse() |> Formula2.eval(%{})
     end
 
     test "default functions" do
+    end
+
+    test "fails if variable does not exist" do
+      assert {:error, "Undefined variable: \"a\""} =
+        "(+ 1 a)"
+        |> Formula2.parse()
+        |> Formula2.eval(Formula2.default_env())
     end
   end
 end

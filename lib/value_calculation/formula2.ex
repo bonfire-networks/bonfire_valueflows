@@ -11,7 +11,9 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
       "+" => fn [a, b] -> a + b end,
       "-" => fn [a, b] -> a - b end,
       "*" => fn [a, b] -> a * b end,
-      "/" => fn [a, b] -> a / b end,
+      # TODO: division is disabled until an if condition is added that works on numbers only (false on 0 only)
+      # TODO: so you can do (if var-a (/ 1 var-a) 1), avoiding division by 0 if var-a = 0
+      # "/" => fn [a, b] -> a / b end,
     }
   end
 
@@ -36,7 +38,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     StreamData.check_all( env_gen, options,
       fn new_env ->
         try do
-          {:ok, eval(ast, Map.merge(env, new_env))}
+          eval(ast, Map.merge(env, new_env))
         rescue e ->
           {:error, %{reason: e, env: new_env}}
         end
@@ -49,16 +51,16 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   def eval(ast, %{} = env) do
     case ast do
       [operator | args] when is_list(args) ->
-        do_apply(eval(operator, env), eval_parameters(args, env))
+        with {:ok, operator_fn} <- eval(operator, env),
+             {:ok, parameters} <- eval_parameters(args, env) do
+          {:ok, do_apply(operator_fn, parameters)}
+        end
 
       value when is_integer(value) or is_float(value) ->
-        value
+        {:ok, value}
 
       variable when is_binary(variable) ->
         lookup_variable_value(variable, env)
-
-      # TODO: possibly add if condition that works on numbers only (false on 0 only)
-      # TODO: so you can do (if var-a (/ 1 var-a) 1), avoiding division by 0 if var-a = 0
 
       _ ->
         {:error, "Unknown operation: #{inspect(ast)}"}
@@ -69,10 +71,24 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     operator.(args)
   end
 
-  defp eval_parameters(args, env), do: Enum.map(args, &eval(&1, env))
+  defp eval_parameters(args, env) do
+    # TODO: find the helper I wrote for this
+     Enum.reduce_while(args, [], fn arg, acc ->
+      case eval(arg, env) do
+        {:ok, val} -> {:cont, [val | acc]}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
+     end)
+     |> case do
+      {:error, _} = e -> e
+      val -> {:ok, Enum.reverse(val)}
+     end
+  end
 
   defp lookup_variable_value(var_name, env) do
-    Map.fetch!(env, var_name)
+    with :error <- Map.fetch(env, var_name) do
+      {:error, "Undefined variable: #{inspect(var_name)}"}
+    end
   end
 
   defp tokenize(str) do
