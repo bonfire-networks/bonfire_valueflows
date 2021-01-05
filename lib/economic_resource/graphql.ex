@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 if Code.ensure_loaded?(Bonfire.GraphQL) do
-defmodule ValueFlows.Observation.EconomicResource.GraphQL do
+defmodule ValueFlows.EconomicResource.GraphQL do
   # default to 100 km radius
   @radius_default_distance 100_000
 
@@ -20,9 +20,9 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   }
 
 
-  alias ValueFlows.Observation.EconomicResource
-  alias ValueFlows.Observation.EconomicResource.EconomicResources
-  alias ValueFlows.Observation.EconomicResource.Queries
+  alias ValueFlows.EconomicResource
+  alias ValueFlows.EconomicResource.EconomicResources
+  alias ValueFlows.EconomicResource.Queries
   # alias ValueFlows.Knowledge.Action.Actions
   # alias Bonfire.GraphQL.CommonResolver
 
@@ -323,8 +323,8 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   def fetch_resources(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: ValueFlows.Observation.EconomicResource.Queries,
-      query: ValueFlows.Observation.EconomicResource,
+      queries: ValueFlows.EconomicResource.Queries,
+      query: ValueFlows.EconomicResource,
       # preload: [:primary_accountable, :receiver, :tags],
       cursor_fn:  & &1.id,
       page_opts: page_opts,

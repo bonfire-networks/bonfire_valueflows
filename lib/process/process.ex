@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.Process do
+defmodule ValueFlows.Process do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_process",
@@ -9,13 +9,13 @@ defmodule ValueFlows.Observation.Process do
   alias Ecto.Changeset
   @user Bonfire.Common.Config.get!(:user_schema)
 
-  alias ValueFlows.Observation.Process
+  alias ValueFlows.Process
   # alias Bonfire.Quantify.Measure
 
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
 
-  # alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.EconomicEvent
 
   @type t :: %__MODULE__{}
 
@@ -104,9 +104,9 @@ defmodule ValueFlows.Observation.Process do
     |> change_disabled()
   end
 
-  def context_module, do: ValueFlows.Observation.Process.Processes
+  def context_module, do: ValueFlows.Process.Processes
 
-  def queries_module, do: ValueFlows.Observation.Process.Queries
+  def queries_module, do: ValueFlows.Process.Queries
 
   def follow_filters, do: [:default]
 end

@@ -5,7 +5,7 @@ defmodule ValueFlows.Claim.Migrations do
   import Pointers.Migration
 
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.Observation.EconomicEvent
+  alias ValueFlows.EconomicEvent
 
   def up do
     create_pointable_table(ValueFlows.Claim) do

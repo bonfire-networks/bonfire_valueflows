@@ -1,17 +1,17 @@
-defmodule ValueFlows.Observation.EconomicEvent.Migrations do
+defmodule ValueFlows.EconomicEvent.Migrations do
   use Ecto.Migration
   # alias Pointers.ULID
   import Pointers.Migration
 
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.EconomicResource
-  alias ValueFlows.Observation.Process
+  alias ValueFlows.EconomicEvent
+  alias ValueFlows.EconomicResource
+  alias ValueFlows.Process
 
   # defp event_table(), do: EconomicEvent.__schema__(:source)
 
   def up do
-    create_pointable_table(ValueFlows.Observation.EconomicEvent) do
+    create_pointable_table(ValueFlows.EconomicEvent) do
       # add(:name, :string)
       add(:note, :text)
 
@@ -61,6 +61,6 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
   end
 
   def down do
-    drop_pointable_table(ValueFlows.Observation.EconomicEvent)
+    drop_pointable_table(ValueFlows.EconomicEvent)
   end
 end

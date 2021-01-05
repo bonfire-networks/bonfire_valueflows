@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
+defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
   import Bonfire.Common.Simulation
@@ -7,7 +7,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
   import ValueFlows.Test.Faking
 
   # alias Grumble.PP
-  # alias ValueFlows.Observation.EconomicEvent.EconomicEvents
+  # alias ValueFlows.EconomicEvent.EconomicEvents
 
   # import Bonfire.Geolocate.Simulate
   # import Bonfire.Geolocate.Test.Faking

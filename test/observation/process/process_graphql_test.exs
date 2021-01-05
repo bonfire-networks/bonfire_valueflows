@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.Process.GraphQLTest do
+defmodule ValueFlows.Process.GraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
 
@@ -9,7 +9,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
-  alias ValueFlows.Observation.Process.Processes
+  alias ValueFlows.Process.Processes
 
   @debug false
   @schema Bonfire.GraphQL.Schema

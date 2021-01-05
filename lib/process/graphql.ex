@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 if Code.ensure_loaded?(Bonfire.GraphQL) do
-defmodule ValueFlows.Observation.Process.GraphQL do
+defmodule ValueFlows.Process.GraphQL do
   require Logger
 
   import Bonfire.Common.Config, only: [repo: 0]
@@ -20,9 +20,9 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   # alias Bonfire.Common.Enums
   # alias Bonfire.Common.Pointers
 
-  alias ValueFlows.Observation.Process
-  alias ValueFlows.Observation.Process.Processes
-  alias ValueFlows.Observation.Process.Queries
+  alias ValueFlows.Process
+  alias ValueFlows.Process.Processes
+  alias ValueFlows.Process.Queries
   # alias Bonfire.GraphQL.CommonResolver
 
   # SDL schema import
@@ -222,8 +222,8 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   def fetch_processes(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: ValueFlows.Observation.Process.Queries,
-      query: ValueFlows.Observation.Process,
+      queries: ValueFlows.Process.Queries,
+      query: ValueFlows.Process,
       # preload: [:provider, :receiver, :tags],
       # cursor_fn: Processes.cursor(:followers),
       page_opts: page_opts,

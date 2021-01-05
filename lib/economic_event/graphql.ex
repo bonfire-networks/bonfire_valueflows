@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 if Code.ensure_loaded?(Bonfire.GraphQL) do
-defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
+defmodule ValueFlows.EconomicEvent.GraphQL do
   # default to 100 km radius
   @radius_default_distance 100_000
 
@@ -16,9 +16,9 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     FetchPage
   }
 
-  alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
-  alias ValueFlows.Observation.EconomicEvent.Queries
+  alias ValueFlows.EconomicEvent
+  alias ValueFlows.EconomicEvent.EconomicEvents
+  alias ValueFlows.EconomicEvent.Queries
 
   ## resolvers
 
@@ -256,8 +256,8 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   def fetch_events(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: ValueFlows.Observation.EconomicEvent.Queries,
-      query: ValueFlows.Observation.EconomicEvent,
+      queries: ValueFlows.EconomicEvent.Queries,
+      query: ValueFlows.EconomicEvent,
       page_opts: page_opts,
       cursor_fn:  & &1.id,
       base_filters: [

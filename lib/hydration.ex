@@ -22,13 +22,13 @@ defmodule ValueFlows.Hydration do
         resolve: &ValueFlows.Planning.Intent.GraphQL.agent_intents/3
       ],
       processes: [
-        resolve: &ValueFlows.Observation.Process.GraphQL.creator_processes/3
+        resolve: &ValueFlows.Process.GraphQL.creator_processes/3
       ],
       economic_events: [
-        resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.agent_events/3
+        resolve: &ValueFlows.EconomicEvent.GraphQL.agent_events/3
       ],
       inventoried_economic_resources: [
-        resolve: &ValueFlows.Observation.EconomicResource.GraphQL.agent_resources/3
+        resolve: &ValueFlows.EconomicResource.GraphQL.agent_resources/3
       ]
     }
 
@@ -199,18 +199,18 @@ defmodule ValueFlows.Hydration do
           resolve: &scope_edge/3
         ],
         input_of: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_input_of_edge/3
+          resolve: &ValueFlows.EconomicEvent.GraphQL.fetch_input_of_edge/3
         ],
         output_of: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_output_of_edge/3
+          resolve: &ValueFlows.EconomicEvent.GraphQL.fetch_output_of_edge/3
         ],
         resource_inventoried_as: [
           resolve:
-            &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
+            &ValueFlows.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
         ],
         to_resource_inventoried_as: [
           resolve:
-            &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_to_resource_inventoried_as_edge/3
+            &ValueFlows.EconomicEvent.GraphQL.fetch_to_resource_inventoried_as_edge/3
         ],
         resource_classified_as: [
           resolve: &fetch_classifications_edge/3
@@ -219,16 +219,16 @@ defmodule ValueFlows.Hydration do
           resolve: &at_location_edge/3
         ],
         triggered_by: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_triggered_by_edge/3
+          resolve: &ValueFlows.EconomicEvent.GraphQL.fetch_triggered_by_edge/3
         ],
         tags: [
           resolve: &tags_edges/3
         ],
         trace: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.trace/3
+          resolve: &ValueFlows.EconomicEvent.GraphQL.trace/3
         ],
         track: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.track/3
+          resolve: &ValueFlows.EconomicEvent.GraphQL.track/3
         ]
       },
       economic_resource: %{
@@ -236,7 +236,7 @@ defmodule ValueFlows.Hydration do
           resolve: &CommonResolver.canonical_url_edge/3
         ],
         state: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_state_edge/3
+          resolve: &ValueFlows.EconomicResource.GraphQL.fetch_state_edge/3
         ],
         in_scope_of: [
           resolve: &scope_edge/3
@@ -261,25 +261,25 @@ defmodule ValueFlows.Hydration do
         ],
         primary_accountable: [
           resolve:
-            &ValueFlows.Observation.EconomicResource.GraphQL.fetch_primary_accountable_edge/3
+            &ValueFlows.EconomicResource.GraphQL.fetch_primary_accountable_edge/3
         ],
         unit_of_effort: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_unit_of_effort_edge/3
+          resolve: &ValueFlows.EconomicResource.GraphQL.fetch_unit_of_effort_edge/3
         ],
         contained_in: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_contained_in_edge/3
+          resolve: &ValueFlows.EconomicResource.GraphQL.fetch_contained_in_edge/3
         ],
         conforms_to: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_conforms_to_edge/3
+          resolve: &ValueFlows.EconomicResource.GraphQL.fetch_conforms_to_edge/3
         ],
         tags: [
           resolve: &tags_edges/3
         ],
         trace: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.trace/3
+          resolve: &ValueFlows.EconomicResource.GraphQL.trace/3
         ],
         track: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.track/3
+          resolve: &ValueFlows.EconomicResource.GraphQL.track/3
         ]
       },
       process: %{
@@ -296,19 +296,19 @@ defmodule ValueFlows.Hydration do
           resolve: &tags_edges/3
         ],
         track: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.track/3
+          resolve: &ValueFlows.Process.GraphQL.track/3
         ],
         trace: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.trace/3
+          resolve: &ValueFlows.Process.GraphQL.trace/3
         ],
         inputs: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.inputs/3
+          resolve: &ValueFlows.Process.GraphQL.inputs/3
         ],
         outputs: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.outputs/3
+          resolve: &ValueFlows.Process.GraphQL.outputs/3
         ],
         based_on: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.fetch_based_on_edge/3
+          resolve: &ValueFlows.Process.GraphQL.fetch_based_on_edge/3
         ]
       },
       resource_specification: %{
@@ -388,37 +388,37 @@ defmodule ValueFlows.Hydration do
 
         # Observation
         economic_event: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.event/2
+          resolve: &ValueFlows.EconomicEvent.GraphQL.event/2
         ],
         economic_events: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.all_events/2
+          resolve: &ValueFlows.EconomicEvent.GraphQL.all_events/2
         ],
         economic_events_pages: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.events/2
+          resolve: &ValueFlows.EconomicEvent.GraphQL.events/2
         ],
         economic_events_filtered: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.events_filtered/2
+          resolve: &ValueFlows.EconomicEvent.GraphQL.events_filtered/2
         ],
         economic_resource: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resource/2
+          resolve: &ValueFlows.EconomicResource.GraphQL.resource/2
         ],
         economic_resources: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.all_resources/2
+          resolve: &ValueFlows.EconomicResource.GraphQL.all_resources/2
         ],
         economic_resources_pages: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resources/2
+          resolve: &ValueFlows.EconomicResource.GraphQL.resources/2
         ],
         economic_resources_filtered: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resources_filtered/2
+          resolve: &ValueFlows.EconomicResource.GraphQL.resources_filtered/2
         ],
         process: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.process/2
+          resolve: &ValueFlows.Process.GraphQL.process/2
         ],
         processes: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.all_processes/2
+          resolve: &ValueFlows.Process.GraphQL.all_processes/2
         ],
         processes_pages: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.processes/2
+          resolve: &ValueFlows.Process.GraphQL.processes/2
         ],
 
         # Planning
@@ -500,7 +500,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.update_process_spec/2
         ],
         update_process: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.update_process/2
+          resolve: &ValueFlows.Process.GraphQL.update_process/2
         ],
         delete_claim: [
           resolve: &ValueFlows.Claim.GraphQL.delete_claim/2
@@ -518,7 +518,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.delete_process_spec/2
         ],
         delete_process: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.delete_process/2
+          resolve: &ValueFlows.Process.GraphQL.delete_process/2
         ],
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
@@ -533,19 +533,19 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.create_process_spec/2
         ],
         create_process: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.create_process/2
+          resolve: &ValueFlows.Process.GraphQL.create_process/2
         ],
         create_economic_event: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.create_event/2
+          resolve: &ValueFlows.EconomicEvent.GraphQL.create_event/2
         ],
         update_economic_event: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.update_event/2
+          resolve: &ValueFlows.EconomicEvent.GraphQL.update_event/2
         ],
         delete_economic_event: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.delete_event/2
+          resolve: &ValueFlows.EconomicEvent.GraphQL.delete_event/2
         ],
         update_economic_resource: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.update_resource/2
+          resolve: &ValueFlows.EconomicResource.GraphQL.update_resource/2
         ],
         create_person: [
           resolve: &ValueFlows.Agent.GraphQL.mutate_person/2
@@ -606,7 +606,7 @@ defmodule ValueFlows.Hydration do
     end
   end
 
-  def production_flow_item_resolve_type(%ValueFlows.Observation.EconomicResource{}, _), do: :economic_resource
-  def production_flow_item_resolve_type(%ValueFlows.Observation.Process{}, _), do: :process
+  def production_flow_item_resolve_type(%ValueFlows.EconomicResource{}, _), do: :economic_resource
+  def production_flow_item_resolve_type(%ValueFlows.Process{}, _), do: :process
 end
 end

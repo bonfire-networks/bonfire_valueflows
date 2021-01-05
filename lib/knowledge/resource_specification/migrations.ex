@@ -4,8 +4,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Migrations do
   import Pointers.Migration
 
   # alias ValueFlows.Knowledge.ResourceSpecification
-  # alias ValueFlows.Observation.EconomicResource
-  # alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.EconomicResource
+  # alias ValueFlows.EconomicEvent
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 

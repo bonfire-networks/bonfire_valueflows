@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
+defmodule ValueFlows.EconomicEvent.EconomicEvents do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_append: 2, map_key_replace: 3]
 
   import Bonfire.Common.Config, only: [repo: 0]
@@ -9,12 +9,12 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   @user Bonfire.Common.Config.get!(:user_schema)
 
-  alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.EconomicResource.EconomicResources
-  alias ValueFlows.Observation.EconomicEvent.Queries
-  alias ValueFlows.Observation.EconomicEvent.EventSideEffects
+  alias ValueFlows.EconomicEvent
+  alias ValueFlows.EconomicResource.EconomicResources
+  alias ValueFlows.EconomicEvent.Queries
+  alias ValueFlows.EconomicEvent.EventSideEffects
 
-  alias ValueFlows.Observation.Process.Processes
+  alias ValueFlows.Process.Processes
 
   import Bonfire.Fail.Error
 
@@ -315,7 +315,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       |> Map.put_new(:is_public, true)
 
     with {:ok, new_resource} <-
-           ValueFlows.Observation.EconomicResource.EconomicResources.create(
+           ValueFlows.EconomicResource.EconomicResources.create(
              creator,
              new_resource_attrs
            ) do

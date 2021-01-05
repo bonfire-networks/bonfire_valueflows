@@ -1,15 +1,15 @@
-defmodule ValueFlows.Observation.Process.Migrations do
+defmodule ValueFlows.Process.Migrations do
   use Ecto.Migration
   # alias Pointers.ULID
   import Pointers.Migration
 
-  # alias ValueFlows.Observation.Process
+  # alias ValueFlows.Process
   alias ValueFlows.Knowledge.ProcessSpecification
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 
   def up do
-    create_pointable_table(ValueFlows.Observation.Process) do
+    create_pointable_table(ValueFlows.Process) do
       add(:name, :string)
       add(:note, :text)
 
@@ -38,7 +38,7 @@ defmodule ValueFlows.Observation.Process.Migrations do
   end
 
   def down do
-    drop_pointable_table(ValueFlows.Observation.Process)
+    drop_pointable_table(ValueFlows.Process)
   end
 
 end

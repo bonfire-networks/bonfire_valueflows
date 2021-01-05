@@ -14,9 +14,9 @@ defmodule ValueFlows.Simulate do
 
   alias ValueFlows.Proposal.Proposals
 
-  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
-  alias ValueFlows.Observation.EconomicResource.EconomicResources
-  alias ValueFlows.Observation.Process.Processes
+  alias ValueFlows.EconomicEvent.EconomicEvents
+  alias ValueFlows.EconomicResource.EconomicResources
+  alias ValueFlows.Process.Processes
 
   alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications

@@ -64,7 +64,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def fetch_conforming_resources_edge(%{conforms_to: id}, page_opts, info) when not is_nil(id) do
-    ValueFlows.Observation.EconomicResource.GraphQL.spec_conforms_to_resources(%{conforms_to: id}, page_opts, info)
+    ValueFlows.EconomicResource.GraphQL.spec_conforms_to_resources(%{conforms_to: id}, page_opts, info)
   end
 
   def resource_specs_filtered(page_opts, _) do

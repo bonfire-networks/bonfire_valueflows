@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.EconomicResource do
+defmodule ValueFlows.EconomicResource do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_resource",
@@ -16,7 +16,7 @@ defmodule ValueFlows.Observation.EconomicResource do
   alias ValueFlows.Knowledge.ResourceSpecification
   # alias ValueFlows.Knowledge.ProcessSpecification
 
-  alias ValueFlows.Observation.EconomicResource
+  alias ValueFlows.EconomicResource
 
   @type t :: %__MODULE__{}
 
@@ -112,9 +112,9 @@ defmodule ValueFlows.Observation.EconomicResource do
     |> change_disabled()
   end
 
-  def context_module, do: ValueFlows.Observation.EconomicResource.EconomicResources
+  def context_module, do: ValueFlows.EconomicResource.EconomicResources
 
-  def queries_module, do: ValueFlows.Observation.EconomicResource.Queries
+  def queries_module, do: ValueFlows.EconomicResource.Queries
 
   def follow_filters, do: [:default]
 end

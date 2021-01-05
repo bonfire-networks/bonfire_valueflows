@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.Process.ProcessesTest do
+defmodule ValueFlows.Process.ProcessesTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
   import Bonfire.Common.Simulation
@@ -9,7 +9,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
-  alias ValueFlows.Observation.Process.Processes
+  alias ValueFlows.Process.Processes
 
   describe "one" do
     test "fetches an existing process by ID" do

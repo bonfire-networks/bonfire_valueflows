@@ -12,8 +12,8 @@ defmodule ValueFlows.TrackAndTraceTest do
 
   # import ValueFlows.Test.Faking
 
-  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
-  alias ValueFlows.Observation.EconomicResource.EconomicResources
+  alias ValueFlows.EconomicEvent.EconomicEvents
+  alias ValueFlows.EconomicResource.EconomicResources
 
   describe "Track" do
 

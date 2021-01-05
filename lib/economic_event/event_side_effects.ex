@@ -1,12 +1,12 @@
-defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
+defmodule ValueFlows.EconomicEvent.EventSideEffects do
   # import Logger
 
   import Bonfire.Common.Config, only: [repo: 0]
 
-  alias ValueFlows.Observation.EconomicEvent
-  # alias ValueFlows.Observation.EconomicEvent.EconomicEvents
-  alias ValueFlows.Observation.EconomicResource.EconomicResources
-  # alias ValueFlows.Observation.EconomicEvent.Queries
+  alias ValueFlows.EconomicEvent
+  # alias ValueFlows.EconomicEvent.EconomicEvents
+  alias ValueFlows.EconomicResource.EconomicResources
+  # alias ValueFlows.EconomicEvent.Queries
 
   def event_side_effects(
         %EconomicEvent{

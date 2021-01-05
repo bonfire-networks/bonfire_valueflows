@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.EconomicEvent do
+defmodule ValueFlows.EconomicEvent do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_event",
@@ -11,9 +11,9 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.EconomicResource
-  alias ValueFlows.Observation.Process
+  alias ValueFlows.EconomicEvent
+  alias ValueFlows.EconomicResource
+  alias ValueFlows.Process
 
   alias Bonfire.Quantify.Measure
 
@@ -140,9 +140,9 @@ defmodule ValueFlows.Observation.EconomicEvent do
     )
   end
 
-  def context_module, do: ValueFlows.Observation.EconomicEvent.EconomicEvents
+  def context_module, do: ValueFlows.EconomicEvent.EconomicEvents
 
-  def queries_module, do: ValueFlows.Observation.EconomicEvent.Queries
+  def queries_module, do: ValueFlows.EconomicEvent.Queries
 
   def follow_filters, do: [:default]
 end

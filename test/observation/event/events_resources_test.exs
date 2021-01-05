@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
+defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
   # import Bonfire.Common.Simulation
@@ -9,8 +9,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
 
   # import ValueFlows.Test.Faking
 
-  # alias ValueFlows.Observation.EconomicEvent.EconomicEvents
-  alias ValueFlows.Observation.EconomicEvent.EventSideEffects
+  # alias ValueFlows.EconomicEvent.EconomicEvents
+  alias ValueFlows.EconomicEvent.EventSideEffects
 
   def assert_maybe(assert_fn, params) do
     if not Enum.all?(params, &is_nil/1) do

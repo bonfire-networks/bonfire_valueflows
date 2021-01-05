@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
+defmodule ValueFlows.EconomicResource.EconomicResourcesTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
   import Bonfire.Common.Simulation
@@ -10,7 +10,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   import ValueFlows.Test.Faking
 
-  alias ValueFlows.Observation.EconomicResource.EconomicResources
+  alias ValueFlows.EconomicResource.EconomicResources
 
   describe "one" do
     test "fetches an existing economic resource by ID" do

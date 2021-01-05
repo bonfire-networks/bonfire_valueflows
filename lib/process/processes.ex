@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Observation.Process.Processes do
+defmodule ValueFlows.Process.Processes do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
@@ -9,9 +9,9 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   @user Bonfire.Common.Config.get!(:user_schema)
 
-  alias ValueFlows.Observation.Process
-  alias ValueFlows.Observation.Process.Queries
-  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
+  alias ValueFlows.Process
+  alias ValueFlows.Process.Queries
+  alias ValueFlows.EconomicEvent.EconomicEvents
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]

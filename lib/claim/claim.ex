@@ -14,7 +14,7 @@ defmodule ValueFlows.Claim do
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.Observation.EconomicEvent
+  alias ValueFlows.EconomicEvent
 
   @type t :: %__MODULE__{}
 

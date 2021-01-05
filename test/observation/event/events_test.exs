@@ -1,4 +1,4 @@
-defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
+defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
   import Bonfire.Common.Simulation
@@ -12,7 +12,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   import ValueFlows.Test.Faking
 
-  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
+  alias ValueFlows.EconomicEvent.EconomicEvents
 
   describe "one" do
     test "fetches an existing economic event by ID" do
