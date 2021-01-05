@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.ValueCalculation.Queries do
-  alias ValueFlows.ValueCalculation
+  import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
+
+  alias ValueFlows.ValueCalculation
 
   def query(ValueCalculation) do
     from(vc in ValueCalculation, as: :value_calculation)
@@ -21,6 +23,18 @@ defmodule ValueFlows.ValueCalculation.Queries do
 
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
+  end
+
+  ## by user
+  def filter(q, {:user, match_admin()}), do: q
+
+  def filter(q, {:user, nil}) do
+    q
+  end
+
+  def filter(q, {:user, %{id: user_id}}) do
+    q
+    |> where([value_calculation: vc], not is_nil(vc.published_at) or vc.creator_id == ^user_id)
   end
 
   ## by field values

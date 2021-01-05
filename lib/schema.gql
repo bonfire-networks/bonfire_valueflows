@@ -3927,6 +3927,10 @@ type ValueFlowsMutation {
   ): AgentRelationshipRoleResponse
   deleteAgentRelationshipRole(id: ID!): Boolean
 
+  createValueCalculation(valueCalculation: ValueCalculationCreateParams): ValueCalculationResponse
+  updateValueCalculation(valueCalculation: ValueCalculationUpdateParams): ValueCalculationResponse
+  deleteValueCalculation(id: ID!): Boolean
+
   createAgreement(agreement: AgreementCreateParams): AgreementResponse
   updateAgreement(agreement: AgreementUpdateParams): AgreementResponse
   deleteAgreement(id: ID!): Boolean

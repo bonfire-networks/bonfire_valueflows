@@ -327,6 +327,27 @@ defmodule ValueFlows.Hydration do
         # ]
       },
 
+      value_calculation: %{
+        value_unit: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.value_unit_edge/3,
+        ],
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
+        ],
+        value_action: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.value_action_edge/3,
+        ],
+        resource_conforms_to: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.resource_conforms_to_edge/3,
+        ],
+        value_resource_conforms_to: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.value_resource_conforms_to_edge/3,
+        ],
+        in_scope_of: [
+          resolve: &scope_edge/3,
+        ],
+      },
+
       # start Query resolvers
       value_flows_query: %{
         # Agents:
@@ -367,6 +388,14 @@ defmodule ValueFlows.Hydration do
         ],
         claims: [
           resolve: &ValueFlows.Claim.GraphQL.claims/2
+        ],
+
+        # Value Calculation
+        value_calculation: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.value_calculation/2
+        ],
+        value_calculations: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.value_calculations/2
         ],
 
         # Knowledge
@@ -570,7 +599,16 @@ defmodule ValueFlows.Hydration do
         ],
         delete_organization: [
           resolve: &ValueFlows.Agent.GraphQL.mutate_organization/2
-        ]
+        ],
+        create_value_calculation: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.create_value_calculation/2,
+        ],
+        update_value_calculation: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.update_value_calculation/2,
+        ],
+        delete_value_calculation: [
+          resolve: &ValueFlows.ValueCalculation.GraphQL.delete_value_calculation/2,
+        ],
       }
     }
   end

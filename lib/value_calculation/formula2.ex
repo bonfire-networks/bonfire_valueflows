@@ -35,7 +35,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     env_gen = StreamData.fixed_map(for v <- var_names, do: {v, value_gen})
 
     options = Keyword.merge([initial_seed: :os.timestamp(), max_runs: 1_000], options)
-    StreamData.check_all( env_gen, options,
+    StreamData.check_all(env_gen, options,
       fn new_env ->
         try do
           eval(ast, Map.merge(env, new_env))
@@ -72,7 +72,6 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   end
 
   defp eval_parameters(args, env) do
-    # TODO: find the helper I wrote for this
      Enum.reduce_while(args, [], fn arg, acc ->
       case eval(arg, env) do
         {:ok, val} -> {:cont, [val | acc]}
@@ -97,6 +96,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     |> String.replace("(", " ( ")
     |> String.replace(")", " ) ")
     |> String.split()
+    |> Enum.map(&String.trim/1)
   end
 
   defp do_parse(tokens, acc \\ [])

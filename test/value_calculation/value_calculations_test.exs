@@ -20,7 +20,11 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     end
 
     test "with a complex formula" do
+      user = fake_agent!()
 
+      attrs = %{formula: "(* 2 (+ effortQuantity 1.5) (pow availableQuantity 2))"}
+      assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
+      assert_value_calculation(calc)
     end
 
     test "with an invalid formula" do
