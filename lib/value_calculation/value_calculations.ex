@@ -45,7 +45,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
     formula
     |> Formula2.parse()
-    |> Formula2.validate(Formula2.default_env(), available_vars, IO.inspect(formula2_options(), label: "OPTIONS"))
+    |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
     |> case do
       {:ok, _} -> :ok
       e -> e

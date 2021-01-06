@@ -314,6 +314,33 @@ defmodule ValueFlows.Test.Faking do
     field(:delete_claim, args: [id: var(:id)])
   end
 
+  def value_calculation_fields(extra \\ []) do
+    extra ++ ~w(formula resource_classified_as)a
+  end
+
+  def value_calculation_response_fields(extra \\ []) do
+    [value_calculation: value_calculation_fields(extra)]
+  end
+
+  def value_calculation_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &value_calculation_subquery/1, options)
+  end
+
+  def value_calculation_subquery(options \\ []) do
+    gen_subquery(:id, :value_calculation, &value_calculation_fields/1, options)
+  end
+
+  def create_value_calculation_mutation(options \\ []) do
+    [value_calculation: type!(:value_calculation_create_params)]
+    |> gen_mutation(&create_value_calculation_submutation/1, options)
+  end
+
+  def create_value_calculation_submutation(options \\ []) do
+    [value_calculation: var(:value_calculation)]
+    |> gen_submutation(:create_value_calculation, &value_calculation_response_fields/1, options)
+  end
+
   def person_fields(extra \\ []) do
     extra ++
       ~w(name note agent_type canonical_url image display_username)a

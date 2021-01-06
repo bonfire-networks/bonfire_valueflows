@@ -2,7 +2,6 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
   import Bonfire.Common.Simulation, only: [some: 2]
-
   import Bonfire.Quantify.Simulate, only: [fake_unit!: 1]
 
   import ValueFlows.Simulate
@@ -109,7 +108,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     test "an existing value calculation" do
       calc = fake_value_calculation!(fake_agent!())
 
-      assert {:ok, updated} = ValueCalculations.update(calc, value_calculation())
+      attrs = value_calculation(%{formula: "(+ 1 2 3 4)"})
+      assert {:ok, updated} = ValueCalculations.update(calc, attrs)
       assert_value_calculation(updated)
       assert updated.id == calc.id
       assert updated != calc
