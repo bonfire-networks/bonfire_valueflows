@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.ValueCalculation.ValueCalculations do
-  import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2, attr_get_id: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
-  @user Bonfire.Common.Config.get!(:user_schema)
 
   alias ValueFlows.ValueCalculation
   alias ValueFlows.ValueCalculation.{Formula2, Queries}
@@ -41,11 +40,12 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   defp prepare_formula(%{formula: formula}) do
+    # FIXME: depends on expected context
     available_vars = ["resourceQuantity", "availableQuantity", "effortQuantity"]
 
     formula
     |> Formula2.parse()
-    |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
+    |> Formula2.validate(Formula2.default_env(), available_vars, IO.inspect(formula2_options(), label: "OPTIONS"))
     |> case do
       {:ok, _} -> :ok
       e -> e
@@ -59,13 +59,12 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     |> maybe_put(:context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
-    |> maybe_put(:value_unit_id, Map.get(attrs, :value_unit))
+    |> maybe_put(:value_unit_id, attr_get_id(attrs, :value_unit))
   end
 
-  if Mix.env() == :test do
+  if Bonfire.Common.Config.get(:env) == :test do
   defp formula2_options, do: [max_runs: 100]
   else
   defp formula2_options, do: [max_runs: 1_000]
   end
-
 end

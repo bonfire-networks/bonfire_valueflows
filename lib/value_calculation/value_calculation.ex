@@ -17,6 +17,10 @@ defmodule ValueFlows.ValueCalculation do
     belongs_to(:creator, @user)
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:value_unit, Bonfire.Quantify.Unit)
+
+    field(:deleted_at, :utc_datetime_usec)
+
+    timestamps(inserted_at: false)
   end
 
   @required ~w(formula)a

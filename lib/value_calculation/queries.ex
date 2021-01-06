@@ -25,16 +25,28 @@ defmodule ValueFlows.ValueCalculation.Queries do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
 
-  ## by user
-  def filter(q, {:user, match_admin()}), do: q
+  ## by status
 
-  def filter(q, {:user, nil}) do
-    q
+  def filter(q, :default) do
+    filter(q, ~w(deleted)a)
   end
 
-  def filter(q, {:user, %{id: user_id}}) do
+  def filter(q, :deleted) do
+    where(q, [value_calculation: vc], is_nil(vc.deleted_at))
+  end
+
+  ## by user
+  def filter(q, {:creator, match_admin()}), do: q
+
+  def filter(q, {:creator, nil}) do
     q
-    |> where([value_calculation: vc], not is_nil(vc.published_at) or vc.creator_id == ^user_id)
+    |> filter(~w(deleted)a)
+  end
+
+  def filter(q, {:creator, %{id: user_id}}) do
+    q
+    |> where([value_calculation: vc], vc.creator_id == ^user_id)
+    |> filter(~w(deleted)a)
   end
 
   ## by field values

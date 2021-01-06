@@ -22,6 +22,8 @@ defmodule ValueFlows.Simulate do
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
+  alias ValueFlows.ValueCalculation.ValueCalculations
+
   ### Start fake data functions
 
   def claim(base \\ %{}) do
@@ -269,6 +271,11 @@ defmodule ValueFlows.Simulate do
   def fake_claim!(user, provider, receiver, overrides \\ %{}) do
     {:ok, claim} = Claims.create(user, provider, receiver, claim(overrides))
     claim
+  end
+
+  def fake_value_calculation!(user, overrides \\ %{}) do
+    {:ok, calc} = ValueCalculations.create(user, value_calculation(overrides))
+    calc
   end
 
   def fake_intent!(user, overrides \\ %{}) do
