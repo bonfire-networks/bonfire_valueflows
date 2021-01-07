@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.EconomicResource.Queries do
-  alias ValueFlows.Observation.{EconomicResource, EconomicEvent}
+  alias ValueFlows.{EconomicResource, EconomicEvent}
   # alias ValueFlows.EconomicResources
   @user Bonfire.Common.Config.get!(:user_schema)
   import Bonfire.Repo.Query, only: [match_admin: 0]

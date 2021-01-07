@@ -17,7 +17,7 @@ defmodule ValueFlows.Test.Faking do
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ResourceSpecification
 
-  alias ValueFlows.Observation.{
+  alias ValueFlows.{
     EconomicEvent,
     EconomicResource,
     Process
