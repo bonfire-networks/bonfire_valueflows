@@ -32,7 +32,7 @@ defmodule Bonfire.ValueFlows.ConnCase do
       import Bonfire.Common.Config, only: [repo: 0]
 
       # The default endpoint for testing
-      @endpoint Bonfire.ValueFlows.Web.Endpoint
+      @endpoint Bonfire.Common.Config.get!(:endpoint_module)
     end
   end
 

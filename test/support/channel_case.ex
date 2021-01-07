@@ -24,7 +24,7 @@ defmodule Bonfire.ValueFlows.ChannelCase do
       import Bonfire.ValueFlows.ChannelCase
 
       # The default endpoint for testing
-      @endpoint Bonfire.ValueFlows.Web.Endpoint
+      @endpoint Bonfire.Common.Config.get!(:endpoint_module)
     end
   end
 
