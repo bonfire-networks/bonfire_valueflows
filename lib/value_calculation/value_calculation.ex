@@ -38,4 +38,7 @@ defmodule ValueFlows.ValueCalculation do
   def update_changeset(%__MODULE__{} = calculation, %{} = attrs) do
     Changeset.cast(calculation, attrs, @cast)
   end
+
+  def queries_module, do: ValueFlows.ValueCalculation.Queries
+  def follow_filters, do: [:default]
 end

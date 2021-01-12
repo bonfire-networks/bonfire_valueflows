@@ -708,6 +708,8 @@ input ClaimUpdateParams {
 A calculation performed using custom formulas for a certain context.
 """
 type ValueCalculation {
+  id: ID!
+
   formula: String!
 
   """
@@ -715,15 +717,15 @@ type ValueCalculation {
   """
   valueUnit: Unit!,
 
-  """
-  Relates a value calculation to a verb, such as consume, produce, work, improve, etc.
-  """
-  action: Action!
+  # """
+  # Relates a value calculation to a verb, such as consume, produce, work, improve, etc.
+  # """
+  # action: Action!
 
-  """
-  Relates a value calculation to a verb, like action, but for the related claim.
-  """
-  valueAction: Action!
+  # """
+  # Relates a value calculation to a verb, like action, but for the related claim.
+  # """
+  # valueAction: Action!
 
   """
   Used to filter valueCalculations to find the one that matches the event.
@@ -746,13 +748,13 @@ type ValueCalculation {
   inScopeOf: [AccountingScope!]
 }
 
-type ValueCalculationCreateParams {
+input ValueCalculationCreateParams {
   formula: String!
 
   valueUnit: ID!
 
-  action: Action!
-  valueAction: Action!
+  # action: Action!
+  # valueAction: Action!
 
   # resourceConformsTo: ID
   # valueResourceConformsTo: ID
@@ -760,8 +762,12 @@ type ValueCalculationCreateParams {
   inScopeOf: [ID!]
 }
 
-type ValueCalculationUpdateParams {
-  formula: String!
+input ValueCalculationUpdateParams {
+  formula: String
+  valueUnit: ID
+
+  # action: Action
+  valueAction: Action
 }
 
 type ValueCalculationResponse {
@@ -3927,8 +3933,8 @@ type ValueFlowsMutation {
   ): AgentRelationshipRoleResponse
   deleteAgentRelationshipRole(id: ID!): Boolean
 
-  createValueCalculation(valueCalculation: ValueCalculationCreateParams): ValueCalculationResponse
-  updateValueCalculation(valueCalculation: ValueCalculationUpdateParams): ValueCalculationResponse
+  createValueCalculation(valueCalculation: ValueCalculationCreateParams!): ValueCalculationResponse
+  updateValueCalculation(valueCalculation: ValueCalculationUpdateParams!): ValueCalculationResponse
   deleteValueCalculation(id: ID!): Boolean
 
   createAgreement(agreement: AgreementCreateParams): AgreementResponse

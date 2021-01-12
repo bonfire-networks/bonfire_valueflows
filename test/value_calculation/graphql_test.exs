@@ -25,6 +25,7 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
       calc = fake_value_calculation!(user, %{
         in_scope_of: [fake_agent!().id],
         value_unit: fake_unit!(user).id,
+        # value_action: fake_action!()
       })
 
       assert queried =
@@ -47,17 +48,21 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
   describe "createValueCalculation" do
     test "creates a new value calculation" do
       user = fake_agent!()
+      unit = fake_unit!(user)
 
       q = create_value_calculation_mutation()
       conn = user_conn(user)
-      vars = %{value_calculation: value_calculation()}
+      vars = %{value_calculation: value_calculation(%{value_unit: unit.id})}
       assert %{"valueCalculation" => calc} =
         grumble_post_key(q, conn, :create_value_calculation, vars)
+      assert_value_calculation(calc)
     end
 
     test "fails for a guest user" do
+      unit = fake_unit!(fake_agent!())
+
       q = create_value_calculation_mutation()
-      vars = %{value_calculation: value_calculation()}
+      vars = %{value_calculation: value_calculation(%{value_unit: unit.id})}
       assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), vars)
     end
   end

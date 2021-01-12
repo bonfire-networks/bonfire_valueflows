@@ -7,6 +7,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   alias ValueFlows.ValueCalculation
   alias ValueFlows.ValueCalculation.{Formula2, Queries}
 
+  alias ValueFlows.Observation.EconomicEvent
+
   def one(filters), do: repo().single(Queries.query(ValueCalculation, filters))
 
   def many(filters \\ []), do: {:ok, repo().all(Queries.query(ValueCalculation, filters))}
@@ -15,6 +17,11 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     # should always succeed
     {:ok, calculation} = one(id: calculation.id, preload: :all)
     calculation
+  end
+
+  @doc "Apply the value calculation to a context"
+  def apply_to(%EconomicEvent{} = event) do
+    {:error, :unimplemented}
   end
 
   def create(%{} = user, attrs) do

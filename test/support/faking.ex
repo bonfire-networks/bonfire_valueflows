@@ -315,7 +315,7 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def value_calculation_fields(extra \\ []) do
-    extra ++ ~w(formula resource_classified_as)a
+    extra ++ ~w(id formula resource_classified_as)a
   end
 
   def value_calculation_response_fields(extra \\ []) do
