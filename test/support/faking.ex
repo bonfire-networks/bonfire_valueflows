@@ -341,6 +341,25 @@ defmodule ValueFlows.Test.Faking do
     |> gen_submutation(:create_value_calculation, &value_calculation_response_fields/1, options)
   end
 
+  def update_value_calculation_mutation(options \\ []) do
+    [value_calculation: type!(:value_calculation_update_params)]
+    |> gen_mutation(&update_value_calculation_submutation/1, options)
+  end
+
+  def update_value_calculation_submutation(options \\ []) do
+    [value_calculation: var(:value_calculation)]
+    |> gen_submutation(:update_value_calculation, &value_calculation_response_fields/1, options)
+  end
+
+  def delete_value_calculation_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_value_calculation_submutation/1, options)
+  end
+
+  def delete_value_calculation_submutation(_options \\ []) do
+    field(:delete_value_calculation, args: [id: var(:id)])
+  end
+
   def person_fields(extra \\ []) do
     extra ++
       ~w(name note agent_type canonical_url image display_username)a

@@ -62,7 +62,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     test "with only required parameters" do
       user = fake_agent!()
 
-      assert {:ok, calc} = ValueCalculations.create(user, value_calculation())
+      attrs = value_calculation(%{value_unit: fake_unit!(user)})
+      assert {:ok, calc} = ValueCalculations.create(user, attrs)
       assert_value_calculation(calc)
       assert calc.creator.id == user.id
     end
@@ -70,7 +71,11 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     test "with a complex formula" do
       user = fake_agent!()
 
-      attrs = %{formula: "(* 2 (+ effortQuantity 1.5) (pow availableQuantity 2))"}
+      attrs = %{
+        formula: "(* 2 (+ effortQuantity 1.5) (pow availableQuantity 2))",
+        value_unit: fake_unit!(user),
+      }
+
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
       assert_value_calculation(calc)
     end
@@ -78,7 +83,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     test "with an invalid formula" do
       user = fake_agent!()
 
-      attrs = %{formula: "(* 2 missing)"}
+      attrs = %{formula: "(* 2 missing)", value_unit: fake_unit!(user)}
       assert {:error, %{original_failure: "Undefined variable: \"missing\""}} =
         ValueCalculations.create(user, value_calculation(attrs))
     end
@@ -87,20 +92,30 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       user = fake_agent!()
       context = fake_agent!()
 
-      attrs = %{in_scope_of: [context.id]}
+      attrs = %{in_scope_of: [context.id], value_unit: fake_unit!(user)}
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
       assert_value_calculation(calc)
       assert calc.context.id == context.id
     end
 
-    test "with a value unit" do
+    test "with a conforming resource" do
       user = fake_agent!()
-      unit = maybe_fake_unit(user)
+      resource = fake_resource_specification!(user)
 
-      attrs = %{value_unit: unit.id}
+      attrs = %{resource_conforms_to: resource, value_unit: fake_unit!(user)}
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
       assert_value_calculation(calc)
-      assert calc.value_unit.id == unit.id
+      assert calc.resource_conforms_to.id == resource.id
+    end
+
+    test "with a value conforming resource" do
+      user = fake_agent!()
+      resource = fake_resource_specification!(user)
+
+      attrs = %{value_resource_conforms_to: resource, value_unit: fake_unit!(user)}
+      assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
+      assert_value_calculation(calc)
+      assert calc.value_resource_conforms_to.id == resource.id
     end
   end
 

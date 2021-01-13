@@ -69,17 +69,42 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
 
   describe "updateValueCalculation" do
     test "updates an existing value calculation" do
+      user = fake_agent!()
+      calc = fake_value_calculation!(user)
+
+      q = update_value_calculation_mutation()
+      conn = user_conn(user)
+      vars = %{value_calculation: value_calculation(%{id: calc.id})}
+      assert %{"valueCalculation" => updated} =
+        grumble_post_key(q, conn, :update_value_calculation, vars)
+      assert_value_calculation(calc)
+      assert calc.id == updated["id"]
     end
 
     test "fails for a guest user" do
+      calc = fake_value_calculation!(fake_agent!())
+
+      q = update_value_calculation_mutation()
+      vars = %{value_calculation: value_calculation(%{id: calc.id})}
+      assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), vars)
     end
   end
 
   describe "deleteValueCalculation" do
     test "deletes an existing value calculation" do
+      user = fake_agent!()
+      calc = fake_value_calculation!(user)
+
+      q = delete_value_calculation_mutation()
+      conn = user_conn(user)
+      assert true = grumble_post_key(q, conn, :delete_value_calculation, %{id: calc.id})
     end
 
     test "fails for a guest user" do
+      calc = fake_value_calculation!(fake_agent!())
+
+      q = delete_value_calculation_mutation()
+      assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), %{id: calc.id})
     end
   end
 end

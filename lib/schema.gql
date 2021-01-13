@@ -717,15 +717,15 @@ type ValueCalculation {
   """
   valueUnit: Unit!,
 
-  # """
-  # Relates a value calculation to a verb, such as consume, produce, work, improve, etc.
-  # """
-  # action: Action!
+  """
+  Relates a value calculation to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
 
-  # """
-  # Relates a value calculation to a verb, like action, but for the related claim.
-  # """
-  # valueAction: Action!
+  """
+  Relates a value calculation to a verb, like action, but for the related claim.
+  """
+  valueAction: Action!
 
   """
   Used to filter valueCalculations to find the one that matches the event.
@@ -753,21 +753,27 @@ input ValueCalculationCreateParams {
 
   valueUnit: ID!
 
-  # action: Action!
-  # valueAction: Action!
+  action: ID!
+  valueAction: ID!
 
-  # resourceConformsTo: ID
-  # valueResourceConformsTo: ID
+  resourceConformsTo: ID
+  valueResourceConformsTo: ID
   resourceClassifiedAs: [URI!]
   inScopeOf: [ID!]
 }
 
 input ValueCalculationUpdateParams {
+  id: ID!
+
   formula: String
   valueUnit: ID
 
-  # action: Action
-  valueAction: Action
+  action: ID
+  valueAction: ID
+  resourceConformsTo: ID
+  valueResourceConformsTo: ID
+  resourceClassifiedAs: [URI!]
+  inScopeOf: [ID!]
 }
 
 type ValueCalculationResponse {

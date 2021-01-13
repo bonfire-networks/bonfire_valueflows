@@ -74,6 +74,8 @@ defmodule ValueFlows.ValueCalculation.Queries do
       :creator,
       :context,
       :value_unit,
+      :resource_conforms_to,
+      :value_resource_conforms_to,
     ])
   end
 end

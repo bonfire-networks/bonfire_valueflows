@@ -54,6 +54,8 @@ defmodule ValueFlows.Simulate do
     base
     # TODO
     |> Map.put_new_lazy(:formula, fn -> "(+ 1 effortQuantity)" end)
+    |> Map.put_new_lazy(:action, &action_id/0)
+    |> Map.put_new_lazy(:value_action, &action_id/0)
   end
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])
@@ -274,6 +276,11 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_value_calculation!(user, overrides \\ %{}) do
+    fake_value_calculation!(user, fake_unit!(user), overrides)
+  end
+
+  def fake_value_calculation!(user, unit, overrides) do
+    overrides = Map.put_new(overrides, :value_unit, unit)
     {:ok, calc} = ValueCalculations.create(user, value_calculation(overrides))
     calc
   end

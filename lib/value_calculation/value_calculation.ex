@@ -19,15 +19,18 @@ defmodule ValueFlows.ValueCalculation do
     belongs_to(:creator, @user)
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:value_unit, Bonfire.Quantify.Unit)
-    belongs_to(:value_action, ValueFlows.Actions.Action)
+    belongs_to(:action, ValueFlows.Actions.Action, type: :string)
+    belongs_to(:value_action, ValueFlows.Actions.Action, type: :string)
+    belongs_to(:resource_conforms_to, ValueFlows.Knowledge.ResourceSpecification)
+    belongs_to(:value_resource_conforms_to, ValueFlows.Knowledge.ResourceSpecification)
 
     field(:deleted_at, :utc_datetime_usec)
 
     timestamps(inserted_at: false)
   end
 
-  @required ~w(formula)a
-  @cast @required ++ ~w(context_id value_unit_id)a
+  @required ~w(formula action_id value_action_id value_unit_id)a
+  @cast @required ++ ~w(context_id resource_conforms_to_id value_resource_conforms_to_id)a
 
   def create_changeset(%{} = creator, %{} = attrs) do
     %__MODULE__{}
