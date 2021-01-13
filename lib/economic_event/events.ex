@@ -251,6 +251,24 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     )
   end
 
+  # FIXME
+  # def create(creator, event_attrs, %{
+  #       new_inventoried_resource: new_inventoried_resource
+  #     }) when action in ["move", "transfer"] do
+  #   Logger.info("creates only a new resource")
+
+  #   new_resource_attrs =
+  #     new_inventoried_resource
+  #     |> Map.put_new(:primary_accountable, Map.get(event_attrs, :receiver, creator))
+
+  #   create_resource_and_event(
+  #     creator,
+  #     event_attrs,
+  #     new_resource_attrs,
+  #     :to_resource_inventoried_as
+  #   )
+  # end
+
   def create(creator, event_attrs, %{
         new_inventoried_resource: new_inventoried_resource
       }) do

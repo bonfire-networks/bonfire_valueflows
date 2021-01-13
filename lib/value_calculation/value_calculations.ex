@@ -21,7 +21,10 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
   @doc "Apply the value calculation to a context"
   def apply_to(%EconomicEvent{} = event) do
-    {:error, :unimplemented}
+    with {:ok, calc} <- one(event.calculated_using_id),
+         {:ok, result} <- evaluate_formula(event, calc) do
+      {:ok, %{value_calculation: calc, result: result}}
+    end
   end
 
   def create(%{} = user, attrs) do
@@ -46,9 +49,20 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     Bonfire.Repo.Delete.soft_delete(calculation)
   end
 
+  defp formula_context(:event),
+    do: ["resourceQuantity", "availableQuantity", "effortQuantity"]
+
+  defp evaluate_formula(context, %{formula: formula} = calculation) do
+    # TODO: populate env with context vars
+    env = Map.merge(Formula2.default_env(), %{})
+
+    formula
+    |> Formula2.parse()
+    |> Formula2.eval()
+  end
+
   defp prepare_formula(%{formula: formula}) do
-    # FIXME: depends on expected context
-    available_vars = ["resourceQuantity", "availableQuantity", "effortQuantity"]
+    available_vars = formula_context(:event)
 
     formula
     |> Formula2.parse()
@@ -63,10 +77,12 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(:context_id,
+    |> maybe_put(
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
     |> maybe_put(:value_unit_id, attr_get_id(attrs, :value_unit))
+    |> maybe_put(:action_id, attr_get_id(attrs, :action))
   end
 
   if Bonfire.Common.Config.get(:env) == :test do

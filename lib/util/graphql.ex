@@ -20,9 +20,11 @@ defmodule ValueFlows.Util.GraphQL do
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
+  def scope_edge(%{in_scope_of: ids}, page_opts, info),
+    do: Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: ids}, page_opts, info)
 
   def scope_edge(%{context_id: id}, page_opts, info),
-    do: Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: [id]}, page_opts, info)
+    do: scope_edge(%{in_scope_of: [id]}, page_opts, info)
 
   def scope_edge(_, _, _),
     do: {:ok, nil}

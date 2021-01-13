@@ -19,6 +19,7 @@ defmodule ValueFlows.ValueCalculation do
     belongs_to(:creator, @user)
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:value_unit, Bonfire.Quantify.Unit)
+    belongs_to(:value_action, ValueFlows.Actions.Action)
 
     field(:deleted_at, :utc_datetime_usec)
 
