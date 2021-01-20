@@ -31,11 +31,8 @@ defmodule ValueFlows.Agent.GraphQL do
                 |> ValueFlows.Agent.Agents.character_to_agent())
             )
 
-          %{
-            edges: people,
-            page_info: users_pages.page_info,
-            total_count: users_pages.total_count
-          }
+          %{ users_pages | edges: people}
+
         end
       else
         people = ValueFlows.Agent.People.people(nil)
@@ -75,11 +72,8 @@ defmodule ValueFlows.Agent.GraphQL do
                 |> ValueFlows.Agent.Agents.character_to_agent())
             )
 
-          %{
-            edges: orgz,
-            page_info: pages.page_info,
-            total_count: pages.total_count
-          }
+          %{ pages | edges: orgz}
+
         end
       else
         %{}
