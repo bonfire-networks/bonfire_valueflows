@@ -52,6 +52,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   ## by preset
 
+  def filter(q, :paginated_default) do
+    filter(q, [:deleted])
+  end
+
   def filter(q, :default) do
     filter(q, [:deleted, preload: :default_unit_of_effort])
   end
@@ -191,13 +195,13 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     filter(q, limit: limit + 1)
   end
 
-  # defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
-  #   filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
-  # end
+  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  end
 
-  # defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
-  #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
-  # end
+  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  end
 
-  # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

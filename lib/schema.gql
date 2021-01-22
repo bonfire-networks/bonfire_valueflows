@@ -3194,13 +3194,18 @@ type ResourceSpecification {
   The default unit used for the resource itself.
   """
   defaultUnitOfResource: Unit ## TODO
-
   """
   The default unit used for use or work.
   """
   defaultUnitOfEffort: Unit
 
   conformingResources: [EconomicResource!]
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext!] ## added for Bonfire
 }
 
 input ResourceSpecificationCreateParams {
@@ -3228,11 +3233,16 @@ input ResourceSpecificationCreateParams {
   (`Unit`) The default unit used for the resource itself.
   """
   defaultUnitOfResource: ID ## TODO
-
   """
   (`Unit`) The default unit used for use or work.
   """
   defaultUnitOfEffort: ID
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!] ## added for Bonfire
 }
 
 type ResourceSpecificationResponse {
@@ -3266,11 +3276,16 @@ input ResourceSpecificationUpdateParams {
   (`Unit`) The default unit used for the resource itself.
   """
   defaultUnitOfResource: ID ## TODO
-
   """
   (`Unit`) The default unit used for use or work.
   """
   defaultUnitOfEffort: ID
+
+  """
+  Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
+  References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!] ## added for Bonfire
 }
 
 """
@@ -3778,6 +3793,17 @@ type ValueFlowsQuery {
 
   ## Bonfire additional queries:
 
+  "Get paginated list of resource specifications"
+  resourceSpecificationsPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+
+    inScopeOf: [ID]
+    tagIds: [ID]
+
+  ): ResourceSpecificationPage!
+
   "Get paginated list of proposals"
   proposalsPages(
     limit: Int
@@ -4080,6 +4106,12 @@ type IntentsPage {
 type ProposalsPage {
   pageInfo: PageInfo!
   edges: [Proposal!]!
+  totalCount: Int!
+}
+
+type ResourceSpecificationPage {
+  pageInfo: PageInfo!
+  edges: [ResourceSpecification!]!
   totalCount: Int!
 }
 

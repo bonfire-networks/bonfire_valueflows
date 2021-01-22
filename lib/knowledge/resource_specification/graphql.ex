@@ -10,12 +10,66 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     ResolveField,
     ResolvePages,
     ResolveRootPage,
-    FetchPage
+    FetchPage,
+    Fields,
+    Page
   }
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
+
+  def fields(group_fn, filters \\ [])
+      when is_function(group_fn, 1) do
+    {:ok, fields} = ResourceSpecifications.many(filters)
+    {:ok, Fields.new(fields, group_fn)}
+  end
+
+  @doc """
+  Retrieves an Page of resource_specs according to various filters
+
+  Used by:
+  * GraphQL resolver single-parent resolution
+  """
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+
+  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
+    base_q = Queries.query(ResourceSpecification, base_filters)
+    data_q = Queries.filter(base_q, data_filters)
+    count_q = Queries.filter(base_q, count_filters)
+
+    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
+      {:ok, Page.new(data, counts, cursor_fn, page_opts)}
+    end
+  end
+
+  @doc """
+  Retrieves an Pages of resource_specs according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
+
+  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+    Bonfire.GraphQL.Pagination.pages(
+      Queries,
+      ResourceSpecification,
+      cursor_fn,
+      group_fn,
+      page_opts,
+      base_filters,
+      data_filters,
+      count_filters
+    )
+  end
 
   ## resolvers
 
@@ -37,13 +91,15 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def resource_specs(page_opts, info) do
+    IO.inspect(resource_specs: page_opts)
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_resource_specs,
       page_opts: page_opts,
       info: info,
       # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1]
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1],
+      data_filters: page_opts
     })
   end
 
@@ -154,6 +210,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def fetch_resource_specs(page_opts, info) do
+    filters = for {k,v} <- Map.get(info, :data_filters, %{}), into: [], do: {k, v}
+    #  |> IO.inspect
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Knowledge.ResourceSpecification.Queries,
       query: ValueFlows.Knowledge.ResourceSpecification,
@@ -161,11 +219,11 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
       # cursor_fn: ResourceSpecifications.cursor(:followers),
       page_opts: page_opts,
       base_filters: [
-        :default,
+        :paginated_default,
         # preload: [:tags],
         user: GraphQL.current_user(info)
-      ]
-      # data_filters: [page: [desc: [followers: page_opts]]],
+      ],
+      data_filters: [filters ++ [paginate_id: page_opts]],
     })
   end
 

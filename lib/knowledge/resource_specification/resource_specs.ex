@@ -4,9 +4,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   import Bonfire.Common.Config, only: [repo: 0]
 
-  # alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{Fields, Page}
-
   @user Bonfire.Common.Config.get!(:user_schema)
 
   alias ValueFlows.Knowledge.ResourceSpecification
@@ -31,57 +28,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   """
   def many(filters \\ []), do: {:ok, repo().all(Queries.query(ResourceSpecification, filters))}
 
-  def fields(group_fn, filters \\ [])
-      when is_function(group_fn, 1) do
-    {:ok, fields} = many(filters)
-    {:ok, Fields.new(fields, group_fn)}
-  end
 
-  @doc """
-  Retrieves an Page of resource_specs according to various filters
-
-  Used by:
-  * GraphQL resolver single-parent resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-
-  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
-    base_q = Queries.query(ResourceSpecification, base_filters)
-    data_q = Queries.filter(base_q, data_filters)
-    count_q = Queries.filter(base_q, count_filters)
-
-    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
-      {:ok, Page.new(data, counts, cursor_fn, page_opts)}
-    end
-  end
-
-  @doc """
-  Retrieves an Pages of resource_specs according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def pages(
-        cursor_fn,
-        group_fn,
-        page_opts,
-        base_filters \\ [],
-        data_filters \\ [],
-        count_filters \\ []
-      )
-
-  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Bonfire.GraphQL.Pagination.pages(
-      Queries,
-      ResourceSpecification,
-      cursor_fn,
-      group_fn,
-      page_opts,
-      base_filters,
-      data_filters,
-      count_filters
-    )
-  end
 
   ## mutations
 

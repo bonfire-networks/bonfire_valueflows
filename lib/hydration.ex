@@ -318,7 +318,10 @@ defmodule ValueFlows.Hydration do
         ],
         image: [
           resolve: &image_content_url/3
-        ]
+        ],
+        tags: [
+          resolve: &tags_edges/3
+        ],
         # conforming_resources: [
         #   resolve: %ValueFlows.Knowledge.ResourceSpecification.GraphQL.fetch_conforming_resources_edge/3
         # ]
@@ -378,6 +381,9 @@ defmodule ValueFlows.Hydration do
         ],
         resource_specifications: [
           resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.all_resource_specs/2
+        ],
+        resource_specifications_pages: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.resource_specs/2
         ],
         process_specification: [
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.process_spec/2

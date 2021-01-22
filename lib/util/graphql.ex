@@ -142,10 +142,10 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def tags_edges(a, b, c) do
-    if Bonfire.Common.Utils.module_exists?(CommonsPub.Tag.GraphQL.TagResolver) do
-      CommonsPub.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
+    if Bonfire.Common.Utils.module_exists?(Bonfire.Tag.GraphQL.TagResolver) do
+      Bonfire.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
     else
-      Logger.info("Could not resolve tags")
+      Logger.warn("Could not resolve tags")
       {:ok, nil}
     end
   end
