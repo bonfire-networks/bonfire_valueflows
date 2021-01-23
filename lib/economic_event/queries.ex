@@ -281,8 +281,6 @@ defmodule ValueFlows.EconomicEvent.Queries do
     preload(q, [
       :context,
       :creator,
-      :resource_quantity,
-      :effort_quantity,
       :at_location,
       :input_of,
       :output_of,
@@ -291,7 +289,9 @@ defmodule ValueFlows.EconomicEvent.Queries do
       :to_resource_inventoried_as,
       :provider,
       :receiver,
-      :triggered_by
+      :triggered_by,
+      effort_quantity: [:unit],
+      resource_quantity: [:unit]
     ])
   end
 
