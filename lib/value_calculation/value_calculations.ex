@@ -23,7 +23,6 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
   @doc "Apply the value calculation to a context"
   def apply_to(%EconomicEvent{} = event, %ValueCalculation{} = calc) do
-    # TODO: populate env with context vars
     env = Map.merge(Formula2.default_env(), formula_env(event))
 
     calc.formula
@@ -71,6 +70,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
     formula
     |> Formula2.parse()
+    # FIXME: bignum causes failure for multiplication
     |> Formula2.validate(Formula2.default_env(), available_vars, [max_runs: 1])
     |> case do
       {:ok, _} -> :ok

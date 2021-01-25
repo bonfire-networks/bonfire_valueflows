@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.EconomicEvent.EconomicEvents do
+  use OK.Pipe
+
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_append: 2, map_key_replace: 3]
 
   import Bonfire.Common.Config, only: [repo: 0]
@@ -312,19 +314,26 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            :ok <- validate_provider_is_primary_accountable(new_event_attrs),
            :ok <- validate_receiver_is_primary_accountable(new_event_attrs),
            {:ok, event} <- repo().insert(cs |> EconomicEvent.create_changeset_validate()),
-           {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, new_event_attrs),
-           event = preload_all(event),
-           {:ok, event} <- maybe_transfer_resource(event),
-           {:ok, event} <- EventSideEffects.event_side_effects(event),
-           {:ok, reciprocals} <- create_reciprocal_events(event),
-           # FIXME
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
-           :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
+           {:ok, event} <- create_event_common(event, creator, new_event_attrs),
+           {:ok, reciprocals} <- create_reciprocal_events(event) do
         indexing_object_format(event) |> ValueFlows.Util.index_for_search()
         {:ok, %{economic_event: event, reciprocal_events: reciprocals}}
       end
     end)
+  end
+
+  defp create_event_common(event, creator, attrs) do
+    with {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, attrs),
+         event = preload_all(event),
+         {:ok, event} <- maybe_transfer_resource(event),
+         {:ok, event} <- EventSideEffects.event_side_effects(event),
+         # FIXME
+         act_attrs = %{verb: "created", is_local: true},
+         {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
+         :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
+      indexing_object_format(event) |> ValueFlows.Util.index_for_search()
+      {:ok, event}
+    end
   end
 
   defp create_resource_and_event(creator, event_attrs, new_inventoried_resource, field_name) do
@@ -376,7 +385,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           EconomicEvent.create_changeset(event.creator, new_event_attrs)
           |> EconomicEvent.create_changeset_validate()
           |> repo().insert()
-          # TODO: side effects
+          ~>> create_event_common(event.creator, new_event_attrs)
         end
 
       {:error, :not_found} ->

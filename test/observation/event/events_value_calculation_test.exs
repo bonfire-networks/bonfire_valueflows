@@ -35,5 +35,13 @@ defmodule ValueFlows.EventsValueCalculationTest do
       assert reciprocal.effort_quantity.has_numerical_value ==
         1.0 + reciprocal.resource_quantity.has_numerical_value
     end
+
+    test "side effects are computed correctly" do
+      user = fake_agent!()
+      calc = fake_value_calculation!(user, %{formula: "(* 0.5 effortQuantity)"})
+      event = fake_economic_event!(user, %{action: action.id})
+
+      assert false = "TODO"
+    end
   end
 end
