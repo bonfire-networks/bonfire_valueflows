@@ -11,6 +11,8 @@ defmodule ValueFlows.AllMigrations do
     ValueFlows.Knowledge.ResourceSpecification.Migrations.up()
     ValueFlows.Knowledge.ProcessSpecification.Migrations.up()
 
+    ValueFlows.ValueCalculation.Migrations.up()
+
     ValueFlows.EconomicResource.Migrations.up()
     ValueFlows.Process.Migrations.up()
     ValueFlows.EconomicEvent.Migrations.up()
@@ -18,8 +20,6 @@ defmodule ValueFlows.AllMigrations do
     ValueFlows.Planning.Intent.Migrations.add_references()
 
     ValueFlows.Claim.Migrations.up()
-
-    ValueFlows.ValueCalculation.Migrations.up()
   end
 
   def down do
@@ -36,8 +36,8 @@ defmodule ValueFlows.AllMigrations do
 
     ValueFlows.Planning.Intent.Migrations.add_references()
 
-    ValueFlows.Claim.Migrations.down()
-
     ValueFlows.ValueCalculation.Migrations.down()
+
+    ValueFlows.Claim.Migrations.down()
   end
 end

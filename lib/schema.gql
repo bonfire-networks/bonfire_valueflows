@@ -713,7 +713,7 @@ type ValueCalculation {
   formula: String!
 
   """
-  References the unit used for the claim.
+  References the unit used for the event.
   """
   valueUnit: Unit!,
 
@@ -723,7 +723,7 @@ type ValueCalculation {
   action: Action!
 
   """
-  Relates a value calculation to a verb, like action, but for the related claim.
+  Relates a value calculation to a verb, like action, but for the related event.
   """
   valueAction: Action!
 
@@ -733,7 +733,7 @@ type ValueCalculation {
   resourceConformsTo: ResourceSpecification
   
   """
-  The resource specification the claim will apply to.
+  The resource specification the event will apply to.
   """
   valueResourceConformsTo: ResourceSpecification
 
@@ -1254,6 +1254,11 @@ type EconomicEvent {
   satisfies: [Satisfaction!]
 
   """
+  The value calculation (if any) used to generate this event.
+  """
+  calculatedUsing: ValueCalculation
+
+  """
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
@@ -1373,9 +1378,14 @@ type EconomicEventResponse {
   economicEvent: EconomicEvent!
 
   """
+  Any reciprocal events created by found value calculations.
+  """
+  reciprocalEvents: [EconomicEvent!]
+
+  """
   Details of any newly created `EconomicResource`, for events that create new resources.
   """
-  economicResource: EconomicResource
+  economicResource: EconomicResource,
 }
 
 input EconomicEventUpdateParams {

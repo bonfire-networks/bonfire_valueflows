@@ -175,6 +175,14 @@ defmodule ValueFlows.EconomicEvent.Queries do
     where(q, [event: c], c.action_id == ^id)
   end
 
+  def filter(q, {:calculated_using_id, id}) when is_binary(id) do
+    where(q, [event: e], e.calculated_using_id == ^id)
+  end
+
+  def filter(q, {:calculated_using_id, ids}) when is_list(ids) do
+    where(q, [event: e], e.calculated_using_id in ^ids)
+  end
+
   def filter(q, {:at_location_id, at_location_id}) do
     q
     |> join_to(:geolocation)
@@ -250,6 +258,14 @@ defmodule ValueFlows.EconomicEvent.Queries do
     where(q, [event: c], c.input_of_id == ^id)
   end
 
+  # def filter(q, {:calculated_using_id, id}) when is_binary(id) do
+  #   where(q, [event: c], c.calculated_using_id == ^id)
+  # end
+
+  # def filter(q, {:calculated_using_id, ids}) when is_list(ids) do
+  #   where(q, [event: c], c.calculated_using_id in ^ids)
+  # end
+
   ## by ordering
 
   def filter(q, {:order, :id}) do
@@ -290,8 +306,9 @@ defmodule ValueFlows.EconomicEvent.Queries do
       :provider,
       :receiver,
       :triggered_by,
+      :calculated_using,
       effort_quantity: [:unit],
-      resource_quantity: [:unit]
+      resource_quantity: [:unit],
     ])
   end
 

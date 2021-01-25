@@ -6,22 +6,34 @@ defmodule ValueFlows.EventsValueCalculationTest do
   import ValueFlows.Test.Faking
 
   alias ValueFlows.EconomicEvent.EconomicEvents
+  alias ValueFlows.Knowledge.Action.Actions
 
   describe "create a reciprocal event" do
     test "that has a matching action" do
       user = fake_agent!()
-      action = action()
-      calc = fake_value_calculation!(user, %{action: action.id, formula: "(+ 1 2)"})
+      assert {:ok, action} = Actions.action("produce")
+      calc = fake_value_calculation!(user, %{action: action.id, formula: "(+ 1 effortQuantity)"})
       event = fake_economic_event!(user, %{action: action.id})
 
-      assert {:ok, [event_fetched, reciprocal]} = EconomicEvents.many(action_id: action.id)
-      # assert reciprocal.calculated_using_id == calc.id
-      assert reciprical = EconomicEvents.preload_all(reciprocal)
-      # FIXME
-      # assert reciprocal.resource_quantity.has_numerical_value == 3.0
+      assert {:ok, reciprocal} = EconomicEvents.one(calculated_using_id: calc.id)
+      assert reciprocal = EconomicEvents.preload_all(reciprocal)
+      assert reciprocal.action_id == calc.value_action_id
+      assert reciprocal.resource_quantity.has_numerical_value ==
+        1.0 + reciprocal.effort_quantity.has_numerical_value
+    end
 
-      assert {:ok, measure} = Bonfire.Quantify.Measures.one(id: reciprocal.resource_quantity_id)
-      assert measure.has_numerical_value == 3.0
+    test "effort quantity if action is work or use" do
+      user = fake_agent!()
+      assert {:ok, action} = ["use", "work"]
+      |> Faker.Util.pick()
+      |> Actions.action()
+      calc = fake_value_calculation!(user, %{action: action.id, formula: "(+ 1 resourceQuantity)"})
+      event = fake_economic_event!(user, %{action: action.id})
+
+      assert {:ok, reciprocal} = EconomicEvents.one(calculated_using_id: calc.id)
+      assert reciprocal = EconomicEvents.preload_all(reciprocal)
+      assert reciprocal.effort_quantity.has_numerical_value ==
+        1.0 + reciprocal.resource_quantity.has_numerical_value
     end
   end
 end

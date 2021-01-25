@@ -49,6 +49,7 @@ defmodule ValueFlows.EconomicEvent.Migrations do
       add(:at_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
 
       add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
+      add(:calculated_using_id, weak_pointer(ValueFlows.ValueCalculation), null: true)
 
       add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
 

@@ -288,9 +288,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   def create(creator, event_attrs, _) do
-    with {:ok, event} <- create(creator, event_attrs) do
-      {:ok, event, nil}
-    end
+    create(creator, event_attrs)
   end
 
   @doc """
@@ -324,8 +322,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
            :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
         indexing_object_format(event) |> ValueFlows.Util.index_for_search()
-        # {:ok, %{event: event, recipricals: reciprocals}}
-        {:ok, event}
+        {:ok, %{economic_event: event, reciprocal_events: reciprocals}}
       end
     end)
   end
@@ -342,8 +339,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            ) do
       event_attrs = Map.merge(event_attrs, %{field_name => new_resource.id})
 
-      with {:ok, event} <- create(creator, event_attrs) do
-        {:ok, event, new_resource}
+      with {:ok, events} <- create(creator, event_attrs) do
+        {:ok, Map.put(events, :economic_resource, new_resource)}
       else
         e ->
           # TODO: maybe we need to delete the created resource?
@@ -357,28 +354,40 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   """
   defp create_reciprocal_events(event) do
     case ValueCalculations.one([:default, event: event]) do
+      # FIXME: throw error on multiple calcs
       {:ok, calc} ->
         with {:ok, result} <- ValueCalculations.apply_to(event, calc) do
           new_event_attrs = event
           |> Map.from_struct()
           |> Map.merge(%{
-            calculated_using: calc.id,
-            resource_quantity: %{
-              unit_id: event.resource_quantity.unit_id,
+            calculated_using_id: calc.id,
+            triggered_by_id: event.id,
+            action_id: calc.value_action_id,
+            resource_conforms_to_id: calc.value_resource_conforms_to_id,
+          })
+          |> Map.put(
+            reciprocal_event_quantity_context(calc),
+            %{
+              unit_id: calc.value_unit_id,
               has_numerical_value: result,
             }
-          })
+          )
 
           EconomicEvent.create_changeset(event.creator, new_event_attrs)
           |> EconomicEvent.create_changeset_validate()
           |> repo().insert()
-          |> IO.inspect()
+          # TODO: side effects
         end
 
       {:error, :not_found} ->
         {:ok, []}
     end
   end
+
+  # if valueAction is "work" or "use", calculate the effortQuantity, else calculate the resourceQuantity
+  defp reciprocal_event_quantity_context(%{value_action_id: action_id} = _calc)
+      when action_id in ["work", "use"], do: :effort_quantity
+  defp reciprocal_event_quantity_context(_calc), do: :resource_quantity
 
   # TODO: take the user who is performing the update
   # @spec update(%EconomicEvent{}, attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}

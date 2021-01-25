@@ -335,9 +335,8 @@ defmodule ValueFlows.EconomicEvent.GraphQL do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, event_attrs, info),
            event_attrs = Map.merge(event_attrs, uploads),
-           event_attrs = Map.merge(event_attrs, %{is_public: true}),
-           {:ok, event, new_resource} <- EconomicEvents.create(user, event_attrs, params) do
-        {:ok, %{economic_event: event, economic_resource: new_resource}}
+           event_attrs = Map.merge(event_attrs, %{is_public: true}) do
+        EconomicEvents.create(user, event_attrs, params)
       end
     end)
   end

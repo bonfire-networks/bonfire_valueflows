@@ -3,9 +3,7 @@ defmodule ValueFlows.ValueCalculation do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_value_calculation",
-    # table_id: "VA1VEF10WSVA1VECA1CV1AT10N"
-    # HACK: pointers has become sentient
-    table_id: "5EVSER1S0STENS1B1YHVMAN01D"
+    table_id: "VA1VEF10WSVA1VECA1CV1AT10N"
 
   alias Ecto.Changeset
   @user Bonfire.Common.Config.get!(:user_schema)

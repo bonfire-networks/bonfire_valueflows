@@ -20,6 +20,7 @@ defmodule ValueFlows.ValueCalculation.Formula2Test do
     test "with new lines" do
       assert ["+", 1, 2] == Formula2.parse("\n( +  1 \n2)")
     end
+
   end
 
   describe "validate" do

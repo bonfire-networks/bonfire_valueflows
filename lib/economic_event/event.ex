@@ -54,7 +54,7 @@ defmodule ValueFlows.EconomicEvent do
 
     belongs_to(:triggered_by, EconomicEvent)
 
-    # belongs_to(:calculated_using, ValueCalculation)
+    belongs_to(:calculated_using, ValueCalculation)
 
     # TODO:
     # track: [ProductionFlowItem!]
@@ -88,7 +88,7 @@ defmodule ValueFlows.EconomicEvent do
   @cast @required ++
           ~w(note resource_classified_as agreed_in has_beginning has_end has_point_in_time is_disabled)a ++
           ~w(input_of_id output_of_id resource_conforms_to_id resource_inventoried_as_id to_resource_inventoried_as_id)a ++
-          ~w(triggered_by_id at_location_id context_id)a
+          ~w(triggered_by_id at_location_id context_id calculated_using_id)a
 
   def create_changeset(
         %{} = creator,
