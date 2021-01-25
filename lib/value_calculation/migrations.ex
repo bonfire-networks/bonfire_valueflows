@@ -6,6 +6,8 @@ defmodule ValueFlows.ValueCalculation.Migrations do
 
   def up do
     create_pointable_table(ValueFlows.ValueCalculation) do
+      add(:name, :text, null: true)
+      add(:note, :text, null: true)
       add(:formula, :text, null: false)
 
       add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)

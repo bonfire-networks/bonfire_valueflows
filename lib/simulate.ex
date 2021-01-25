@@ -56,6 +56,8 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:formula, fn -> "(+ 1 effortQuantity)" end)
     |> Map.put_new_lazy(:action, &action_id/0)
     |> Map.put_new_lazy(:value_action, &action_id/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
   end
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])

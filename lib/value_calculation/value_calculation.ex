@@ -11,6 +11,8 @@ defmodule ValueFlows.ValueCalculation do
   @type t :: %__MODULE__{}
 
   pointable_schema do
+    field(:name, :string)
+    field(:note, :string)
     field(:formula, :string)
     field(:resource_classified_as, {:array, :string}, virtual: true)
 
@@ -28,7 +30,7 @@ defmodule ValueFlows.ValueCalculation do
   end
 
   @required ~w(formula action_id value_action_id value_unit_id)a
-  @cast @required ++ ~w(context_id resource_conforms_to_id value_resource_conforms_to_id)a
+  @cast @required ++ ~w(name note context_id resource_conforms_to_id value_resource_conforms_to_id)a
 
   def create_changeset(%{} = creator, %{} = attrs) do
     %__MODULE__{}

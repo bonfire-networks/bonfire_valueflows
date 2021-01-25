@@ -710,6 +710,16 @@ A calculation performed using custom formulas for a certain context.
 type ValueCalculation {
   id: ID!
 
+  """
+  An informal or formal textual identifier for an item. Does not imply uniqueness.
+  """
+  name: String
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
   formula: String!
 
   """
