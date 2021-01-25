@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.ValueCalculation.ValueCalculations do
+  use OK.Pipe
+
   import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2, attr_get_id: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
@@ -22,11 +24,12 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   @doc "Apply the value calculation to a context"
   def apply_to(%EconomicEvent{} = event, %ValueCalculation{} = calc) do
     # TODO: populate env with context vars
-    env = Map.merge(Formula2.default_env(), %{})
+    env = Map.merge(Formula2.default_env(), formula_env(event))
 
     calc.formula
     |> Formula2.parse()
     |> Formula2.eval(env)
+    ~> Formula2.integer_to_float
   end
 
   def create(%{} = user, attrs) do
@@ -52,14 +55,23 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   defp formula_context(:event),
-    do: ["resourceQuantity", "availableQuantity", "effortQuantity"]
+    do: ["resourceQuantity", "effortQuantity", "quality"]
+
+  defp formula_env(%EconomicEvent{} = event) do
+    %{
+      "resourceQuantity" => event.resource_quantity.has_numerical_value,
+      "effortQuantity" => event.effort_quantity.has_numerical_value,
+      # TODO
+      # "quality" => event.quality.formula_quantifier
+    }
+  end
 
   defp prepare_formula(%{formula: formula}) do
     available_vars = formula_context(:event)
 
     formula
     |> Formula2.parse()
-    # |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
+    |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
     |> case do
       {:ok, _} -> :ok
       e -> e

@@ -14,6 +14,7 @@ defmodule ValueFlows.EconomicEvent do
   alias ValueFlows.EconomicEvent
   alias ValueFlows.EconomicResource
   alias ValueFlows.Process
+  alias ValueFlows.ValueCalculation
 
   alias Bonfire.Quantify.Measure
 
@@ -52,6 +53,8 @@ defmodule ValueFlows.EconomicEvent do
     belongs_to(:at_location, Bonfire.Geolocate.Geolocation)
 
     belongs_to(:triggered_by, EconomicEvent)
+
+    # belongs_to(:calculated_using, ValueCalculation)
 
     # TODO:
     # track: [ProductionFlowItem!]

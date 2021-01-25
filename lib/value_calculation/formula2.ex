@@ -46,6 +46,8 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     )
   end
 
+  def integer_to_float(x), do: x / 1.0
+
   @doc "Execute the AST over the environment."
   @spec eval(ast(), env()) :: {:ok, value()} | {:error, term()}
   def eval(ast, %{} = env) do

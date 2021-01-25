@@ -186,5 +186,4 @@ defmodule ValueFlows.Util do
   def image_schema() do
     Bonfire.Common.Config.maybe_schema_or_pointer(@image_schema)
   end
-
 end

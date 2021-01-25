@@ -13,6 +13,7 @@ defmodule Bonfire.ValueFlows.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: Mess.deps [
+        {:ok, "~> 2.3"},
         {:floki, ">= 0.0.0", only: [:dev, :test]},
         {:bonfire_api_graphql, git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql", branch: "main", optional: true},
         {:activity_pub, "https://gitlab.com/bonfire-ecosystem/activitypub.git", branch: "main", optional: true},

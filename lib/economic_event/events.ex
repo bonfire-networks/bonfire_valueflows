@@ -318,12 +318,13 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            event = preload_all(event),
            {:ok, event} <- maybe_transfer_resource(event),
            {:ok, event} <- EventSideEffects.event_side_effects(event),
-           {:ok, _} <- create_reciprocal_events(event),
+           {:ok, reciprocals} <- create_reciprocal_events(event),
            # FIXME
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
            :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
         indexing_object_format(event) |> ValueFlows.Util.index_for_search()
+        # {:ok, %{event: event, recipricals: reciprocals}}
         {:ok, event}
       end
     end)
@@ -355,13 +356,18 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   Find value calculations related to event and run them, generating reciprocal events.
   """
   defp create_reciprocal_events(event) do
-    case ValueCalculations.one([:default, action_id: event.action_id]) do
+    case ValueCalculations.one([:default, event: event]) do
       {:ok, calc} ->
         with {:ok, result} <- ValueCalculations.apply_to(event, calc) do
-          # TODO: add calculation result
           new_event_attrs = event
           |> Map.from_struct()
-          |> Map.merge(%{calculated_using: calc.id})
+          |> Map.merge(%{
+            calculated_using: calc.id,
+            resource_quantity: %{
+              unit_id: event.resource_quantity.unit_id,
+              has_numerical_value: result,
+            }
+          })
 
           EconomicEvent.create_changeset(event.creator, new_event_attrs)
           |> EconomicEvent.create_changeset_validate()
@@ -506,6 +512,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     |> maybe_put(:to_resource_inventoried_as_id, attr_get_id(attrs, :to_resource_inventoried_as))
     |> maybe_put(:triggered_by_id, attr_get_id(attrs, :triggered_by))
     |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
+    |> maybe_put(:calculated_using_id, attr_get_id(attrs, :calculated_using))
     |> parse_measurement_attrs()
   end
 

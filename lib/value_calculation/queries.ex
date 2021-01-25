@@ -4,6 +4,7 @@ defmodule ValueFlows.ValueCalculation.Queries do
   import Ecto.Query
 
   alias ValueFlows.ValueCalculation
+  alias ValueFlows.EconomicEvent
 
   def query(ValueCalculation) do
     from(vc in ValueCalculation, as: :value_calculation)
@@ -73,6 +74,23 @@ defmodule ValueFlows.ValueCalculation.Queries do
 
   def filter(q, {:action_id, ids}) when is_list(ids) do
     where(q, [value_calculation: vc], vc.action_id in ^ids)
+  end
+
+  def filter(q, {:resource_conforms_to_id, id}) when is_binary(id) do
+    where(q, [value_calculation: vc], vc.resource_conforms_to_id == ^id)
+  end
+
+  def filter(q, {:resource_conforms_to_id, ids}) when is_list(ids) do
+    where(q, [value_calculation: vc], vc.resource_conforms_to_id in ^ids)
+  end
+
+
+  ## context-based searches
+
+  def filter(q, {:event, %EconomicEvent{} = event}) do
+    q
+    |> filter(action_id: event.action_id)
+    # |> filter(resource_conforms_to_id: event.resource_conforms_to_id)
   end
 
   ## preloading

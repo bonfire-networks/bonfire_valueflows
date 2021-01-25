@@ -14,8 +14,14 @@ defmodule ValueFlows.EventsValueCalculationTest do
       calc = fake_value_calculation!(user, %{action: action.id, formula: "(+ 1 2)"})
       event = fake_economic_event!(user, %{action: action.id})
 
-      assert [event_fetched, reciprocal] = EconomicEvents.many(action_id: action.id)
+      assert {:ok, [event_fetched, reciprocal]} = EconomicEvents.many(action_id: action.id)
       # assert reciprocal.calculated_using_id == calc.id
+      assert reciprical = EconomicEvents.preload_all(reciprocal)
+      # FIXME
+      # assert reciprocal.resource_quantity.has_numerical_value == 3.0
+
+      assert {:ok, measure} = Bonfire.Quantify.Measures.one(id: reciprocal.resource_quantity_id)
+      assert measure.has_numerical_value == 3.0
     end
   end
 end
