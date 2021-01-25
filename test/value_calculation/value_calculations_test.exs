@@ -72,7 +72,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       user = fake_agent!()
 
       attrs = %{
-        formula: "(* 2 (+ effortQuantity 1.5) (pow availableQuantity 2))",
+        formula: "(* 2 (+ effortQuantity 1.5) (max availableQuantity 2))",
         value_unit: fake_unit!(user),
       }
 

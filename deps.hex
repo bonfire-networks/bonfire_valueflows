@@ -11,3 +11,4 @@ telemetry_poller = "~> 0.4"
 # for this extension:
 geocoder = "~> 1.0"
 stream_data = "~> 0.5"
+decimal = "~> 2.0"

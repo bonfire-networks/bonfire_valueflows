@@ -24,11 +24,10 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   @doc "Apply the value calculation to a context"
   def apply_to(%EconomicEvent{} = event, %ValueCalculation{} = calc) do
     env = Map.merge(Formula2.default_env(), formula_env(event))
-
     calc.formula
     |> Formula2.parse()
     |> Formula2.eval(env)
-    ~> Formula2.integer_to_float
+    ~> Formula2.decimal_to_float
   end
 
   def create(%{} = user, attrs) do
@@ -54,12 +53,12 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   defp formula_context(:event),
-    do: ["resourceQuantity", "effortQuantity", "quality"]
+    do: ["resourceQuantity", "effortQuantity"]
 
   defp formula_env(%EconomicEvent{} = event) do
     %{
-      "resourceQuantity" => event.resource_quantity.has_numerical_value,
-      "effortQuantity" => event.effort_quantity.has_numerical_value,
+      "resourceQuantity" => Formula2.float_to_decimal(event.resource_quantity.has_numerical_value),
+      "effortQuantity" => Formula2.float_to_decimal(event.effort_quantity.has_numerical_value),
       # TODO
       # "quality" => event.quality.formula_quantifier
     }
@@ -71,7 +70,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     formula
     |> Formula2.parse()
     # FIXME: bignum causes failure for multiplication
-    |> Formula2.validate(Formula2.default_env(), available_vars, [max_runs: 1])
+    |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
     |> case do
       {:ok, _} -> :ok
       e -> e

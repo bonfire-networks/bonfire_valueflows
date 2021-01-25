@@ -7,13 +7,17 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
 
   def default_env do
     %{
-      "+" => fn vals -> Enum.sum(vals) end,
-      "-" => fn [x | xs] -> Enum.reduce(xs, x, &(&2 - &1)) end,
-      "*" => fn [x | xs] -> Enum.reduce(xs, x, &(&1 * &2)) end,
+      "+" => fn [x | xs] -> Enum.reduce(xs, x, &(Decimal.add(&1, &2))) end,
+      "-" => fn [x | xs] -> Enum.reduce(xs, x, &(Decimal.sub(&2, &1))) end,
+      "*" => fn [x | xs] -> Enum.reduce(xs, x, &(Decimal.mult(&1, &2))) end,
       # TODO: division is disabled until an if condition is added that works on numbers only (false on 0 only)
       # TODO: so you can do (if var-a (/ 1 var-a) 1), avoiding division by 0 if var-a = 0
       # "/" => fn [a, b] -> a / b end,
-      "pow" => fn [a, b] -> :math.pow(a, b) end,
+      "max" => fn [a, b] -> Decimal.max(a, b) end,
+      "min" => fn [a, b] -> Decimal.min(a, b) end,
+      "round" => fn [x] -> Decimal.round(x) end,
+      "abs" => fn [x] -> Decimal.abs(x) end,
+      "negate" => fn [x] -> Decimal.negate(x) end,
     }
   end
 
@@ -31,7 +35,9 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   """
   @spec validate(ast(), env(), [var_ref()]) :: :ok | {:error, term()}
   def validate(ast, %{} = env, var_names, options \\ []) when is_list(var_names) do
-    value_gen = StreamData.one_of([StreamData.integer(), StreamData.float()])
+    value_gen = [StreamData.float(), StreamData.integer()]
+    |> StreamData.one_of()
+    |> StreamData.map(&float_to_decimal/1)
     env_gen = StreamData.fixed_map(for v <- var_names, do: {v, value_gen})
 
     options = Keyword.merge([initial_seed: :os.timestamp()], options)
@@ -46,7 +52,8 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     )
   end
 
-  def integer_to_float(x), do: x / 1.0
+  def decimal_to_float(x), do: Decimal.to_float(x)
+  def float_to_decimal(x), do: Decimal.from_float(x / 1.0)
 
   @doc "Execute the AST over the environment."
   @spec eval(ast(), env()) :: {:ok, value()} | {:error, term()}
@@ -58,7 +65,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
           {:ok, do_apply(operator_fn, parameters)}
         end
 
-      value when is_integer(value) or is_float(value) ->
+      %Decimal{} = value ->
         {:ok, value}
 
       variable when is_binary(variable) ->
@@ -121,28 +128,11 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
     do_parse(tail, [atom(head) | acc])
   end
 
-  # parse as an atom (a binary in erlang), float or integer
+  # parse as an atom (a binary in erlang) or decimal
   defp atom(token) do
-    case parse_integer(token) do
-      :error ->
-        case Float.parse(token) do
-          {value, ""} -> value
-          :error -> token
-        end
-
-      value -> value
-    end
-  end
-
-  defp parse_integer(token) do
-    case Integer.parse(token) do
-      {value, ""} ->
-        value
-
-      {_, decimal} when is_binary(decimal) ->
-        :error
-
-      :error -> :error
+    case Decimal.parse(token) do
+      {value, ""} -> value
+      :error -> token
     end
   end
 end
