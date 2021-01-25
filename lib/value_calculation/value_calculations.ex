@@ -20,11 +20,13 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   @doc "Apply the value calculation to a context"
-  def apply_to(%EconomicEvent{} = event) do
-    with {:ok, calc} <- one(event.calculated_using_id),
-         {:ok, result} <- evaluate_formula(event, calc) do
-      {:ok, %{value_calculation: calc, result: result}}
-    end
+  def apply_to(%EconomicEvent{} = event, %ValueCalculation{} = calc) do
+    # TODO: populate env with context vars
+    env = Map.merge(Formula2.default_env(), %{})
+
+    calc.formula
+    |> Formula2.parse()
+    |> Formula2.eval(env)
   end
 
   def create(%{} = user, attrs) do
@@ -52,21 +54,12 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   defp formula_context(:event),
     do: ["resourceQuantity", "availableQuantity", "effortQuantity"]
 
-  defp evaluate_formula(context, %{formula: formula} = calculation) do
-    # TODO: populate env with context vars
-    env = Map.merge(Formula2.default_env(), %{})
-
-    formula
-    |> Formula2.parse()
-    |> Formula2.eval(env)
-  end
-
   defp prepare_formula(%{formula: formula}) do
     available_vars = formula_context(:event)
 
     formula
     |> Formula2.parse()
-    |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
+    # |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
     |> case do
       {:ok, _} -> :ok
       e -> e

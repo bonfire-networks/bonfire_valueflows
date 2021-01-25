@@ -67,6 +67,14 @@ defmodule ValueFlows.ValueCalculation.Queries do
     where(q, [value_calculation: vc], vc.context_id in ^ids)
   end
 
+  def filter(q, {:action_id, id}) when is_binary(id) do
+    where(q, [value_calculation: vc], vc.action_id == ^id)
+  end
+
+  def filter(q, {:action_id, ids}) when is_list(ids) do
+    where(q, [value_calculation: vc], vc.action_id in ^ids)
+  end
+
   ## preloading
 
   def filter(q, {:preload, :all}) do

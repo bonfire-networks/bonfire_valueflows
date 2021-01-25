@@ -15,6 +15,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   alias ValueFlows.EconomicEvent.EventSideEffects
 
   alias ValueFlows.Process.Processes
+  alias ValueFlows.ValueCalculation.ValueCalculations
 
   import Bonfire.Fail.Error
 
@@ -317,8 +318,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            event = preload_all(event),
            {:ok, event} <- maybe_transfer_resource(event),
            {:ok, event} <- EventSideEffects.event_side_effects(event),
-           act_attrs = %{verb: "created", is_local: true},
+           {:ok, _} <- create_reciprocal_events(event),
            # FIXME
+           act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
            :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
         indexing_object_format(event) |> ValueFlows.Util.index_for_search()
@@ -346,6 +348,29 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           # TODO: maybe we need to delete the created resource?
           e
       end
+    end
+  end
+
+  @doc """
+  Find value calculations related to event and run them, generating reciprocal events.
+  """
+  defp create_reciprocal_events(event) do
+    case ValueCalculations.one([:default, action_id: event.action_id]) do
+      {:ok, calc} ->
+        with {:ok, result} <- ValueCalculations.apply_to(event, calc) do
+          # TODO: add calculation result
+          new_event_attrs = event
+          |> Map.from_struct()
+          |> Map.merge(%{calculated_using: calc.id})
+
+          EconomicEvent.create_changeset(event.creator, new_event_attrs)
+          |> EconomicEvent.create_changeset_validate()
+          |> repo().insert()
+          |> IO.inspect()
+        end
+
+      {:error, :not_found} ->
+        {:ok, []}
     end
   end
 
