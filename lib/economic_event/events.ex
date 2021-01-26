@@ -362,6 +362,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         with {:ok, result} <- ValueCalculations.apply_to(event, calc) do
           new_event_attrs = event
           |> Map.from_struct()
+          |> Map.drop([:resource_inventoried_as_id, :to_resource_inventoried_as_id])
           |> Map.merge(%{
             action_id: calc.value_action_id,
             calculated_using_id: calc.id,

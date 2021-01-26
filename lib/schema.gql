@@ -759,6 +759,8 @@ type ValueCalculation {
 }
 
 input ValueCalculationCreateParams {
+  name: String
+  note: String
   formula: String!
 
   valueUnit: ID!
@@ -775,11 +777,15 @@ input ValueCalculationCreateParams {
 input ValueCalculationUpdateParams {
   id: ID!
 
+  name: String
+  note: String
   formula: String
+
   valueUnit: ID
 
   action: ID
   valueAction: ID
+
   resourceConformsTo: ID
   valueResourceConformsTo: ID
   resourceClassifiedAs: [URI!]
@@ -3756,7 +3762,11 @@ type ValueFlowsQuery {
   claims(start: ID, limit: Int): [Claim!]
   
   valueCalculation(id: ID): ValueCalculation
-  valueCalculations(start: ID, limit: Int): [ValueCalculation!]
+  valueCalculationsPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): ValueCalculationPage!
 
   settlement(id: ID): Settlement
   settlements(start: ID, limit: Int): [Settlement!]
@@ -4172,4 +4182,8 @@ type EconomicResourcePage {
   totalCount: Int!
 }
 
-
+type ValueCalculationPage {
+  pageInfo: PageInfo!
+  edges: [ValueCalculation!]!
+  totalCount: Int!
+}

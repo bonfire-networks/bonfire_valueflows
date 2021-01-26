@@ -10,6 +10,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   alias ValueFlows.ValueCalculation.{Formula2, Queries}
 
   alias ValueFlows.EconomicEvent
+  alias ValueFlows.Observe.Observations
 
   def one(filters), do: repo().single(Queries.query(ValueCalculation, filters))
 
@@ -27,7 +28,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     calc.formula
     |> Formula2.parse()
     |> Formula2.eval(env)
-    ~> Formula2.decimal_to_float
+    ~> Formula2.decimal_to_float()
   end
 
   def create(%{} = user, attrs) do
@@ -59,15 +60,15 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     # observation = Observations.one([
     #   :default,
     #   # TODO: figure out what resource to use
-    #   feature_of_interest: event.resource_inventoried_as_id,
-    #   order_by: :inserted_at,
+    #   has_feature_of_interest: event.resource_inventoried_as_id,
+    #   order: :id,
+    #   limit: 1
     # ])
 
     %{
       "resourceQuantity" => event.resource_quantity.has_numerical_value,
       "effortQuantity" => event.effort_quantity.has_numerical_value,
-      # TODO
-      # "quality" => observation.result_phenomenon.formula_quantifier
+      # "quality" => maybe(observation, &(&1.result_phenomenon.formula_quantifier or 0.0)),
     }
     |> ValueFlows.Util.map_values(&Formula2.float_to_decimal/1)
   end

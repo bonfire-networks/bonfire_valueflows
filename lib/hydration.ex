@@ -394,7 +394,7 @@ defmodule ValueFlows.Hydration do
         value_calculation: [
           resolve: &ValueFlows.ValueCalculation.GraphQL.value_calculation/2
         ],
-        value_calculations: [
+        value_calculations_pages: [
           resolve: &ValueFlows.ValueCalculation.GraphQL.value_calculations/2
         ],
 

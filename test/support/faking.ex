@@ -331,6 +331,32 @@ defmodule ValueFlows.Test.Faking do
     gen_subquery(:id, :value_calculation, &value_calculation_fields/1, options)
   end
 
+  def value_calculations_pages_query(options \\ []) do
+    params =
+      [
+        value_calculations_after: list_type(:cursor),
+        value_calculations_before: list_type(:cursor),
+        value_calculations_limit: :int
+      ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&value_calculations_pages_subquery/1, [{:params, params} | options])
+  end
+
+  def value_calculations_pages_subquery(options \\ []) do
+    args = [
+      after: var(:value_calculations_after),
+      before: var(:value_calculations_before),
+      limit: var(:value_calculations_limit)
+    ]
+
+    page_subquery(
+      :value_calculations_pages,
+      &value_calculation_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+
   def create_value_calculation_mutation(options \\ []) do
     [value_calculation: type!(:value_calculation_create_params)]
     |> gen_mutation(&create_value_calculation_submutation/1, options)

@@ -52,6 +52,15 @@ defmodule ValueFlows.ValueCalculation.Queries do
 
   ## by field values
 
+  def filter(q, {:cursor, [count, id]})
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [value_calculation: vc, follower_count: fc],
+      (fc.count == ^count and vc.id >= ^id) or fc.count > ^count
+    )
+  end
+
   def filter(q, {:id, id}) when is_binary(id) do
     where(q, [value_calculation: vc], vc.id == ^id)
   end
@@ -94,6 +103,57 @@ defmodule ValueFlows.ValueCalculation.Queries do
     else
       q
     end
+  end
+
+  ## by ordering
+
+  def filter(q, {:order, :id}) do
+    filter(q, order: [desc: :id])
+  end
+
+  def filter(q, {:order, [desc: :id]}) do
+    order_by(q, [value_calculation: vc, id: id],
+      desc: coalesce(id.count, 0),
+      desc: vc.id
+    )
+  end
+
+  ## grouping and counting
+
+  def filter(q, {:group_count, key}) when is_atom(key) do
+    filter(q, group: key, count: key)
+  end
+
+  def filter(q, {:group, key}) when is_atom(key) do
+    group_by(q, [value_calculation: vc], field(vc, ^key))
+  end
+
+  def filter(q, {:count, key}) when is_atom(key) do
+    select(q, [value_calculation: vc], {field(vc, ^key), count(vc.id)})
+  end
+
+  ## pagination
+
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
+    limit = limit + 2
+
+    q
+    |> where([value_calculation: vc], vc.id >= ^a)
+    |> limit(^limit)
+  end
+
+  def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
+    q
+    |> where([value_calculation: vc], vc.id <= ^b)
+    |> filter(limit: limit + 2)
+  end
+
+  def filter(q, {:paginate_id, %{limit: limit}}) do
+    filter(q, limit: limit + 1)
   end
 
   ## preloading

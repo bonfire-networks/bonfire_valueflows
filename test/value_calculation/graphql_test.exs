@@ -1,10 +1,13 @@
 defmodule ValueFlows.ValueCalculation.GraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
+  import Bonfire.Common.Simulation, only: [some: 2]
   import Bonfire.Quantify.Simulate, only: [fake_unit!: 1]
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
+
+  alias ValueFlows.ValueCalculation.ValueCalculations
 
   @schema Bonfire.GraphQL.Schema
 
@@ -42,6 +45,22 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
 
   describe "valueCalculations" do
     test "returns a paginated list of value calculations" do
+      user = fake_agent!()
+      calcs = some(5, fn -> fake_value_calculation!(user) end)
+      after_calc = List.first(calcs)
+      # deleted
+      some(2, fn ->
+        calc = fake_value_calculation!(user)
+        {:ok, calc} = ValueCalculations.soft_delete(calc)
+        calc
+      end)
+
+      q = value_calculations_pages_query()
+      conn = user_conn(user)
+      vars = %{after: [after_calc.id], limit: 2}
+      assert page = grumble_post_key(q, conn, :value_calculations_pages, vars)
+      assert Enum.count(calcs) == page["totalCount"]
+      assert List.first(page["edges"])["id"] == after_calc.id
     end
   end
 

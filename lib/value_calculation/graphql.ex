@@ -26,19 +26,27 @@ defmodule ValueFlows.ValueCalculation.GraphQL do
     })
   end
 
-  def fetch_value_calculation(_info, id) do
-    ValueCalculations.one([:default, id: id])
+  def fetch_value_calculation(info, id) do
+    ValueCalculations.one([
+      :default,
+      id: id,
+      creator: GraphQL.current_user(info)
+    ])
   end
 
   def fetch_value_calculations(page_opts, info) do
+    filters = info |> Map.get(:data_filters, %{}) |> Keyword.new()
+
     FetchPage.run(%FetchPage{
       queries: ValueFlows.ValueCalculation.Queries,
       query: ValueFlows.ValueCalculation,
       page_opts: page_opts,
+      cursor_fn: & &1.id,
       base_filters: [
         :default,
         creator: GraphQL.current_user(info)
-      ]
+      ],
+      data_filters: [filters ++ [paginate_id: page_opts]],
     })
   end
 
