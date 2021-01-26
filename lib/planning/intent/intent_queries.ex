@@ -222,8 +222,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:order, [desc: :id]}) do
-    order_by(q, [intent: c, id: id],
-      desc: coalesce(id.count, 0),
+    order_by(q, [intent: c],
       desc: c.id
     )
   end
