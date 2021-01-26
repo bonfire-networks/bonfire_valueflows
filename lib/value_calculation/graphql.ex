@@ -37,7 +37,7 @@ defmodule ValueFlows.ValueCalculation.GraphQL do
       page_opts: page_opts,
       base_filters: [
         :default,
-        user: GraphQL.current_user(info)
+        creator: GraphQL.current_user(info)
       ]
     })
   end
