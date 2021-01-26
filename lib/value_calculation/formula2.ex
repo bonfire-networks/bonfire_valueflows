@@ -53,7 +53,8 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   end
 
   def decimal_to_float(x), do: Decimal.to_float(x)
-  def float_to_decimal(x), do: Decimal.from_float(x / 1.0)
+  def float_to_decimal(x) when is_float(x), do: Decimal.from_float(x)
+  def float_to_decimal(x), do: Decimal.cast(x)
 
   @doc "Execute the AST over the environment."
   @spec eval(ast(), env()) :: {:ok, value()} | {:error, term()}

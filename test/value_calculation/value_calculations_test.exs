@@ -22,7 +22,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       user = fake_agent!()
       calc = fake_value_calculation!(user)
 
-      assert {:ok, fetched} = ValueCalculations.one(creator: user)
+      assert {:ok, fetched} = ValueCalculations.one(creator: user, limit: 1)
       assert_value_calculation(fetched)
       assert calc.creator_id == user.id
     end
@@ -32,7 +32,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       context = fake_agent!()
       calc = fake_value_calculation!(user, %{in_scope_of: [context.id]})
 
-      assert {:ok, fetched} = ValueCalculations.one(context_id: context.id)
+      assert {:ok, fetched} = ValueCalculations.one(context_id: context.id, limit: 1)
       assert_value_calculation(fetched)
       assert calc.context_id == context.id
     end
