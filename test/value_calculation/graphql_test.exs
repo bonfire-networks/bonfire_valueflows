@@ -28,7 +28,10 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
       calc = fake_value_calculation!(user, %{
         in_scope_of: [fake_agent!().id],
         value_unit: fake_unit!(user).id,
-        # value_action: fake_action!()
+        action: action_id(),
+        value_action: action_id(),
+        resource_conforms_to: fake_resource_specification!(user),
+        value_resource_conforms_to: fake_resource_specification!(user),
       })
 
       assert queried =
