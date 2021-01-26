@@ -20,6 +20,11 @@ defmodule ValueFlows.Util.GraphQL do
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
+  def fetch_data_filters(fetch_function_filters \\ [], info) do
+    api_query_filters = for {k,v} <- Map.get(info, :data_filters, %{}), into: [], do: {k, v}
+    [api_query_filters ++ fetch_function_filters]
+  end
+
   def scope_edge(%{in_scope_of: ids}, page_opts, info),
     do: Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: ids}, page_opts, info)
 

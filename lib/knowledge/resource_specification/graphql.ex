@@ -98,8 +98,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
       page_opts: page_opts,
       info: info,
       # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1],
-      data_filters: page_opts
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1]
     })
   end
 
@@ -121,48 +120,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   def fetch_conforming_resources_edge(%{conforms_to: id}, page_opts, info) when not is_nil(id) do
     ValueFlows.EconomicResource.GraphQL.spec_conforms_to_resources(%{conforms_to: id}, page_opts, info)
-  end
-
-  def resource_specs_filtered(page_opts, _) do
-    resource_specs_filter(page_opts, [])
-  end
-
-  # def resource_specs_filtered(page_opts, _) do
-  #   IO.inspect(unhandled_filtering: page_opts)
-  #   all_resource_specs(page_opts, nil)
-  # end
-
-  # TODO: support several filters combined, plus pagination on filtered queries
-
-  defp resource_specs_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
-    resource_specs_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
-  end
-
-  defp resource_specs_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
-    resource_specs_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
-  end
-
-  defp resource_specs_filter(
-         _,
-         filters_acc
-       ) do
-    # finally, if there's no more known params to acumulate, query with the filters
-    ResourceSpecifications.many(filters_acc)
-  end
-
-  defp resource_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
-       when is_list(param_remove) and is_list(filter_add) do
-    resource_specs_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
-  end
-
-  defp resource_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
-       when not is_list(filter_add) do
-    resource_specs_filter_next(param_remove, [filter_add], page_opts, filters_acc)
-  end
-
-  defp resource_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
-       when not is_list(param_remove) do
-    resource_specs_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
   ## fetchers
@@ -210,7 +167,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def fetch_resource_specs(page_opts, info) do
-    filters = for {k,v} <- Map.get(info, :data_filters, %{}), into: [], do: {k, v}
     #  |> IO.inspect
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Knowledge.ResourceSpecification.Queries,
@@ -223,7 +179,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
         # preload: [:tags],
         user: GraphQL.current_user(info)
       ],
-      data_filters: [filters ++ [paginate_id: page_opts]],
+      data_filters: ValueFlows.Util.GraphQL.fetch_data_filters([paginate_id: page_opts], info),
     })
   end
 
