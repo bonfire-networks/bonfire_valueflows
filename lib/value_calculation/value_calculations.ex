@@ -57,18 +57,21 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     do: ["resourceQuantity", "effortQuantity", "quality"]
 
   defp formula_env(%EconomicEvent{} = event) do
-    # observation = Observations.one([
-    #   :default,
-    #   # TODO: figure out what resource to use
-    #   has_feature_of_interest: event.resource_inventoried_as_id,
-    #   order: :id,
-    #   limit: 1
-    # ])
+    observation = case Observations.one([
+      :default,
+      # TODO: figure out what resource to use
+      has_feature_of_interest: event.resource_inventoried_as_id,
+      order: :id,
+      limit: 1
+    ]) do
+      {:ok, x} -> x
+      {:error, :not_found} -> nil
+    end
 
     %{
       "resourceQuantity" => event.resource_quantity.has_numerical_value,
       "effortQuantity" => event.effort_quantity.has_numerical_value,
-      # "quality" => maybe(observation, &(&1.result_phenomenon.formula_quantifier or 0.0)),
+      "quality" => maybe(observation, &(&1.result_phenomenon.formula_quantifier or 0.0)),
     }
     |> ValueFlows.Util.map_values(&Formula2.float_to_decimal/1)
   end
@@ -78,7 +81,6 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
     formula
     |> Formula2.parse()
-    # FIXME: bignum causes failure for multiplication
     |> Formula2.validate(Formula2.default_env(), available_vars, formula2_options())
     |> case do
       {:ok, _} -> :ok

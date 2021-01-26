@@ -46,7 +46,7 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
     end
   end
 
-  describe "valueCalculations" do
+  describe "valueCalculationsPages" do
     test "returns a paginated list of value calculations" do
       user = fake_agent!()
       calcs = some(5, fn -> fake_value_calculation!(user) end)
