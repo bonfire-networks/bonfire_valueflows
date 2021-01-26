@@ -306,9 +306,6 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
     cs = EconomicEvent.create_changeset(creator, new_event_attrs)
 
-    # IO.inspect(creator: creator)
-    # IO.inspect(new_event_attrs: new_event_attrs)
-
     repo().transact_with(fn ->
       with :ok <- validate_user_involvement(creator, new_event_attrs),
            :ok <- validate_provider_is_primary_accountable(new_event_attrs),
@@ -341,21 +338,18 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       new_inventoried_resource
       |> Map.put_new(:is_public, true)
 
-    with {:ok, new_resource} <-
-           ValueFlows.EconomicResource.EconomicResources.create(
-             creator,
-             new_resource_attrs
-           ) do
-      event_attrs = Map.merge(event_attrs, %{field_name => new_resource.id})
+    repo().transact_with(fn ->
+      with {:ok, new_resource} <-
+            ValueFlows.EconomicResource.EconomicResources.create(
+              creator,
+              new_resource_attrs
+            ) do
+        event_attrs = Map.merge(event_attrs, %{field_name => new_resource.id})
 
-      with {:ok, events} <- create(creator, event_attrs) do
-        {:ok, Map.put(events, :economic_resource, new_resource)}
-      else
-        e ->
-          # TODO: maybe we need to delete the created resource?
-          e
+        create(creator, event_attrs)
+        ~> Map.put(:economic_resource, new_resource)
       end
-    end
+    end)
   end
 
   @doc """
@@ -369,11 +363,15 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           new_event_attrs = event
           |> Map.from_struct()
           |> Map.merge(%{
+            action_id: calc.value_action_id,
             calculated_using_id: calc.id,
             triggered_by_id: event.id,
-            action_id: calc.value_action_id,
-            resource_conforms_to_id: calc.value_resource_conforms_to_id,
           })
+          # don't overwrite if value not set
+          |> maybe_put(
+            :resource_conforms_to_id,
+            calc.value_resource_conforms_to_id
+          )
           |> Map.put(
             reciprocal_event_quantity_context(calc),
             %{
