@@ -53,15 +53,23 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   defp formula_context(:event),
-    do: ["resourceQuantity", "effortQuantity"]
+    do: ["resourceQuantity", "effortQuantity", "quality"]
 
   defp formula_env(%EconomicEvent{} = event) do
+    # observation = Observations.one([
+    #   :default,
+    #   # TODO: figure out what resource to use
+    #   feature_of_interest: event.resource_inventoried_as_id,
+    #   order_by: :inserted_at,
+    # ])
+
     %{
-      "resourceQuantity" => Formula2.float_to_decimal(event.resource_quantity.has_numerical_value),
-      "effortQuantity" => Formula2.float_to_decimal(event.effort_quantity.has_numerical_value),
+      "resourceQuantity" => event.resource_quantity.has_numerical_value,
+      "effortQuantity" => event.effort_quantity.has_numerical_value,
       # TODO
-      # "quality" => event.quality.formula_quantifier
+      # "quality" => observation.result_phenomenon.formula_quantifier
     }
+    |> ValueFlows.Util.map_values(&Formula2.float_to_decimal/1)
   end
 
   defp prepare_formula(%{formula: formula}) do

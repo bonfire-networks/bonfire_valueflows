@@ -21,6 +21,10 @@ defmodule ValueFlows.Util do
   #   {:ok, thing}
   # end
 
+  def map_values(%{} = map, func) do
+    for {k, v} <- map, into: %{}, do: {k, func.(v)}
+  end
+
   def try_tag_thing(user, thing, tags) do
     if module_exists?(Bonfire.Tag.Tags) do
       Bonfire.Tag.Tags.maybe_tag(user, thing, tags)
