@@ -60,7 +60,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     resource_id = Map.get(event, :resource_inventoried_as_id,
       Map.get(event, :to_resource_inventoried_as_id))
 
-    observation = maybe(resource_id, fn ->
+    observation = if resource_id do
       case Observations.one([
         :default,
         has_feature_of_interest: resource_id,
@@ -68,9 +68,9 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
         limit: 1
       ]) do
         {:ok, x} -> x
-        {:error, :not_found} -> nil
+        _ -> nil
       end
-    end)
+    end
 
     %{
       "resourceQuantity" => event.resource_quantity.has_numerical_value,
