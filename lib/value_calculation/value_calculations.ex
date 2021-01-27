@@ -57,21 +57,30 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     do: ["resourceQuantity", "effortQuantity", "quality"]
 
   defp formula_env(%EconomicEvent{} = event) do
-    observation = case Observations.one([
-      :default,
-      # TODO: figure out what resource to use
-      has_feature_of_interest: event.resource_inventoried_as_id,
-      order: :id,
-      limit: 1
-    ]) do
-      {:ok, x} -> x
-      {:error, :not_found} -> nil
-    end
+    resource_id = Map.get(event, :resource_inventoried_as_id,
+      Map.get(event, :to_resource_inventoried_as_id))
+
+    observation = maybe(resource_id, fn ->
+      case Observations.one([
+        :default,
+        has_feature_of_interest: resource_id,
+        order: :id,
+        limit: 1
+      ]) do
+        {:ok, x} -> x
+        {:error, :not_found} -> nil
+      end
+    end)
 
     %{
       "resourceQuantity" => event.resource_quantity.has_numerical_value,
       "effortQuantity" => event.effort_quantity.has_numerical_value,
-      "quality" => maybe(observation, &(&1.result_phenomenon.formula_quantifier or 0.0)),
+      "quality" =>
+        if is_nil(observation) do
+          0
+        else
+          observation.result_phenomenon.formula_quantifier
+        end
     }
     |> ValueFlows.Util.map_values(&Formula2.float_to_decimal/1)
   end
