@@ -4,10 +4,12 @@ defmodule ValueFlows.EventsValueCalculationTest do
   import Bonfire.Quantify.Simulate, only: [fake_unit!: 1]
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
-  import ValueFlows.Observe.Simulate, only: [fake_observation!: 2]
+  import ValueFlows.Observe.Simulate
 
   alias ValueFlows.EconomicEvent.EconomicEvents
   alias ValueFlows.Knowledge.Action.Actions
+
+  alias ValueFlows.Observe.Observations
 
   alias Decimal, as: D
 
@@ -49,25 +51,32 @@ defmodule ValueFlows.EventsValueCalculationTest do
 
     test "use of quality" do
       user = fake_agent!()
+      unit = fake_unit!(user)
       action = action()
       calc = fake_value_calculation!(user, %{
-        action: action.id, formula: "(* quality resourceQuantity 2)"
+        action: action.id,
+        formula: "(* quality resourceQuantity 2)"
       })
-      resource = fake_economic_resource!(user)
-      observation = fake_observation!(user, resource)
+      resource = fake_economic_resource!(user, %{}, unit)
+
+      phenon = fake_observable_phenomenon!(user)
+      assert {:ok, observation} =
+        Observations.create(user, observation(%{}, resource, fake_observable_property!(user), phenon))
 
       event = fake_economic_event!(user, %{
         action: action.id,
         resource_inventoried_as: resource.id
-      })
+      }, unit)
 
       assert {:ok, reciprocal} = EconomicEvents.one(calculated_using_id: calc.id)
       assert reciprocal = EconomicEvents.preload_all(reciprocal)
       assert reciprocal.resource_quantity.has_numerical_value ==
-        D.to_float(D.mul(
-          D.from_float(observation.result_phenomenon.formula_quantifier),
-          D.from_float(reciprocal.resource_quantity.has_numerical_value),
-          D.new(2)
+        D.to_float(D.mult(
+          D.from_float(phenon.formula_quantifier),
+          D.mult(
+            D.from_float(reciprocal.resource_quantity.has_numerical_value),
+            D.new(2)
+          )
         ))
     end
 

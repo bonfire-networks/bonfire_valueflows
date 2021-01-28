@@ -63,11 +63,12 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     observation = if resource_id do
       case Observations.one([
         :default,
+        preload: :all,
         has_feature_of_interest: resource_id,
         order: :id,
         limit: 1
       ]) do
-        {:ok, x} -> x
+        {:ok, x} -> repo().preload(x, [:result_phenomenon])
         _ -> nil
       end
     end
@@ -79,7 +80,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
         if is_nil(observation) do
           0
         else
-          observation.result_phenomenon.formula_quantifier
+          observation.result_phenomenon.extra_info["formula_quantifier"]
         end
     }
     |> ValueFlows.Util.map_values(&Formula2.float_to_decimal/1)
