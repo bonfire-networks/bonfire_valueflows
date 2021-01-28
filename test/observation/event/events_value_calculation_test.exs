@@ -4,6 +4,7 @@ defmodule ValueFlows.EventsValueCalculationTest do
   import Bonfire.Quantify.Simulate, only: [fake_unit!: 1]
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
+  import ValueFlows.Observe.Simulate, only: [fake_observation!: 2]
 
   alias ValueFlows.EconomicEvent.EconomicEvents
   alias ValueFlows.Knowledge.Action.Actions
@@ -48,6 +49,26 @@ defmodule ValueFlows.EventsValueCalculationTest do
 
     test "use of quality" do
       user = fake_agent!()
+      action = action()
+      calc = fake_value_calculation!(user, %{
+        action: action.id, formula: "(* quality resourceQuantity 2)"
+      })
+      resource = fake_economic_resource!(user)
+      observation = fake_observation!(user, resource)
+
+      event = fake_economic_event!(user, %{
+        action: action.id,
+        resource_inventoried_as: resource.id
+      })
+
+      assert {:ok, reciprocal} = EconomicEvents.one(calculated_using_id: calc.id)
+      assert reciprocal = EconomicEvents.preload_all(reciprocal)
+      assert reciprocal.resource_quantity.has_numerical_value ==
+        D.to_float(D.mul(
+          D.from_float(observation.result_phenomenon.formula_quantifier),
+          D.from_float(reciprocal.resource_quantity.has_numerical_value),
+          D.new(2)
+        ))
     end
 
     # not needed for current project
