@@ -47,7 +47,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
         in_scope_of: [parent.id]
       })
 
-      # IO.inspect(intent: intent)
+      #IO.inspect(intent: intent)
 
       proposal = fake_proposal!(user)
 

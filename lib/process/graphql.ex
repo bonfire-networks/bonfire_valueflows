@@ -82,7 +82,7 @@ defmodule ValueFlows.Process.GraphQL do
   end
 
   def processes_filtered(page_opts, _ \\ nil) do
-    # IO.inspect(processes_filtered: page_opts)
+    #IO.inspect(processes_filtered: page_opts)
     processes_filter(page_opts, [])
   end
 
@@ -109,7 +109,7 @@ defmodule ValueFlows.Process.GraphQL do
          _,
          filters_acc
        ) do
-    # IO.inspect(filters_query: filters_acc)
+    #IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     Processes.many(filters_acc)
@@ -117,8 +117,8 @@ defmodule ValueFlows.Process.GraphQL do
 
   defp processes_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    # IO.inspect(processes_filter_next: param_remove)
-    # IO.inspect(processes_filter_add: filter_add)
+    #IO.inspect(processes_filter_next: param_remove)
+    #IO.inspect(processes_filter_add: filter_add)
 
     processes_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end

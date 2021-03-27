@@ -86,7 +86,7 @@ defmodule ValueFlows.EconomicResource.GraphQL do
   def trace(_, _, _), do: {:ok, nil}
 
   def resources_filtered(page_opts, _ \\ nil) do
-    # IO.inspect(resources_filtered: page_opts)
+    #IO.inspect(resources_filtered: page_opts)
     resources_filter(page_opts, [])
   end
 
@@ -140,7 +140,7 @@ defmodule ValueFlows.EconomicResource.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_point: page_opts)
+    #IO.inspect(geo_with_point: page_opts)
 
     resources_filter_next(
       :geolocation,
@@ -161,10 +161,10 @@ defmodule ValueFlows.EconomicResource.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_address: page_opts)
+    #IO.inspect(geo_with_address: page_opts)
 
     with {:ok, coords} <- Geocoder.call(address) do
-      # IO.inspect(coords)
+      #IO.inspect(coords)
 
       resources_filter(
         Map.merge(
@@ -196,7 +196,7 @@ defmodule ValueFlows.EconomicResource.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_without_distance: page_opts)
+    #IO.inspect(geo_without_distance: page_opts)
 
     resources_filter(
       Map.merge(
@@ -217,7 +217,7 @@ defmodule ValueFlows.EconomicResource.GraphQL do
          _,
          filters_acc
        ) do
-    # IO.inspect(filters_query: filters_acc)
+    #IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     EconomicResources.many(filters_acc)
@@ -225,8 +225,8 @@ defmodule ValueFlows.EconomicResource.GraphQL do
 
   defp resources_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    # IO.inspect(resources_filter_next: param_remove)
-    # IO.inspect(resources_filter_add: filter_add)
+    #IO.inspect(resources_filter_next: param_remove)
+    #IO.inspect(resources_filter_add: filter_add)
 
     resources_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end

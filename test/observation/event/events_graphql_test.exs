@@ -72,7 +72,7 @@ defmodule ValueFlows.EconomicEvent.EventsGraphQLTest do
           at_location: location.id
         }, unit)
 
-      # IO.inspect(created: event)
+      #IO.inspect(created: event)
 
       assert queried =
                Bonfire.GraphQL.QueryHelper.run_query_id(

@@ -59,7 +59,7 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   end
 
   def gql_post(conn, query, code, show_output \\ false) do
-    # IO.inspect(graphql_query: query)
+    #IO.inspect(graphql_query: query)
     with %{status: status} = go <- ConnTest.post(conn, "/api/graphql", query) do
       if status != code || show_output ||
            Bonfire.Common.Config.get([:logging, :tests_output_graphql]),
@@ -80,24 +80,24 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   def gql_post_data(conn, query, show_output \\ false) do
     case gql_post_200(conn, query, show_output) do
       %{"data" => data, "errors" => errors} ->
-        # IO.inspect(graphql_query: query)
+        #IO.inspect(graphql_query: query)
         IO.inspect(graphql_response: data)
         throw({:additional_errors, errors})
 
       %{"errors" => errors} ->
-        # IO.inspect(graphql_query: query)
+        #IO.inspect(graphql_query: query)
         throw({:unexpected_errors, errors})
 
       %{"data" => data} ->
         if(show_output || Bonfire.Common.Config.get([:logging, :tests_output_graphql])) do
-          # IO.inspect(graphql_query: query)
+          #IO.inspect(graphql_query: query)
           IO.inspect(graphql_response: data)
         end
 
         data
 
       other ->
-        # IO.inspect(graphql_query: query)
+        #IO.inspect(graphql_query: query)
         throw({:horribly_wrong, other})
     end
   end
@@ -106,7 +106,7 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
     # IO.puts("query: " <> query)
-    # IO.inspect(vars: vars)
+    #IO.inspect(vars: vars)
     query =
       extract_files(%{
         query: query,
@@ -129,8 +129,8 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   def grumble_post_errors(query, conn, vars \\ %{}, name \\ "test") do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
-    # IO.inspect(query: query)
-    # IO.inspect(vars: vars)
+    #IO.inspect(query: query)
+    #IO.inspect(vars: vars)
     query =
       extract_files(%{
         query: query,

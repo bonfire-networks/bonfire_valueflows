@@ -83,7 +83,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   end
 
   def proposals_filtered(page_opts, _ \\ nil) do
-    # IO.inspect(proposals_filtered: page_opts)
+    #IO.inspect(proposals_filtered: page_opts)
     proposals_filter(page_opts, [])
   end
 
@@ -120,7 +120,7 @@ defmodule ValueFlows.Proposal.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_point: page_opts)
+    #IO.inspect(geo_with_point: page_opts)
 
     proposals_filter_next(
       :geolocation,
@@ -141,10 +141,10 @@ defmodule ValueFlows.Proposal.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_address: page_opts)
+    #IO.inspect(geo_with_address: page_opts)
 
     with {:ok, coords} <- Geocoder.call(address) do
-      # IO.inspect(coords)
+      #IO.inspect(coords)
 
       proposals_filter(
         Map.merge(
@@ -176,7 +176,7 @@ defmodule ValueFlows.Proposal.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_without_distance: page_opts)
+    #IO.inspect(geo_without_distance: page_opts)
 
     proposals_filter(
       Map.merge(
@@ -197,7 +197,7 @@ defmodule ValueFlows.Proposal.GraphQL do
          _,
          filters_acc
        ) do
-    # IO.inspect(filters_query: filters_acc)
+    #IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     Proposals.many(filters_acc)
@@ -205,8 +205,8 @@ defmodule ValueFlows.Proposal.GraphQL do
 
   defp proposals_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    # IO.inspect(proposals_filter_next: param_remove)
-    # IO.inspect(proposals_filter_add: filter_add)
+    #IO.inspect(proposals_filter_next: param_remove)
+    #IO.inspect(proposals_filter_add: filter_add)
 
     proposals_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end

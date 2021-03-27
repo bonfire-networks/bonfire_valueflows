@@ -68,9 +68,9 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
           unit
         )
 
-      # IO.inspect(intent: intent)
-      # IO.inspect(resource: resource)
-      # IO.inspect(event: event)
+      #IO.inspect(intent: intent)
+      #IO.inspect(resource: resource)
+      #IO.inspect(event: event)
 
       assert queried =
                Bonfire.GraphQL.QueryHelper.run_query_id(

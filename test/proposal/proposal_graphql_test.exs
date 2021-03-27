@@ -19,7 +19,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       proposal = fake_proposal!(user)
 
       q = proposal_query()
-      # IO.inspect(q)
+      #IO.inspect(q)
 
       conn = user_conn(user)
 

@@ -50,7 +50,7 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
       assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
 
-      # IO.inspect(created: resource)
+      #IO.inspect(created: resource)
 
       assert queried =
                Bonfire.GraphQL.QueryHelper.run_query_id(

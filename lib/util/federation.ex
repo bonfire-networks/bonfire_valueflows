@@ -36,7 +36,7 @@ defmodule ValueFlows.Util.Federation do
              true
            )
            |> ap_deep_key_rename() do
-      # IO.inspect(prepared: obj)
+      #IO.inspect(prepared: obj)
 
       obj
     end
@@ -60,7 +60,7 @@ defmodule ValueFlows.Util.Federation do
               ap_prepare_object(id, schema_type, query_depth, extra_field_filters)
             ),
           {:ok, activity} <- ActivityPub.create(activity_params, id) do
-        # IO.inspect(activity_created: activity)
+        #IO.inspect(activity_created: activity)
 
         IO.puts(struct_to_json(activity.data))
         IO.puts(struct_to_json(activity.object.data))
@@ -116,7 +116,7 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def ap_graphql_fields_filter(e, field_filters \\ []) do
-    # IO.inspect(e)
+    #IO.inspect(e)
 
     case e do
       {key, {key2, val}} ->
@@ -166,8 +166,8 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def ap_deep_key_rename(val, _parent_key) do
-    # IO.inspect(deep_key_rename_k: parent_key)
-    # IO.inspect(deep_key_rename_v: val)
+    #IO.inspect(deep_key_rename_k: parent_key)
+    #IO.inspect(deep_key_rename_v: val)
     val
   end
 

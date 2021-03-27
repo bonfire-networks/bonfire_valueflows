@@ -59,7 +59,7 @@ defmodule ValueFlows.TrackAndTraceTest do
         action: "produce"
       })
       assert {:ok, events} = EconomicResources.trace(resource)
-      # IO.inspect(events)
+      #IO.inspect(events)
       for event <- events do
 
         assert {:ok, []} = EconomicEvents.trace(event)

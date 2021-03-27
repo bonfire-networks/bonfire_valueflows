@@ -137,7 +137,7 @@ defmodule ValueFlows.Util do
   end
 
   def image_url(%{image_id: image_id} = thing) when not is_nil(image_id) do
-    # IO.inspect(thing)
+    #IO.inspect(thing)
     Bonfire.Repo.maybe_preload(thing, image: [:content_upload, :content_mirror])
     |> Map.get(:image)
     |> content_url_or_path()
