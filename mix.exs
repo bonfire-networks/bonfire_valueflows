@@ -14,9 +14,9 @@ defmodule Bonfire.ValueFlows.MixProject do
       aliases: aliases(),
       deps: Mess.deps [
         {:floki, ">= 0.0.0", only: [:dev, :test]},
-        {:bonfire_api_graphql, git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql", branch: "main", optional: true},
-        {:activity_pub, "https://gitlab.com/bonfire-ecosystem/activitypub.git", branch: "main", optional: true},
-        {:bonfire_search, git: "https://github.com/bonfire-ecosystem/bonfire_search", branch: "main", optional: true},
+        {:bonfire_api_graphql, git: "https://github.com/bonfire-networks/bonfire_api_graphql", branch: "main", optional: true},
+        {:activity_pub, "https://gitlab.com/bonfire-networks/activitypub.git", branch: "main", optional: true},
+        {:bonfire_search, git: "https://github.com/bonfire-networks/bonfire_search", branch: "main", optional: true},
         {:zest, "~> 0.1", only: :test},
       ]
     ]
