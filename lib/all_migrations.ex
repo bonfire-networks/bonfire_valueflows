@@ -34,8 +34,6 @@ defmodule ValueFlows.AllMigrations do
     ValueFlows.Process.Migrations.down()
     ValueFlows.EconomicEvent.Migrations.down()
 
-    ValueFlows.Planning.Intent.Migrations.add_references()
-
     ValueFlows.ValueCalculation.Migrations.down()
 
     ValueFlows.Claim.Migrations.down()
