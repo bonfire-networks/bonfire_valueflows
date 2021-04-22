@@ -85,7 +85,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     %{
       "index_type" => "ResourceSpecification",
       "id" => obj.id,
-      # "canonicalUrl" => obj.character.canonical_url,
+      # "url" => obj.character.canonical_url,
       # "icon" => icon,
       "image" => image,
       "name" => obj.name,

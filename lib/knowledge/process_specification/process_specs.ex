@@ -134,7 +134,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     %{
       "index_type" => "ProcessSpecification",
       "id" => obj.id,
-      # "canonicalUrl" => obj.character.canonical_url,
+      # "url" => obj.character.canonical_url,
       # "icon" => icon,
       # "image" => image,
       "name" => obj.name,

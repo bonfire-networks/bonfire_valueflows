@@ -161,7 +161,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     %{
       "index_type" => "EconomicResource",
       "id" => obj.id,
-      # "canonicalUrl" => obj.canonical_url,
+      # "url" => obj.canonical_url,
       # "icon" => icon,
       "image" => image,
       "name" => obj.name,

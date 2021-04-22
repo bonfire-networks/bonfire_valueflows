@@ -184,7 +184,7 @@ defmodule ValueFlows.Proposal.Proposals do
     %{
       "index_type" => "Proposal",
       "id" => obj.id,
-      # "canonicalUrl" => obj.canonical_url,
+      # "url" => obj.canonical_url,
       # "icon" => icon,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),

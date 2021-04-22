@@ -118,9 +118,9 @@ defmodule ValueFlows.Util do
   def index_for_search(object) do
     if module_enabled?(Bonfire.Search.Indexer) do
       Bonfire.Search.Indexer.maybe_index_object(object)
+    else
+      :ok
     end
-
-    :ok
   end
 
   def indexing_format_creator(obj) do

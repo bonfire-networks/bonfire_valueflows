@@ -558,7 +558,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     %{
       "index_type" => "EconomicEvent",
       "id" => obj.id,
-      # "canonicalUrl" => obj.character.canonical_url,
+      # "url" => obj.character.canonical_url,
       # "icon" => icon,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,

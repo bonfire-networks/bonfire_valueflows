@@ -167,7 +167,7 @@ defmodule ValueFlows.Process.Processes do
     %{
       "index_type" => "Process",
       "id" => obj.id,
-      # "canonicalUrl" => obj.canonical_url,
+      # "url" => obj.canonical_url,
       # "icon" => icon,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
