@@ -140,7 +140,7 @@ defmodule ValueFlows.Util.GraphQL do
   def image_content_url(_, _, _), do: {:ok, nil}
 
   def maybe_upload(user, changes, info) do
-    if Bonfire.Common.Utils.module_exists?(CommonsPub.Web.GraphQL.UploadResolver) do
+    if Bonfire.Common.Utils.module_enabled?(CommonsPub.Web.GraphQL.UploadResolver) do
       CommonsPub.Web.GraphQL.UploadResolver.upload(user, changes, info)
     else
       Logger.info("Could not upload")
@@ -149,7 +149,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def tags_edges(a, b, c) do
-    if Bonfire.Common.Utils.module_exists?(Bonfire.Tag.GraphQL.TagResolver) do
+    if Bonfire.Common.Utils.module_enabled?(Bonfire.Tag.GraphQL.TagResolver) do
       Bonfire.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
     else
       Logger.warn("Could not resolve tags")

@@ -26,7 +26,7 @@ defmodule ValueFlows.Util do
   end
 
   def try_tag_thing(user, thing, tags) do
-    if module_exists?(Bonfire.Tag.Tags) do
+    if module_enabled?(Bonfire.Tag.Tags) do
       Bonfire.Tag.Tags.maybe_tag(user, thing, tags)
     else
       {:ok, thing}
@@ -34,7 +34,7 @@ defmodule ValueFlows.Util do
   end
 
   def activity_create(creator, item, act_attrs) do
-    if module_exists?(CommonsPub.Activities) do
+    if module_enabled?(CommonsPub.Activities) do
       CommonsPub.Activities.create(creator, item, act_attrs)
     else
       {:ok, nil}
@@ -43,7 +43,7 @@ defmodule ValueFlows.Util do
 
   def publish(creator, thing, activity, :created) do
     feeds =
-      if module_exists?(CommonsPub.Feeds) do
+      if module_enabled?(CommonsPub.Feeds) do
         [
           CommonsPub.Feeds.outbox_id(creator),
           CommonsPub.Feeds.instance_outbox_id()
@@ -65,7 +65,7 @@ defmodule ValueFlows.Util do
   def publish(creator, context_outbox_id, thing, activity, :created)
       when is_binary(context_outbox_id) do
     feeds =
-      if module_exists?(CommonsPub.Feeds) do
+      if module_enabled?(CommonsPub.Feeds) do
         [
           context_outbox_id,
           CommonsPub.Feeds.outbox_id(creator),
@@ -90,7 +90,7 @@ defmodule ValueFlows.Util do
   end
 
   defp do_publish_feed_activity(activity, feeds) do
-    if module_exists?(CommonsPub.Feeds.FeedActivities) and !is_nil(activity) and is_list(feeds) and
+    if module_enabled?(CommonsPub.Feeds.FeedActivities) and !is_nil(activity) and is_list(feeds) and
          length(feeds) > 0 and Kernel.function_exported?(CommonsPub.Feeds.FeedActivities, :publish, 2) do
       CommonsPub.Feeds.FeedActivities.publish(activity, feeds)
     else
@@ -116,7 +116,7 @@ defmodule ValueFlows.Util do
   end
 
   def index_for_search(object) do
-    if module_exists?(Bonfire.Search.Indexer) do
+    if module_enabled?(Bonfire.Search.Indexer) do
       Bonfire.Search.Indexer.maybe_index_object(object)
     end
 
@@ -124,7 +124,7 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_creator(obj) do
-    if module_exists?(Bonfire.Search.Indexer),
+    if module_enabled?(Bonfire.Search.Indexer),
       do: Bonfire.Search.Indexer.format_creator(obj)
   end
 

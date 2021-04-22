@@ -51,7 +51,7 @@ defmodule ValueFlows.Util.Federation do
       )
     when is_binary(id) do
 
-    if Bonfire.Common.Utils.module_exists?(ActivityPub) do
+    if Bonfire.Common.Utils.module_enabled?(ActivityPub) do
 
       with activity_params <-
             ap_prepare_activity(
@@ -79,7 +79,7 @@ defmodule ValueFlows.Util.Federation do
 
   def ap_prepare_activity("create", thing, object, author_id \\ nil) do
 
-    if Bonfire.Common.Utils.module_exists?(CommonsPub.ActivityPub.Utils) do
+    if Bonfire.Common.Utils.module_enabled?(CommonsPub.ActivityPub.Utils) do
 
       with context <-
             CommonsPub.ActivityPub.Utils.get_cached_actor_by_local_id!(Map.get(thing, :context_id)),
@@ -218,7 +218,7 @@ defmodule ValueFlows.Util.Federation do
 
   # FIXME
   def ap_publish(verb, thing_id, user_id) do
-    if Bonfire.Common.Utils.module_exists?(CommonsPub.Workers.APPublishWorker) do
+    if Bonfire.Common.Utils.module_enabled?(CommonsPub.Workers.APPublishWorker) do
       CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
         "context_id" => thing_id,
         "user_id" => user_id

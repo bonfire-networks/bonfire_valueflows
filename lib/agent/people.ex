@@ -4,10 +4,10 @@ defmodule ValueFlows.Agent.People do
   require Logger
 
   def people(signed_in_user) do
-    people = if Bonfire.Common.Utils.module_exists?(Bonfire.Me.Users) do
+    people = if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
          Bonfire.Me.Users.list()
     else
-      if Bonfire.Common.Utils.module_exists?(CommonsPub.Users) do
+      if Bonfire.Common.Utils.module_enabled?(CommonsPub.Users) do
         {:ok, users} = CommonsPub.Users.many([:default, user: signed_in_user])
         users
       else
@@ -25,14 +25,14 @@ defmodule ValueFlows.Agent.People do
 
 
   def person(id, signed_in_user) when is_binary(id) do
-    person = if Bonfire.Common.Utils.module_exists?(Bonfire.Me.Users) do
+    person = if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
          with {:ok, user} <- Bonfire.Me.Users.by_id(id) do
           user
          else _ ->
           nil
         end
     else
-      if Bonfire.Common.Utils.module_exists?(CommonsPub.Users) do
+      if Bonfire.Common.Utils.module_enabled?(CommonsPub.Users) do
         with {:ok, user} <-
               CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
           user
