@@ -128,6 +128,7 @@ defmodule ValueFlows.Util do
       do: Bonfire.Search.Indexer.format_creator(obj)
   end
 
+  defdelegate image_url(thing), to: Bonfire.Common.Utils
 
   # def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
   #   Bonfire.Repo.maybe_preload(thing, icon: [:content_upload, :content_mirror])
