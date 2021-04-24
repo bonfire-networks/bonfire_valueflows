@@ -2,15 +2,16 @@
 A boundary or context grouped around some other record- used for documenting, accounting, planning.
 ## extended for Bonfire (default was `Person | Organization`)
 """
-union AccountingScope =
-  #   User
-  # | Organisation
-  | Person
+union AccountingScope = 
+  Person
   | Organization
+  | Category
+  | Tag
+  # | User
+  # | Organisation
   # | Community
   # | Collection
-  # | Category
-  # | Taggable
+
 
 """
 An action verb defining the kind of event, commitment, or intent.
@@ -1525,7 +1526,7 @@ type EconomicResource {
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
   References one or more concepts in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
-  tags: [ID!] ## added for Bonfire
+  tags: [AnyContext!] ## added for Bonfire
 }
 
 """

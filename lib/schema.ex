@@ -5,6 +5,7 @@ defmodule ValueFlows.Schema do
   require Logger
 
   import_types(Absinthe.Type.Custom)
+
   import_sdl(path: "lib/schema.gql")
 
 end

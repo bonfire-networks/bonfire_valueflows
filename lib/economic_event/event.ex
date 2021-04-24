@@ -74,7 +74,7 @@ defmodule ValueFlows.EconomicEvent do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    many_to_many(:tags, Bonfire.Common.Config.maybe_schema_or_pointer(CommonsPub.Tag.Taggable),
+    many_to_many(:tags, Bonfire.Common.Config.maybe_schema_or_pointer(Bonfire.Tag),
       join_through: Bonfire.Tag.Tagged,
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],

@@ -167,9 +167,10 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
-      "creator" => ValueFlows.Util.indexing_format_creator(obj)
+      "creator" => ValueFlows.Util.indexing_format_creator(obj),
+      "tag_names" => ValueFlows.Util.indexing_format_tags(obj)
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
-    }
+    } |> IO.inspect
   end
 
 
