@@ -130,11 +130,11 @@ defmodule ValueFlows.Util do
 
   def indexing_format_tags(obj) do
     if module_enabled?(Bonfire.Tag.Tags) do
-      obj = repo().maybe_preload(obj, tags: [:profile])
-      Enum.map(obj.tags, &Bonfire.Tag.Tags.indexing_object_format_name/1)
+      repo().maybe_preload(obj, tags: [:profile])
+      |> Map.get(:tags, [])
+      |> Enum.map(&Bonfire.Tag.Tags.indexing_object_format_name/1)
     end
   end
-
 
 
   defdelegate image_url(thing), to: Bonfire.Common.Utils
