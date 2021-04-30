@@ -215,6 +215,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
     filter(q, {:tag_ids, [id]})
   end
 
+  def filter(q, {:output_of_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.output_of_id == ^id)
+  end
+
+  def filter(q, {:input_of_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.input_of_id == ^id)
+  end
+
   ## by ordering
 
   def filter(q, {:order, :id}) do

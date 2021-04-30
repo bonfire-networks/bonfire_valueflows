@@ -12,6 +12,7 @@ defmodule ValueFlows.Process.Processes do
   alias ValueFlows.Process
   alias ValueFlows.Process.Queries
   alias ValueFlows.EconomicEvent.EconomicEvents
+  alias ValueFlows.Planning.Intent.Intents
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -88,6 +89,34 @@ defmodule ValueFlows.Process.Processes do
 
   def trace(process), do: inputs(process)
 
+
+  def intended_inputs(attrs, action_id \\ nil)
+  def intended_inputs(%{id: id}, action_id) when not is_nil(action_id) do
+    Intents.many([:default, input_of_id: id, action_id: action_id])
+  end
+
+  def intended_inputs(%{id: id}, _) do
+    Intents.many([:default, input_of_id: id])
+  end
+
+  def intended_inputs(_, _) do
+    {:ok, nil}
+  end
+
+  def intended_outputs(attrs, action_id \\ nil)
+  def intended_outputs(%{id: id}, action_id) when not is_nil(action_id) do
+    Intents.many([:default, output_of_id: id, action_id: action_id])
+  end
+
+  def intended_outputs(%{id: id}, _) do
+    Intents.many([:default, output_of_id: id])
+  end
+
+  def intended_outputs(_, _) do
+    {:ok, nil}
+  end
+
+
   def inputs(attrs, action_id \\ nil)
   def inputs(%{id: id}, action_id) when not is_nil(action_id) do
     EconomicEvents.many([:default, input_of_id: id, action_id: action_id])
@@ -113,6 +142,7 @@ defmodule ValueFlows.Process.Processes do
   def outputs(_, _) do
     {:ok, nil}
   end
+
 
   def preload_all(%Process{} = process) do
     # shouldn't fail

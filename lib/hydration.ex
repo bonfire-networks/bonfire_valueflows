@@ -301,6 +301,12 @@ defmodule ValueFlows.Hydration do
         trace: [
           resolve: &ValueFlows.Process.GraphQL.trace/3
         ],
+        intended_inputs: [
+          resolve: &ValueFlows.Process.GraphQL.intended_inputs/3
+        ],
+        intended_outputs: [
+          resolve: &ValueFlows.Process.GraphQL.intended_outputs/3
+        ],
         inputs: [
           resolve: &ValueFlows.Process.GraphQL.inputs/3
         ],
