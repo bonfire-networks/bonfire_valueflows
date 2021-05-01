@@ -81,18 +81,24 @@ defmodule ValueFlows.Planning.Intent do
 
   @required ~w(name is_public action_id)a
   @cast @required ++
-    ~w(note at_location_id is_disabled image_id context_id input_of_id output_of_id)a ++
-    ~w(available_quantity_id resource_quantity_id effort_quantity_id resource_conforms_to_id resource_inventoried_as_id provider_id receiver_id)a
+    ~w(note finished at_location_id is_disabled image_id context_id input_of_id output_of_id)a ++
+    ~w(available_quantity_id resource_quantity_id effort_quantity_id resource_conforms_to_id resource_inventoried_as_id provider_id receiver_id )a
 
-  def create_changeset(%{} = creator, attrs) do
+  def validate_changeset(attrs \\ %{}) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: creator.id,
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset(attrs)
+  end
+
+  def create_changeset(%{} = creator, attrs) do
+    validate_changeset(attrs)
+    |> Changeset.change(
+      creator_id: creator.id,
+    )
   end
 
   def update_changeset(%__MODULE__{} = intent, attrs) do

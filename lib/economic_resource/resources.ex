@@ -118,10 +118,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
       with {:ok, resource} <- repo().insert(EconomicResource.create_changeset(creator, attrs)),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           # FIXME
-           {:ok, activity} <- ValueFlows.Util.activity_create(creator, resource, act_attrs),
-           :ok <- ValueFlows.Util.publish(creator, resource, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, resource.state, resource) do
         resource = %{resource | creator: creator}
         resource = preload_all(resource)
 
@@ -139,7 +136,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
       with {:ok, resource} <- repo().update(EconomicResource.update_changeset(resource, attrs)),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
-           :ok <- ValueFlows.Util.publish(resource, :updated) do
+           :ok <- ValueFlows.Util.publish(resource, :update) do
         {:ok, preload_all(resource)}
       end
     end)

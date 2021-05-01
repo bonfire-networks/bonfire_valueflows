@@ -33,81 +33,36 @@ defmodule ValueFlows.Util do
     end
   end
 
-  def activity_create(creator, item, act_attrs) do
-    if module_enabled?(CommonsPub.Activities) do
-      CommonsPub.Activities.create(creator, item, act_attrs)
-    else
-      {:ok, nil}
-    end
-  end
 
-  def publish(creator, thing, activity, :created) do
-    feeds =
-      if module_enabled?(CommonsPub.Feeds) do
-        [
-          CommonsPub.Feeds.outbox_id(creator),
-          CommonsPub.Feeds.instance_outbox_id()
-        ]
-      end
+  def publish(%{id: creator_id} =creator, verb, %{id: thing_id} =thing) do
 
-    do_publish_create(creator, thing, activity, feeds)
-  end
-
-  def publish(creator, %{outbox_id: context_outbox_id} = _context, thing, activity, :created) do
-    publish(creator, context_outbox_id, thing, activity, :created)
-  end
-
-  def publish(creator, %{character: _context_character} = context, thing, activity, :created) do
-    repo().maybe_preload(context, :character)
-    publish(creator, Map.get(context, :character), thing, activity, :created)
-  end
-
-  def publish(creator, context_outbox_id, thing, activity, :created)
-      when is_binary(context_outbox_id) do
-    feeds =
-      if module_enabled?(CommonsPub.Feeds) do
-        [
-          context_outbox_id,
-          CommonsPub.Feeds.outbox_id(creator),
-          CommonsPub.Feeds.instance_outbox_id()
-        ]
-      end
-
-    do_publish_create(creator, thing, activity, feeds)
-  end
-
-  def publish(creator, _, thing, activity, verb),
-    do: publish(creator, thing, activity, verb)
-
-  defp do_publish_create(%{id: creator_id}, %{id: thing_id}, activity, feeds) do
-    do_publish_feed_activity(activity, feeds)
+    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, [:guest])
 
     ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id)
-  end
 
-  defp do_publish_create(_, _, activity, feeds) do
-    do_publish_feed_activity(activity, feeds)
-  end
+    if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 3) do
 
-  defp do_publish_feed_activity(activity, feeds) do
-    if module_enabled?(CommonsPub.Feeds.FeedActivities) and !is_nil(activity) and is_list(feeds) and
-         length(feeds) > 0 and Kernel.function_exported?(CommonsPub.Feeds.FeedActivities, :publish, 2) do
-      CommonsPub.Feeds.FeedActivities.publish(activity, feeds)
+      Bonfire.Social.FeedActivities.publish(creator, verb, thing)
+
     else
-      Logger.info("Could not publish activity")
+      Logger.info("No integration available to publish activity")
+      {:ok, nil}
     end
 
-    :ok
   end
 
-  def publish(%{creator_id: creator_id, id: thing_id}, :updated) do
+  def publish(%{creator_id: creator_id, id: thing_id}, :update) do
     # TODO: wrong if edited by admin
     ValueFlows.Util.Federation.ap_publish("update", thing_id, creator_id)
   end
 
-  def publish(%{creator_id: creator_id, id: thing_id}, :deleted) do
+  def publish(%{creator_id: creator_id, id: thing_id}, :delete) do
     # TODO: wrong if edited by admin
     ValueFlows.Util.Federation.ap_publish("delete", thing_id, creator_id)
+  end
+
+  def publish(%{creator_id: creator_id, id: thing_id}, :deleted) do # deprecate
+    publish(%{creator_id: creator_id, id: thing_id}, :delete)
   end
 
   def publish(_, verb) do

@@ -324,10 +324,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
          event = preload_all(event),
          {:ok, event} <- maybe_transfer_resource(event),
          {:ok, event} <- EventSideEffects.event_side_effects(event),
-         # FIXME
-         act_attrs = %{verb: "created", is_local: true},
-         {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
-         :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
+         {:ok, activity} <- ValueFlows.Util.publish(creator, event.action, event) do
       indexing_object_format(event) |> ValueFlows.Util.index_for_search()
       {:ok, event}
     end
@@ -408,7 +405,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            {:ok, event} <- repo().update(EconomicEvent.update_changeset(event, attrs)),
            {:ok, event} <- maybe_transfer_resource(event),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
-           :ok <- ValueFlows.Util.publish(event, :updated) do
+           :ok <- ValueFlows.Util.publish(event, :update) do
         {:ok, event}
       end
     end)

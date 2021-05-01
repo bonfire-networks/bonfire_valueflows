@@ -106,8 +106,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- ValueFlows.Util.activity_create(creator, intent, act_attrs),
-           :ok <- ValueFlows.Util.publish(creator, intent, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent) do
         intent = %{intent | creator: creator}
         indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
         {:ok, preload_all(intent)}
@@ -123,7 +122,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     repo().transact_with(fn ->
       with {:ok, intent} <- repo().update(Intent.update_changeset(intent, attrs)),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
-           :ok <- ValueFlows.Util.publish(intent, :updated) do
+           :ok <- ValueFlows.Util.publish(intent, :update) do
         {:ok, preload_all(intent)}
       end
     end)
@@ -157,7 +156,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
 
-  defp prepare_attrs(attrs) do
+  def prepare_attrs(attrs) do
     attrs
     |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(:context_id,

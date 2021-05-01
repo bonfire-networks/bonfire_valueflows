@@ -126,9 +126,7 @@ defmodule ValueFlows.Proposal.Proposals do
     repo().transact_with(fn ->
       with {:ok, proposal} <- repo().insert(Proposal.create_changeset(creator, attrs)),
            act_attrs = %{verb: "created", is_local: true},
-           # FIXME
-           {:ok, activity} <- ValueFlows.Util.activity_create(creator, proposal, act_attrs),
-           :ok <- ValueFlows.Util.publish(creator, proposal, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :propose, proposal) do
         indexing_object_format(proposal) |> ValueFlows.Util.index_for_search()
         {:ok, preload_all(proposal)}
       end
@@ -142,7 +140,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
     repo().transact_with(fn ->
       with {:ok, proposal} <- repo().update(Proposal.update_changeset(proposal, attrs)),
-           :ok <- ValueFlows.Util.publish(proposal, :updated) do
+           :ok <- ValueFlows.Util.publish(proposal, :update) do
         {:ok, proposal}
       end
     end)

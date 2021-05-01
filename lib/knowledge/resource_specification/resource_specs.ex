@@ -39,10 +39,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
       with {:ok, item} <- repo().insert(ResourceSpecification.create_changeset(creator, attrs)),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           # FIXME
-           {:ok, activity} <- ValueFlows.Util.activity_create(creator, item, act_attrs),
-           :ok <- ValueFlows.Util.publish(creator, item, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :define, item) do
         item = %{item | creator: creator}
         indexing_object_format(item) |> ValueFlows.Util.index_for_search()
         {:ok, item}
@@ -63,7 +60,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
       attrs = prepare_attrs(attrs)
       with {:ok, resource_spec} <- repo().update(ResourceSpecification.update_changeset(resource_spec, attrs)),
            {:ok, resource_spec} <- ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs) do
-        ValueFlows.Util.publish(resource_spec, :updated)
+        ValueFlows.Util.publish(resource_spec, :update)
         {:ok, resource_spec}
       end
     end)

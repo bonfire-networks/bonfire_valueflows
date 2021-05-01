@@ -159,10 +159,7 @@ defmodule ValueFlows.Process.Processes do
 
       with {:ok, process} <- repo().insert(Process.create_changeset(creator, attrs)),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           # FIXME
-           {:ok, activity} <- ValueFlows.Util.activity_create(creator, process, act_attrs),
-           :ok <- ValueFlows.Util.publish(creator, process, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process) do
         indexing_object_format(process) |> ValueFlows.Util.index_for_search()
         {:ok, preload_all(process)}
       end
@@ -177,7 +174,7 @@ defmodule ValueFlows.Process.Processes do
 
       with {:ok, process} <- repo().update(Process.update_changeset(process, attrs)),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
-           :ok <- ValueFlows.Util.publish(process, :updated) do
+           :ok <- ValueFlows.Util.publish(process, :update) do
         {:ok, preload_all(process)}
       end
     end)
@@ -208,7 +205,7 @@ defmodule ValueFlows.Process.Processes do
   end
 
 
-  defp prepare_attrs(attrs) do
+  def prepare_attrs(attrs) do
     attrs
     |> maybe_put(:based_on_id, attr_get_id(attrs, :based_on))
     |> maybe_put(:context_id,

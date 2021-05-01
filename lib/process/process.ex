@@ -78,18 +78,27 @@ defmodule ValueFlows.Process do
   @required ~w(name is_public)a
   @cast @required ++ ~w(note has_beginning has_end finished is_disabled context_id based_on_id)a
 
-  def create_changeset(
-        %{} = creator,
-        attrs
+  def validate_changeset(
+        attrs \\ %{}
       ) do
     %Process{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: creator.id,
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset()
+  end
+
+  def create_changeset(
+        %{} = creator,
+        attrs \\ %{}
+      ) do
+    attrs
+    |> validate_changeset()
+    |> Changeset.change(
+      creator_id: creator.id,
+    )
   end
 
   def update_changeset(%Process{} = process, attrs) do

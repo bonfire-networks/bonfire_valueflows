@@ -92,10 +92,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
       with {:ok, item} <- repo().insert(ProcessSpecification.create_changeset(creator, attrs)),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           # FIXME
-           {:ok, activity} <- ValueFlows.Util.activity_create(creator, item, act_attrs),
-           :ok <- ValueFlows.Util.publish(creator, item, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :define, item) do
         item = %{item | creator: creator}
         indexing_object_format(item) |> ValueFlows.Util.index_for_search()
         {:ok, item}
@@ -112,7 +109,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
       with {:ok, process_spec} <- repo().update(ProcessSpecification.update_changeset(process_spec, attrs)),
            {:ok, process_spec} <- ValueFlows.Util.try_tag_thing(nil, process_spec, attrs),
-           :ok <- ValueFlows.Util.publish(process_spec, :updated) do
+           :ok <- ValueFlows.Util.publish(process_spec, :update) do
         {:ok, process_spec}
       end
     end)
