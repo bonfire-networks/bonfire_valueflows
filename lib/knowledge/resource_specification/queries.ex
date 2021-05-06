@@ -103,6 +103,17 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     where(q, [resource_spec: c], c.id in ^ids)
   end
 
+  def filter(q, {:search, text}) when is_binary(text) do
+    where(q, [resource_spec: c],
+    ilike(c.name, ^"#{text}%")
+    or ilike(c.name, ^" #{text}%")
+    )
+  end
+
+  def filter(q, {:id, ids}) when is_list(ids) do
+    where(q, [resource_spec: c], c.id in ^ids)
+  end
+
   def filter(q, {:context_id, id}) when is_binary(id) do
     where(q, [resource_spec: c], c.context_id == ^id)
   end

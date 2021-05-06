@@ -61,13 +61,13 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
       ) do
     %ResourceSpecification{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
       default_unit_of_effort_id: attr_get_id(attrs, :default_unit_of_effort),
       context_id: context.id,
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 
@@ -77,12 +77,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
       ) do
     %ResourceSpecification{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
       default_unit_of_effort_id: attr_get_id(attrs, :default_unit_of_effort),
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 

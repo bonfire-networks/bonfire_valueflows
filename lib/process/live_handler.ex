@@ -1,6 +1,6 @@
 defmodule ValueFlows.Process.LiveHandler do
-  import Phoenix.LiveView
-  import Bonfire.Common.Utils
+  use Bonfire.Web, :live_handler
+
   alias ValueFlows.Process
   alias ValueFlows.Process.Processes
 
