@@ -94,20 +94,26 @@ defmodule ValueFlows.EconomicEvent do
         %{} = creator,
         attrs
       ) do
-    %EconomicEvent{}
-    |> Changeset.cast(attrs, @cast)
-    # |> Changeset.validate_required(@required)
+    validate_changeset(attrs)
     |> Changeset.change(
-      creator_id: creator.id,
-      is_public: true
+      creator_id: creator.id
     )
-    |> change_measures(attrs)
-    |> common_changeset()
   end
 
-  def create_changeset_validate(cs) do
+  def validate_changeset(attrs \\ %{}) do
+    %__MODULE__{}
+    |> Changeset.cast(attrs, @cast)
+    |> change_measures(attrs)
+    |> validate_create_changeset()
+  end
+
+  def validate_create_changeset(cs) do
     cs
+    |> Changeset.change(
+      is_public: true
+    )
     |> Changeset.validate_required(@required)
+    |> common_changeset()
   end
 
   def update_changeset(%EconomicEvent{} = event, attrs) do
@@ -131,6 +137,9 @@ defmodule ValueFlows.EconomicEvent do
 
   defp common_changeset(changeset) do
     changeset
+    |> Changeset.change(
+      is_public: true
+    )
     |> change_public()
     |> change_disabled()
     |> Changeset.foreign_key_constraint(

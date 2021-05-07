@@ -310,7 +310,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       with :ok <- validate_user_involvement(creator, new_event_attrs),
            :ok <- validate_provider_is_primary_accountable(new_event_attrs),
            :ok <- validate_receiver_is_primary_accountable(new_event_attrs),
-           {:ok, event} <- repo().insert(cs |> EconomicEvent.create_changeset_validate()),
+           {:ok, event} <- repo().insert(cs |> EconomicEvent.validate_create_changeset()),
            {:ok, event} <- create_event_common(event, creator, new_event_attrs),
            {:ok, reciprocals} <- create_reciprocal_events(event) do
         indexing_object_format(event) |> ValueFlows.Util.index_for_search()
@@ -324,7 +324,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
          event = preload_all(event),
          {:ok, event} <- maybe_transfer_resource(event),
          {:ok, event} <- EventSideEffects.event_side_effects(event),
-         {:ok, activity} <- ValueFlows.Util.publish(creator, event.action, event) do
+         {:ok, activity} <- ValueFlows.Util.publish(creator, event.action_id, event) do
       indexing_object_format(event) |> ValueFlows.Util.index_for_search()
       {:ok, event}
     end
@@ -379,7 +379,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           )
 
           EconomicEvent.create_changeset(event.creator, new_event_attrs)
-          |> EconomicEvent.create_changeset_validate()
+          |> EconomicEvent.validate_create_changeset()
           |> repo().insert()
           ~>> create_event_common(event.creator, new_event_attrs)
         end
@@ -510,7 +510,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     :ok
   end
 
-  defp prepare_attrs(attrs) do
+  def prepare_attrs(attrs) do
     attrs
     |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(
