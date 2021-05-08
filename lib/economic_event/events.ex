@@ -11,8 +11,10 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   @user Bonfire.Common.Config.get!(:user_schema)
 
+  alias ValueFlows.Knowledge.Resource
   alias ValueFlows.EconomicEvent
   alias ValueFlows.EconomicResource.EconomicResources
+  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
   alias ValueFlows.EconomicEvent.Queries
   alias ValueFlows.EconomicEvent.EventSideEffects
 
@@ -216,7 +218,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         }
       )
       when not is_nil(to_existing_resource) do
-    Logger.info("create a new FROM resource to go with an existing TO resource")
+    Logger.info("creating a new FROM resource to go with an existing TO resource")
 
     new_resource_attrs =
       new_inventoried_resource
@@ -240,7 +242,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         }
       )
       when not is_nil(from_existing_resource) do
-    Logger.info("creates a new TO resource to go with an existing FROM resource")
+    Logger.info("creating a new TO resource to go with an existing FROM resource")
 
     new_resource_attrs =
       new_inventoried_resource
@@ -258,7 +260,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   # def create(creator, event_attrs, %{
   #       new_inventoried_resource: new_inventoried_resource
   #     }) when action in ["move", "transfer"] do
-  #   Logger.info("creates only a new resource")
+  #   Logger.info("creating only a new resource")
 
   #   new_resource_attrs =
   #     new_inventoried_resource
@@ -275,7 +277,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   def create(creator, event_attrs, %{
         new_inventoried_resource: new_inventoried_resource
       }) do
-    Logger.info("creates only a new resource")
+    Logger.info("creating only a new resource")
 
     new_resource_attrs =
       new_inventoried_resource
@@ -289,9 +291,62 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     )
   end
 
+  def create(creator, %{action: action} = event_attrs, _) when is_binary(action) do
+    create_with_action(creator, event_attrs, action)
+  end
+  def create(creator, %{action: %{label: action}} = event_attrs, _) when is_binary(action) do
+    create_with_action(creator, event_attrs, action)
+  end
+  def create(creator, %{action_id: action} = event_attrs, _) when is_binary(action) do
+    create_with_action(creator, event_attrs, action)
+  end
+
   def create(creator, event_attrs, _) do
     create(creator, event_attrs)
   end
+
+  def create_with_action(
+      creator,
+        %{
+          resource_inventoried_as: from_existing_resource
+        } = event_attrs,
+        action
+      )
+      when action == "raise" and not is_nil(from_existing_resource) do
+    Logger.info("just raising the amount on an existing resource")
+    create(creator, event_attrs)
+  end
+
+  def create_with_action(creator, event_attrs, action) when action in ["produce", "raise"] do
+    Logger.info("producing or raising a new resource, using info from the event or resource_classified_as")
+    # IO.inspect(create_with_action: event_attrs)
+
+    resource_conforms_to = maybe_resource_spec(event_attrs)
+
+    create(creator, event_attrs, %{
+        new_inventoried_resource: Bonfire.Common.Utils.maybe_to_map(
+                                  %{
+                                    name: Map.get(event_attrs, :note, "Unknown Resource"),
+                                    conforms_to: resource_conforms_to
+                                  }
+                                    |> Map.merge(
+                                      resource_conforms_to || %{}
+                                    ))
+      })
+  end
+
+  def create_with_action(creator, event_attrs, _) do
+    create(creator, event_attrs)
+  end
+
+  def maybe_resource_spec(%{resource_conforms_to: id}) when is_binary(id) do
+    with {:ok, fetched} <- ResourceSpecifications.one(id: id) do
+      fetched
+    else _ ->
+      nil
+    end
+  end
+  def maybe_resource_spec(_), do: nil
 
   @doc """
   Create an Event (with preexisting resources)
@@ -320,10 +375,10 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   defp create_event_common(event, creator, attrs) do
-    with {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, attrs),
-         event = preload_all(event),
+    with event = preload_all(event),
          {:ok, event} <- maybe_transfer_resource(event),
          {:ok, event} <- EventSideEffects.event_side_effects(event),
+         {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, attrs),
          {:ok, activity} <- ValueFlows.Util.publish(creator, event.action_id, event) do
       indexing_object_format(event) |> ValueFlows.Util.index_for_search()
       {:ok, event}

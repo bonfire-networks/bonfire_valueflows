@@ -25,7 +25,7 @@ defmodule ValueFlows.EconomicResource do
     field(:note, :string)
     field(:tracking_identifier, :string)
 
-    belongs_to(:image, CommonsPub.Uploads.Content)
+    belongs_to(:image, Bonfire.Files.Media)
 
     field(:classified_as, {:array, :string}, virtual: true)
 
@@ -59,7 +59,7 @@ defmodule ValueFlows.EconomicResource do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    many_to_many(:tags, Bonfire.Common.Config.maybe_schema_or_pointer(Bonfire.Tag),
+    many_to_many(:tags, Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Tag),
       join_through: Bonfire.Tag.Tagged,
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],
@@ -79,11 +79,11 @@ defmodule ValueFlows.EconomicResource do
       ) do
     %EconomicResource{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset(attrs)
   end
 

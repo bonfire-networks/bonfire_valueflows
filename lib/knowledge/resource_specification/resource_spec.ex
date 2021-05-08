@@ -20,7 +20,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     field(:name, :string)
     field(:note, :string)
 
-    belongs_to(:image, CommonsPub.Uploads.Content)
+    belongs_to(:image, Bonfire.Files.Media)
 
     # array of URI
     field(:resource_classified_as, {:array, :string}, virtual: true)
@@ -41,7 +41,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
 
     has_many(:conforming_resources, ValueFlows.EconomicResource, foreign_key: :conforms_to_id)
 
-    many_to_many(:tags, Bonfire.Common.Config.maybe_schema_or_pointer(Bonfire.Tag),
+    many_to_many(:tags, Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Tag),
       join_through: Bonfire.Tag.Tagged,
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],

@@ -91,10 +91,12 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
       attrs = prepare_attrs(attrs)
 
       with {:ok, item} <- repo().insert(ProcessSpecification.create_changeset(creator, attrs)),
+           item <- %{item | creator: creator},
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :define, item) do
-        item = %{item | creator: creator}
+
         indexing_object_format(item) |> ValueFlows.Util.index_for_search()
+
         {:ok, item}
       end
     end)

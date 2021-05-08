@@ -117,10 +117,9 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
       attrs = prepare_attrs(attrs, creator)
 
       with {:ok, resource} <- repo().insert(EconomicResource.create_changeset(creator, attrs)),
+           resource <- preload_all(%{resource | creator: creator}),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
-           {:ok, activity} <- ValueFlows.Util.publish(creator, resource.state, resource) do
-        resource = %{resource | creator: creator}
-        resource = preload_all(resource)
+           {:ok, activity} <- ValueFlows.Util.publish(creator, resource.state_id, resource) do
 
         indexing_object_format(resource) |> ValueFlows.Util.index_for_search()
         {:ok, resource}
@@ -167,7 +166,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
       "creator" => ValueFlows.Util.indexing_format_creator(obj),
       "tag_names" => ValueFlows.Util.indexing_format_tags(obj)
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
-    } |> IO.inspect
+    } #|> IO.inspect
   end
 
 

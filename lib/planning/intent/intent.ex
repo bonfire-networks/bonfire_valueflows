@@ -23,7 +23,7 @@ defmodule ValueFlows.Planning.Intent do
   pointable_schema do
     field(:name, :string)
     field(:note, :string)
-    belongs_to(:image, CommonsPub.Uploads.Content)
+    belongs_to(:image, Bonfire.Files.Media)
 
     belongs_to(:provider, Pointers.Pointer)
     belongs_to(:receiver, Pointers.Pointer)
@@ -69,7 +69,7 @@ defmodule ValueFlows.Planning.Intent do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    many_to_many(:tags, Bonfire.Common.Config.maybe_schema_or_pointer(Bonfire.Tag),
+    many_to_many(:tags, Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Tag),
       join_through: Bonfire.Tag.Tagged,
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],

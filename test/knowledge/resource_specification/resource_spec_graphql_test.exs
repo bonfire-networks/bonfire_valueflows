@@ -111,7 +111,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
 
       assert_resource_specification(spec)
 
-      assert spec["image"] == "https://via.placeholder.com/150.png"
+      assert spec["image"] |> String.split_at(-4) |> elem(1) == ".png"
     end
 
     # test "create a new resource specification with a scope" do

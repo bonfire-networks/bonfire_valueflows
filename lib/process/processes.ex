@@ -158,10 +158,11 @@ defmodule ValueFlows.Process.Processes do
       attrs = prepare_attrs(attrs)
 
       with {:ok, process} <- repo().insert(Process.create_changeset(creator, attrs)),
+           process <- preload_all(process),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process) do
         indexing_object_format(process) |> ValueFlows.Util.index_for_search()
-        {:ok, preload_all(process)}
+        {:ok, process}
       end
     end)
   end
@@ -173,9 +174,10 @@ defmodule ValueFlows.Process.Processes do
       attrs = prepare_attrs(attrs)
 
       with {:ok, process} <- repo().update(Process.update_changeset(process, attrs)),
+           process <- preload_all(process),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
            :ok <- ValueFlows.Util.publish(process, :update) do
-        {:ok, preload_all(process)}
+        {:ok, process}
       end
     end)
   end

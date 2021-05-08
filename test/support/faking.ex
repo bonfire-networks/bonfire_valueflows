@@ -974,6 +974,24 @@ defmodule ValueFlows.Test.Faking do
     |> gen_submutation(:create_economic_event, &economic_event_response_fields/1, options)
   end
 
+  def create_economic_event_mutation_without_new_inventoried_resource(event_options, resource_options) do
+    # event with a resource
+    [
+      event: type!(:economic_event_create_params)
+    ]
+    |> gen_mutation(&create_economic_event_submutation_without_new_inventoried_resource/2, event_options, resource_options)
+  end
+
+  def create_economic_event_submutation_without_new_inventoried_resource(event_options, resource_options) do
+    [event: var(:event)]
+    |> gen_submutation(
+      :create_economic_event,
+      &economic_event_response_fields/2,
+      event_options,
+      resource_options
+    )
+  end
+
   def create_economic_event_mutation(event_options, resource_options) do
     # event with a resource
     [

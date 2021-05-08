@@ -304,7 +304,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
-      assert intent["image"] == "https://via.placeholder.com/150.png"
+      assert intent["image"] |> String.split_at(-4) |> elem(1) == ".png"
     end
 
     test "create an intent with tags" do
@@ -416,8 +416,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       }
 
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
-      assert resp["image"] == "https://via.placeholder.com/250.png"
-    end
+      assert resp["image"] |> String.split_at(-4) |> elem(1) == ".png"
+   end
 
     test "updates an existing intent with an action" do
       user = fake_agent!()

@@ -16,7 +16,7 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
   # @schema Bonfire.GraphQL.Schema
 
   describe "EconomicEventsResourcesMutations" do
-    test "create an economic resource produced by an economic event" do
+    test "produce a new economic resource via an economic event, with specific user input about the resource" do
       user = fake_agent!()
 
       q = create_economic_event_mutation([fields: [provider: [:id]]], fields: [:id])
@@ -36,7 +36,58 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
       assert resource = response["economicResource"]
       assert_economic_event(event)
       assert_economic_resource(resource)
-      # assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
+    end
+
+    test "produce a new economic resource via an economic event, without specific user input about the resource" do
+      user = fake_agent!()
+
+      q = create_economic_event_mutation_without_new_inventoried_resource([fields: [provider: [:id]]], fields: [:id] )
+
+      conn = user_conn(user)
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "action" => "produce",
+            "note" => "testing new resource"
+          })
+      }
+
+      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", false)
+      assert event = response["economicEvent"]
+      assert resource = response["economicResource"]
+      assert_economic_event(event)
+      assert_economic_resource(resource)
+      # IO.inspect(resource: resource)
+      assert resource["name"] == "testing new resource"
+    end
+
+    test "produce a new economic resource via an economic event, with a resource specification, but without specific user input about the resource" do
+      user = fake_agent!()
+      resource_conforms_to = fake_resource_specification!(user, %{name: "resource specified"}) |> IO.inspect
+
+      q = create_economic_event_mutation_without_new_inventoried_resource([fields: [resource_conforms_to: [:id], provider: [:id]]], fields: [:id, conforms_to: [:id]] )
+
+      conn = user_conn(user)
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "action" => "produce",
+            "note" => "testing new resource",
+            "resourceConformsTo" => resource_conforms_to.id
+          })
+      }
+
+      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", false)
+      assert event = response["economicEvent"]
+      assert resource = response["economicResource"]
+      assert_economic_event(event)
+      assert_economic_resource(resource)
+      # IO.inspect(resource: resource)
+      assert resource["name"] == "resource specified"
+      assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
+      assert resource["conformsTo"]["id"] == resource_conforms_to.id
     end
 
     test "increment an existing resource" do

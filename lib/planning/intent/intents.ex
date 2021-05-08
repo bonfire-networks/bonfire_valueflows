@@ -103,13 +103,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
     repo().transact_with(fn ->
       with {:ok, intent} <- repo().insert(Intent.create_changeset(creator, attrs)),
+           intent <- preload_all(%{intent | creator: creator}),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           # FIXME
            {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent) do
-        intent = %{intent | creator: creator}
+
         indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
-        {:ok, preload_all(intent)}
+
+        {:ok, intent}
       end
     end)
   end
@@ -121,9 +121,10 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
     repo().transact_with(fn ->
       with {:ok, intent} <- repo().update(Intent.update_changeset(intent, attrs)),
+           intent <- preload_all(intent),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            :ok <- ValueFlows.Util.publish(intent, :update) do
-        {:ok, preload_all(intent)}
+        {:ok, intent}
       end
     end)
   end

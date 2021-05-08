@@ -3,7 +3,7 @@ defmodule ValueFlows.Util do
   import Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
   @user Bonfire.Common.Config.get!(:user_schema)
-  @image_schema CommonsPub.Uploads.Content
+  @image_schema Bonfire.Files.Media
 
   require Logger
 
@@ -91,8 +91,13 @@ defmodule ValueFlows.Util do
     end
   end
 
+  def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
+    Bonfire.Common.Utils.avatar_url(thing)
+  end
 
-  defdelegate image_url(thing), to: Bonfire.Common.Utils
+  def image_url(%{image_id: image_id} = thing) when not is_nil(image_id) do
+    Bonfire.Common.Utils.image_url(thing)
+  end
 
   # def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
   #   Bonfire.Repo.maybe_preload(thing, icon: [:content_upload, :content_mirror])
@@ -114,9 +119,9 @@ defmodule ValueFlows.Util do
   #   |> image_url()
   # end
 
-  # def image_url(_) do
-  #   nil
-  # end
+  def image_url(_) do
+    nil
+  end
 
   def content_url_or_path(content) do
     e(
@@ -141,7 +146,7 @@ defmodule ValueFlows.Util do
   end
 
   def user_schema() do
-    Bonfire.Common.Config.maybe_schema_or_pointer(@user)
+    Bonfire.Common.Extend.maybe_schema_or_pointer(@user)
   end
 
   def is_admin(user) do
@@ -153,6 +158,6 @@ defmodule ValueFlows.Util do
   end
 
   def image_schema() do
-    Bonfire.Common.Config.maybe_schema_or_pointer(@image_schema)
+    Bonfire.Common.Extend.maybe_schema_or_pointer(@image_schema)
   end
 end
