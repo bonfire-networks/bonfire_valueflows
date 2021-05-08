@@ -20,7 +20,10 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
     %{valid?: true} = cs <- changeset(obj_attrs),
     {ok, event} <- EconomicEvents.create(socket.assigns.current_user, obj_attrs) do
       IO.inspect(event)
-      {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/event/")<>event.economic_event.id)}
+      {:noreply, socket
+        # |> push_redirect(to: e(attrs, "redirect_after", "/event/")<>e(event, :economic_event, :id, ""))
+        |> push_redirect(to: e(attrs, "redirect_after", "/resource/")<>e(event, :economic_resource, :id, e(event, :economic_event, :id, "")))
+      }
     end
   end
 

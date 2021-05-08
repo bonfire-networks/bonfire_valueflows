@@ -194,6 +194,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   ## mutations
 
+  def create(creator, event_attrs, extra_attrs \\ %{})
+
   def create(
         _creator,
         %{
@@ -302,10 +304,10 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   def create(creator, event_attrs, _) do
-    create(creator, event_attrs)
+    create_event(creator, event_attrs)
   end
 
-  def create_with_action(
+  defp create_with_action(
       creator,
         %{
           resource_inventoried_as: from_existing_resource
@@ -314,10 +316,10 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       )
       when action == "raise" and not is_nil(from_existing_resource) do
     Logger.info("just raising the amount on an existing resource")
-    create(creator, event_attrs)
+    create_event(creator, event_attrs)
   end
 
-  def create_with_action(creator, event_attrs, action) when action in ["produce", "raise"] do
+  defp create_with_action(creator, event_attrs, action) when action in ["produce", "raise"] do
     Logger.info("producing or raising a new resource, using info from the event or resource_classified_as")
     # IO.inspect(create_with_action: event_attrs)
 
@@ -335,23 +337,24 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       })
   end
 
-  def create_with_action(creator, event_attrs, _) do
-    create(creator, event_attrs)
+  defp create_with_action(creator, event_attrs, _) do
+    create_event(creator, event_attrs)
   end
 
-  def maybe_resource_spec(%{resource_conforms_to: id}) when is_binary(id) do
+  defp maybe_resource_spec(%{resource_conforms_to: id}) when is_binary(id) do
     with {:ok, fetched} <- ResourceSpecifications.one(id: id) do
       fetched
     else _ ->
       nil
     end
   end
-  def maybe_resource_spec(_), do: nil
+  defp maybe_resource_spec(_), do: nil
+
 
   @doc """
   Create an Event (with preexisting resources)
   """
-  def create(%{} = creator, event_attrs) do
+  defp create_event(%{} = creator, event_attrs) do
     new_event_attrs =
       event_attrs
       # fallback if none indicated
@@ -374,16 +377,6 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     end)
   end
 
-  defp create_event_common(event, creator, attrs) do
-    with event = preload_all(event),
-         {:ok, event} <- maybe_transfer_resource(event),
-         {:ok, event} <- EventSideEffects.event_side_effects(event),
-         {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, attrs),
-         {:ok, activity} <- ValueFlows.Util.publish(creator, event.action_id, event) do
-      indexing_object_format(event) |> ValueFlows.Util.index_for_search()
-      {:ok, event}
-    end
-  end
 
   defp create_resource_and_event(creator, event_attrs, new_inventoried_resource, field_name) do
     new_resource_attrs =
@@ -398,11 +391,24 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
             ) do
         event_attrs = Map.merge(event_attrs, %{field_name => new_resource.id})
 
-        create(creator, event_attrs)
+        create_event(creator, event_attrs)
         ~> Map.put(:economic_resource, new_resource)
       end
     end)
   end
+
+
+  defp create_event_common(event, creator, attrs) do
+    with event = preload_all(event),
+         {:ok, event} <- maybe_transfer_resource(event),
+         {:ok, event} <- EventSideEffects.event_side_effects(event),
+         {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, attrs),
+         {:ok, activity} <- ValueFlows.Util.publish(creator, event.action_id, event) do
+      indexing_object_format(event) |> ValueFlows.Util.index_for_search()
+      {:ok, event}
+    end
+  end
+
 
   @doc """
   Find value calculations related to event and run them, generating reciprocal events.
