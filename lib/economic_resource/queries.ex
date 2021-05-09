@@ -256,6 +256,26 @@ defmodule ValueFlows.EconomicResource.Queries do
     filter(q, {:tag_ids, [id]})
   end
 
+  def filter(q, {:search, text}) when is_binary(text) do
+    where(q, [resource: c],
+    ilike(c.name, ^"%#{text}%")
+    or ilike(c.note, ^"%#{text}%")
+    )
+  end
+
+  def filter(q, {:autocomplete, text}) when is_binary(text) do
+    q
+    |> select([resource: c],
+      struct(c, [:id, :name])
+    )
+    |> where([resource: c],
+      ilike(c.name, ^"#{text}%")
+      or ilike(c.name, ^"% #{text}%")
+      or ilike(c.note, ^"#{text}%")
+      or ilike(c.note, ^"% #{text}%")
+    )
+  end
+
   ## by ordering
 
   def filter(q, {:order, :id}) do

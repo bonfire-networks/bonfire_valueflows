@@ -105,8 +105,21 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   def filter(q, {:search, text}) when is_binary(text) do
     where(q, [resource_spec: c],
-    ilike(c.name, ^"#{text}%")
-    or ilike(c.name, ^" #{text}%")
+    ilike(c.name, ^"%#{text}%")
+    or ilike(c.note, ^"%#{text}%")
+    )
+  end
+
+  def filter(q, {:autocomplete, text}) when is_binary(text) do
+    q
+    |> select([resource_spec: c],
+      struct(c, [:id, :name])
+    )
+    |> where([resource_spec: c],
+      ilike(c.name, ^"#{text}%")
+      or ilike(c.name, ^"% #{text}%")
+      or ilike(c.note, ^"#{text}%")
+      or ilike(c.note, ^"% #{text}%")
     )
   end
 

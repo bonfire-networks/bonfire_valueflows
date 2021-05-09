@@ -1453,7 +1453,7 @@ type EconomicResource {
   """
   The primary resource specification or definition of an existing or potential economic resource. A resource will have only one, as this specifies exactly what the resource is.
   """
-  conformsTo: ResourceSpecification!
+  conformsTo: ResourceSpecification
 
   """
   Sometimes called serial number, used when each item must have a traceable identifier (like a computer). Could also be used for other unique tracking identifiers needed for resources.
@@ -2980,7 +2980,7 @@ type RecipeProcess {
   """
   The standard specification or definition of a process.
   """
-  processConformsTo: ProcessSpecification!
+  processConformsTo: ProcessSpecification
 
   """
   A textual description or comment.
