@@ -160,4 +160,57 @@ defmodule ValueFlows.Util do
   def image_schema() do
     Bonfire.Common.Extend.maybe_schema_or_pointer(@image_schema)
   end
+
+  def change_measures(changeset, %{} = attrs, measure_fields) do
+    measures = Map.take(attrs, measure_fields)
+
+    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
+      # Changeset.put_assoc(c, field_name, measure)
+      Ecto.Changeset.cast_assoc(c, field_name, with: &Bonfire.Quantify.Measure.validate_changeset/2)
+      # TODO: merge parse_measurement_attrs into this?
+    end)
+  end
+
+  def parse_measurement_attrs(attrs, user \\ nil) do
+    Enum.reduce(attrs, %{}, fn
+
+      {k, %{has_unit: unit} = v}, acc ->
+
+        Map.put(acc, k,
+          with false <- is_ulid?(unit),
+          {:error, _} <- Bonfire.Quantify.Units.one(label_or_symbol: unit),
+          {:ok, %{id: id} = new_unit} <- Bonfire.Quantify.Units.create(user, %{label: unit, symbol: unit}) do
+
+            Map.put(v, :unit_id, id)
+            |> Map.drop([:has_unit])
+
+          else
+            {:ok, %{id: id} = found_unit} ->
+
+              Map.put(v, :unit_id, id)
+              |> Map.drop([:has_unit])
+
+            _ ->
+              map_key_replace(v, :has_unit, :unit_id)
+          end
+        )
+
+      {k, v}, acc ->
+        Map.put(acc, k, v)
+
+    end)
+  end
+
+  # def parse_measurement_attrs(attrs) do
+  #   for {k, v} <- attrs, into: %{} do
+  #     v =
+  #       if is_map(v) and Map.has_key?(v, :has_unit) do
+  #         map_key_replace(v, :has_unit, :unit_id)
+  #       else
+  #         v
+  #       end
+
+  #     {k, v}
+  #   end
+  # end
 end

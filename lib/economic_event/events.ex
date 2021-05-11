@@ -2,9 +2,10 @@
 defmodule ValueFlows.EconomicEvent.EconomicEvents do
   use OK.Pipe
 
-  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_append: 2, map_key_replace: 3]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_append: 2, map_key_replace: 3, e: 3]
 
   import Bonfire.Common.Config, only: [repo: 0]
+  alias ValueFlows.Util
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
@@ -360,7 +361,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       # fallback if none indicated
       |> Map.put_new(:provider, creator)
       |> Map.put_new(:receiver, creator)
-      |> prepare_attrs()
+      |> prepare_attrs(creator)
 
     cs = EconomicEvent.create_changeset(creator, new_event_attrs)
 
@@ -460,7 +461,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   def update(user, %EconomicEvent{} = event, attrs) do
     repo().transact_with(fn ->
       event = preload_all(event)
-      attrs = prepare_attrs(attrs)
+      attrs = prepare_attrs(attrs, e(event, :creator, nil))
 
       with :ok <- validate_user_involvement(user, event),
            {:ok, event} <- repo().update(EconomicEvent.update_changeset(event, attrs)),
@@ -571,7 +572,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     :ok
   end
 
-  def prepare_attrs(attrs) do
+  def prepare_attrs(attrs, creator \\ nil) do
     attrs
     |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(
@@ -588,20 +589,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     |> maybe_put(:triggered_by_id, attr_get_id(attrs, :triggered_by))
     |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
     |> maybe_put(:calculated_using_id, attr_get_id(attrs, :calculated_using))
-    |> parse_measurement_attrs()
+    |> Util.parse_measurement_attrs(creator)
   end
 
-  defp parse_measurement_attrs(attrs) do
-    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
-      if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = map_key_replace(v, :has_unit, :unit_id)
-        # I have no idea why the numerical value isn't auto converted
-        Map.put(acc, k, v)
-      else
-        Map.put(acc, k, v)
-      end
-    end)
-  end
 
   def soft_delete(%EconomicEvent{} = event) do
     repo().transact_with(fn ->

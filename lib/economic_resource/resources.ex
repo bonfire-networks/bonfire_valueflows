@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.EconomicResource.EconomicResources do
-  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe_get_id: 1, maybe: 2, map_key_replace: 3]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe_get_id: 1, maybe: 2, map_key_replace: 3, e: 3]
 
   import Bonfire.Common.Config, only: [repo: 0]
+  alias ValueFlows.Util
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
@@ -131,7 +132,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
   def update(%EconomicResource{} = resource, attrs) do
     repo().transact_with(fn ->
-      attrs = prepare_attrs(attrs)
+      attrs = prepare_attrs(attrs, e(resource, :creator, nil))
 
       with {:ok, resource} <- repo().update(EconomicResource.update_changeset(resource, attrs)),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
@@ -181,19 +182,9 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     |> maybe_put(:contained_in_id, attr_get_id(attrs, :contained_in))
     |> maybe_put(:unit_of_effort_id, attr_get_id(attrs, :unit_of_effort))
     |> maybe_put(:state_id, attr_get_id(attrs, :state))
-    |> parse_measurement_attrs()
+    |> Util.parse_measurement_attrs(creator)
   end
 
-  defp parse_measurement_attrs(attrs) do
-    for {k, v} <- attrs, into: %{} do
-      v =
-        if is_map(v) and Map.has_key?(v, :has_unit) do
-          map_key_replace(v, :has_unit, :unit_id)
-        else
-          v
-        end
 
-      {k, v}
-    end
-  end
+
 end

@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, map_key_replace: 3]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, map_key_replace: 3, e: 3]
 
   import Bonfire.Common.Config, only: [repo: 0]
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
+  alias ValueFlows.Util
 
   @user Bonfire.Common.Config.get!(:user_schema)
 
@@ -99,7 +100,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   @spec create(any(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%{} = creator, attrs) when is_map(attrs) do
 
-    attrs = prepare_attrs(attrs)
+    attrs = prepare_attrs(attrs, creator)
 
     repo().transact_with(fn ->
       with {:ok, intent} <- repo().insert(Intent.create_changeset(creator, attrs)),
@@ -117,7 +118,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   # TODO: take the user who is performing the update
   # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def update(%Intent{} = intent, attrs) do
-    attrs = prepare_attrs(attrs)
+    attrs = prepare_attrs(attrs, e(intent, :creator, nil))
 
     repo().transact_with(fn ->
       with {:ok, intent} <- repo().update(Intent.update_changeset(intent, attrs)),
@@ -156,8 +157,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     }
   end
 
-
-  def prepare_attrs(attrs) do
+  def prepare_attrs(attrs, creator \\ nil) do
     attrs
     |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(:context_id,
@@ -170,18 +170,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
     |> maybe_put(:output_of_id, attr_get_id(attrs, :output_of))
     |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
     |> maybe_put(:resource_inventoried_as_id, attr_get_id(attrs, :resource_inventoried_as))
-    |> parse_measurement_attrs()
+    |> Util.parse_measurement_attrs(creator)
   end
 
-  defp parse_measurement_attrs(attrs) do
-    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
-      if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = map_key_replace(v, :has_unit, :unit_id)
-        # I have no idea why the numerical value isn't auto converted
-        Map.put(acc, k, v)
-      else
-        Map.put(acc, k, v)
-      end
-    end)
-  end
+
 end

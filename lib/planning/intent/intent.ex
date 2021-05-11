@@ -111,17 +111,9 @@ defmodule ValueFlows.Planning.Intent do
     [:resource_quantity, :effort_quantity, :available_quantity]
   end
 
-  def change_measures(changeset, %{} = attrs) do
-    measures = Map.take(attrs, measure_fields())
-
-    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
-      Changeset.put_assoc(c, field_name, measure)
-    end)
-  end
-
   defp common_changeset(changeset, attrs) do
     changeset
-    |> change_measures(attrs)
+    |> ValueFlows.Util.change_measures(attrs, measure_fields())
     |> change_public()
     |> change_disabled()
     |> Changeset.foreign_key_constraint(

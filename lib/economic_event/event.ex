@@ -103,7 +103,7 @@ defmodule ValueFlows.EconomicEvent do
   def validate_changeset(attrs \\ %{}) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
-    |> change_measures(attrs)
+    |> ValueFlows.Util.change_measures(attrs, measure_fields())
     |> validate_create_changeset()
   end
 
@@ -119,16 +119,8 @@ defmodule ValueFlows.EconomicEvent do
   def update_changeset(%EconomicEvent{} = event, attrs) do
     event
     |> Changeset.cast(attrs, @cast)
-    |> change_measures(attrs)
+    |> ValueFlows.Util.change_measures(attrs, measure_fields())
     |> common_changeset()
-  end
-
-  def change_measures(changeset, %{} = attrs) do
-    measures = Map.take(attrs, measure_fields())
-
-    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
-      Changeset.put_assoc(c, field_name, measure)
-    end)
   end
 
   def measure_fields do

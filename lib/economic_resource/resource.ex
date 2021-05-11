@@ -93,21 +93,13 @@ defmodule ValueFlows.EconomicResource do
     |> common_changeset(attrs)
   end
 
-  def change_measures(changeset, %{} = attrs) do
-    measures = Map.take(attrs, measure_fields())
-
-    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
-      Changeset.put_assoc(c, field_name, measure)
-    end)
-  end
-
   def measure_fields do
     [:onhand_quantity, :accounting_quantity]
   end
 
   defp common_changeset(changeset, attrs) do
     changeset
-    |> change_measures(attrs)
+    |> ValueFlows.Util.change_measures(attrs, measure_fields())
     |> change_public()
     |> change_disabled()
   end
