@@ -2,7 +2,7 @@ defmodule ValueFlows.EconomicResource do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_resource",
-    table_id: "AN0BSERVEDANDVSEFV1RES0VRC"
+    table_id: "2N0BSERVEDANDVSEFV1RES0VRC"
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset

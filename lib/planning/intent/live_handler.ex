@@ -17,7 +17,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
                       |> Intents.prepare_attrs()
                       |> IO.inspect(),
     %{valid?: true} = cs <- changeset(obj_attrs),
-    {ok, intent} <- Intents.create(socket.assigns.current_user, obj_attrs) do
+    {:ok, intent} <- Intents.create(socket.assigns.current_user, obj_attrs) do
       IO.inspect(intent)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/intent/")<>intent.id)}
     end
@@ -25,8 +25,8 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
   def handle_event("status:finished", %{"id" => id} = attrs, socket) do
 
-    with {ok, intent} <- Intents.one(id: id),
-         {ok, intent} <- Intents.update(intent, %{finished: true}) do
+    with {:ok, intent} <- Intents.one(id: id),
+         {:ok, intent} <- Intents.update(intent, %{finished: true}) do
       IO.inspect(intent)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/intent/")<>intent.id)}
     end
@@ -37,8 +37,8 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
     assign_to_id = if assign_to=="me", do: current_user_id, else: assign_to
 
-    with {ok, intent} <- Intents.one(id: intent_id),
-         {ok, intent} <- Intents.update(intent, %{provider: assign_to_id}) do
+    with {:ok, intent} <- Intents.one(id: intent_id),
+         {:ok, intent} <- Intents.update(intent, %{provider: assign_to_id}) do
       # IO.inspect(intent)
       {:noreply, socket |> push_redirect(to: path(socket.view, intent.id))}
     end

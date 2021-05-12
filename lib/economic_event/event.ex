@@ -2,7 +2,7 @@ defmodule ValueFlows.EconomicEvent do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_event",
-    table_id: "ACTVA10BSERVEDF10WS0FVA1VE"
+    table_id: "2CTVA10BSERVEDF10WS0FVA1VE"
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 

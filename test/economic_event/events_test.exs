@@ -68,15 +68,14 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
       action = action()
 
       assert {:error, _e} =
-               EconomicEvents.create(
-                 user,
-                 economic_event(%{
-                   provider: provider.id,
-                   receiver: receiver.id,
-                   action: action.id
-                 })
-               )
-
+        EconomicEvents.create(
+          user,
+          economic_event(%{
+            provider: provider.id,
+            receiver: receiver.id,
+            action: action.id
+          })
+        )
 
     end
 
