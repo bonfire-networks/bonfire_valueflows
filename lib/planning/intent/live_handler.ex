@@ -27,8 +27,15 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
     with {:ok, intent} <- Intents.one(id: id),
          {:ok, intent} <- Intents.update(intent, %{finished: true}) do
-      IO.inspect(intent)
-      {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/intent/")<>intent.id)}
+      # IO.inspect(intent)
+
+      redir = if e(attrs, "redirect_after", nil) do
+          e(attrs, "redirect_after", "/intent/")<>intent.id
+         else
+          e(socket.assigns, :current_url, "#")
+         end
+
+      {:noreply, socket |> push_redirect(to: redir) }
     end
   end
 
