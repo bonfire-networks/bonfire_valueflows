@@ -92,10 +92,14 @@ defmodule ValueFlows.Util do
   end
 
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
+    IO.inspect(thing)
+    IO.inspect(icon_id)
+    IO.inspect(thing.icon)
     Bonfire.Common.Utils.avatar_url(thing)
   end
 
   def image_url(%{image_id: image_id} = thing) when not is_nil(image_id) do
+    IO.inspect(image_url: thing)
     Bonfire.Common.Utils.image_url(thing)
   end
 

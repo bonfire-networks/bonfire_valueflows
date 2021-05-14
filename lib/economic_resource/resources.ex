@@ -119,8 +119,9 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
       with {:ok, resource} <- repo().insert(EconomicResource.create_changeset(creator, attrs)),
            resource <- preload_all(%{resource | creator: creator}),
-           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
-           {:ok, activity} <- ValueFlows.Util.publish(creator, resource.state_id, resource) do
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs) do
+
+            # {:ok, activity} = ValueFlows.Util.publish(creator, resource.state_id, resource) # no need to publish since the related event will already appear in feeds
 
         indexing_object_format(resource) |> ValueFlows.Util.index_for_search()
         {:ok, resource}

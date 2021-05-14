@@ -39,15 +39,26 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     end
   end
 
-  def handle_event("assign:select", %{"id" => assign_to, "name"=> name} = attrs, %{assigns: %{current_user: %{id: current_user_id}, intent: %{id: intent_id} = assigned_intent}} = socket) when is_binary(assign_to) do
+  def handle_event("assign:select", %{"id" => assign_to, "name"=> name} = attrs, %{assigns: %{current_user: %{id: current_user_id}, intent: %{id: intent_id}}} = socket) when is_binary(assign_to) do
     # IO.inspect(socket)
 
+    assign_to(assign_to, intent_id, path(socket.view, intent_id), current_user_id, socket)
+  end
+
+  def handle_event("assign:select", %{"id" => assign_to, "name"=> name, "context_id" => intent_id} = attrs, %{assigns: %{current_user: %{id: current_user_id}, process: %{id: process_id}}} = socket) when is_binary(assign_to) do
+    # IO.inspect(socket)
+
+    assign_to(assign_to, intent_id, path(socket.view, process_id), current_user_id, socket)
+
+  end
+
+  def assign_to(assign_to, intent_id, redirect_path, current_user_id, socket) do
     assign_to_id = if assign_to=="me", do: current_user_id, else: assign_to
 
     with {:ok, intent} <- Intents.one(id: intent_id),
          {:ok, intent} <- Intents.update(intent, %{provider: assign_to_id}) do
       # IO.inspect(intent)
-      {:noreply, socket |> push_redirect(to: path(socket.view, intent.id))}
+      {:noreply, socket |> push_redirect(to: redirect_path)}
     end
   end
 
