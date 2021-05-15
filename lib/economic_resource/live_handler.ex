@@ -5,8 +5,7 @@ defmodule ValueFlows.EconomicResource.LiveHandler do
   alias ValueFlows.EconomicResource.EconomicResources
 
 
-  def handle_event("autocomplete", %{"autocomplete_resource_inventoried_as" => search} = attrs, socket) when is_binary(search) do
-    IO.inspect(attrs)
+  def handle_event("autocomplete", search, socket) when is_binary(search) do
 
     matches = with {:ok, matches} <- EconomicResources.many(autocomplete: search) do
       # IO.inspect(matches)

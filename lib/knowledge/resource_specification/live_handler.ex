@@ -24,8 +24,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
   end
 
 
-  def handle_event("autocomplete", %{"autocomplete_resource_conforms_to" => search} = attrs, socket) when is_binary(search) do
-    IO.inspect(attrs)
+  def handle_event("autocomplete", search, socket) when is_binary(search) do
 
     matches = with {:ok, matches} <- ResourceSpecifications.many(autocomplete: search) do
       IO.inspect(matches)

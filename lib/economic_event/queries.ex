@@ -38,6 +38,10 @@ defmodule ValueFlows.EconomicEvent.Queries do
     join(q, jq, [event: c], t in assoc(c, :tags), as: :tags)
   end
 
+  def join_to(q, :geolocation, jq) do
+    join(q, jq, [event: c], g in assoc(c, :at_location), as: :geolocation)
+  end
+
   # def join_to(q, :provider, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
   # end
@@ -310,6 +314,19 @@ defmodule ValueFlows.EconomicEvent.Queries do
       effort_quantity: [:unit],
       resource_quantity: [:unit],
     ])
+  end
+  def filter(q, {:preload, :locations}) do
+    preload(q, [
+      :at_location,
+      resource_inventoried_as: [:current_location],
+      to_resource_inventoried_as: [:current_location],
+    ])
+  end
+  def filter(q, {:preload, fields}) when is_list(fields) do
+    preload(q, ^fields)
+  end
+  def filter(q, {:preload, field}) do
+    preload(q, [^field])
   end
 
   # pagination
