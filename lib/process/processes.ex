@@ -118,6 +118,7 @@ defmodule ValueFlows.Process.Processes do
 
 
   def inputs(attrs, action_id \\ nil)
+
   def inputs(%{id: id}, action_id) when not is_nil(action_id) do
     EconomicEvents.many([:default, input_of_id: id, action_id: action_id])
   end
@@ -131,6 +132,7 @@ defmodule ValueFlows.Process.Processes do
   end
 
   def outputs(attrs, action_id \\ nil)
+
   def outputs(%{id: id}, action_id) when not is_nil(action_id) do
     EconomicEvents.many([:default, output_of_id: id, action_id: action_id])
   end
