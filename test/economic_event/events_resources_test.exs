@@ -56,7 +56,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
   end
 
   describe "Increment or decrement" do
-    test "If resource inventoried as is not set, measures are not decremented" do
+    test "With consume, If resource_inventoried_as is not set, measures are not decremented" do
       user = fake_agent!()
       to_resource_inventoried_as = fake_economic_resource!(user)
 
@@ -79,7 +79,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
       ])
     end
 
-    test "If resource inventoried as is not set, measures are not incremented" do
+    test "With raise, If resource_inventoried_as is not set, measures are not incremented" do
       user = fake_agent!()
       to_resource_inventoried_as = fake_economic_resource!(user)
 
@@ -102,7 +102,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
       ])
     end
 
-    test "If resource inventoried is set, measures are incremented as expected" do
+    test "With raise, If resource inventoried is set, measures are incremented as expected" do
       user = fake_agent!()
       unit = maybe_fake_unit(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -135,7 +135,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
                new_event.resource_inventoried_as.onhand_quantity.has_numerical_value
     end
 
-    test "If resource inventoried is set, measures are decremented as expected" do
+    test "With consume, If resource_inventoried_as and to_resource_inventoried_as are set, measures are decremented as expected" do
       user = fake_agent!()
       unit = maybe_fake_unit(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -167,6 +167,37 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
                event.resource_quantity.has_numerical_value ==
                new_event.resource_inventoried_as.onhand_quantity.has_numerical_value
     end
+
+    test "With consume, If resource_inventoried_as is set, measures are decremented as expected" do
+      user = fake_agent!()
+      unit = maybe_fake_unit(user)
+      resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
+
+      event =
+        fake_economic_event!(
+          user,
+          %{
+            resource_inventoried_as: resource_inventoried_as.id,
+            action: "consume"
+          },
+          unit
+        )
+
+      assert {:ok, new_event} = EventSideEffects.event_side_effects(event)
+
+      IO.inspect(event.resource_inventoried_as.accounting_quantity.has_numerical_value)
+      IO.inspect(event.resource_quantity.has_numerical_value)
+      IO.inspect(new_event.resource_inventoried_as.accounting_quantity.has_numerical_value)
+
+      assert event.resource_inventoried_as.accounting_quantity.has_numerical_value -
+               event.resource_quantity.has_numerical_value ==
+               new_event.resource_inventoried_as.accounting_quantity.has_numerical_value
+
+      assert event.resource_inventoried_as.onhand_quantity.has_numerical_value -
+               event.resource_quantity.has_numerical_value ==
+               new_event.resource_inventoried_as.onhand_quantity.has_numerical_value
+    end
+
   end
 
   describe "DecrementIncrement with transfer/move" do
