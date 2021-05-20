@@ -29,6 +29,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       assert_proposal_full(proposal_queried)
     end
 
+    @tag :skip
     test "fetches a full nested proposal by ID (via Absinthe.run)" do
       user = fake_agent!()
       parent = fake_agent!()

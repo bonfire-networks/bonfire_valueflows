@@ -23,6 +23,7 @@ defmodule ValueFlows.Process.GraphQLTest do
       assert_process(grumble_post_key(q, conn, :process, %{id: process.id}))
     end
 
+    @tag :skip
     test "fetches a full nested process by ID (via Absinthe.run)" do
       user = fake_agent!()
 

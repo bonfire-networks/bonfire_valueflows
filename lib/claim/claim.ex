@@ -8,7 +8,7 @@ defmodule ValueFlows.Claim do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias Bonfire.Quantify.Measure
 
@@ -27,8 +27,8 @@ defmodule ValueFlows.Claim do
     field(:resource_classified_as, {:array, :string}, virtual: true)
 
     belongs_to(:action, Action, type: :string)
-    belongs_to(:provider, Pointers.Pointer)
-    belongs_to(:receiver, Pointers.Pointer)
+    belongs_to(:provider, ValueFlows.Util.user_or_org_schema())
+    belongs_to(:receiver, ValueFlows.Util.user_or_org_schema())
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
     belongs_to(:effort_quantity, Measure, on_replace: :nilify)
 
@@ -39,7 +39,7 @@ defmodule ValueFlows.Claim do
     belongs_to(:context, Pointers.Pointer)
 
     # not defined in spec, used internally
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true, default: false)

@@ -8,7 +8,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
   #
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
@@ -28,7 +28,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     # TODO hook up unit to contexts/resolvers
     belongs_to(:default_unit_of_effort, Unit, on_replace: :nilify)
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
     belongs_to(:context, Pointers.Pointer)
 
     field(:is_public, :boolean, virtual: true)

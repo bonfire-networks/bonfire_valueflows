@@ -9,7 +9,7 @@ defmodule ValueFlows.Proposal do
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal.{ProposedIntent, ProposedTo}
@@ -37,7 +37,7 @@ defmodule ValueFlows.Proposal do
 
     field(:unit_based, :boolean, default: false)
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
 
     belongs_to(:context, Pointers.Pointer)
 

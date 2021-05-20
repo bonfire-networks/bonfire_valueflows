@@ -7,7 +7,7 @@ defmodule ValueFlows.EconomicResource do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias Bonfire.Quantify.Measure
   alias Bonfire.Quantify.Unit
@@ -37,7 +37,7 @@ defmodule ValueFlows.EconomicResource do
 
     belongs_to(:state, Action, type: :string)
 
-    belongs_to(:primary_accountable, Pointers.Pointer)
+    belongs_to(:primary_accountable, ValueFlows.Util.user_or_org_schema())
 
     belongs_to(:accounting_quantity, Measure, on_replace: :nilify)
     belongs_to(:onhand_quantity, Measure, on_replace: :nilify)
@@ -49,7 +49,7 @@ defmodule ValueFlows.EconomicResource do
     # TODO relations:
     # lot: ProductBatch
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 

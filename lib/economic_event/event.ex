@@ -7,7 +7,7 @@ defmodule ValueFlows.EconomicEvent do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
@@ -35,8 +35,8 @@ defmodule ValueFlows.EconomicEvent do
     belongs_to(:input_of, Process)
     belongs_to(:output_of, Process)
 
-    belongs_to(:provider, Pointers.Pointer)
-    belongs_to(:receiver, Pointers.Pointer)
+    belongs_to(:provider, ValueFlows.Util.user_or_org_schema())
+    belongs_to(:receiver, ValueFlows.Util.user_or_org_schema())
 
     belongs_to(:resource_inventoried_as, EconomicResource)
     belongs_to(:to_resource_inventoried_as, EconomicResource)
@@ -66,7 +66,7 @@ defmodule ValueFlows.EconomicEvent do
     # satisfies: [Satisfaction!]
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)

@@ -6,7 +6,7 @@ defmodule ValueFlows.ValueCalculation do
     table_id: "VA1VEF10WSVA1VECA1CV1AT10N"
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   @type t :: %__MODULE__{}
 
@@ -16,7 +16,7 @@ defmodule ValueFlows.ValueCalculation do
     field(:formula, :string)
     field(:resource_classified_as, {:array, :string}, virtual: true)
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:value_unit, Bonfire.Quantify.Unit)
     belongs_to(:action, ValueFlows.Actions.Action, type: :string)

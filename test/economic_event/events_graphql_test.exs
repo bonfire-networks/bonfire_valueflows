@@ -44,6 +44,7 @@ defmodule ValueFlows.EconomicEvent.EventsGraphQLTest do
       assert_economic_event(fetched)
     end
 
+    @tag :skip
     test "fetches a full nested economic event by ID (via Absinthe.run)" do
       user = fake_agent!()
 

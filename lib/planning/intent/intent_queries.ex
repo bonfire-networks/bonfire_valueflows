@@ -2,7 +2,7 @@
 defmodule ValueFlows.Planning.Intent.Queries do
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intents
-  @user Bonfire.Common.Config.get!(:user_schema)
+
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS

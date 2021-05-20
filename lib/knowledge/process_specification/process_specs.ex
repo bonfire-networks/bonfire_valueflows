@@ -7,7 +7,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries

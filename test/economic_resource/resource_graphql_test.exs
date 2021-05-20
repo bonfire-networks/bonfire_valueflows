@@ -30,6 +30,7 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
       assert_economic_resource(fetched)
     end
 
+    @tag :skip
     test "fetches a full nested economic resource by ID (via Absinthe.run)" do
       user = fake_agent!()
 

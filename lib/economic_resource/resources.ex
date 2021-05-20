@@ -8,7 +8,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.EconomicResource
   alias ValueFlows.EconomicResource.Queries

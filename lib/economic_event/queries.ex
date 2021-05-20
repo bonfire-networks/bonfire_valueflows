@@ -2,7 +2,7 @@
 defmodule ValueFlows.EconomicEvent.Queries do
   alias ValueFlows.EconomicEvent
   # alias ValueFlows.EconomicEvents
-  @user Bonfire.Common.Config.get!(:user_schema)
+
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
@@ -315,6 +315,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
       resource_quantity: [:unit],
     ])
   end
+
   def filter(q, {:preload, :locations}) do
     preload(q, [
       :at_location,
@@ -322,6 +323,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
       to_resource_inventoried_as: [:current_location],
     ])
   end
+
   def filter(q, {:preload, fields}) when is_list(fields) do
     preload(q, ^fields)
   end

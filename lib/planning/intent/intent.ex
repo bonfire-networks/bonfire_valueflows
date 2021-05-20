@@ -7,7 +7,7 @@ defmodule ValueFlows.Planning.Intent do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias Bonfire.Quantify.Measure
 
@@ -25,8 +25,8 @@ defmodule ValueFlows.Planning.Intent do
     field(:note, :string)
     belongs_to(:image, Bonfire.Files.Media)
 
-    belongs_to(:provider, Pointers.Pointer)
-    belongs_to(:receiver, Pointers.Pointer)
+    belongs_to(:provider, ValueFlows.Util.user_or_org_schema())
+    belongs_to(:receiver, ValueFlows.Util.user_or_org_schema())
 
     belongs_to(:available_quantity, Measure, on_replace: :nilify)
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
@@ -58,7 +58,7 @@ defmodule ValueFlows.Planning.Intent do
     # inverse relationships
     # has_many(:satisfied_by, Satisfaction)
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
     belongs_to(:context, Pointers.Pointer)
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?

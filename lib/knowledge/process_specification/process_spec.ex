@@ -7,7 +7,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Knowledge.ProcessSpecification
 
@@ -21,7 +21,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
 
     belongs_to(:context, Pointers.Pointer)
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)

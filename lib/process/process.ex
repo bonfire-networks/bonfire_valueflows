@@ -7,7 +7,7 @@ defmodule ValueFlows.Process do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Process
   # alias Bonfire.Quantify.Measure
@@ -57,7 +57,7 @@ defmodule ValueFlows.Process do
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
-    belongs_to(:creator, @user)
+    belongs_to(:creator, ValueFlows.Util.user_schema())
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)

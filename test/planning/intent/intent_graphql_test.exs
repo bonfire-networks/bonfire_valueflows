@@ -29,6 +29,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert_intent(grumble_post_key(q, conn, :intent, %{id: intent.id}))
     end
 
+    @tag :skip
     test "fetches a full nested intent by ID (via Absinthe.run)" do
       user = fake_agent!()
 

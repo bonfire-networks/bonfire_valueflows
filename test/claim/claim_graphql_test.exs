@@ -22,6 +22,7 @@ defmodule ValueFlows.Claim.GraphQLTest do
       assert fetched["id"] == claim.id
     end
 
+    @tag :skip
     test "fetched a full nested claim by ID (via Absinthe.run)" do
       user = fake_agent!()
       unit = maybe_fake_unit(user)

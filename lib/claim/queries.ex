@@ -3,7 +3,7 @@ defmodule ValueFlows.Claim.Queries do
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+
   alias ValueFlows.Claim
 
   def query(Claim) do

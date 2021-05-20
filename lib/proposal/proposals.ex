@@ -6,7 +6,7 @@ defmodule ValueFlows.Proposal.Proposals do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal

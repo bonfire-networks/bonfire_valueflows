@@ -4,7 +4,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   import Bonfire.Common.Config, only: [repo: 0]
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
@@ -29,6 +29,14 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   def many(filters \\ []), do: {:ok, repo().all(Queries.query(ResourceSpecification, filters))}
 
 
+  def maybe_get(%{resource_conforms_to_id: id}) when is_binary(id) do
+    with {:ok, fetched} <- one(id: id) do
+      fetched
+    else _ ->
+      nil
+    end
+  end
+  def maybe_get(_), do: nil
 
   ## mutations
 

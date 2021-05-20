@@ -95,14 +95,18 @@ defmodule ValueFlows.ValueCalculation.Queries do
 
   ## context-based searches
 
-  def filter(q, {:event, %EconomicEvent{} = event}) do
-    q = filter(q, action_id: event.action_id)
+  def filter(q, {:event, %{action_id: action_id, resource_conforms_to_id: resource_conforms_to_id}}) do
+    q = filter(q, action_id: action_id)
 
-    if event.resource_conforms_to_id do
-      filter(q, resource_conforms_to_id: event.resource_conforms_to_id)
+    if resource_conforms_to_id do
+      filter(q, resource_conforms_to_id: resource_conforms_to_id)
     else
       q
     end
+  end
+
+  def filter(q, {:event, %{action_id: action_id}}) do
+    filter(q, action_id: action_id)
   end
 
   ## by ordering

@@ -8,7 +8,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias Bonfire.GraphQL.{Fields, Page}
   alias ValueFlows.Util
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+
 
   alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Planning.Intent

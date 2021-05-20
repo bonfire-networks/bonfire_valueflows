@@ -2,7 +2,7 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   alias ValueFlows.Knowledge.ProcessSpecification
   # alias ValueFlows.Knowledge.ProcessSpecifications
-  @user Bonfire.Common.Config.get!(:user_schema)
+
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS

@@ -2,8 +2,6 @@
 defmodule ValueFlows.Util do
   import Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
-  @user Bonfire.Common.Config.get!(:user_schema)
-  @image_schema Bonfire.Files.Media
 
   require Logger
 
@@ -149,10 +147,6 @@ defmodule ValueFlows.Util do
     end
   end
 
-  def user_schema() do
-    Bonfire.Common.Extend.maybe_schema_or_pointer(@user)
-  end
-
   def is_admin(user) do
     if Map.get(user, :instance_admin) do
       Map.get(user.instance_admin, :is_instance_admin)
@@ -161,8 +155,20 @@ defmodule ValueFlows.Util do
     end
   end
 
+  def user_schema() do
+    Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:user_schema, Bonfire.Data.Identity.User))
+  end
+
+  def org_schema() do
+    Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:organisation_schema, user_schema()))
+  end
+
+  def user_or_org_schema() do
+    user_schema()
+  end
+
   def image_schema() do
-    Bonfire.Common.Extend.maybe_schema_or_pointer(@image_schema)
+    Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:files_media_schema, Bonfire.Files.Media))
   end
 
   def change_measures(changeset, %{} = attrs, measure_fields) do

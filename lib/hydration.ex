@@ -4,8 +4,8 @@ defmodule ValueFlows.Hydration do
   import ValueFlows.Util.GraphQL
   alias Bonfire.GraphQL.CommonResolver
 
-  @user Bonfire.Common.Config.get!(:user_schema)
-  @org_schema Bonfire.Common.Config.get!(:org_schema)
+
+
 
   def hydrate() do
     agent_fields = %{
@@ -624,14 +624,16 @@ defmodule ValueFlows.Hydration do
           :organization | :person
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
-  # def agent_resolve_type(%@org_schema{}, _), do: :organization
-  # def agent_resolve_type(%@user{}, _), do: :person
+  # def agent_resolve_type(%ValueFlows.Util.org_schema(){}, _), do: :organization
+  # def agent_resolve_type(%ValueFlows.Util.user_schema(){}, _), do: :person
   # def agent_resolve_type(_, _), do: :person
   def agent_resolve_type(%{__struct__: type}, _) do
+    u= ValueFlows.Util.user_schema()
+    o= ValueFlows.Util.org_schema()
     case type do
-      @user ->
+      u ->
         :person
-      @org_schema ->
+      o ->
         :organization
       _ ->
         :person
@@ -641,17 +643,19 @@ defmodule ValueFlows.Hydration do
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true
 
-  # def resolve_context_type(%@user{}, _), do: :person
-  # def resolve_context_type(%@org_schema{}, _), do: :organization
+  # def resolve_context_type(%ValueFlows.Util.user_schema(){}, _), do: :person
+  # def resolve_context_type(%ValueFlows.Util.org_schema(){}, _), do: :organization
   # def resolve_context_type(%CommonsPub.Communities.Community{}, _), do: :community
   # def resolve_context_type(%CommonsPub.Collections.Collection{}, _), do: :collection
   # def resolve_context_type(_, _), do: :agent
   def resolve_context_type(%{__struct__: type}, _) do
+    u= ValueFlows.Util.user_schema()
+    o= ValueFlows.Util.org_schema()
     # FIXME
     case type do
-      @user ->
+      u ->
         :person
-      @org_schema ->
+      o ->
         :organization
     end
   end
