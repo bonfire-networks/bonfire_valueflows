@@ -2,19 +2,18 @@ defmodule ValueFlows.Process do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_process",
-    table_id: "WAYF0R1NPVTST0BEC0ME0VTPVT"
+    table_id: "4AYF0R1NPVTST0BEC0ME0VTPVT"
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-
 
   alias ValueFlows.Process
   # alias Bonfire.Quantify.Measure
 
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
-
+  alias ValueFlows.Planning.Intent
   # alias ValueFlows.EconomicEvent
 
   @type t :: %__MODULE__{}
@@ -35,6 +34,9 @@ defmodule ValueFlows.Process do
 
     belongs_to(:context, Pointers.Pointer)
 
+    has_many(:intended_inputs, Intent, foreign_key: :input_of_id, references: :id)
+    has_many(:intended_outputs, Intent, foreign_key: :output_of_id, references: :id)
+
     # TODO
     # workingAgents: [Agent!]
 
@@ -47,8 +49,6 @@ defmodule ValueFlows.Process do
 
     # nextProcesses: [Process!]
     # previousProcesses: [Process!]
-    # intendedInputs(action: ID): [Process!]
-    # intendedOutputs(action: ID): [Process!]
 
     # committedInputs(action: ID): [Commitment!]
     # committedOutputs(action: ID): [Commitment!]

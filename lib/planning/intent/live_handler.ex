@@ -89,6 +89,28 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     end
   end
 
+  def handle_event("update:"<>what, %{"id" => id} = attrs, socket) do
+
+    with {:ok, intent} <- Intents.one(id: id),
+         {:ok, intent} <- Intents.update(intent, attrs) do
+      # IO.inspect(intent)
+
+      redir = if e(attrs, "redirect_after", nil) do
+          e(attrs, "redirect_after", "/intent/")<>intent.id
+         else
+          e(socket.assigns, :current_url, "#")
+         end
+
+      {:noreply, socket |> push_redirect(to: redir) }
+    end
+  end
+
+  def handle_event("update:"<>what, attrs, %{assigns: %{intent: %{id: intent_id}}} = socket) when is_binary(intent_id) do
+    # IO.inspect(socket)
+
+    handle_event("update:"<>what, Map.merge(%{"id" => intent_id}, attrs), socket)
+  end
+
   def handle_event("assign:select", %{"id" => assign_to, "name"=> name} = attrs, %{assigns: %{current_user: %{id: current_user_id}, intent: %{id: intent_id}}} = socket) when is_binary(assign_to) do
     # IO.inspect(socket)
 
