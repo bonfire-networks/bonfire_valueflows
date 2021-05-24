@@ -34,6 +34,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
     join(q, jq, [intent: c], g in assoc(c, :at_location), as: :geolocation)
   end
 
+  def join_to(q, :like_count, jq) do
+    join(q, jq, [intent: c], g in assoc(c, :like_count), as: :like_count)
+  end
+
   def join_to(q, :tags, jq) do
     join(q, jq, [intent: c], t in assoc(c, :tags), as: :tags)
   end
@@ -72,7 +76,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], is_nil(c.provider_id))
   end
 
+  ## search
 
+  def filter(q, {:search, text}) when is_binary(text) do
+    where(q, [intent: c],
+      ilike(c.name, ^"%#{text}%")
+      or ilike(c.note, ^"%#{text}%")
+    )
+  end
 
   ## by join
 
@@ -105,6 +116,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, :private) do
     where(q, [intent: c], not is_nil(c.published_at))
+  end
+
+  def filter(q, :open) do
+    where(q, [intent: c], c.finished == false)
+  end
+
+  def filter(q, :closed) do
+    where(q, [intent: c], c.finished == true)
   end
 
   ## by field values
@@ -225,14 +244,19 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   ## by ordering
 
-  def filter(q, {:order, :id}) do
-    filter(q, order: [desc: :id])
+  def filter(q, {:order, key}) when key in [:id, :due, :updated_at] do
+    filter(q, order: [desc: :due])
   end
 
-  def filter(q, {:order, [desc: :id]}) do
-    order_by(q, [intent: c],
-      desc: c.id
-    )
+  def filter(q, {:order, [desc: key]}) when key in [:id, :due, :updated_at] do
+    order_by(q, [intent: c], desc: field(c, ^key))
+  end
+
+  def filter(q, {:order, :voted}) do
+    q
+    |> join_to(:like_count)
+    |> preload(:like_count)
+    |> order_by([intent: c, like_count: lc], desc: lc.liker_count)
   end
 
   # grouping and counting

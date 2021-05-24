@@ -8,35 +8,6 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     Intent.validate_changeset(attrs)
   end
 
-  def handle_event("create", attrs, socket) do
-    with obj_attrs <- attrs
-                      |> IO.inspect()
-                      |> Map.merge(attrs["intent"])
-                      |> input_to_atoms()
-                      # |> Map.get(:intent)
-                      |> Intents.prepare_attrs()
-                      |> IO.inspect(),
-    %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, intent} <- Intents.create(socket.assigns.current_user, obj_attrs) do
-      IO.inspect(intent)
-
-      case Bonfire.Common.Text.list_checkboxes(intent.note) do
-        sub_intents when length(sub_intents) > 0 ->
-          IO.inspect(sub_intents)
-
-          create_from_list(socket.assigns.current_user, obj_attrs, sub_intents, [intent.id])
-
-          # for sub_intent <- sub_intents do
-          #   Intents.create(socket.assigns.current_user, Map.merge(obj_attrs, %{name: Enum.at(sub_intent, 3), note: nil, in_scope_of: [intent.id] }))
-          # end
-
-        _ -> nil
-      end
-
-      {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/intent/")<>intent.id)}
-    end
-  end
-
   def create_from_list(current_user, obj_attrs, [i_intent | tail], tree_of_parent_ids, previous_indentation \\ "", latest_intent_id \\ nil) do
 
     indentation = Enum.at(i_intent, 1)
@@ -71,6 +42,35 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
   def create_from_list(_, _, [], _, _, _, _) do
     nil
+  end
+
+  def handle_event("create", attrs, socket) do
+    with obj_attrs <- attrs
+                      |> IO.inspect()
+                      |> Map.merge(attrs["intent"])
+                      |> input_to_atoms()
+                      # |> Map.get(:intent)
+                      |> Intents.prepare_attrs()
+                      |> IO.inspect(),
+    %{valid?: true} = cs <- changeset(obj_attrs),
+    {:ok, intent} <- Intents.create(socket.assigns.current_user, obj_attrs) do
+      IO.inspect(intent)
+
+      case Bonfire.Common.Text.list_checkboxes(intent.note) do
+        sub_intents when length(sub_intents) > 0 ->
+          IO.inspect(sub_intents)
+
+          create_from_list(socket.assigns.current_user, obj_attrs, sub_intents, [intent.id])
+
+          # for sub_intent <- sub_intents do
+          #   Intents.create(socket.assigns.current_user, Map.merge(obj_attrs, %{name: Enum.at(sub_intent, 3), note: nil, in_scope_of: [intent.id] }))
+          # end
+
+        _ -> nil
+      end
+
+      {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/intent/")<>intent.id)}
+    end
   end
 
   def handle_event("status:finished", %{"id" => id} = attrs, socket) do
@@ -128,8 +128,8 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     # IO.inspect(socket)
 
     assign_to(assign_to, intent_id, nil, current_user_id, socket)
-
   end
+
   def assign_to(assign_to, intent_id, redirect_path, current_user_id, socket) do
     assign_to_id = if assign_to=="me", do: current_user_id, else: assign_to
 
@@ -140,5 +140,21 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     end
   end
 
+  def handle_param("search", %{"term" => term} = attrs, socket) do
+    with {:ok, intents} <- Intents.many([:default, search: term]) do
+      {:noreply, socket |> assign(:intents, intents)}
+    end
+  end
 
+  def handle_param("filter", %{"filter_by" => filters} = attrs, socket) do
+    with {:ok, intents} <- Intents.many([:default | filters]) do
+      {:noreply, socket |> assign(:intents, intents)}
+    end
+  end
+
+  def handle_param("sort", %{"sort_by" => sort_key} = attrs, socket) do
+    with {:ok, intents} <- Intents.many([:default, order: String.to_existing_atom(sort_key)]) do
+      {:noreply, socket |> assign(:intents, intents)}
+    end
+  end
 end
