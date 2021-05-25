@@ -123,7 +123,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:open, open?}) when is_boolean(open?) do
-    where(q, [intent: c], c.finished == !open?)
+    where(q, [intent: c], c.finished != ^open?)
   end
 
   def filter(q, :closed) do
@@ -131,7 +131,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:closed, closed?}) when is_boolean(closed?) do
-    where(q, [intent: c], c.finished == closed?)
+    where(q, [intent: c], c.finished == ^closed?)
   end
 
   ## by field values

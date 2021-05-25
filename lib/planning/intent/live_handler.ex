@@ -1,8 +1,6 @@
 defmodule ValueFlows.Planning.Intent.LiveHandler do
   use Bonfire.Web, :live_handler
 
-  import Bonfire.Common.Utils, only: [assign_global: 2]
-
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
 
@@ -48,10 +46,9 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
   def handle_event("create", attrs, socket) do
     with obj_attrs <- attrs
-                      |> IO.inspect()
+                      # |> IO.inspect()
                       |> Map.merge(attrs["intent"])
                       |> input_to_atoms()
-                      # |> Map.get(:intent)
                       |> Intents.prepare_attrs()
                       |> IO.inspect(),
     %{valid?: true} = cs <- changeset(obj_attrs),
