@@ -122,8 +122,16 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], c.finished == false)
   end
 
+  def filter(q, {:open, open?}) when is_boolean(open?) do
+    where(q, [intent: c], c.finished == !open?)
+  end
+
   def filter(q, :closed) do
     where(q, [intent: c], c.finished == true)
+  end
+
+  def filter(q, {:closed, closed?}) when is_boolean(closed?) do
+    where(q, [intent: c], c.finished == closed?)
   end
 
   ## by field values
@@ -134,15 +142,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
       q,
       [intent: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
-    )
-  end
-
-  def filter(q, {:cursor, [count, id]})
-      when is_integer(count) and is_binary(id) do
-    where(
-      q,
-      [intent: c, follower_count: fc],
-      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
     )
   end
 
@@ -245,7 +244,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## by ordering
 
   def filter(q, {:order, key}) when key in [:id, :due, :updated_at] do
-    filter(q, order: [desc: :due])
+    filter(q, order: [desc: key])
   end
 
   def filter(q, {:order, [desc: key]}) when key in [:id, :due, :updated_at] do
@@ -253,6 +252,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:order, :voted}) do
+    filter(q, order: [desc: :voted])
+  end
+
+  def filter(q, {:order, [desc: :voted]}) do
     q
     |> join_to(:like_count)
     |> preload(:like_count)
