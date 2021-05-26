@@ -243,16 +243,11 @@ defmodule ValueFlows.EconomicEvent.Queries do
     where(q, [event: c], c.to_resource_inventoried_as_id == ^id)
   end
 
-  def filter(q, {:track_resource, id}) when is_binary(id) do
-    q
-    |> filter({:resource_inventoried_as_id, id})
-    |> where([event: c], not is_nil(c.input_of_id) or c.action_id in ["transfer", "move"]) # FIXME?
-  end
 
   def filter(q, {:trace_resource, id}) when is_binary(id) do
     q
     |> where([event: c],
-      (not is_nil(c.output_of_id) or c.action_id in ["transfer", "move"]) # FIXME?
+      (not is_nil(c.output_of_id) or c.action_id in ["transfer", "move"])
       and (
         c.to_resource_inventoried_as_id == ^id
         or
@@ -260,6 +255,13 @@ defmodule ValueFlows.EconomicEvent.Queries do
       )
     )
   end
+
+  def filter(q, {:track_resource, id}) when is_binary(id) do
+    q
+    |> filter({:resource_inventoried_as_id, id})
+    |> where([event: c], not is_nil(c.input_of_id) or c.action_id in ["transfer", "move"])
+  end
+
 
   def filter(q, {:output_of_id, id}) when is_binary(id) do
     where(q, [event: c], c.output_of_id == ^id)

@@ -120,6 +120,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   def preload_action(%{action: action} = event) do # fallback
     event |> Map.put(:action, action)
   end
+
   # processes is actually only one, so we can use [process | resources]
   def track(event) do
     with {:ok, resources} <- track_resource_output(event),
