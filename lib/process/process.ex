@@ -14,7 +14,7 @@ defmodule ValueFlows.Process do
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Planning.Intent
-  # alias ValueFlows.EconomicEvent
+  alias ValueFlows.EconomicEvent
 
   @type t :: %__MODULE__{}
 
@@ -37,14 +37,15 @@ defmodule ValueFlows.Process do
     has_many(:intended_inputs, Intent, foreign_key: :input_of_id, references: :id)
     has_many(:intended_outputs, Intent, foreign_key: :output_of_id, references: :id)
 
+    has_many(:trace, EconomicEvent, foreign_key: :input_of_id, references: :id)
+    has_many(:inputs, EconomicEvent, foreign_key: :input_of_id, references: :id)
+
+    has_many(:track, EconomicEvent, foreign_key: :output_of_id, references: :id)
+    has_many(:outputs, EconomicEvent, foreign_key: :output_of_id, references: :id)
+
     # TODO
     # workingAgents: [Agent!]
 
-    # trace: [EconomicEvent!]
-    # track: [EconomicEvent!]
-
-    # inputs(action: ID): [EconomicEvent!]
-    # outputs(action: ID): [EconomicEvent!]
     # unplannedEconomicEvents(action: ID): [EconomicEvent!]
 
     # nextProcesses: [Process!]
@@ -52,6 +53,7 @@ defmodule ValueFlows.Process do
 
     # committedInputs(action: ID): [Commitment!]
     # committedOutputs(action: ID): [Commitment!]
+
     # plannedWithin: Plan
     # nestedIn: Scenario
 

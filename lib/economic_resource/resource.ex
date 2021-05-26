@@ -44,14 +44,15 @@ defmodule ValueFlows.EconomicResource do
 
     belongs_to(:unit_of_effort, Unit, on_replace: :nilify)
 
-    # belongs_to(:stage, ProcessSpecification)
+    # has_many(:inputs, EconomicEvent, foreign_key: :resource_inventoried_as_id, references: :id)
+    # has_many(:outputs, EconomicEvent, foreign_key: :to_resource_inventoried_as_id, references: :id)
 
     # TODO relations:
     # lot: ProductBatch
+    # belongs_to(:stage, ProcessSpecification)
+    # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
     belongs_to(:creator, ValueFlows.Util.user_schema())
-
-    # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
