@@ -141,19 +141,19 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
   def handle_param("search", %{"term" => term} = attrs, socket) do
     with {:ok, intents} <- Intents.many([:default, search: term]) do
-      {:noreply, socket |> assign_global(socket, %{intents: intents})}
+      {:noreply, socket |> assign_global(%{intents: intents})}
     end
   end
 
   def handle_param("filter", %{"filter_by" => filters} = attrs, socket) do
     with {:ok, intents} <- Intents.many([:default | filters]) do
-      {:noreply, socket |> assign_global(socket, %{intents: intents})}
+      {:noreply, socket |> assign_global(%{intents: intents})}
     end
   end
 
   def handle_param("sort", %{"sort_by" => sort_key} = attrs, socket) do
     with {:ok, intents} <- Intents.many([:default, order: String.to_existing_atom(sort_key)]) do
-      {:noreply, socket |> assign_global(socket, %{intents: intents})}
+      {:noreply, socket |> assign_global(%{intents: intents})}
     end
   end
 end
