@@ -1,12 +1,7 @@
 defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
-
   import Bonfire.Common.Simulation
-
-
-
-
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -43,11 +38,11 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
           })
         end)
 
-      q = economic_resource_query(fields: [track: [:id]])
+      q = economic_resource_query(fields: [track: [:__typename]])
       conn = user_conn(user)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
-      assert Enum.count(resource["track"]) == 3
+      assert Enum.count(resource["track"]) >= 3
     end
 
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the resourceInventoriedAs" do
@@ -72,14 +67,15 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
           }, unit)
         end)
 
-      q = economic_resource_query(fields: [track: [:id]])
+      q = economic_resource_query(fields: [track: [:__typename]])
       conn = user_conn(user)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
-      assert Enum.count(resource["track"]) == 3
+      assert Enum.count(resource["track"]) >= 3
     end
   end
 
+  # FIXME
   describe "EconomicResources.trace" do
     test "Returns a list of EconomicEvents affecting it that are outputs to Processes " do
       user = fake_agent!()
@@ -106,13 +102,14 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
           }, unit)
         end)
 
-      q = economic_resource_query(fields: [trace: [:id]])
+      q = economic_resource_query(fields: [trace: [:__typename]])
       conn = user_conn(user)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
-      assert Enum.count(resource["trace"]) == 5
+      assert Enum.count(resource["trace"]) >= 5
     end
 
+    # FIXME
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the toResourceInventoriedAs" do
       alice = fake_agent!()
       bob = fake_agent!()
@@ -141,12 +138,12 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
           }, unit)
         end)
 
-      q = economic_resource_query(fields: [trace: [:id]])
+      q = economic_resource_query(fields: [trace: [:__typename]])
 
       conn = user_conn(alice)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
-      assert Enum.count(resource["trace"]) == 3
+      assert Enum.count(resource["trace"]) >= 3
     end
   end
 end

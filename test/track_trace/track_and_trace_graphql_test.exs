@@ -3,9 +3,6 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
 
   # import Bonfire.Common.Simulation
 
-
-
-
   import ValueFlows.Simulate
 
   # import Bonfire.Geolocate.Simulate
@@ -32,6 +29,7 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
         resource_inventoried_as: resource.id,
         action: "produce"
       }, unit)
+
       input_event = fake_economic_event!(user, %{
         input_of: process.id,
         resource_inventoried_as: other_resource.id,
@@ -43,24 +41,34 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
         economicResource(id: $id) {
           id
           trace {
-            id
-            trace {
-              __typename
-              ... on Process {
-                id
-                trace {
+            __typename
+            ... on EconomicEvent {
+              id
+              trace {
+                __typename
+                ... on EconomicEvent {
+                  id
+                }
+                ... on Process {
                   id
                   trace {
                     __typename
+                    ... on EconomicEvent {
+                      trace {
+                        __typename
+                      }
+                    }
                   }
                 }
-              }
-              ... on EconomicResource {
-                id
-                trace {
+                ... on EconomicResource {
                   id
                   trace {
                     __typename
+                    ... on EconomicEvent {
+                      trace {
+                        __typename
+                      }
+                    }
                   }
                 }
               }
@@ -69,7 +77,10 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
         }
       }
       """
-      assert {:ok, %{data: result}} = Absinthe.run(query, @schema, variables: %{"id" => resource.id})
+
+      q = Absinthe.run(query, @schema, variables: %{"id" => resource.id})
+      # IO.inspect(q: q)
+      assert {:ok, %{data: result}} = q
       assert result["economicResource"]["id"] == resource.id
       assert hd(result["economicResource"]["trace"])["id"] == output_event.id
       assert hd(hd(result["economicResource"]["trace"])["trace"])["id"] == process.id
@@ -87,39 +98,55 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
       other_resource = fake_economic_resource!(user, %{}, unit)
 
       process = fake_process!(user)
+
       output_event = fake_economic_event!(user, %{
         output_of: process.id,
         resource_inventoried_as: resource.id,
         action: "produce"
       }, unit)
+
       input_event = fake_economic_event!(user, %{
         input_of: process.id,
         resource_inventoried_as: other_resource.id,
         action: "use"
       }, unit)
+
       query = """
         query ($id: ID) {
         economicResource(id: $id) {
           id
           track {
-            id
-            track {
-              __typename
-              ... on Process {
-                id
-                track {
+            __typename
+            ... on EconomicResource {
+              id
+            }
+            ... on EconomicEvent {
+              id
+              track {
+                __typename
+                ... on EconomicEvent {
+                  id
+                }
+                ... on Process {
                   id
                   track {
                     __typename
+                    ... on EconomicEvent {
+                      track {
+                        __typename
+                      }
+                    }
                   }
                 }
-              }
-              ... on EconomicResource {
-                id
-                track {
+                ... on EconomicResource {
                   id
                   track {
                     __typename
+                    ... on EconomicEvent {
+                      track {
+                        __typename
+                      }
+                    }
                   }
                 }
               }
@@ -128,7 +155,11 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
         }
       }
       """
-      assert {:ok, %{data: result}} = Absinthe.run(query, @schema, variables: %{"id" => other_resource.id})
+
+      q = Absinthe.run(query, @schema, variables: %{"id" => other_resource.id})
+      # IO.inspect(q: q)
+      assert {:ok, %{data: result}} = q
+
       assert result["economicResource"]["id"] == other_resource.id
       assert hd(result["economicResource"]["track"])["id"] == input_event.id
       assert hd(hd(result["economicResource"]["track"])["track"])["id"] == process.id
@@ -136,4 +167,5 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
       assert hd(hd(hd(hd(result["economicResource"]["track"])["track"])["track"])["track"])["__typename"] == "EconomicResource"
     end
   end
+
 end

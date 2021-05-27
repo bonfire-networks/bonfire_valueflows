@@ -1,5 +1,5 @@
 defmodule ValueFlows.Util.Federation do
-  import Bonfire.Common.Utils, only: [maybe_put: 3]
+  import Bonfire.Common.Utils
 
   @schema Bonfire.Common.Config.get!(:graphql_schema_module)
   @all_types Bonfire.Common.Config.get!(:all_types) || []
@@ -184,21 +184,9 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def struct_to_json(struct) do
-    Jason.encode!(deep_map_from_struct(struct))
+    Jason.encode!(nested_struct_to_map(struct))
   end
 
-  def deep_map_from_struct(struct = %{__struct__: _}) do
-    Map.from_struct(struct) |> Map.drop([:__meta__]) |> deep_map_from_struct()
-  end
-
-  def deep_map_from_struct(map = %{}) do
-    map
-    |> Enum.map(fn {k, v} -> {k, deep_map_from_struct(v)} end)
-    |> Enum.into(%{})
-  end
-
-  def deep_map_from_struct(v) when is_tuple(v), do: v |> Tuple.to_list()
-  def deep_map_from_struct(v), do: v
 
   def activity_object_id(%{object: object}) do
     activity_object_id(object)

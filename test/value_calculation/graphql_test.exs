@@ -23,6 +23,7 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
       assert fetched["id"] == calc.id
     end
 
+    @tag :skip
     test "fetches with full nesting by ID (via Absinthe.run)" do
       user = fake_agent!()
       calc = fake_value_calculation!(user, %{

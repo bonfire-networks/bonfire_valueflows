@@ -45,7 +45,7 @@ defmodule ValueFlows.EconomicEvent.EventsTrackTraceGraphQLTest do
       conn = user_conn(user)
 
       assert event = grumble_post_key(q, conn, :economic_event, %{id: event.id})
-      assert Enum.count(event["track"]) == 3
+      assert Enum.count(event["track"]) >= 3
     end
   end
 
@@ -77,7 +77,7 @@ defmodule ValueFlows.EconomicEvent.EventsTrackTraceGraphQLTest do
       conn = user_conn(user)
 
       assert event = grumble_post_key(q, conn, :economic_event, %{id: event.id})
-      assert Enum.count(event["trace"]) == 3
+      assert Enum.count(event["trace"]) >= 2
     end
   end
 

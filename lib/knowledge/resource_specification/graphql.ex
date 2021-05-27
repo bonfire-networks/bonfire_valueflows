@@ -91,7 +91,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def resource_specs(page_opts, info) do
-    IO.inspect(resource_specs: page_opts)
+    # IO.inspect(resource_specs: page_opts)
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_resource_specs,

@@ -24,6 +24,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       assert_resource_specification(fetched)
     end
 
+    @tag :skip
     test "fetches a nested resource specification by ID (via Absinthe.run)" do
       user = fake_agent!()
       spec = fake_resource_specification!(user)

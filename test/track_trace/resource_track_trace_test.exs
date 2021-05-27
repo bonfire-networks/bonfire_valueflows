@@ -28,8 +28,13 @@ defmodule ValueFlows.EconomicResource.EconomicResourcesTrackTraceTest do
         resource_inventoried_as: resource.id,
         action: "produce"
       }) end)
+
       assert {:ok, events} = EconomicResources.track(resource)
-      assert Enum.map(events, &(&1.id)) == Enum.map(input_events, &(&1.id))
+
+      ids = Enum.map(events, & &1.id)
+      for %{id: id} <- input_events do
+        assert id in ids
+      end
     end
 
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the resourceInventoriedAs" do
@@ -42,7 +47,11 @@ defmodule ValueFlows.EconomicResource.EconomicResourcesTrackTraceTest do
         action: "transfer"
       }, unit) end)
       assert {:ok, events} = EconomicResources.track(resource)
-      assert Enum.map(events, &(&1.id)) == Enum.map(input_events, &(&1.id))
+
+      ids = Enum.map(events, & &1.id)
+      for %{id: id} <- input_events do
+        assert id in ids
+      end
     end
   end
 
@@ -62,7 +71,12 @@ defmodule ValueFlows.EconomicResource.EconomicResourcesTrackTraceTest do
         action: "produce"
       }) end)
       assert {:ok, trace_events} = EconomicResources.trace(resource)
-      assert Enum.map(trace_events, &(&1.id)) == Enum.map(output_events, &(&1.id))
+
+      ids = Enum.map(trace_events, & &1.id)
+      for %{id: id} <- output_events do
+        assert id in ids
+      end
+
     end
 
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the toResourceInventoriedAs" do
@@ -76,7 +90,12 @@ defmodule ValueFlows.EconomicResource.EconomicResourcesTrackTraceTest do
         action: "transfer"
       }, unit) end)
       assert {:ok, events} = EconomicResources.trace(resource)
-      assert Enum.map(events, &(&1.id)) == Enum.map(input_events, &(&1.id))
+
+      ids = Enum.map(events, & &1.id)
+      for %{id: id} <- input_events do
+        assert id in ids
+      end
+
     end
   end
 

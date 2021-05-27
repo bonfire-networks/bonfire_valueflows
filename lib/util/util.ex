@@ -90,14 +90,14 @@ defmodule ValueFlows.Util do
   end
 
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
-    IO.inspect(thing)
-    IO.inspect(icon_id)
-    IO.inspect(thing.icon)
+    # IO.inspect(thing)
+    # IO.inspect(icon_id)
+    # IO.inspect(thing.icon)
     Bonfire.Common.Utils.avatar_url(thing)
   end
 
   def image_url(%{image_id: image_id} = thing) when not is_nil(image_id) do
-    IO.inspect(image_url: thing)
+    # IO.inspect(image_url: thing)
     Bonfire.Common.Utils.image_url(thing)
   end
 
@@ -172,13 +172,20 @@ defmodule ValueFlows.Util do
   end
 
   def change_measures(changeset, %{} = attrs, measure_fields) do
+    # TODO: combine parse_measurement_attrs with this one?
+
     measures = Map.take(attrs, measure_fields)
 
     Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
-      # Changeset.put_assoc(c, field_name, measure)
-      Ecto.Changeset.cast_assoc(c, field_name, with: &Bonfire.Quantify.Measure.validate_changeset/2)
-      # TODO: merge parse_measurement_attrs into this?
+      put_measure(c, field_name, measure)
     end)
+  end
+
+  defp put_measure(c, field_name, measure) when is_struct(measure) do
+    Ecto.Changeset.put_assoc(c, field_name, measure)
+  end
+  defp put_measure(c, field_name, measure) do
+    Ecto.Changeset.cast_assoc(c, field_name, with: &Bonfire.Quantify.Measure.validate_changeset/2)
   end
 
   def parse_measurement_attrs(attrs, user \\ nil) do

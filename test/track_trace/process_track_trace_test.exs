@@ -22,7 +22,11 @@ defmodule ValueFlows.Process.ProcessesTrackTraceTest do
         action: "produce"
       }) end)
       assert {:ok, events} = Processes.track(process)
-      assert Enum.map(events, &(&1.id)) == Enum.map(output_events, &(&1.id))
+
+      ids = Enum.map(events, & &1.id)
+      for %{id: id} <- output_events do
+        assert id in ids
+      end
     end
   end
 

@@ -70,8 +70,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTrackTraceTest do
 
       assert {:ok, resources} = EconomicEvents.track(event)
 
-      assert Enum.sort(Enum.map(resources, & &1.id)) ==
-               Enum.sort([resource.id, another_resource.id])
+      ids = Enum.map(resources, & &1.id)
+      assert resource.id in ids
+      assert another_resource.id in ids
     end
 
     test "if it is a transfer or move event, the EconomicResource labelled toResourceInventoriedAs" do
@@ -117,8 +118,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTrackTraceTest do
           unit
         )
 
-      assert {:ok, [tracked_resource]} = EconomicEvents.track(event)
-      assert resource.id == tracked_resource.id
+      assert {:ok, resources} = EconomicEvents.track(event)
+      ids = Enum.map(resources, & &1.id)
+      assert resource.id in ids
     end
   end
 

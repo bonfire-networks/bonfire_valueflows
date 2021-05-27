@@ -2,6 +2,8 @@ defmodule ValueFlows.EconomicEvent.Track do
   import Bonfire.Common.Utils
   require Logger
 
+  alias ValueFlows.Util
+
   alias ValueFlows.EconomicEvent
   alias ValueFlows.EconomicResource
   alias ValueFlows.Process
@@ -42,7 +44,7 @@ defmodule ValueFlows.EconomicEvent.Track do
     if (recurse_counter + 1) < recurse_limit || Util.default_recurse_limit() do
       Logger.info("Track: recurse level #{recurse_counter} of #{recurse_limit}")
       recurse(objects, recurse_limit, recurse_counter+1)
-      |> IO.inspect(label: "Track recursed")
+      # |> IO.inspect(label: "Track recursed")
     else
       objects
     end
@@ -79,7 +81,7 @@ defmodule ValueFlows.EconomicEvent.Track do
       {:ok, events
         |> maybe_recurse(recurse_limit, recurse_counter)
       }
-      |> IO.inspect(label: "resource_track")
+      # |> IO.inspect(label: "resource_track")
     end
   end
 

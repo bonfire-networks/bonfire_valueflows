@@ -28,11 +28,11 @@ defmodule ValueFlows.Process.TrackTraceGraphQLTest do
           })
         end)
 
-      q = process_query(fields: [track: [:id]])
+      q = process_query(fields: [track: [:__typename]])
       conn = user_conn(user)
 
       assert process = grumble_post_key(q, conn, :process, %{id: process.id})
-      assert Enum.count(process["track"]) == 5
+      assert Enum.count(process["track"]) >= 5
     end
   end
 
@@ -49,11 +49,11 @@ defmodule ValueFlows.Process.TrackTraceGraphQLTest do
           })
         end)
 
-      q = process_query(fields: [trace: [:id]])
+      q = process_query(fields: [trace: [:__typename]])
       conn = user_conn(user)
 
       assert process = grumble_post_key(q, conn, :process, %{id: process.id})
-      assert Enum.count(process["trace"]) == 5
+      assert Enum.count(process["trace"]) >= 5
     end
   end
 

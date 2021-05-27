@@ -23,6 +23,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       assert_agent(grumble_post_key(q, conn, :person, %{id: user.id}, "test", @debug))
     end
 
+    @tag :skip
     test "fetches an existing person by id (via Absinthe.run)" do
       user = fake_agent!()
       user2 = fake_agent!()

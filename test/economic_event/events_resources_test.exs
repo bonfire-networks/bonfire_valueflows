@@ -185,9 +185,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
 
       assert {:ok, new_event} = EventSideEffects.event_side_effects(event)
 
-      IO.inspect(event.resource_inventoried_as.accounting_quantity.has_numerical_value)
-      IO.inspect(event.resource_quantity.has_numerical_value)
-      IO.inspect(new_event.resource_inventoried_as.accounting_quantity.has_numerical_value)
+      # IO.inspect(event.resource_inventoried_as.accounting_quantity.has_numerical_value)
+      # IO.inspect(event.resource_quantity.has_numerical_value)
+      # IO.inspect(new_event.resource_inventoried_as.accounting_quantity.has_numerical_value)
 
       assert event.resource_inventoried_as.accounting_quantity.has_numerical_value -
                event.resource_quantity.has_numerical_value ==

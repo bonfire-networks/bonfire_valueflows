@@ -2,6 +2,8 @@ defmodule ValueFlows.EconomicEvent.Trace do
   import Bonfire.Common.Utils
   require Logger
 
+  alias ValueFlows.Util
+
   alias ValueFlows.EconomicEvent
   alias ValueFlows.EconomicResource
   alias ValueFlows.Process
@@ -79,7 +81,7 @@ defmodule ValueFlows.EconomicEvent.Trace do
       {:ok, events
         |> maybe_recurse(recurse_limit, recurse_counter)
       }
-      |> IO.inspect(label: "resource_trace")
+      # |> IO.inspect(label: "resource_trace")
     end
   end
 
