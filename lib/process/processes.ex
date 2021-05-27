@@ -7,7 +7,7 @@ defmodule ValueFlows.Process.Processes do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-
+  alias ValueFlows.Util
 
   alias ValueFlows.Process
   alias ValueFlows.Process.Queries
@@ -85,10 +85,6 @@ defmodule ValueFlows.Process.Processes do
     )
   end
 
-  def track(process), do: outputs(process)
-
-  def trace(process), do: inputs(process)
-
 
   def intended_inputs(attrs, action_id \\ nil)
   def intended_inputs(%{id: id}, action_id) when not is_nil(action_id) do
@@ -117,33 +113,12 @@ defmodule ValueFlows.Process.Processes do
   end
 
 
-  def inputs(attrs, action_id \\ nil)
+  defdelegate trace(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Trace, as: :process
+  defdelegate track(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Track, as: :process
 
-  def inputs(%{id: id}, action_id) when not is_nil(action_id) do
-    EconomicEvents.many([:default, input_of_id: id, action_id: action_id])
-  end
 
-  def inputs(%{id: id}, _) do
-    EconomicEvents.many([:default, input_of_id: id])
-  end
-
-  def inputs(_, _) do
-    {:ok, nil}
-  end
-
-  def outputs(attrs, action_id \\ nil)
-
-  def outputs(%{id: id}, action_id) when not is_nil(action_id) do
-    EconomicEvents.many([:default, output_of_id: id, action_id: action_id])
-  end
-
-  def outputs(%{id: id}, _) do
-    EconomicEvents.many([:default, output_of_id: id])
-  end
-
-  def outputs(_, _) do
-    {:ok, nil}
-  end
+  defdelegate inputs(attrs, action_id \\ nil), to: ValueFlows.EconomicEvent.EconomicEvents, as: :inputs_of
+  defdelegate outputs(attrs, action_id \\ nil), to: ValueFlows.EconomicEvent.EconomicEvents, as: :outputs_of
 
 
   def preload_all(%Process{} = process) do

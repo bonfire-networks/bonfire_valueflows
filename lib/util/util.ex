@@ -223,4 +223,7 @@ defmodule ValueFlows.Util do
   #     {k, v}
   #   end
   # end
+
+  def default_recurse_limit(), do: 2 # TODO: configurable
+
 end

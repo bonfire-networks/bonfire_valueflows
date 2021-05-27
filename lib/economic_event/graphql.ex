@@ -320,13 +320,23 @@ defmodule ValueFlows.EconomicEvent.GraphQL do
     {:ok, nil}
   end
 
+
+  def fetch_track(_, {event, attrs}) do
+    EconomicEvents.track(event, Map.get(attrs, :recurse_limit))
+  end
+
   def fetch_track(_, event) do
     EconomicEvents.track(event)
+  end
+
+  def fetch_trace(_, {event, attrs}) do
+    EconomicEvents.trace(event, Map.get(attrs, :recurse_limit))
   end
 
   def fetch_trace(_, event) do
     EconomicEvents.trace(event)
   end
+
 
   # Mutations
 

@@ -63,20 +63,20 @@ defmodule ValueFlows.Process.GraphQL do
     Processes.many([:default])
   end
 
-  def track(process, _, info) do
+  def track(process, attrs, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
       fetcher: :fetch_track_process,
-      context: process,
+      context: {process, attrs},
       info: info
     })
   end
 
-  def trace(process, _, info) do
+  def trace(process, attrs, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
       fetcher: :fetch_trace_process,
-      context: process,
+      context: {process, attrs},
       info: info
     })
   end
@@ -133,8 +133,18 @@ defmodule ValueFlows.Process.GraphQL do
     processes_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
+
+  def fetch_track_process(_, {process, attrs}) do
+    Processes.track(process, Map.get(attrs, :recurse_limit))
+  end
+
   def fetch_track_process(_, process) do
     Processes.track(process)
+  end
+
+
+  def fetch_trace_process(_, {process, attrs}) do
+    Processes.trace(process, Map.get(attrs, :recurse_limit))
   end
 
   def fetch_trace_process(_, process) do

@@ -64,22 +64,23 @@ defmodule ValueFlows.EconomicResource.GraphQL do
     EconomicResources.many([:default])
   end
 
-  def track(%{id: id}, _, info) do
+  def track(%{id: id} = _resource, attrs, info) do
+    # IO.inspect(track: attrs)
     ResolveField.run(%ResolveField{
       module: __MODULE__,
       fetcher: :fetch_track_resource,
-      context: id,
+      context: {id, attrs},
       info: info
     })
   end
 
   def track(_, _, _), do: {:ok, nil}
 
-  def trace(%{id: id}, _, info) do
+  def trace(%{id: id}, attrs, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
       fetcher: :fetch_trace_resource,
-      context: id,
+      context: {id, attrs},
       info: info
     })
   end
@@ -374,12 +375,18 @@ defmodule ValueFlows.EconomicResource.GraphQL do
 
   def fetch_conforms_to_edge(_, _, _), do: {:ok, nil}
 
-  def fetch_track_resource(_, id) do
+  def fetch_track_resource(_, id) when is_binary(id) do
     EconomicResources.track(id)
   end
+  def fetch_track_resource(_, {id, attrs}) when is_binary(id) do
+    EconomicResources.track(id, Map.get(attrs, :recurse_limit))
+  end
 
-  def fetch_trace_resource(_, id) do
+  def fetch_trace_resource(_, id) when is_binary(id) do
     EconomicResources.trace(id)
+  end
+  def fetch_trace_resource(_, {id, attrs}) when is_binary(id) do
+    EconomicResources.trace(id, Map.get(attrs, :recurse_limit))
   end
 
   def fetch_state_edge(%{state_id: id} = thing, _, _) when is_binary(id) do

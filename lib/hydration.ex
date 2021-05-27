@@ -660,6 +660,7 @@ defmodule ValueFlows.Hydration do
     end
   end
 
+  def production_flow_item_resolve_type(%ValueFlows.EconomicEvent{}, _), do: :economic_event
   def production_flow_item_resolve_type(%ValueFlows.EconomicResource{}, _), do: :economic_resource
   def production_flow_item_resolve_type(%ValueFlows.Process{}, _), do: :process
 end

@@ -8,8 +8,6 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-
-
   alias ValueFlows.EconomicResource
   alias ValueFlows.EconomicResource.Queries
   alias ValueFlows.EconomicEvent.EconomicEvents
@@ -85,21 +83,19 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     )
   end
 
-  def track(%{id: id}) do
-    track(id)
+
+  def inputs_of(process) when not is_nil(process) do
+    many([:default, [join: [event_input: maybe_get_id(process)]]])
   end
 
-  def track(id) when is_binary(id) do
-    EconomicEvents.many([:default, track_resource: id])
+  def outputs_of(process) when not is_nil(process) do
+    many([:default, join: [event_output: maybe_get_id(process)]])
   end
 
-  def trace(%{id: id}) do
-    trace(id)
-  end
 
-  def trace(id) when is_binary(id) do
-    EconomicEvents.many([:default, trace_resource: id])
-  end
+  defdelegate trace(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Trace, as: :resource
+  defdelegate track(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Track, as: :resource
+
 
   def preload_all(resource) do
     {:ok, resource} = one(id: resource.id, preload: :all)

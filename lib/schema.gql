@@ -1240,8 +1240,8 @@ type EconomicEvent {
   References another economic event that implied this economic event, often based on a prior agreement.
   """
   triggeredBy: EconomicEvent
-  track: [ProductionFlowItem!]
-  trace: [ProductionFlowItem!]
+  track(recurseLimit: Int): [ProductionFlowItem!]
+  trace(recurseLimit: Int): [ProductionFlowItem!]
 
   """
   The economic event can be safely deleted, has no dependent information.
@@ -1514,8 +1514,8 @@ type EconomicResource {
   Used when a stock economic resource contains units also defined as economic resources.
   """
   contains: [EconomicResource!]
-  trace: [EconomicEvent!]
-  track: [EconomicEvent!]
+  trace(recurseLimit: Int): [ProductionFlowItem!]
+  track(recurseLimit: Int): [ProductionFlowItem!]
 
   """
   The current place an economic resource is located. Could be at any level of granularity, from a town to an address to a warehouse location. Usually mappable.
@@ -2338,8 +2338,9 @@ type Process {
   nextProcesses: [Process!]
   previousProcesses: [Process!]
   workingAgents: [Agent!]
-  trace: [EconomicEvent!]
-  track: [EconomicEvent!]
+
+  trace(recurseLimit: Int): [ProductionFlowItem!]
+  track(recurseLimit: Int): [ProductionFlowItem!]
 
   """
   The process can be safely deleted, has no dependent information.
@@ -2583,7 +2584,7 @@ input ProductBatchUpdateParams {
   productionDate: DateTime
 }
 
-union ProductionFlowItem = Process | EconomicResource
+union ProductionFlowItem = Process | EconomicResource | EconomicEvent
 
 """
 Published requests or offers, sometimes with what is expected in return.

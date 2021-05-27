@@ -2,15 +2,13 @@
 defmodule ValueFlows.EconomicEvent.EconomicEvents do
   use OK.Pipe
 
-  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_append: 2, map_key_replace: 3, e: 3]
+  import Bonfire.Common.Utils
 
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
 
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
-
-
 
   alias ValueFlows.Knowledge.Resource
   alias ValueFlows.EconomicEvent
@@ -121,92 +119,42 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     event |> Map.put(:action, action)
   end
 
-  # processes is actually only one, so we can use [process | resources]
-  def track(event) do
-    with {:ok, resources} <- track_resource_output(event),
-         {:ok, to_resource} <- track_to_resource_output(event),
-         {:ok, process} <- track_process_input(event) do
-      {
-        :ok,
-        resources
-        |> maybe_append(process)
-        |> maybe_append(to_resource)
-      }
+  def inputs_of(attrs, action_id \\ nil)
+
+  def inputs_of(process, action_id) when not is_nil(action_id) do
+    case maybe_get_id(process) do
+      id when is_binary(id) -> many([:default, input_of_id: id, action_id: action_id])
+      _ -> {:ok, nil}
     end
   end
 
-  defp track_to_resource_output(
-         %{action_id: action_id, to_resource_inventoried_as_id: to_resource_inventoried_as_id} =
-           _event
-       )
-       when action_id in ["transfer", "move"] and not is_nil(to_resource_inventoried_as_id) do
-    EconomicResources.one([:default, id: to_resource_inventoried_as_id])
-  end
-
-  defp track_to_resource_output(_) do
-    {:ok, nil}
-  end
-
-  defp track_resource_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
-    EconomicResources.many([:default, join: [event_output: output_of_id]])
-  end
-
-  defp track_resource_output(_) do
-    {:ok, []}
-  end
-
-  defp track_process_input(%{input_of_id: input_of_id}) when not is_nil(input_of_id) do
-    Processes.one([:default, id: input_of_id])
-  end
-
-  defp track_process_input(_) do
-    {:ok, nil}
-  end
-
-  def trace(event) do
-    with {:ok, resource_inventoried_as} <- trace_resource_inventoried_as(event),
-         {:ok, process} <- trace_process_output(event),
-         {:ok, resources} <- trace_resource_input(event) do
-      {
-        :ok,
-        resources
-        |> maybe_append(resource_inventoried_as)
-        |> maybe_append(process)
-      }
+  def inputs_of(process, _) do
+    case maybe_get_id(process) do
+      id when is_binary(id) -> many([:default, input_of_id: id])
+      _ -> {:ok, nil}
     end
   end
 
-  defp trace_resource_inventoried_as(
-         %{action_id: action_id, resource_inventoried_as_id: resource_inventoried_as_id} = _event
-       )
-       when action_id in ["transfer", "move"] and not is_nil(resource_inventoried_as_id) do
-    EconomicResources.one([:default, id: resource_inventoried_as_id])
+  def outputs_of(attrs, action_id \\ nil)
+
+  def outputs_of(process, action_id) when not is_nil(action_id) do
+    case maybe_get_id(process) do
+      id when is_binary(id) -> many([:default, output_of_id: id, action_id: action_id])
+      _ -> {:ok, nil}
+    end
   end
 
-  defp trace_resource_inventoried_as(_) do
-    {:ok, nil}
+  def outputs_of(process, _) do
+    case maybe_get_id(process) do
+      id when is_binary(id) -> many([:default, output_of_id: id])
+      _ -> {:ok, nil}
+    end
   end
 
-  defp trace_process_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
-    Processes.one([:default, id: output_of_id])
-  end
 
-  defp trace_process_output(_) do
-    {:ok, nil}
-  end
+  defdelegate trace(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Trace, as: :event
+  defdelegate track(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Track, as: :event
 
-  defp trace_resource_input(%{input_of_id: input_of_id}) when not is_nil(input_of_id) do
-    # with {:ok, events} <- many([:default, input_of_id: input_of_id]),
-    #      resource_ids = Enum.map(events, & &1.resource_inventoried_as_id) do
-    #   EconomicResources.many([:default, id: resource_ids])
-    # end
-
-    EconomicResources.many([:default, [join: [event_input: input_of_id]]])
-  end
-
-  defp trace_resource_input(_) do
-    {:ok, []}
-  end
 
   ## mutations
 
@@ -437,7 +385,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
 
   @doc "Create resource + event. Use create/3 instead."
-  defp create_resource_and_event(creator, event_attrs, new_inventoried_resource, field_name) do
+  defp create_resource_and_event(creator, event_attrs, new_inventoried_resource, field_name \\ :resource_inventoried_as_id) do
     new_resource_attrs =
       new_inventoried_resource
       |> Map.put_new(:is_public, true)
