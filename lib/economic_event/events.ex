@@ -258,7 +258,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       creator,
       event_attrs,
       new_resource_attrs,
-      :resource_inventoried_as
+      :resource_inventoried_as_id
     )
   end
 
@@ -282,7 +282,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       creator,
       event_attrs,
       new_resource_attrs,
-      :to_resource_inventoried_as
+      :to_resource_inventoried_as_id
     )
   end
 
@@ -301,7 +301,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   #     creator,
   #     event_attrs,
   #     new_resource_attrs,
-  #     :to_resource_inventoried_as
+  #     :to_resource_inventoried_as_id
   #   )
   # end
 
@@ -319,7 +319,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       creator,
       event_attrs,
       new_resource_attrs,
-      :resource_inventoried_as
+      :resource_inventoried_as_id
     )
   end
 
@@ -336,16 +336,17 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   defp create_with_action(creator, event_attrs, %{resource_effect: resource_effect} = _action)
       when resource_effect == "increment" do
 
-    Logger.info("Events.create_with_action: incrementing (eg. producing or raising a new resource), using info from the event and/or resource_classified_as")
+    Logger.info("Events.create_with_action: incrementing (eg. producing or raising a new resource), using info from the event and/or resource_conforms_to")
 
     # IO.inspect(create_with_action: event_attrs)
 
+    resource_conforms_to = ResourceSpecifications.maybe_get(event_attrs)
+
     attrs = %{
           name: Map.get(event_attrs, :note, "Unknown Resource"),
-          current_location: Map.get(event_attrs, :at_location)
+          current_location: Map.get(event_attrs, :at_location),
+          conforms_to: resource_conforms_to
         }
-
-    resource_conforms_to = ResourceSpecifications.maybe_get(event_attrs)
 
     create_somethings(creator, event_attrs, %{
         new_inventoried_resource: Bonfire.Common.Utils.maybe_to_map(
@@ -442,15 +443,17 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       |> Map.put_new(:is_public, true)
 
     repo().transact_with(fn ->
-      with {:ok, new_resource} <-
+      with {:ok, %{id: new_resource_id} = new_resource} <-
             EconomicResources.create(
               creator,
               new_resource_attrs
-            ) do
-        event_attrs = Map.merge(event_attrs, %{field_name => new_resource.id})
+            ),
+          {:ok, event_ret} <- create_event(
+            creator,
+            Map.merge(event_attrs, %{field_name => new_resource_id}
+          )) do
 
-        create_event(creator, event_attrs)
-        ~> Map.put(:economic_resource, new_resource)
+        {:ok, event_ret |> Map.put(:economic_resource, new_resource)}
       end
     end)
   end
@@ -465,15 +468,14 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            :ok <- validate_provider_is_primary_accountable(new_event_attrs),
            :ok <- validate_receiver_is_primary_accountable(new_event_attrs),
            {:ok, event} <- repo().insert(EconomicEvent.create_changeset(creator, new_event_attrs)),
-           {:ok, event} <- create_event_common(event, creator, new_event_attrs),
+           {:ok, event} <- post_create_event(event, creator, new_event_attrs),
            {:ok, reciprocals} <- create_reciprocal_events(event) do
-        indexing_object_format(event) |> ValueFlows.Util.index_for_search()
         {:ok, %{economic_event: event, reciprocal_events: reciprocals}}
       end
     end)
   end
 
-  defp create_event_common(event, creator, attrs) do
+  defp post_create_event(event, creator, attrs) do
     with event = preload_all(event),
          {:ok, event} <- maybe_transfer_resource(event),
          {:ok, event} <- EventSideEffects.event_side_effects(event),
@@ -517,7 +519,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           EconomicEvent.create_changeset(event.creator, new_event_attrs)
           |> EconomicEvent.validate_create_changeset()
           |> repo().insert()
-          ~>> create_event_common(event.creator, new_event_attrs)
+          ~>> post_create_event(event.creator, new_event_attrs)
         end
 
       {:error, :not_found} ->

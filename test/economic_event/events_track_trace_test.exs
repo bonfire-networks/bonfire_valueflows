@@ -1,4 +1,4 @@
-defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
+defmodule ValueFlows.EconomicEvent.EconomicEventsTrackTraceTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
   import Bonfire.Common.Simulation
