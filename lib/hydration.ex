@@ -639,6 +639,7 @@ defmodule ValueFlows.Hydration do
         :person
     end
   end
+  def resolve_context_type(_, _), do: :person # fallback
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true
@@ -648,6 +649,9 @@ defmodule ValueFlows.Hydration do
   # def resolve_context_type(%CommonsPub.Communities.Community{}, _), do: :community
   # def resolve_context_type(%CommonsPub.Collections.Collection{}, _), do: :collection
   # def resolve_context_type(_, _), do: :agent
+  def resolve_context_type(%ValueFlows.Planning.Intent{}, _), do: :intent
+  def resolve_context_type(%ValueFlows.Process{}, _), do: :process
+  # TODO more
   def resolve_context_type(%{__struct__: type}, _) do
     u= ValueFlows.Util.user_schema()
     o= ValueFlows.Util.org_schema()
@@ -660,8 +664,11 @@ defmodule ValueFlows.Hydration do
     end
   end
 
+  def resolve_context_type(_, _), do: :organization # fallback
+
   def production_flow_item_resolve_type(%ValueFlows.EconomicEvent{}, _), do: :economic_event
   def production_flow_item_resolve_type(%ValueFlows.EconomicResource{}, _), do: :economic_resource
   def production_flow_item_resolve_type(%ValueFlows.Process{}, _), do: :process
+  def production_flow_item_resolve_type(_, _), do: :economic_event
 end
 end

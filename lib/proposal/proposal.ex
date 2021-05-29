@@ -5,7 +5,7 @@ defmodule ValueFlows.Proposal do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_proposal",
-    table_id: "PR0P0SA11SMADE0FTW01NTENTS"
+    table_id: "6R0P0SA11SMADE0FTW01NTENTS"
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset

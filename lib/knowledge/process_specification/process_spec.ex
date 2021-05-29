@@ -2,7 +2,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_process_spec",
-    table_id: "ASPEC1F1CAT10NF0RPR0CESSES"
+    table_id: "2SPEC1F1CAT10NF0RPR0CESSES"
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 

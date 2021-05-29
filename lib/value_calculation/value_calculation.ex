@@ -3,7 +3,7 @@ defmodule ValueFlows.ValueCalculation do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_value_calculation",
-    table_id: "VA1VEF10WSVA1VECA1CV1AT10N"
+    table_id: "3A1VEF10WSVA1VECA1CV1AT10N"
 
   alias Ecto.Changeset
 

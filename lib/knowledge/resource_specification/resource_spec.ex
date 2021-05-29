@@ -2,7 +2,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_resource_spec",
-    table_id: "SPEC1F1CAT10NK1ND0FRES0VRC"
+    table_id: "1PEC1F1CAT10NK1ND0FRES0VRC"
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]

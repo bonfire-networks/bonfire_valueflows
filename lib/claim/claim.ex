@@ -3,7 +3,7 @@ defmodule ValueFlows.Claim do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_claim",
-    table_id: "C0MM0NSPVBVA1VEF10WSC1A1MS"
+    table_id: "40MM0NSPVBVA1VEF10WSC1A1MS"
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 

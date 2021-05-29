@@ -4,7 +4,7 @@ defmodule ValueFlows.Proposal.ProposedTo do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "vf_proposed_to",
-    table_id: "PR0P0SA1HASBEENADDRESSEDT0"
+    table_id: "6R0P0SA1HASBEENADDRESSEDT0"
 
   alias Ecto.Changeset
   alias ValueFlows.Proposal
