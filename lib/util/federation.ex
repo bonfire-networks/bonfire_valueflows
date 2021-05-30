@@ -184,7 +184,7 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def struct_to_json(struct) do
-    Jason.encode!(nested_struct_to_map(struct))
+    Jason.encode!(nested_structs_to_maps(struct))
   end
 
 
