@@ -300,6 +300,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   # pagination
 
+  def filter(q, {:offset, offset}) do
+    offset(q, ^offset)
+  end
+
   def filter(q, {:limit, limit}) do
     limit(q, ^limit)
   end

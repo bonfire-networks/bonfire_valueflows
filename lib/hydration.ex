@@ -467,7 +467,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Planning.Intent.GraphQL.intent/2
         ],
         intents: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.all_intents/2
+          resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
         ],
         intents_pages: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.intents/2
@@ -478,9 +478,9 @@ defmodule ValueFlows.Hydration do
         needs_pages: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.needs/2
         ],
-        intents_filtered: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
-        ],
+        # intents_filtered: [
+        #   resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
+        # ],
 
         # Proposal
         proposal: [

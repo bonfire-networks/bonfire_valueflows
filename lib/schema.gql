@@ -85,7 +85,7 @@ interface Agent {
   processes(filter: agentProcessSearchParams): [Process!]
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
-  intents(filter: agentIntentSearchParams): [Intent!]
+  intents(filter: IntentSearchParams): [Intent!]
 
   proposals: [Proposal!] ## added for Bonfire
   agentType: AgentType ## added for Bonfire
@@ -139,12 +139,22 @@ input agentEventSearchParams {
 """
 Query parameters for reading `Intent`s related to an `Agent`
 """
-input agentIntentSearchParams {
+input IntentSearchParams {
   searchString: String
-  action: ID
   startDate: DateTime
   endDate: DateTime
   finished: Boolean
+  # action: ID
+  
+  ## added for Bonfire
+  action: [ID]
+  inScopeOf: [ID]
+  tagIds: [ID]
+  atLocation: [ID]
+  geolocation: GeolocationFilters
+  agent: [ID]
+  provider: [ID]
+  receiver: [ID]
 }
 
 """
@@ -2112,7 +2122,7 @@ type Organization implements Agent {
   processes(filter: agentProcessSearchParams): [Process!]
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
-  intents(filter: agentIntentSearchParams): [Intent!]
+  intents(filter: IntentSearchParams): [Intent!]
 
   proposals: [Proposal!] ## added for Bonfire
   agentType: AgentType ## added for Bonfire
@@ -2161,7 +2171,7 @@ type Person implements Agent {
   processes(filter: agentProcessSearchParams): [Process!]
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
-  intents(filter: agentIntentSearchParams): [Intent!]
+  intents(filter: IntentSearchParams): [Intent!]
 
   proposals: [Proposal!] ## added for Bonfire
   agentType: AgentType ## added for Bonfire
@@ -3809,7 +3819,7 @@ type ValueFlowsQuery {
   commitments(start: ID, limit: Int): [Commitment!]
 
   intent(id: ID): Intent
-  intents(start: ID, limit: Int): [Intent!]
+  intents(filter: IntentSearchParams, start: ID, limit: Int): [Intent!]
 
   fulfillment(id: ID): Fulfillment
   fulfillments(start: ID, limit: Int): [Fulfillment!]
@@ -3857,18 +3867,7 @@ type ValueFlowsQuery {
 
   "Get paginated list of intents"
   intentsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
-
-  "TEMPORARY - get filtered but non-paginated list of intents"
-  intentsFiltered(
-    inScopeOf: [ID]
-    tagIds: [ID]
-    atLocation: [ID]
-    geolocation: GeolocationFilters
-    agent: [ID]
-    provider: [ID]
-    receiver: [ID]
-    action: [ID]
-  ): [Intent]
+# TODO: add `filter: IntentSearchParams`
 
   "TEMPORARY - get filtered but non-paginated list of proposals"
   proposalsFiltered(

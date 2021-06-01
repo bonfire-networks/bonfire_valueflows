@@ -42,47 +42,51 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
-  def all_intents(_, _) do
-    Intents.many([:default])
+
+  def intents_filtered(%{filter: filters} = args, info) when is_map(filters) and filters != %{} do
+    IO.inspect(intents_filter: filters)
+    intents_filter(filters, [limit: Map.get(args, :limit, 10), offset: Map.get(args, :start, 0)], GraphQL.current_user(info))
   end
 
-  def intents_filtered(page_opts, _ \\ nil) do
-    intents_filter(page_opts, [])
+  def intents_filtered(args, _) do
+    Intents.many([:default, limit: Map.get(args, :limit, 10), offset: Map.get(args, :start, 0)])
   end
 
-  # def intents_filtered(page_opts, _) do
-  #   IO.inspect(unhandled_filtering: page_opts)
-  #   all_intents(page_opts, nil)
-  # end
+  # TODO: pagination on filtered queries
 
-  # TODO: support several filters combined, plus pagination on filtered queries
+  defp intents_filter(page_opts, filters_acc, current_user \\ nil)
 
-  defp intents_filter(%{agent: id} = page_opts, filters_acc) do
-    intents_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
+  defp intents_filter(%{agent: id} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:agent, [agent_id: id_or_me(id, current_user)], page_opts, filters_acc, current_user)
   end
 
-  defp intents_filter(%{provider: id} = page_opts, filters_acc) do
-    intents_filter_next(:provider, [provider_id: id], page_opts, filters_acc)
+  defp intents_filter(%{provider: id} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:provider, [provider_id: id_or_me(id, current_user)], page_opts, filters_acc, current_user)
   end
 
-  defp intents_filter(%{receiver: id} = page_opts, filters_acc) do
-    intents_filter_next(:receiver, [receiver_id: id], page_opts, filters_acc)
+  defp intents_filter(%{receiver: id} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:receiver, [receiver_id: id_or_me(id, current_user)], page_opts, filters_acc, current_user)
   end
 
-  defp intents_filter(%{action: id} = page_opts, filters_acc) do
-    intents_filter_next(:action, [action_id: id], page_opts, filters_acc)
+  defp intents_filter(%{action: id} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:action, [action_id: id], page_opts, filters_acc, current_user)
   end
 
-  defp intents_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
-    intents_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
+
+  defp intents_filter(%{finished: bool} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:finished, [closed: bool], page_opts, filters_acc, current_user)
   end
 
-  defp intents_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
-    intents_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
+  defp intents_filter(%{in_scope_of: context_id} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc, current_user)
   end
 
-  defp intents_filter(%{at_location: at_location_id} = page_opts, filters_acc) do
-    intents_filter_next(:at_location, [at_location_id: at_location_id], page_opts, filters_acc)
+  defp intents_filter(%{tag_ids: tag_ids} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc, current_user)
+  end
+
+  defp intents_filter(%{at_location: at_location_id} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:at_location, [at_location_id: at_location_id], page_opts, filters_acc, current_user)
   end
 
   defp intents_filter(
@@ -92,7 +96,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
              distance: %{meters: distance_meters}
            }
          } = page_opts,
-         filters_acc
+         filters_acc, current_user
        ) do
     intents_filter_next(
       :geolocation,
@@ -103,7 +107,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
         distance_meters
       },
       page_opts,
-      filters_acc
+      filters_acc, current_user
     )
   end
 
@@ -111,7 +115,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          %{
            geolocation: %{near_address: address} = geolocation
          } = page_opts,
-         filters_acc
+         filters_acc, current_user
        ) do
     with {:ok, coords} <- Geocoder.call(address) do
 
@@ -126,7 +130,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
               })
           }
         ),
-        filters_acc
+        filters_acc, current_user
       )
     else
       _ ->
@@ -134,7 +138,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
           :geolocation,
           [],
           page_opts,
-          filters_acc
+          filters_acc, current_user
         )
     end
   end
@@ -143,7 +147,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          %{
            geolocation: geolocation
          } = page_opts,
-         filters_acc
+         filters_acc, current_user
        ) do
     intents_filter(
       Map.merge(
@@ -156,32 +160,36 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
             })
         }
       ),
-      filters_acc
+      filters_acc, current_user
     )
   end
 
   defp intents_filter(
          _,
-         filters_acc
+         filters_acc, current_user
        ) do
     # finally, if there's no more known params to acumulate, query with the filters
     Intents.many(filters_acc)
   end
 
-  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc, current_user)
        when is_list(param_remove) and is_list(filter_add) do
-    intents_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
+    intents_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add, current_user)
   end
 
-  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc, current_user)
        when not is_list(filter_add) do
-    intents_filter_next(param_remove, [filter_add], page_opts, filters_acc)
+    intents_filter_next(param_remove, [filter_add], page_opts, filters_acc, current_user)
   end
 
-  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc, current_user)
        when not is_list(param_remove) do
-    intents_filter_next([param_remove], filter_add, page_opts, filters_acc)
+    intents_filter_next([param_remove], filter_add, page_opts, filters_acc, current_user)
   end
+
+  defp id_or_me(["me"], current_user), do: Map.get(current_user, :id) || raise "You must be logged in for this"
+  defp id_or_me(id, _), do: id
+
 
   def offers(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
@@ -216,16 +224,16 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     ])
   end
 
-  def agent_intents(%{id: agent}, %{} = _page_opts, _info) do
-    intents_filtered(%{agent: agent})
+  def agent_intents(%{id: agent}, %{} = _page_opts, info) do
+    intents_filtered(%{agent: agent}, info)
   end
 
   def agent_intents(_, _page_opts, _info) do
     {:ok, nil}
   end
 
-  def provider_intents(%{id: provider}, %{} = _page_opts, _info) do
-    intents_filtered(%{provider: provider})
+  def provider_intents(%{id: provider}, %{} = _page_opts, info) do
+    intents_filtered(%{provider: provider}, info)
   end
 
   def provider_intents(_, _page_opts, _info) do
