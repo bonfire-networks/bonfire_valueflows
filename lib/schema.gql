@@ -12,6 +12,142 @@ union AccountingScope =
   # | Community
   # | Collection
 
+enum Sort {
+  asc
+  desc
+}
+
+"""
+The `URI` type simply declares a reference to an external web URL, Holochain entry or other resource.
+"""
+scalar URI
+
+
+"""
+Sort parameters for ordering a list of any kind of object
+"""
+input GenericSortParams {
+  id: Sort
+  name: Sort
+  note: Sort
+  startDate: Sort
+  endDate: Sort
+  provider: Sort
+  receiver: Sort
+  inScopeOf: Sort
+  classifiedAs: Sort
+}
+
+"""
+Query parameters for searching/filtering any kind of object
+"""
+input GenericSearchParams {
+  searchString: String
+  agent: [ID]
+  inScopeOf: [ID]
+  classifiedAs: [URI!]
+  tags: [ID]
+}
+
+"""
+Query parameters for searching/filtering  `EconomicEvent`s 
+"""
+input EventSearchParams {
+  searchString: String
+  action: [ID]
+  startDate: String
+  endDate: String
+
+  ## added for Bonfire
+  agent: [ID]
+  provider: [ID]
+  receiver: [ID]
+  resourceClassifiedAs: [URI!]
+}
+
+"""
+Query parameters for searching/filtering `Intent`s
+"""
+input IntentSearchParams {
+  searchString: String
+  startDate: String
+  endDate: String
+  finished: Boolean
+  # action: ID
+  
+  ## added for Bonfire
+  action: [ID]
+  agent: [ID]
+  provider: [ID]
+  receiver: [ID]
+  inScopeOf: [ID]
+  tags: [ID]
+  atLocation: [ID]
+  geolocation: GeolocationFilters
+}
+
+"""
+Query parameters for searching/filtering `Proposal`s
+"""
+## added for Bonfire
+input ProposalSearchParams {
+  searchString: String  
+  agent: [ID]
+  inScopeOf: [ID]
+  atLocation: [ID]
+  geolocation: GeolocationFilters
+}
+
+"""
+Query parameters for searching/filtering `Plan`s 
+"""
+input PlanSearchParams {
+  searchString: String
+  finished: Boolean
+}
+
+"""
+Query parameters for searching/filtering `Process`es 
+"""
+input ProcessSearchParams {
+  searchString: String
+  finished: Boolean
+  after: String
+  before: String
+}
+
+"""
+Query parameters for searching/filtering `EconomicResource`s 
+"""
+input ResourceSearchParams {
+  searchString: String
+  resourceClassifiedAs: [URI!]
+
+  ## added for Bonfire
+  inScopeOf: [ID]
+  tags: [ID]
+  currentLocation: [ID]
+  geolocation: GeolocationFilters
+  agent: [ID]
+  state: [ID]
+}
+
+"""
+Query parameters for searching/filtering `Commitment`s 
+"""
+input CommitmentSearchParams {
+  searchString: String
+  action: ID
+  startDate: String
+  endDate: String
+  finished: Boolean
+}
+
+input ResourceSpecificationSearchParams {
+  inScopeOf: [ID]
+  tags: [ID]
+}
+    
 
 """
 An action verb defining the kind of event, commitment, or intent.
@@ -69,39 +205,106 @@ interface Agent {
   A textual description or comment.
   """
   note: String
-  relationships(roleId: ID): [AgentRelationship!]
-  relationshipsAsSubject(roleId: ID): [AgentRelationship!]
-  relationshipsAsObject(roleId: ID): [AgentRelationship!]
-  roles: [AgentRelationshipRole!]
+  relationships(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  relationshipsAsSubject(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  relationshipsAsObject(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  roles(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipRolesPage!
 
   """
   The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
   """
   primaryLocation: SpatialThing
-  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
-  inventoriedEconomicResources(
-    filter: agentResourceSearchParams
-  ): [EconomicResource!]
-  processes(filter: agentProcessSearchParams): [Process!]
-  plans(filter: agentPlanSearchParams): [Plan!]
-  commitments(filter: agentCommitmentSearchParams): [Commitment!]
-  intents(filter: IntentSearchParams): [Intent!]
 
-  proposals: [Proposal!] ## added for Bonfire
+  economicEvents(
+    filter: EventSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): EconomicEventsPage!
+
+  inventoriedEconomicResources(
+    filter: ResourceSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): EconomicResourcesPage!
+
+  processes(
+    filter: ProcessSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): ProcessesPage!
+
+  plans(
+    filter: PlanSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): PlansPage!
+
+  commitments(
+    filter: CommitmentSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): CommitmentsPage!
+
+  intents(
+    filter: IntentSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): IntentsPage!
+
+  ## added for Bonfire
+  proposals(
+    filter: ProposalSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): ProposalsPage! 
+
   agentType: AgentType ## added for Bonfire
   canonicalUrl: String ## added for Bonfire
   displayUsername: String ## added for Bonfire
-}
-
-"""
-Query parameters for reading `Commitment`s related to an `Agent`
-"""
-input agentCommitmentSearchParams {
-  searchString: String
-  action: ID
-  startDate: DateTime
-  endDate: DateTime
-  finished: Boolean
 }
 
 input AgentCreateParams {
@@ -124,54 +327,7 @@ input AgentCreateParams {
   A textual description or comment.
   """
   note: String
-}
-
-"""
-Query parameters for reading `EconomicEvent`s related to an `Agent`
-"""
-input agentEventSearchParams {
-  searchString: String
-  action: ID
-  startDate: DateTime
-  endDate: DateTime
-}
-
-"""
-Query parameters for reading `Intent`s related to an `Agent`
-"""
-input IntentSearchParams {
-  searchString: String
-  startDate: DateTime
-  endDate: DateTime
-  finished: Boolean
-  # action: ID
-  
-  ## added for Bonfire
-  action: [ID]
-  inScopeOf: [ID]
-  tagIds: [ID]
-  atLocation: [ID]
-  geolocation: GeolocationFilters
-  agent: [ID]
-  provider: [ID]
-  receiver: [ID]
-}
-
-"""
-Query parameters for reading `Plan`s related to an `Agent`
-"""
-input agentPlanSearchParams {
-  searchString: String
-  finished: Boolean
-}
-
-"""
-Query parameters for reading `Process`es related to an `Agent`
-"""
-input agentProcessSearchParams {
-  searchString: String
-  finished: Boolean
-}
+} 
 
 """
 The role of an economic relationship that exists between 2 agents, such as member, trading partner.
@@ -317,14 +473,6 @@ input AgentRelationshipUpdateParams {
   note: String
 }
 
-"""
-Query parameters for reading `EconomicResource`s related to an `Agent`
-"""
-input agentResourceSearchParams {
-  searchString: String
-  resourceClassification: URI
-  page: Int
-}
 
 enum AgentType { ## added for Bonfire
   Person
@@ -375,9 +523,30 @@ type Agreement {
   A textual description or comment.
   """
   note: String
-  involvedAgents: [Agent!]
-  economicEvents: [EconomicEvent!]
-  commitments: [Commitment!]
+
+  involvedAgents(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentsPage!
+
+  economicEvents(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): EconomicEventsPage!
+
+  commitments(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): CommitmentsPage!
 }
 
 input AgreementCreateParams {
@@ -909,15 +1078,34 @@ type Commitment {
   agreedIn: URI
 
   """
-  The economic event which completely or partially fulfills a commitment.
+  The economic event(s) which completely or partially fulfills a commitment.
   """
-  fulfilledBy: [Fulfillment!]
+  fulfilledBy(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): FulfillmentsPage!
 
   """
   An intent satisfied fully or partially by an economic event or commitment.
   """
-  satisfies: [Satisfaction!]
-  involvedAgents: [Agent!]
+  satisfies(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): SatisfactionsPage!
+
+  involvedAgents(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentsPage!
 
   """
   The commitment can be safely deleted, has no dependent information.
@@ -1250,8 +1438,24 @@ type EconomicEvent {
   References another economic event that implied this economic event, often based on a prior agreement.
   """
   triggeredBy: EconomicEvent
-  track(recurseLimit: Int): [ProductionFlowItem!]
-  trace(recurseLimit: Int): [ProductionFlowItem!]
+
+  track(
+    recurseLimit: Int
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProductionFlowItemsPage!
+
+  trace(
+    recurseLimit: Int
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProductionFlowItemsPage!
 
   """
   The economic event can be safely deleted, has no dependent information.
@@ -1262,8 +1466,22 @@ type EconomicEvent {
   This economic event occurs as part of this agreement.
   """
   realizationOf: Agreement
-  appreciationOf: [Appreciation!]
-  appreciatedBy: [Appreciation!]
+
+  appreciationOf(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AppreciationsPage!
+
+  appreciatedBy(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AppreciationsPage!
 
   """
   The place where an economic event occurs.  Usually mappable.
@@ -1273,12 +1491,24 @@ type EconomicEvent {
   """
   The commitment which is completely or partially fulfilled by an economic event.
   """
-  fulfills: [Fulfillment!]
+  fulfills(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): FulfillmentsPage!
 
   """
   An intent satisfied fully or partially by an economic event or commitment.
   """
-  satisfies: [Satisfaction!]
+  satisfies(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): SatisfactionsPage!
 
   """
   The value calculation (if any) used to generate this event.
@@ -1412,7 +1642,7 @@ type EconomicEventResponse {
   """
   Details of any newly created `EconomicResource`, for events that create new resources.
   """
-  economicResource: EconomicResource,
+  economicResource: EconomicResource
 }
 
 input EconomicEventUpdateParams {
@@ -1523,9 +1753,31 @@ type EconomicResource {
   """
   Used when a stock economic resource contains units also defined as economic resources.
   """
-  contains: [EconomicResource!]
-  trace(recurseLimit: Int): [ProductionFlowItem!]
-  track(recurseLimit: Int): [ProductionFlowItem!]
+  contains(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): EconomicResourcesPage!
+
+  trace(
+    recurseLimit: Int
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProductionFlowItemsPage!
+
+  track(
+    recurseLimit: Int
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProductionFlowItemsPage!
 
   """
   The current place an economic resource is located. Could be at any level of granularity, from a town to an address to a warehouse location. Usually mappable.
@@ -1839,13 +2091,27 @@ type Intent {
   The intent can be safely deleted, has no dependent information.
   """
   deletable: Boolean
-  satisfiedBy: [Satisfaction!]
+
+  satisfiedBy(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): SatisfactionsPage!
 
   """
   The place where an intent would occur. Usually mappable.
   """
   atLocation: SpatialThing
-  publishedIn: [ProposedIntent!]
+
+  publishedIn(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProposedIntentsPage!
 
   canonicalUrl: URI ## added for Bonfire
 }
@@ -2106,25 +2372,104 @@ type Organization implements Agent {
   A textual description or comment.
   """
   note: String
-  relationships(roleId: ID): [AgentRelationship!]
-  relationshipsAsSubject(roleId: ID): [AgentRelationship!]
-  relationshipsAsObject(roleId: ID): [AgentRelationship!]
-  roles: [AgentRelationshipRole!]
+
+  relationships(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  relationshipsAsSubject(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  relationshipsAsObject(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  roles(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipRolesPage!
 
   """
   The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
   """
   primaryLocation: SpatialThing
-  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
-  inventoriedEconomicResources(
-    filter: agentResourceSearchParams
-  ): [EconomicResource!]
-  processes(filter: agentProcessSearchParams): [Process!]
-  plans(filter: agentPlanSearchParams): [Plan!]
-  commitments(filter: agentCommitmentSearchParams): [Commitment!]
-  intents(filter: IntentSearchParams): [Intent!]
 
-  proposals: [Proposal!] ## added for Bonfire
+  economicEvents(
+    filter: EventSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): EconomicEventsPage!
+
+  inventoriedEconomicResources(
+    filter: ResourceSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): EconomicResourcesPage!
+
+  processes(
+    filter: ProcessSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): ProcessesPage!
+
+  plans(
+    filter: PlanSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): PlansPage!
+
+  commitments(
+    filter: CommitmentSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): CommitmentsPage!
+  
+  intents(
+    filter: IntentSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): IntentsPage!
+
+  ## added for Bonfire
+  proposals(
+    filter: ProposalSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): ProposalsPage! 
+
   agentType: AgentType ## added for Bonfire
   canonicalUrl: String ## added for Bonfire
   displayUsername: String ## added for Bonfire
@@ -2155,25 +2500,103 @@ type Person implements Agent {
   A textual description or comment.
   """
   note: String
-  relationships(roleId: ID): [AgentRelationship!]
-  relationshipsAsSubject(roleId: ID): [AgentRelationship!]
-  relationshipsAsObject(roleId: ID): [AgentRelationship!]
-  roles: [AgentRelationshipRole!]
+
+  relationships(roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  relationshipsAsSubject(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  relationshipsAsObject(
+    roleId: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
+
+  roles(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipRolesPage!
 
   """
   The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
   """
   primaryLocation: SpatialThing
-  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
-  inventoriedEconomicResources(
-    filter: agentResourceSearchParams
-  ): [EconomicResource!]
-  processes(filter: agentProcessSearchParams): [Process!]
-  plans(filter: agentPlanSearchParams): [Plan!]
-  commitments(filter: agentCommitmentSearchParams): [Commitment!]
-  intents(filter: IntentSearchParams): [Intent!]
+  
+  economicEvents(
+    filter: EventSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): EconomicEventsPage!
 
-  proposals: [Proposal!] ## added for Bonfire
+  inventoriedEconomicResources(
+    filter: ResourceSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): EconomicResourcesPage!
+  
+  processes(
+    filter: ProcessSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): ProcessesPage!
+  
+  plans(
+    filter: PlanSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): PlansPage!
+  
+  commitments(
+    filter: CommitmentSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): CommitmentsPage!
+
+  intents(
+    filter: IntentSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): IntentsPage!
+
+  ## added for Bonfire
+  proposals(
+    filter: ProposalSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): ProposalsPage! 
+
   agentType: AgentType ## added for Bonfire
   canonicalUrl: String ## added for Bonfire
   displayUsername: String ## added for Bonfire
@@ -2223,8 +2646,22 @@ type Plan {
   The plan is able to be deleted or not.
   """
   deletable: Boolean
-  processes(filter: planProcessSearchParams): [Process!]
-  independentDemands: [Commitment!]
+
+  processes(
+    filter: ProcessSearchParams
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+  ): ProcessesPage!
+
+  independentDemands(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): CommitmentsPage!
 }
 
 input PlanCreateParams {
@@ -2254,15 +2691,6 @@ input PlanCreateParams {
   refinementOf: ID
 }
 
-"""
-Query parameters for reading `Process`es related to a `Plan`
-"""
-input planProcessSearchParams {
-  searchString: String
-  after: DateTime
-  before: DateTime
-  finished: Boolean
-}
 
 type PlanResponse {
   plan: Plan
@@ -2342,15 +2770,75 @@ type Process {
   Grouping around something to create a boundary or context, used for documenting, accounting, planning.
   """
   inScopeOf: [AccountingScope!]
-  inputs(action: ID): [EconomicEvent!]
-  outputs(action: ID): [EconomicEvent!]
-  unplannedEconomicEvents(action: ID): [EconomicEvent!]
-  nextProcesses: [Process!]
-  previousProcesses: [Process!]
-  workingAgents: [Agent!]
 
-  trace(recurseLimit: Int): [ProductionFlowItem!]
-  track(recurseLimit: Int): [ProductionFlowItem!]
+  inputs(
+    action: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): EconomicEventsPage!
+
+  outputs(
+    action: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): EconomicEventsPage!
+
+  unplannedEconomicEvents(
+    action: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): EconomicEventsPage!
+
+  nextProcesses(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProcessesPage!
+
+  previousProcesses(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProcessesPage!
+
+  workingAgents(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentsPage!
+
+  trace(
+    recurseLimit: Int
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProductionFlowItemsPage!
+
+  track(
+    recurseLimit: Int
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProductionFlowItemsPage!
 
   """
   The process can be safely deleted, has no dependent information.
@@ -2361,10 +2849,42 @@ type Process {
   The process with its inputs and outputs is part of the plan.
   """
   plannedWithin: Plan
-  committedInputs(action: ID): [Commitment!]
-  committedOutputs(action: ID): [Commitment!]
-  intendedInputs(action: ID): [Intent!]
-  intendedOutputs(action: ID): [Intent!]
+
+  committedInputs(
+    action: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): CommitmentsPage!
+
+  committedOutputs(
+    action: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): CommitmentsPage!
+
+  intendedInputs(
+    action: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): IntentsPage!
+
+  intendedOutputs(
+    action: ID
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): IntentsPage!
 
   """
   The process with its inputs and outputs is part of the scenario.
@@ -2640,12 +3160,24 @@ type Proposal {
   """
   Intent(s) published as part of to this proposal
   """
-  publishes: [ProposedIntent!]
+  publishes(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProposedIntentsPage!
 
   """
   Which Agent(s) (if any were specified) was this proposed to?
   """
-  publishedTo: [ProposedTo!]
+  publishedTo(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentsPage!
 
   """
   Location or area where the proposal is valid.
@@ -3249,7 +3781,13 @@ type ResourceSpecification {
   """
   defaultUnitOfEffort: Unit
 
-  conformingResources: [EconomicResource!]
+  conformingResources(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): EconomicResourcesPage!
 
   """
   Tags/Categories in a taxonomy, linked to resourceClassifiedAs:
@@ -3706,10 +4244,6 @@ input SettlementUpdateParams {
   note: String
 }
 
-"""
-The `URI` type simply declares a reference to an external web URL, Holochain entry or other resource.
-"""
-scalar URI
 
 type ValueFlowsQuery {
   """
@@ -3723,9 +4257,15 @@ type ValueFlowsQuery {
   agent(id: ID): Agent
 
   """
-  Loads all agents publicly registered within this collaboration space
+  Paginated list of agents publicly registered within this collaboration space
   """
-  agents(start: ID, limit: Int): [Agent!]
+  agents(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentsPage!
 
   """
   Find an organization (group) agent by its ID
@@ -3733,9 +4273,15 @@ type ValueFlowsQuery {
   organization(id: ID): Organization
 
   """
-  Loads all organizations publicly registered within this collaboration space
+  Paginated list of organizations publicly registered within this collaboration space
   """
-  organizations(start: ID, limit: Int): [Organization!]
+  organizations(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): OrganizationsPage!
 
   """
   Find a person by their ID
@@ -3743,9 +4289,15 @@ type ValueFlowsQuery {
   person(id: ID): Person
 
   """
-  Loads all people who have publicly registered with this collaboration space.
+  Paginated list of people who have publicly registered with this collaboration space.
   """
-  people(start: ID, limit: Int): [Person!]
+  people(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): PeoplePage!
 
   """
   Retrieve details of an agent relationship by its ID
@@ -3755,7 +4307,13 @@ type ValueFlowsQuery {
   """
   Retrieve details of all the relationships between all agents registered in this collaboration space
   """
-  agentRelationships(start: ID, limit: Int): [AgentRelationship!]
+  agentRelationships(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipsPage!
 
   """
   Retrieve details of an agent relationship role by its ID
@@ -3765,161 +4323,262 @@ type ValueFlowsQuery {
   """
   Retrieve all possible kinds of associations that agents may have with one another in this collaboration space
   """
-  agentRelationshipRoles(start: ID, limit: Int): [AgentRelationshipRole!]
-
-  agreement(id: ID): Agreement
-  agreements(start: ID, limit: Int): [Agreement!]
-
-  claim(id: ID): Claim
-  claims(start: ID, limit: Int): [Claim!]
-  
-  valueCalculation(id: ID): ValueCalculation
-  valueCalculationsPages(
+  agentRelationshipRoles(
     limit: Int
     before: [Cursor!]
     after: [Cursor!]
-  ): ValueCalculationPage!
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgentRelationshipRolesPage!
+
+  agreement(id: ID): Agreement
+
+  agreements(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): AgreementsPage!
+
+  claim(id: ID): Claim
+
+  claims(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ClaimsPage!
+  
+  valueCalculation(id: ID): ValueCalculation
+
+  valueCalculations(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ValueCalculationsPage!
 
   settlement(id: ID): Settlement
-  settlements(start: ID, limit: Int): [Settlement!]
+
+  settlements(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): SettlementsPage!
 
   action(id: ID): Action
+
   actions: [Action!]
 
   resourceSpecification(id: ID): ResourceSpecification
-  resourceSpecifications(start: ID, limit: Int): [ResourceSpecification!]
-
-  processSpecification(id: ID): ProcessSpecification
-  processSpecifications(start: ID, limit: Int): [ProcessSpecification!]
-
-  economicEvent(id: ID): EconomicEvent
-  economicEvents(start: ID, limit: Int): [EconomicEvent!]
-  economicEventsFiltered(
-    providerId: ID
-    receiverId: ID
-    resourceClassifiedAs: [URI!]
-    action: ID
-    startDate: String
-    endDate: String
-  ): [EconomicEvent!]
-
-  economicResource(id: ID): EconomicResource
-  economicResources(start: ID, limit: Int): [EconomicResource!]
-
-  productBatch(id: ID): ProductBatch
-  productBatches(start: ID, limit: Int): [ProductBatch!]
-
-  process(id: ID): Process
-  processes(start: ID, limit: Int): [Process!]
-
-  plan(id: ID): Plan
-  plans(start: ID, limit: Int): [Plan!]
-
-  commitment(id: ID): Commitment
-  commitments(start: ID, limit: Int): [Commitment!]
-
-  intent(id: ID): Intent
-  intents(filter: IntentSearchParams, start: ID, limit: Int): [Intent!]
-
-  fulfillment(id: ID): Fulfillment
-  fulfillments(start: ID, limit: Int): [Fulfillment!]
-
-  satisfaction(id: ID): Satisfaction
-  satisfactions(start: ID, limit: Int): [Satisfaction!]
-
-  proposal(id: ID): Proposal
-  proposals(start: ID, limit: Int): [Proposal!]
-
-  recipeResource(id: ID): RecipeResource
-  recipeResources(start: ID, limit: Int): [RecipeResource!]
-  recipeProcess(id: ID): RecipeProcess
-  recipeProcesses(start: ID, limit: Int): [RecipeProcess!]
-  recipeFlow(id: ID): RecipeFlow
-  recipeFlows(start: ID, limit: Int): [RecipeFlow!]
-
-  recipeExchange(id: ID): RecipeExchange
-  recipeExchanges(start: ID, limit: Int): [RecipeExchange!]
-
-  scenario(id: ID): Scenario
-  scenarios(start: ID, limit: Int): [Scenario!]
-  scenarioDefinition(id: ID): ScenarioDefinition
-  scenarioDefinitions(start: ID, limit: Int): [ScenarioDefinition!]
-
-  ## Bonfire additional queries:
 
   "Get paginated list of resource specifications"
-  resourceSpecificationsPages(
+  resourceSpecifications(
     limit: Int
     before: [Cursor!]
     after: [Cursor!]
+    order: [GenericSortParams]
+    filter: ResourceSpecificationSearchParams
+  ): ResourceSpecificationsPage!
 
-    inScopeOf: [ID]
-    tagIds: [ID]
+  processSpecification(id: ID): ProcessSpecification
 
-  ): ResourceSpecificationPage!
-
-  "Get paginated list of proposals"
-  proposalsPages(
+  processSpecifications(
     limit: Int
     before: [Cursor!]
     after: [Cursor!]
-  ): ProposalsPage!
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProcessSpecificationsPage!
 
-  "Get paginated list of intents"
-  intentsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
-# TODO: add `filter: IntentSearchParams`
-
-  "TEMPORARY - get filtered but non-paginated list of proposals"
-  proposalsFiltered(
-    inScopeOf: [ID]
-    # tagIds: [ID]
-    atLocation: [ID]
-    geolocation: GeolocationFilters
-    agent: [ID]
-  ): [Proposal]
-
-  "Get paginated list of active offers (intents with no receiver)"
-  offersPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
-
-  "Get paginated list of active needs (intents with no provider)"
-  needsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
+  economicEvent(id: ID): EconomicEvent
 
   "Get paginated list of economic events"
-  economicEventsPages(
+  economicEvents(
     limit: Int
     before: [Cursor!]
     after: [Cursor!]
-  ): EconomicEventPage!
+    order: [GenericSortParams]
+    filter: EventSearchParams
+  ): EconomicEventsPage!
 
-  "Get paginated list of processes"
-  processesPages(limit: Int, before: [Cursor!], after: [Cursor!]): ProcessPage!
+  economicResource(id: ID): EconomicResource
 
   "Get paginated list of economic resources"
-  economicResourcesPages(
+  economicResources(
     limit: Int
     before: [Cursor!]
     after: [Cursor!]
-  ): EconomicResourcePage!
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): EconomicResourcesPage!
 
-  "TEMPORARY - get filtered but non-paginated list of resources"
-  economicResourcesFiltered(
-    inScopeOf: [ID]
-    tagIds: [ID]
-    currentLocation: [ID]
-    geolocation: GeolocationFilters
-    agent: [ID]
-    state: [ID]
-  ): [EconomicResource]
+  productBatch(id: ID): ProductBatch
 
-  "Get paginated list of people"
-  peoplePages(limit: Int, before: [Cursor!], after: [Cursor!]): AgentsPage!
-
-  "Get paginated list of organizations"
-  organizationsPages(
+  productBatches(
     limit: Int
     before: [Cursor!]
     after: [Cursor!]
-  ): AgentsPage!
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProductBatchesPage!
+
+  process(id: ID): Process
+
+  "Get paginated list of processes"
+  processes(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ProcessesPage!
+
+  plan(id: ID): Plan
+
+  plans(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): PlansPage!
+
+  commitment(id: ID): Commitment
+
+  commitments(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): CommitmentsPage!
+
+  intent(id: ID): Intent
+
+  "Get paginated list of intents"
+  intents(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: IntentSearchParams
+  ): IntentsPage!
+
+  "Get paginated list of active offers (intents with no receiver)"
+  offers(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: IntentSearchParams
+  ): IntentsPage!
+
+  "Get paginated list of active needs (intents with no provider)"
+  needs(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: IntentSearchParams
+  ): IntentsPage!
+
+  fulfillment(id: ID): Fulfillment
+
+  fulfillments(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): FulfillmentsPage!
+
+  satisfaction(id: ID): Satisfaction
+
+  satisfactions(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): SatisfactionsPage!
+
+  proposal(id: ID): Proposal
+
+  "Get paginated list of proposals"
+  proposals(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: ProposalSearchParams
+  ): ProposalsPage!
+
+  recipeResource(id: ID): RecipeResource
+
+  recipeResources(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): RecipeResourcesPage!
+
+  recipeProcess(id: ID): RecipeProcess
+
+  recipeProcesses(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): RecipeProcessesPage!
+
+  recipeFlow(id: ID): RecipeFlow
+
+  recipeFlows(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): RecipeFlowsPage!
+
+  recipeExchange(id: ID): RecipeExchange
+
+  recipeExchanges(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): RecipeExchangesPage!
+
+  scenario(id: ID): Scenario
+
+  scenarios(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ScenariosPage!
+
+  scenarioDefinition(id: ID): ScenarioDefinition
+
+  scenarioDefinitions(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+    order: [GenericSortParams]
+    filter: GenericSearchParams
+  ): ScenarioDefinitionsPage!
+
 }
 
 
@@ -3958,88 +4617,118 @@ type ValueFlowsMutation {
   createAgentRelationship(
     relationship: AgentRelationshipCreateParams!
   ): AgentRelationshipResponse
+  
   updateAgentRelationship(
     relationship: AgentRelationshipUpdateParams!
   ): AgentRelationshipResponse
+  
   deleteAgentRelationship(id: ID!): Boolean
+  
   createAgentRelationshipRole(
     agentRelationshipRole: AgentRelationshipRoleCreateParams
   ): AgentRelationshipRoleResponse
+  
   updateAgentRelationshipRole(
     agentRelationshipRole: AgentRelationshipRoleUpdateParams
   ): AgentRelationshipRoleResponse
+  
   deleteAgentRelationshipRole(id: ID!): Boolean
 
   createValueCalculation(valueCalculation: ValueCalculationCreateParams!): ValueCalculationResponse
+
   updateValueCalculation(valueCalculation: ValueCalculationUpdateParams!): ValueCalculationResponse
+  
   deleteValueCalculation(id: ID!): Boolean
 
   createAgreement(agreement: AgreementCreateParams): AgreementResponse
+
   updateAgreement(agreement: AgreementUpdateParams): AgreementResponse
+
   deleteAgreement(id: ID!): Boolean
 
   createAppreciation(
     appreciation: AppreciationCreateParams!
   ): AppreciationResponse
+  
   updateAppreciation(
     appreciation: AppreciationUpdateParams!
   ): AppreciationResponse
+  
   deleteAppreciation(id: ID!): Boolean
 
   createClaim(claim: ClaimCreateParams!): ClaimResponse
+  
   updateClaim(claim: ClaimUpdateParams!): ClaimResponse
+  
   deleteClaim(id: ID!): Boolean
 
   createSettlement(settlement: SettlementCreateParams!): SettlementResponse
+  
   updateSettlement(s0ettlement: SettlementUpdateParams!): SettlementResponse
+  
   deleteSettlement(id: ID!): Boolean
 
   createResourceSpecification(
     resourceSpecification: ResourceSpecificationCreateParams
   ): ResourceSpecificationResponse
+  
   updateResourceSpecification(
     resourceSpecification: ResourceSpecificationUpdateParams
   ): ResourceSpecificationResponse
+
   deleteResourceSpecification(id: ID!): Boolean
 
   createProcessSpecification(
     processSpecification: ProcessSpecificationCreateParams
   ): ProcessSpecificationResponse
+  
   updateProcessSpecification(
     processSpecification: ProcessSpecificationUpdateParams
   ): ProcessSpecificationResponse
+
   deleteProcessSpecification(id: ID!): Boolean
   
   createEconomicEvent(
     event: EconomicEventCreateParams!
     newInventoriedResource: EconomicResourceCreateParams
   ): EconomicEventResponse
+  
   updateEconomicEvent(event: EconomicEventUpdateParams!): EconomicEventResponse
+
   deleteEconomicEvent(id: ID!): Boolean
 
   updateEconomicResource(
     resource: EconomicResourceUpdateParams!
   ): EconomicResourceResponse
+
   deleteEconomicResource(id: ID!): Boolean
 
   createProductBatch(
     productBatch: ProductBatchCreateParams!
   ): ProductBatchResponse
+
   updateProductBatch(
     productBatch: ProductBatchUpdateParams!
   ): ProductBatchResponse
+
   deleteProductBatch(id: ID!): Boolean
 
   createProcess(process: ProcessCreateParams!): ProcessResponse
+
   updateProcess(process: ProcessUpdateParams!): ProcessResponse
+
   deleteProcess(id: ID!): Boolean
 
   createPlan(plan: PlanCreateParams!): PlanResponse
+
   updatePlan(plan: PlanUpdateParams!): PlanResponse
+
   deletePlan(id: ID!): Boolean
 
   createCommitment(commitment: CommitmentCreateParams): CommitmentResponse
+
   updateCommitment(commitment: CommitmentUpdateParams): CommitmentResponse
+  
   deleteCommitment(id: ID!): Boolean
 
   createIntent(intent: IntentCreateParams): IntentResponse
@@ -4055,22 +4744,29 @@ type ValueFlowsMutation {
   createNeed(intent: IntentCreateParams): IntentResponse
 
   updateIntent(intent: IntentUpdateParams): IntentResponse
+
   deleteIntent(id: ID!): Boolean
 
   createFulfillment(fulfillment: FulfillmentCreateParams!): FulfillmentResponse
+
   updateFulfillment(fulfillment: FulfillmentUpdateParams!): FulfillmentResponse
+
   deleteFulfillment(id: ID!): Boolean
 
   createSatisfaction(
     satisfaction: SatisfactionCreateParams
   ): SatisfactionResponse
+
   updateSatisfaction(
     satisfaction: SatisfactionUpdateParams
   ): SatisfactionResponse
+
   deleteSatisfaction(id: ID!): Boolean
 
   createProposal(proposal: ProposalCreateParams): ProposalResponse
+
   updateProposal(proposal: ProposalUpdateParams): ProposalResponse
+
   deleteProposal(id: ID!): Boolean
 
   """
@@ -4083,6 +4779,7 @@ type ValueFlowsMutation {
     publishes: ID!
     reciprocal: Boolean
   ): ProposedIntentResponse
+
   deleteProposedIntent(id: ID!): Boolean
 
   """
@@ -4091,44 +4788,61 @@ type ValueFlowsMutation {
   @param proposedTo the (`Agent`) to include in the proposal
   """
   proposeTo(proposed: ID!, proposedTo: ID!): ProposedToResponse
+
   deleteProposedTo(id: ID!): Boolean
 
   createRecipeFlow(recipeFlow: RecipeFlowCreateParams): RecipeFlowResponse
+
   updateRecipeFlow(recipeFlow: RecipeFlowUpdateParams): RecipeFlowResponse
+
   deleteRecipeFlow(id: ID!): Boolean
+
   createRecipeProcess(
     recipeProcess: RecipeProcessCreateParams
   ): RecipeProcessResponse
+
   updateRecipeProcess(
     recipeProcess: RecipeProcessUpdateParams
   ): RecipeProcessResponse
+
   deleteRecipeProcess(id: ID!): Boolean
+
   createRecipeResource(
     recipeResource: RecipeResourceCreateParams
   ): RecipeResourceResponse
+
   updateRecipeResource(
     recipeResource: RecipeResourceUpdateParams
   ): RecipeResourceResponse
+
   deleteRecipeResource(id: ID!): Boolean
 
   createRecipeExchange(
     recipeExchange: RecipeExchangeCreateParams
   ): RecipeExchangeResponse
+
   updateRecipeExchange(
     recipeExchange: RecipeExchangeUpdateParams
   ): RecipeExchangeResponse
+
   deleteRecipeExchange(id: ID!): Boolean
 
   createScenario(plan: ScenarioCreateParams!): ScenarioResponse
+
   updateScenario(plan: ScenarioUpdateParams!): ScenarioResponse
+  
   deleteScenario(id: ID!): Boolean
+  
   createScenarioDefinition(
     plan: ScenarioDefinitionCreateParams!
   ): ScenarioDefinitionResponse
+  
   updateScenarioDefinition(
     plan: ScenarioDefinitionUpdateParams!
   ): ScenarioDefinitionResponse
+  
   deleteScenarioDefinition(id: ID!): Boolean
+
 }
 
 
@@ -4139,52 +4853,186 @@ type ValueFlowsMutation {
 type AgentsPage {
   pageInfo: PageInfo!
   edges: [Agent!]!
-  totalCount: Int!
+  totalCount: Int
+}
+
+"A page of people"
+type PeoplePage {
+  pageInfo: PageInfo!
+  edges: [Person!]!
+  totalCount: Int
+}
+
+"A page of organizations"
+type OrganizationsPage {
+  pageInfo: PageInfo!
+  edges: [Organization!]!
+  totalCount: Int
 }
 
 "A page of intents"
 type IntentsPage {
   pageInfo: PageInfo!
   edges: [Intent!]!
-  totalCount: Int!
+  totalCount: Int
 }
 
 "A page of proposals"
 type ProposalsPage {
   pageInfo: PageInfo!
   edges: [Proposal!]!
-  totalCount: Int!
+  totalCount: Int
 }
 
-type ResourceSpecificationPage {
+type ResourceSpecificationsPage {
   pageInfo: PageInfo!
   edges: [ResourceSpecification!]!
-  totalCount: Int!
+  totalCount: Int
 }
 
 "A page of Economic Events"
-type EconomicEventPage {
+type EconomicEventsPage {
   pageInfo: PageInfo!
   edges: [EconomicEvent!]!
-  totalCount: Int!
+  totalCount: Int
 }
 
 "A page of Processes"
-type ProcessPage {
+type ProcessesPage {
   pageInfo: PageInfo!
   edges: [Process!]!
-  totalCount: Int!
+  totalCount: Int
 }
 
 "A page of Economic Resources"
-type EconomicResourcePage {
+type EconomicResourcesPage {
   pageInfo: PageInfo!
   edges: [EconomicResource!]!
-  totalCount: Int!
+  totalCount: Int
 }
 
-type ValueCalculationPage {
+type ValueCalculationsPage {
   pageInfo: PageInfo!
   edges: [ValueCalculation!]!
-  totalCount: Int!
+  totalCount: Int
+}
+
+type ScenarioDefinitionsPage {
+	pageInfo: PageInfo!
+  edges: [ScenarioDefinition!]!
+  totalCount: Int
+}
+
+type ScenariosPage {
+  pageInfo: PageInfo!
+  edges: [Scenario!]!
+  totalCount: Int
+}
+
+type RecipeExchangesPage {
+  pageInfo: PageInfo!
+  edges: [RecipeExchange!]!
+  totalCount: Int
+}
+
+type RecipeFlowsPage {
+  pageInfo: PageInfo!
+  edges: [RecipeFlow!]!
+  totalCount: Int
+}
+
+type RecipeProcessesPage {
+  pageInfo: PageInfo!
+  edges: [RecipeProcess!]!
+  totalCount: Int
+}
+
+type RecipeResourcesPage {
+  pageInfo: PageInfo!
+  edges: [RecipeResource!]!
+  totalCount: Int
+}
+
+type SatisfactionsPage {
+  pageInfo: PageInfo!
+  edges: [Satisfaction!]!
+  totalCount: Int
+}
+
+type FulfillmentsPage {
+  pageInfo: PageInfo!
+  edges: [Fulfillment!]!
+  totalCount: Int
+}
+
+type CommitmentsPage {
+  pageInfo: PageInfo!
+  edges: [Commitment!]!
+  totalCount: Int
+}
+
+type PlansPage {
+  pageInfo: PageInfo!
+  edges: [Plan!]!
+  totalCount: Int
+}
+
+type ProductBatchesPage {
+  pageInfo: PageInfo!
+  edges: [ProductBatch!]!
+  totalCount: Int
+}
+
+type ProcessSpecificationsPage {
+  pageInfo: PageInfo!
+  edges: [ProcessSpecification!]!
+  totalCount: Int
+}
+
+type AgreementsPage {
+  pageInfo: PageInfo!
+  edges: [Agreement!]!
+  totalCount: Int
+}
+
+type SettlementsPage {
+  pageInfo: PageInfo!
+  edges: [Settlement!]!
+  totalCount: Int
+}
+
+type ClaimsPage {
+  pageInfo: PageInfo!
+  edges: [Claim!]!
+  totalCount: Int
+}
+
+type AgentRelationshipsPage {
+  pageInfo: PageInfo!
+  edges: [AgentRelationship!]!
+  totalCount: Int
+}
+
+type AgentRelationshipRolesPage {
+  pageInfo: PageInfo!
+  edges: [AgentRelationshipRole!]!
+  totalCount: Int
+}
+
+type ProductionFlowItemsPage {
+  pageInfo: PageInfo!
+  edges: [ProductionFlowItem!]!
+  totalCount: Int
+}
+
+type ProposedIntentsPage {
+  pageInfo: PageInfo!
+  edges: [ProposedIntent!]
+  totalCount: Int
+}
+
+type AppreciationsPage {
+  pageInfo: PageInfo!
+  edges: [Appreciation!]
+  totalCount: Int
 }
