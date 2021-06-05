@@ -17,7 +17,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
                       |> ResourceSpecifications.prepare_attrs()
                       |> IO.inspect(),
     %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, resource_spec} <- ResourceSpecifications.create(socket.assigns.current_user, obj_attrs) do
+    {:ok, resource_spec} <- ResourceSpecifications.create(e(socket.assigns, :current_user, nil), obj_attrs) do
       IO.inspect(resource_spec)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/resource_spec/")<>resource_spec.id)}
     end

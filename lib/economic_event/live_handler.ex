@@ -9,7 +9,7 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    creator = socket.assigns.current_user |> IO.inspect(label: "creator")
+    creator = e(socket.assigns, :current_user, nil) |> IO.inspect(label: "creator")
 
     with obj_attrs <- attrs
                       |> IO.inspect()

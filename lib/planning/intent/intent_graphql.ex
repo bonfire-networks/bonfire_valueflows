@@ -6,6 +6,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   require Logger
 
+  alias Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
 
   alias Bonfire.GraphQL
@@ -187,7 +188,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     intents_filter_next([param_remove], filter_add, page_opts, filters_acc, current_user)
   end
 
-  defp id_or_me(["me"], current_user), do: Map.get(current_user, :id) || raise "You must be logged in for this"
+  defp id_or_me(["me"], current_user), do: Utils.maybe_get(current_user, :id) || raise "You must be logged in for this"
   defp id_or_me(id, _), do: id
 
 

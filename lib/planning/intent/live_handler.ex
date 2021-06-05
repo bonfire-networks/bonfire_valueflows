@@ -52,17 +52,17 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
                       |> Intents.prepare_attrs()
                       |> IO.inspect(),
     %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, intent} <- Intents.create(socket.assigns.current_user, obj_attrs) do
+    {:ok, intent} <- Intents.create(e(socket.assigns, :current_user, nil), obj_attrs) do
       IO.inspect(intent)
 
       case Bonfire.Common.Text.list_checkboxes(intent.note) do
         sub_intents when length(sub_intents) > 0 ->
           IO.inspect(sub_intents)
 
-          create_from_list(socket.assigns.current_user, obj_attrs, sub_intents, [intent.id])
+          create_from_list(e(socket.assigns, :current_user, nil), obj_attrs, sub_intents, [intent.id])
 
           # for sub_intent <- sub_intents do
-          #   Intents.create(socket.assigns.current_user, Map.merge(obj_attrs, %{name: Enum.at(sub_intent, 3), note: nil, in_scope_of: [intent.id] }))
+          #   Intents.create(e(socket.assigns, :current_user, nil), Map.merge(obj_attrs, %{name: Enum.at(sub_intent, 3), note: nil, in_scope_of: [intent.id] }))
           # end
 
         _ -> nil
