@@ -36,7 +36,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
 
     options = matches ++ [{"Create a new resource specification called: "<>search, search}]
 
-    {:noreply, socket |> cast_self(resource_specifications_autocomplete: options) }
+    {:noreply, socket |> assign_global(resource_specifications_autocomplete: options) }
   end
 
 
@@ -46,7 +46,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
     selected = if !is_ulid?(select_resource_spec), do: create_in_autocomplete(e(socket.assigns, :current_user, nil), select_resource_spec), else: {name, select_resource_spec}
 
     IO.inspect(selected)
-    {:noreply, socket |> cast_self(resource_specification_selected: [selected])}
+    {:noreply, socket |> assign_global(resource_specification_selected: [selected])}
   end
 
   def to_tuple(resource_spec) do

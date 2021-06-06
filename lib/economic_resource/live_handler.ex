@@ -16,7 +16,7 @@ defmodule ValueFlows.EconomicResource.LiveHandler do
     IO.inspect(matches)
 
 
-    {:noreply, socket |> cast_self(resources_inventoried_as_autocomplete: matches) }
+    {:noreply, socket |> assign_global(resources_inventoried_as_autocomplete: matches) }
   end
 
 
@@ -26,7 +26,7 @@ defmodule ValueFlows.EconomicResource.LiveHandler do
     selected = {name, select_resource}
 
     IO.inspect(selected)
-    {:noreply, socket |> cast_self(resource_inventoried_as_selected: [selected])}
+    {:noreply, socket |> assign_global(resource_inventoried_as_selected: [selected])}
   end
 
   def to_tuple(resource_spec) do
