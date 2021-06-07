@@ -86,37 +86,11 @@ defmodule ValueFlows.Process.Processes do
   end
 
 
-  def intended_inputs(attrs, action_id \\ nil)
-  def intended_inputs(%{id: id}, action_id) when not is_nil(action_id) do
-    Intents.many([:default, input_of_id: id, action_id: action_id])
-  end
-
-  def intended_inputs(%{id: id}, _) do
-    Intents.many([:default, input_of_id: id])
-  end
-
-  def intended_inputs(_, _) do
-    {:ok, nil}
-  end
-
-  def intended_inputs_filtered(%{id: id}, filters) do
+  def intended_inputs(%{id: id}, filters \\ []) do
     Intents.many([:default, input_of_id: id] ++ filters)
   end
 
-  def intended_outputs(attrs, action_id \\ nil)
-  def intended_outputs(%{id: id}, action_id) when not is_nil(action_id) do
-    Intents.many([:default, output_of_id: id, action_id: action_id])
-  end
-
-  def intended_outputs(%{id: id}, _) do
-    Intents.many([:default, output_of_id: id])
-  end
-
-  def intended_outputs(_, _) do
-    {:ok, nil}
-  end
-
-  def intended_outputs_filtered(%{id: id}, filters) do
+  def intended_outputs(%{id: id}, filters \\ []) do
     Intents.many([:default, output_of_id: id] ++ filters)
   end
 
