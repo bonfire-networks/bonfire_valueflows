@@ -118,20 +118,12 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], not is_nil(c.published_at))
   end
 
-  def filter(q, :open) do
+  def filter(q, {:status, :open}) when status in [:open, :closed] do
     where(q, [intent: c], c.finished == false)
   end
 
-  def filter(q, {:open, open?}) when is_boolean(open?) do
-    where(q, [intent: c], c.finished != ^open?)
-  end
-
-  def filter(q, :closed) do
+  def filter(q, {:status, :closed}) do
     where(q, [intent: c], c.finished == true)
-  end
-
-  def filter(q, {:closed, closed?}) when is_boolean(closed?) do
-    where(q, [intent: c], c.finished == ^closed?)
   end
 
   ## by field values
