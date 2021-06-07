@@ -304,14 +304,8 @@ defmodule ValueFlows.Hydration do
         intended_inputs: [
           resolve: &ValueFlows.Process.GraphQL.intended_inputs/3
         ],
-        intended_inputs_filtered: [
-          resolve: &ValueFlows.Process.GraphQL.intended_inputs_filtered/3
-        ],
         intended_outputs: [
           resolve: &ValueFlows.Process.GraphQL.intended_outputs/3
-        ],
-        intended_outputs_filtered: [
-          resolve: &ValueFlows.Process.GraphQL.intended_outputs_filtered/3
         ],
         inputs: [
           resolve: &ValueFlows.Process.GraphQL.inputs/3

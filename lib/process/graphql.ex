@@ -151,15 +151,7 @@ defmodule ValueFlows.Process.GraphQL do
     Processes.trace(process)
   end
 
-  def intended_inputs(process, %{action: action_id}, _) when is_binary(action_id) do
-    Processes.intended_inputs(process, action_id)
-  end
-
-  def intended_inputs(process, _, _) do
-    Processes.intended_inputs(process)
-  end
-
-  def intended_inputs_filtered(process, %{filters: search_params}, _) do
+  def intended_inputs(process, %{filter: search_params}, _) do
     filters = search_params
     |> Map.take([:status, :action])
     |> Keyword.new()
@@ -167,19 +159,12 @@ defmodule ValueFlows.Process.GraphQL do
     Processes.intended_inputs_filtered(process, filters)
   end
 
-  def intended_inputs_filtered(process, %{}, info) do
-    intended_inputs(process, %{}, info)
+  def intended_inputs(process, %{}, info) do
+    Processes.intended_inputs(process)
   end
 
-  def intended_outputs(process, %{action: action_id}, _) when is_binary(action_id) do
-    Processes.intended_outputs(process, action_id)
-  end
-
-  def intended_outputs(process, _, _) do
-    Processes.intended_outputs(process)
-  end
-
-  def intended_outputs_filtered(process, %{filters: search_params}, _) do
+  # TODO: handle action_id backwards compat
+  def intended_outputs(process, %{filter: search_params}, _) do
     filters = search_params
     |> Map.take([:status, :action])
     |> Keyword.new()
@@ -187,8 +172,8 @@ defmodule ValueFlows.Process.GraphQL do
     Processes.intended_outputs_filtered(process, filters)
   end
 
-  def intended_outputs_filtered(process, %{}, info) do
-    intended_outputs(process, %{}, info)
+  def intended_outputs(process, %{} = params, info) do
+    Processes.intended_outputs(process)
   end
 
   def inputs(process, %{action: action_id}, _) when is_binary(action_id) do

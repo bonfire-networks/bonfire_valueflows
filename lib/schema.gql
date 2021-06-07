@@ -2364,10 +2364,8 @@ type Process {
   plannedWithin: Plan
   committedInputs(action: ID): [Commitment!]
   committedOutputs(action: ID): [Commitment!]
-  intendedInputs(action: ID): [Intent!]
-  intendedOutputs(action: ID): [Intent!]
-  intendedInputsFiltered(filters: IntentSearchParams): [Intent!]
-  intendedOutputsFiltered(filters: IntentSearchParams): [Intent!]
+  intendedInputs(action: ID, filter: IntentSearchParams): [Intent!]
+  intendedOutputs(action: ID, filter: IntentSearchParams): [Intent!]
 
   """
   The process with its inputs and outputs is part of the scenario.
