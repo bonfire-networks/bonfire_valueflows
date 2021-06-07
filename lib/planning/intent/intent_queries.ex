@@ -118,12 +118,17 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], not is_nil(c.published_at))
   end
 
-  def filter(q, {:status, :open}) when status in [:open, :closed] do
+  def filter(q, {:status, :open}) do
     where(q, [intent: c], c.finished == false)
   end
 
   def filter(q, {:status, :closed}) do
     where(q, [intent: c], c.finished == true)
+  end
+
+  def filter(q, {:status, status}) when is_binary(status) do
+    # FIXME: don't do this here, convert in graphql handler
+    filter(q, {:status, String.to_existing_atom(status)})
   end
 
   ## by field values

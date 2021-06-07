@@ -155,6 +155,7 @@ input IntentSearchParams {
   agent: [ID]
   provider: [ID]
   receiver: [ID]
+  status: String
 }
 
 """
@@ -2365,6 +2366,8 @@ type Process {
   committedOutputs(action: ID): [Commitment!]
   intendedInputs(action: ID): [Intent!]
   intendedOutputs(action: ID): [Intent!]
+  intendedInputsFiltered(filters: IntentSearchParams): [Intent!]
+  intendedOutputsFiltered(filters: IntentSearchParams): [Intent!]
 
   """
   The process with its inputs and outputs is part of the scenario.

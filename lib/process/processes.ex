@@ -99,6 +99,10 @@ defmodule ValueFlows.Process.Processes do
     {:ok, nil}
   end
 
+  def intended_inputs_filtered(%{id: id}, filters) do
+    Intents.many([:default, input_of_id: id] ++ filters)
+  end
+
   def intended_outputs(attrs, action_id \\ nil)
   def intended_outputs(%{id: id}, action_id) when not is_nil(action_id) do
     Intents.many([:default, output_of_id: id, action_id: action_id])
@@ -112,6 +116,9 @@ defmodule ValueFlows.Process.Processes do
     {:ok, nil}
   end
 
+  def intended_outputs_filtered(%{id: id}, filters) do
+    Intents.many([:default, output_of_id: id] ++ filters)
+  end
 
   defdelegate trace(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Trace, as: :process
   defdelegate track(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Track, as: :process
