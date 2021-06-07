@@ -4,6 +4,8 @@ defmodule ValueFlows.Process.GraphQL do
   require Logger
 
   import Bonfire.Common.Config, only: [repo: 0]
+  # TODO: don't use this
+  import Bonfire.Common.Utils, only: [map_key_replace_existing: 3]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -152,15 +154,11 @@ defmodule ValueFlows.Process.GraphQL do
   end
 
   def intended_inputs(process, %{filter: search_params}, _) do
-    filters = search_params
-    |> Map.take([:status, :action])
-    |> Keyword.new()
-
-    Processes.intended_inputs(process, filters)
+    Processes.intended_inputs(process, parse_search_params(search_params))
   end
 
   def intended_inputs(process, %{action: action_id}, _) when is_binary(action_id) do
-    Processes.intended_inputs(process, action: action_id)
+    Processes.intended_inputs(process, action_id: action_id)
   end
 
   def intended_inputs(process, %{}, info) do
@@ -168,19 +166,24 @@ defmodule ValueFlows.Process.GraphQL do
   end
 
   def intended_outputs(process, %{filter: search_params}, _) do
-    filters = search_params
-    |> Map.take([:status, :action])
-    |> Keyword.new()
-
-    Processes.intended_outputs(process, filters)
+    Processes.intended_outputs(process, parse_search_params(search_params))
   end
 
   def intended_outputs(process, %{action: action_id}, _) when is_binary(action_id) do
-    Processes.intended_outputs(process, action: action_id)
+    Processes.intended_outputs(process, action_id: action_id)
   end
 
   def intended_outputs(process, %{} = params, info) do
     Processes.intended_outputs(process)
+  end
+
+  defp parse_search_params(search_params) do
+    search_params
+    |> map_key_replace_existing(:action, :action_id)
+    |> map_key_replace_existing(:provider, :provider_id)
+    |> map_key_replace_existing(:receiver, :receiver_id)
+    |> map_key_replace_existing(:search_string, :search)
+    |> Keyword.new()
   end
 
   def inputs(process, %{action: action_id}, _) when is_binary(action_id) do
