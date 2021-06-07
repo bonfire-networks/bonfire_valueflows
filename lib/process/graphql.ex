@@ -159,6 +159,10 @@ defmodule ValueFlows.Process.GraphQL do
     Processes.intended_inputs_filtered(process, filters)
   end
 
+  def intended_inputs(process, %{action: action_id}, _) when is_binary(action_id) do
+    Processes.intended_inputs_filtered(process, action: action_id)
+  end
+
   def intended_inputs(process, %{}, info) do
     Processes.intended_inputs(process)
   end
@@ -170,6 +174,10 @@ defmodule ValueFlows.Process.GraphQL do
     |> Keyword.new()
 
     Processes.intended_outputs_filtered(process, filters)
+  end
+
+  def intended_outputs(process, %{action: action_id}, _) when is_binary(action_id) do
+    Processes.intended_outputs_filtered(process, action: action_id)
   end
 
   def intended_outputs(process, %{} = params, info) do
