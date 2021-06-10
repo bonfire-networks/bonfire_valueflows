@@ -15,7 +15,7 @@ defmodule ValueFlows.Process.LiveHandler do
                       |> Map.get(:process)
                       |> Processes.prepare_attrs(),
     %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, process} <- Processes.create(e(socket.assigns, :current_user, nil), obj_attrs) do
+    {:ok, process} <- Processes.create(current_user(socket), obj_attrs) do
       IO.inspect(process)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/process/")<>process.id)}
     end

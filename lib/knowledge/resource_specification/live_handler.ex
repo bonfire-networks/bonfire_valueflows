@@ -17,7 +17,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
                       |> ResourceSpecifications.prepare_attrs()
                       |> IO.inspect(),
     %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, resource_spec} <- ResourceSpecifications.create(e(socket.assigns, :current_user, nil), obj_attrs) do
+    {:ok, resource_spec} <- ResourceSpecifications.create(current_user(socket), obj_attrs) do
       IO.inspect(resource_spec)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/resource_spec/")<>resource_spec.id)}
     end
@@ -43,7 +43,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
   def handle_event("select", %{"id" => select_resource_spec, "name"=> name} = attrs, socket) when is_binary(select_resource_spec) do
     # IO.inspect(socket)
 
-    selected = if !is_ulid?(select_resource_spec), do: create_in_autocomplete(e(socket.assigns, :current_user, nil), select_resource_spec), else: {name, select_resource_spec}
+    selected = if !is_ulid?(select_resource_spec), do: create_in_autocomplete(current_user(socket), select_resource_spec), else: {name, select_resource_spec}
 
     IO.inspect(selected)
     {:noreply, socket |> assign_global(resource_specification_selected: [selected])}

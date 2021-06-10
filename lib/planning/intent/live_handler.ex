@@ -52,17 +52,17 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
                       |> Intents.prepare_attrs()
                       |> IO.inspect(),
     %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, intent} <- Intents.create(e(socket.assigns, :current_user, nil), obj_attrs) do
+    {:ok, intent} <- Intents.create(current_user(socket), obj_attrs) do
       IO.inspect(intent)
 
       case Bonfire.Common.Text.list_checkboxes(intent.note) do
         sub_intents when length(sub_intents) > 0 ->
           IO.inspect(sub_intents)
 
-          create_from_list(e(socket.assigns, :current_user, nil), obj_attrs, sub_intents, [intent.id])
+          create_from_list(current_user(socket), obj_attrs, sub_intents, [intent.id])
 
           # for sub_intent <- sub_intents do
-          #   Intents.create(e(socket.assigns, :current_user, nil), Map.merge(obj_attrs, %{name: Enum.at(sub_intent, 3), note: nil, in_scope_of: [intent.id] }))
+          #   Intents.create(current_user(socket), Map.merge(obj_attrs, %{name: Enum.at(sub_intent, 3), note: nil, in_scope_of: [intent.id] }))
           # end
 
         _ -> nil
@@ -110,23 +110,23 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     handle_event("update:"<>what, Map.merge(%{"id" => intent_id}, attrs), socket)
   end
 
-  def handle_event("assign:select", %{"id" => assign_to, "name"=> name} = attrs, %{assigns: %{current_user: %{id: current_user_id}, intent: %{id: intent_id}}} = socket) when is_binary(assign_to) do
+  def handle_event("assign:select", %{"id" => assign_to, "name"=> name} = attrs, %{assigns: %{intent: %{id: intent_id}}} = socket) when is_binary(assign_to) do
     # IO.inspect(socket)
 
-    assign_to(assign_to, intent_id, path(socket.view, intent_id), current_user_id, socket)
+    assign_to(assign_to, intent_id, path(socket.view, intent_id), current_user(socket), socket)
   end
 
-  def handle_event("assign:select", %{"id" => assign_to, "name"=> name, "context_id" => intent_id} = attrs, %{assigns: %{current_user: %{id: current_user_id}, process: %{id: process_id}}} = socket) when is_binary(assign_to) do
+  def handle_event("assign:select", %{"id" => assign_to, "name"=> name, "context_id" => intent_id} = attrs, %{assigns: %{process: %{id: process_id}}} = socket) when is_binary(assign_to) do
     # IO.inspect(socket)
 
-    assign_to(assign_to, intent_id, path(socket.view, process_id), current_user_id, socket)
+    assign_to(assign_to, intent_id, path(socket.view, process_id), current_user(socket), socket)
 
   end
 
-  def handle_event("assign:select", %{"id" => assign_to, "name"=> name, "context_id" => intent_id} = attrs, %{assigns: %{current_user: %{id: current_user_id}}} = socket) when is_binary(assign_to) do
+  def handle_event("assign:select", %{"id" => assign_to, "name"=> name, "context_id" => intent_id} = attrs, socket) when is_binary(assign_to) do
     # IO.inspect(socket)
 
-    assign_to(assign_to, intent_id, nil, current_user_id, socket)
+    assign_to(assign_to, intent_id, nil, current_user(socket), socket)
   end
 
   def assign_to(assign_to, intent_id, redirect_path, current_user_id, socket) do
