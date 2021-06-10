@@ -92,7 +92,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "ResourceSpecification",
+      "index_type" => "ValueFlows.ResourceSpecification",
       "id" => obj.id,
       # "url" => obj.character.canonical_url,
       # "icon" => icon,

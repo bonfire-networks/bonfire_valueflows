@@ -652,7 +652,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   def indexing_object_format(obj) do
     %{
-      "index_type" => "EconomicEvent",
+      "index_type" => "ValueFlows.EconomicEvent",
       "id" => obj.id,
       # "url" => obj.character.canonical_url,
       # "icon" => icon,

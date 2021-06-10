@@ -144,7 +144,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "Intent",
+      "index_type" => "ValueFlows.Planning.Intent",
       "id" => obj.id,
       # "url" => obj.canonical_url,
       # "icon" => icon,

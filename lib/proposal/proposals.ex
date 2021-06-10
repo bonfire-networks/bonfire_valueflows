@@ -180,7 +180,7 @@ defmodule ValueFlows.Proposal.Proposals do
     # image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "Proposal",
+      "index_type" => "ValueFlows.Proposal",
       "id" => obj.id,
       # "url" => obj.canonical_url,
       # "icon" => icon,

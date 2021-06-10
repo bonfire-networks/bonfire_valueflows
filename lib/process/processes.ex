@@ -152,7 +152,7 @@ defmodule ValueFlows.Process.Processes do
   def indexing_object_format(obj) do
 
     %{
-      "index_type" => "Process",
+      "index_type" => "ValueFlows.Process",
       "id" => obj.id,
       # "url" => obj.canonical_url,
       # "icon" => icon,

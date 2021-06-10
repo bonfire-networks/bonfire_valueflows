@@ -153,7 +153,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "EconomicResource",
+      "index_type" => "ValueFlows.EconomicResource",
       "id" => obj.id,
       # "url" => obj.canonical_url,
       # "icon" => icon,

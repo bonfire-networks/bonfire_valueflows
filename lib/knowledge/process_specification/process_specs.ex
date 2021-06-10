@@ -131,7 +131,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     # image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "ProcessSpecification",
+      "index_type" => "ValueFlows.ProcessSpecification",
       "id" => obj.id,
       # "url" => obj.character.canonical_url,
       # "icon" => icon,
