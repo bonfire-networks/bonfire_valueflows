@@ -1,5 +1,5 @@
 defmodule ValueFlows.Proposal.FederateTest do
-  use Bonfire.ValueFlows.DataCase, async: false
+  use Bonfire.ValueFlows.DataCase
 
   import Bonfire.Common.Simulation
 
