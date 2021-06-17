@@ -206,8 +206,8 @@ defmodule ValueFlows.Util.Federation do
 
   # FIXME
   def ap_publish(verb, thing_id, user_id) do
-    if Bonfire.Common.Utils.module_enabled?(CommonsPub.Workers.APPublishWorker) do
-      CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
+    if Bonfire.Common.Utils.module_enabled?(Bonfire.Federate.ActivityPub.APPublishWorker) do
+      Bonfire.Federate.ActivityPub.APPublishWorker.enqueue(verb, %{
         "context_id" => thing_id,
         "user_id" => user_id
       })
