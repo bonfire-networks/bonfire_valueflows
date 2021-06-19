@@ -4,11 +4,6 @@ use Mix.Config
 
 # You will almost certainly want to change at least some of these
 
-# alias Bonfire.Mailer
-
-# config :bonfire, Mailer,
-#   from_address: "noreply@bonfire.local"
-
 # include Phoenix web server boilerplate
 # import_config "bonfire_web_phoenix.exs"
 
