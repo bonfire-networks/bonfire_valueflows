@@ -134,7 +134,7 @@ defmodule ValueFlows.Process.Processes do
       with {:ok, process} <- repo().update(Process.update_changeset(process, attrs)),
            process <- preload_all(process),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
-           :ok <- ValueFlows.Util.publish(process, :update) do
+           {:ok, _} <- ValueFlows.Util.publish(process, :update) do
         {:ok, process}
       end
     end)
@@ -143,7 +143,7 @@ defmodule ValueFlows.Process.Processes do
   def soft_delete(%Process{} = process) do
     repo().transact_with(fn ->
       with {:ok, process} <- Bonfire.Repo.Delete.soft_delete(process),
-           :ok <- ValueFlows.Util.publish(process, :deleted) do
+           {:ok, _} <- ValueFlows.Util.publish(process, :deleted) do
         {:ok, process}
       end
     end)

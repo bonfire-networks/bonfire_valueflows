@@ -111,7 +111,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
       with {:ok, process_spec} <- repo().update(ProcessSpecification.update_changeset(process_spec, attrs)),
            {:ok, process_spec} <- ValueFlows.Util.try_tag_thing(nil, process_spec, attrs),
-           :ok <- ValueFlows.Util.publish(process_spec, :update) do
+           {:ok, _} <- ValueFlows.Util.publish(process_spec, :update) do
         {:ok, process_spec}
       end
     end)
@@ -120,7 +120,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   def soft_delete(%ProcessSpecification{} = process_spec) do
     repo().transact_with(fn ->
       with {:ok, process_spec} <- Bonfire.Repo.Delete.soft_delete(process_spec),
-           :ok <- ValueFlows.Util.publish(process_spec, :deleted) do
+           {:ok, _} <- ValueFlows.Util.publish(process_spec, :deleted) do
         {:ok, process_spec}
       end
     end)

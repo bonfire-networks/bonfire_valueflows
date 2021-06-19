@@ -140,7 +140,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
     repo().transact_with(fn ->
       with {:ok, proposal} <- repo().update(Proposal.update_changeset(proposal, attrs)),
-           :ok <- ValueFlows.Util.publish(proposal, :update) do
+           {:ok, _} <- ValueFlows.Util.publish(proposal, :update) do
         {:ok, proposal}
       end
     end)
@@ -149,7 +149,7 @@ defmodule ValueFlows.Proposal.Proposals do
   def soft_delete(%Proposal{} = proposal) do
     repo().transact_with(fn ->
       with {:ok, proposal} <- Bonfire.Repo.Delete.soft_delete(proposal),
-           :ok <- ValueFlows.Util.publish(proposal, :deleted) do
+           {:ok, _} <- ValueFlows.Util.publish(proposal, :deleted) do
         {:ok, proposal}
       end
     end)

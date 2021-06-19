@@ -34,7 +34,7 @@ defmodule ValueFlows.Util do
 
   def publish(%{id: creator_id} =creator, verb, %{id: thing_id} =thing) do
 
-    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, [:guest])
+    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, :guest)
 
     ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id)
 
@@ -46,12 +46,15 @@ defmodule ValueFlows.Util do
       Logger.info("No integration available to publish activity")
       {:ok, nil}
     end
-
   end
 
   def publish(%{creator_id: creator_id, id: thing_id}, :update) do
     # TODO: wrong if edited by admin
     ValueFlows.Util.Federation.ap_publish("update", thing_id, creator_id)
+  end
+
+  def publish(%{creator_id: creator_id, id: thing_id}, :updated) do # deprecate
+    publish(%{creator_id: creator_id, id: thing_id}, :update)
   end
 
   def publish(%{creator_id: creator_id, id: thing_id}, :delete) do
@@ -65,7 +68,7 @@ defmodule ValueFlows.Util do
 
   def publish(_, verb) do
     Logger.warn("Could not publish (#{verb})")
-    :ok
+    {:ok, nil}
   end
 
   def index_for_search(object) do

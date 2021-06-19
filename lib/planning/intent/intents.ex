@@ -124,7 +124,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       with {:ok, intent} <- repo().update(Intent.update_changeset(intent, attrs)),
            intent <- preload_all(intent),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
-           :ok <- ValueFlows.Util.publish(intent, :update) do
+           {:ok, _} <- ValueFlows.Util.publish(intent, :update) do
         {:ok, intent}
       end
     end)
@@ -133,7 +133,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   def soft_delete(%Intent{} = intent) do
     repo().transact_with(fn ->
       with {:ok, intent} <- Bonfire.Repo.Delete.soft_delete(intent),
-           :ok <- ValueFlows.Util.publish(intent, :deleted) do
+           {:ok, _} <- ValueFlows.Util.publish(intent, :deleted) do
         {:ok, intent}
       end
     end)

@@ -133,7 +133,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
       with {:ok, resource} <- repo().update(EconomicResource.update_changeset(resource, attrs)),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
-           :ok <- ValueFlows.Util.publish(resource, :update) do
+           {:ok, _} <- ValueFlows.Util.publish(resource, :update) do
         {:ok, preload_all(resource)}
       end
     end)
@@ -142,7 +142,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   def soft_delete(%EconomicResource{} = resource) do
     repo().transact_with(fn ->
       with {:ok, resource} <- Bonfire.Repo.Delete.soft_delete(resource),
-           :ok <- ValueFlows.Util.publish(resource, :deleted) do
+           {:ok, _} <- ValueFlows.Util.publish(resource, :deleted) do
         {:ok, resource}
       end
     end)

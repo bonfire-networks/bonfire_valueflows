@@ -213,7 +213,7 @@ defmodule ValueFlows.Util.Federation do
       })
     end
 
-    :ok
+    {:ok, nil}
   end
 
   # def ap_publish(_, _, _), do: :ok
