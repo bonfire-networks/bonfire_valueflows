@@ -33,14 +33,16 @@ defmodule ValueFlows.Util do
 
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
-    # if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, :guest) # FIXME, seems to cause infinite loop
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
+    circles = [:local]
+
+    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles) # FIXME, seems to cause infinite loop
 
     ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id)
 
     if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 3) do
 
-      Bonfire.Social.FeedActivities.publish(creator, verb, thing)
+      Bonfire.Social.FeedActivities.publish(creator, verb, thing, circles)
 
     else
       Logger.info("No integration available to publish activity")
