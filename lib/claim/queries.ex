@@ -10,7 +10,7 @@ defmodule ValueFlows.Claim.Queries do
     from(c in Claim, as: :claim)
   end
 
-  def query(filters), do: filter(Claim, filters)
+  def query(filters), do: query(Claim, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 

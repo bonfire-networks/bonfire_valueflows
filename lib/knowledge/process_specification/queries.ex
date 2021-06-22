@@ -15,7 +15,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
     from(c in ProcessSpecification, as: :process_spec)
   end
 
-  def query(filters), do: filter(ProcessSpecification, filters)
+  def query(filters), do: query(ProcessSpecification, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 

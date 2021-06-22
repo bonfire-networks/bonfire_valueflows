@@ -15,7 +15,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
     from(c in Intent, as: :intent)
   end
 
-  def query(filters), do: filter(Intent, filters)
+  def query(filters), do: query(Intent, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 

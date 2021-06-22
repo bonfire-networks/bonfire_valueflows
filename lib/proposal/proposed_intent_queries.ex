@@ -7,7 +7,7 @@ defmodule ValueFlows.Proposal.ProposedIntentQueries do
     from(pi in ProposedIntent, as: :proposed_intent)
   end
 
-  def query(filters), do: filter(ProposedIntent, filters)
+  def query(filters), do: query(ProposedIntent, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 

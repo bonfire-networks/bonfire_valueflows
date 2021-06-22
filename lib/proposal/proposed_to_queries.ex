@@ -7,7 +7,7 @@ defmodule ValueFlows.Proposal.ProposedToQueries do
     from(pt in ProposedTo, as: :proposed_to)
   end
 
-  def query(filters), do: filter(ProposedTo, filters)
+  def query(filters), do: query(ProposedTo, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 

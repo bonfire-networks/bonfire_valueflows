@@ -15,7 +15,7 @@ defmodule ValueFlows.Process.Queries do
     from(c in Process, as: :process)
   end
 
-  def query(filters), do: filter(Process, filters)
+  def query(filters), do: query(Process, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 

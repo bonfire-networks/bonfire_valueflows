@@ -15,7 +15,7 @@ defmodule ValueFlows.Proposal.Queries do
     from(c in Proposal, as: :proposal)
   end
 
-  def query(filters), do: filter(Proposal, filters)
+  def query(filters), do: query(Proposal, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 

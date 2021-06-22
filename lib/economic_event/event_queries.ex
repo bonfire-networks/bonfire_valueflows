@@ -15,7 +15,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
     from(c in EconomicEvent, as: :event)
   end
 
-  def query(filters), do: filter(EconomicEvent, filters)
+  def query(filters), do: query(EconomicEvent, filters)
 
   def query(q, filters), do: filter(query(q), filters)
 
