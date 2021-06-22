@@ -26,7 +26,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().all(Queries.query(ResourceSpecification, filters))}
+  def many(filters \\ []), do: {:ok, repo().many(Queries.query(ResourceSpecification, filters))}
 
 
   def maybe_get(%{resource_conforms_to_id: id}) when is_binary(id) do

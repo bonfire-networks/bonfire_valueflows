@@ -14,7 +14,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
   def one(filters), do: repo().single(Queries.query(ValueCalculation, filters))
 
-  def many(filters \\ []), do: {:ok, repo().all(Queries.query(ValueCalculation, filters))}
+  def many(filters \\ []), do: {:ok, repo().many(Queries.query(ValueCalculation, filters))}
 
   def preload_all(%ValueCalculation{} = calculation) do
     # should always succeed

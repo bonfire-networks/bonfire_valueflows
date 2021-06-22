@@ -12,7 +12,7 @@ defmodule ValueFlows.Claim.Claims do
 
   def one(filters), do: repo().single(Queries.query(Claim, filters))
 
-  def many(filters \\ []), do: {:ok, repo().all(Queries.query(Claim, filters))}
+  def many(filters \\ []), do: {:ok, repo().many(Queries.query(Claim, filters))}
 
   def preload_all(%Claim{} = claim) do
     # shouldn't fail

@@ -31,7 +31,7 @@ defmodule ValueFlows.Process.Processes do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().all(Queries.query(Process, filters))}
+  def many(filters \\ []), do: {:ok, repo().many(Queries.query(Process, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do

@@ -29,7 +29,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().all(Queries.query(ProcessSpecification, filters))}
+  def many(filters \\ []), do: {:ok, repo().many(Queries.query(ProcessSpecification, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do

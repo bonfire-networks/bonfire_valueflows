@@ -46,15 +46,15 @@ defmodule ValueFlows.Proposal.Proposals do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().all(Queries.query(Proposal, filters))}
+  def many(filters \\ []), do: {:ok, repo().many(Queries.query(Proposal, filters))}
 
   @spec many_proposed_intents(filters :: [any]) :: {:ok, [ProposedIntent.t()]} | {:error, term}
   def many_proposed_intents(filters \\ []),
-    do: {:ok, repo().all(ProposedIntentQueries.query(ProposedIntent, filters))}
+    do: {:ok, repo().many(ProposedIntentQueries.query(ProposedIntent, filters))}
 
   @spec many_proposed_to(filters :: [any]) :: {:ok, [ProposedTo]} | {:error, term}
   def many_proposed_to(filters \\ []),
-    do: {:ok, repo().all(ProposedToQueries.query(ProposedTo, filters))}
+    do: {:ok, repo().many(ProposedToQueries.query(ProposedTo, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
