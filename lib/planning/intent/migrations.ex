@@ -16,7 +16,7 @@ defmodule ValueFlows.Planning.Intent.Migrations do
       add(:note, :text)
 
       # array of URI
-      add(:resource_classified_as, {:array, :string})
+      # add(:resource_classified_as, {:array, :string})
 
       add(:action_id, :string)
 

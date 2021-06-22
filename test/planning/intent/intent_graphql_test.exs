@@ -308,7 +308,29 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert intent["image"] |> String.split_at(-4) |> elem(1) == ".png"
     end
 
-    test "create an intent with tags" do
+    @tag :skip # FIXME
+    test "create an intent with URIs as classification" do
+      user = fake_agent!()
+
+      tags = some(1..5, &url/0)
+
+      q = create_intent_mutation(fields: [:resource_classified_as])
+      conn = user_conn(user)
+
+      vars = %{
+        intent:
+          intent_input(%{
+            "resourceClassifiedAs" => tags
+          })
+      }
+
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+
+      assert_intent(intent)
+      assert intent["resourceClassifiedAs"] == tags
+    end
+
+    test "create an intent with categories/tags" do
       user = fake_agent!()
 
       tags = some_fake_categories(user)

@@ -15,6 +15,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     from(c in ResourceSpecification, as: :resource_spec)
   end
 
+  def query(filters), do: filter(ResourceSpecification, filters)
+
   def query(q, filters), do: filter(query(q), filters)
 
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do

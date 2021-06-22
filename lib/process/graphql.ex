@@ -278,8 +278,8 @@ defmodule ValueFlows.Process.GraphQL do
         :default,
         # preload: [:provider, :receiver, :tags],
         user: GraphQL.current_user(info)
-      ]
-      # data_filters: [page: [desc: [followers: page_opts]]],
+      ],
+      data_filters: ValueFlows.Util.GraphQL.fetch_data_filters([paginate_id: page_opts], info),
     })
   end
 

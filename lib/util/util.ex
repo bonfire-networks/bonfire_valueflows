@@ -5,10 +5,6 @@ defmodule ValueFlows.Util do
 
   require Logger
 
-  # def try_tag_thing(user, thing, attrs) do
-  #   IO.inspect(attrs)
-  # end
-
   @doc """
   lookup tag from URL(s), to support vf-graphql mode
   """
@@ -19,22 +15,26 @@ defmodule ValueFlows.Util do
   #   {:ok, thing}
   # end
 
-  def map_values(%{} = map, func) do
-    for {k, v} <- map, into: %{}, do: {k, func.(v)}
-  end
 
-  def try_tag_thing(user, thing, tags) do
+  def try_tag_thing(user, thing, attrs) do
     if module_enabled?(Bonfire.Tag.Tags) do
-      Bonfire.Tag.Tags.maybe_tag(user, thing, tags)
+
+      input_tags = Map.get(attrs, :tags, []) ++ Map.get(attrs, :resource_classified_as, []) ++ Map.get(attrs, :classified_as, [])
+
+      Bonfire.Tag.Tags.maybe_tag(user, thing, input_tags)
     else
       {:ok, thing}
     end
   end
 
+  def map_values(%{} = map, func) do
+    for {k, v} <- map, into: %{}, do: {k, func.(v)}
+  end
 
-  def publish(%{id: creator_id} =creator, verb, %{id: thing_id} =thing) do
+  def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
-    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, :guest)
+    # if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, :guest) # FIXME, seems to cause infinite loop
+    # TODO: make default audience configurable & per object audience selectable by user in API and UI
 
     ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id)
 

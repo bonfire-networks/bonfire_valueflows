@@ -15,6 +15,8 @@ defmodule ValueFlows.EconomicResource.Queries do
     from(c in EconomicResource, as: :resource)
   end
 
+  def query(filters), do: filter(EconomicResource, filters)
+
   def query(q, filters), do: filter(query(q), filters)
 
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do

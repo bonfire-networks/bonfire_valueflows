@@ -79,7 +79,7 @@ defmodule ValueFlows.Process.GraphQLTest do
       user = fake_agent!()
       processes = some(5, fn -> fake_process!(user) end)
       after_process = List.first(processes)
-      # deleted
+      # create & delete some others
       some(2, fn ->
         process = fake_process!(user)
         {:ok, process} = Processes.soft_delete(process)

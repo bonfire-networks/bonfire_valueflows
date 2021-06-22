@@ -15,6 +15,8 @@ defmodule ValueFlows.Process.Queries do
     from(c in Process, as: :process)
   end
 
+  def query(filters), do: filter(Process, filters)
+
   def query(q, filters), do: filter(query(q), filters)
 
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
@@ -263,16 +265,6 @@ defmodule ValueFlows.Process.Queries do
   def filter(q, {:paginate_id, %{limit: limit}}) do
     filter(q, limit: limit + 1)
   end
-
-  # def filter(q, {:page, [desc: [followers: page_opts]]}) do
-  #   q
-  #   |> filter(join: :follower_count, order: [desc: :followers])
-  #   |> page(page_opts, [desc: :followers])
-  #   |> select(
-  #     [process: c,  follower_count: fc],
-  #     %{c | follower_count: coalesce(fc.count, 0)}
-  #   )
-  # end
 
   # defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
   #   filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2

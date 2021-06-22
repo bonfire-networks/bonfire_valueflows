@@ -3,6 +3,7 @@ if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Util.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
   alias Bonfire.GraphQL
+  alias Bonfire.Common.Utils
 
   require Logger
 
@@ -17,6 +18,7 @@ defmodule ValueFlows.Util.GraphQL do
   # end
 
   def parse_cool_scalar(value), do: {:ok, value}
+
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
@@ -50,11 +52,15 @@ defmodule ValueFlows.Util.GraphQL do
     {:ok, nil}
   end
 
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = repo().preload(thing, tags: :character)
-    # urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    urls = Enum.map(thing.tags, & &1.id)
-    {:ok, urls}
+  def fetch_classifications_edge(%{tags: _tags, resource_classified_as: _} = thing, _, _) do
+    thing = repo().preload(thing, tags: [:peered])
+
+    urls = Utils.e(thing, :tags, [])
+    |> Enum.map(&Bonfire.Common.URIs.canonical_url(&1))
+    # |> Kernel.++ Utils.e(thing, :resource_classified_as, [])
+    # |> IO.inspect
+
+    {:ok, urls }
   end
 
   def fetch_classifications_edge(_, _, _) do
@@ -141,10 +147,10 @@ defmodule ValueFlows.Util.GraphQL do
   def image_content_url(_, _, _), do: {:ok, nil}
 
   def maybe_upload(user, changes, info) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Files.GraphQL) do
+    if Utils.module_enabled?(Bonfire.Files.GraphQL) do
       Bonfire.Files.GraphQL.upload(user, changes, info)
     else
-      if Bonfire.Common.Utils.module_enabled?(CommonsPub.Web.GraphQL.UploadResolver) do
+      if Utils.module_enabled?(CommonsPub.Web.GraphQL.UploadResolver) do
         CommonsPub.Web.GraphQL.UploadResolver.upload(user, changes, info)
       else
         Logger.error("Cannot upload #{inspect changes} - #{inspect info}")
@@ -154,7 +160,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def tags_edges(a, b, c) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Tag.GraphQL.TagResolver) do
+    if Utils.module_enabled?(Bonfire.Tag.GraphQL.TagResolver) do
       Bonfire.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
     else
       Logger.warn("Cannot resolve tags")

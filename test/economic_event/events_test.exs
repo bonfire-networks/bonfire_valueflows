@@ -176,7 +176,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
     end
 
     @tag :skip
-    test "can create an economic event with resource_classified_as" do
+    test "can create an economic event with URI in resource_classified_as" do
       user = fake_agent!()
 
       attrs = %{

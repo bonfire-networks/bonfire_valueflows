@@ -10,6 +10,8 @@ defmodule ValueFlows.ValueCalculation.Queries do
     from(vc in ValueCalculation, as: :value_calculation)
   end
 
+  def query(filters), do: filter(ValueCalculation, filters)
+
   def query(q, filters), do: filter(query(q), filters)
 
   def join_to(q, spec, join_qualifier \\ :left)
