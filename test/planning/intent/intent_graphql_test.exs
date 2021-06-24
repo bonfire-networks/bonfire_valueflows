@@ -358,7 +358,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       q = create_intent_mutation(fields: [action: [:id]])
       conn = user_conn(user)
       vars = %{intent: intent_input(%{"action" => "reading"})}
-      assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
+      assert [%{"field" => "action_id"}] = grumble_post_errors(q, conn, vars)
     end
   end
 

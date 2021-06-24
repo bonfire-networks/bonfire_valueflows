@@ -4,6 +4,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   require Logger
 
   import Bonfire.Common.Config, only: [repo: 0]
+  alias ValueFlows.Util
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -198,7 +199,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   def update_resource_spec(%{resource_specification: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, resource_spec} <- resource_spec(%{id: id}, info),
-         :ok <- ensure_update_permission(user, resource_spec),
+         :ok <- ValueFlows.Util.ensure_edit_permission(user, resource_spec),
          {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, resource_spec} <- ResourceSpecifications.update(resource_spec, changes) do
@@ -210,20 +211,13 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, resource_spec} <- resource_spec(%{id: id}, info),
-           :ok <- ensure_update_permission(user, resource_spec),
+           :ok <- ValueFlows.Util.ensure_edit_permission(user, resource_spec),
            {:ok, _} <- ResourceSpecifications.soft_delete(resource_spec) do
         {:ok, true}
       end
     end)
   end
 
-  def ensure_update_permission(user, resource_spec) do
-    if ValueFlows.Util.is_admin(user) or resource_spec.creator_id == user.id do
-      :ok
-    else
-      GraphQL.not_permitted("update")
-    end
-  end
 
   # defp validate_agent(pointer) do
   #   if Pointers.table!(pointer).schema in valid_contexts() do

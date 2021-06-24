@@ -107,7 +107,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
     |> maybe_put(:value_unit_id, attr_get_id(attrs, :value_unit))
-    |> maybe_put(:action_id, attrs[:action])
+    |> maybe_put(:action_id, attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id())
     |> maybe_put(:value_action_id, attrs[:value_action])
     |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
     |> maybe_put(:value_resource_conforms_to_id, attr_get_id(attrs, :value_resource_conforms_to))

@@ -8,8 +8,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias Bonfire.GraphQL.{Fields, Page}
   alias ValueFlows.Util
 
-
-
   alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
@@ -131,7 +129,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def update(current_user, %Intent{} = intent, changes) do
-    with :ok <- ensure_update_permission(current_user, intent) do
+    with :ok <- ValueFlows.Util.ensure_edit_permission(current_user, intent) do
       update(intent, changes)
     end
   end
@@ -157,7 +155,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def soft_delete(%{} = current_user, %Intent{} = intent) do
-      with :ok <- ensure_update_permission(current_user, intent) do
+      with :ok <- ValueFlows.Util.ensure_edit_permission(current_user, intent) do
         soft_delete(intent)
       end
   end
@@ -170,14 +168,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
         {:ok, intent}
       end
     end)
-  end
-
-  def ensure_update_permission(user, intent) do
-    if ValueFlows.Util.is_admin(user) or intent.creator_id == user.id do
-      :ok
-    else
-      {:error, :not_permitted}
-    end
   end
 
   def indexing_object_format(obj) do
@@ -200,7 +190,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(:action_id, attr_get_id(attrs, :action))
+    |> maybe_put(:action_id, attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id())
     |> maybe_put(:context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )

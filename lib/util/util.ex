@@ -5,38 +5,23 @@ defmodule ValueFlows.Util do
 
   require Logger
 
-  @doc """
-  lookup tag from URL(s), to support vf-graphql mode
-  """
-
-  # def try_tag_thing(_user, thing, %{resource_classified_as: urls})
-  #     when is_list(urls) and length(urls) > 0 do
-  #   # todo: lookup tag by URL
-  #   {:ok, thing}
-  # end
-
-
-  def try_tag_thing(user, thing, attrs) do
-    if module_enabled?(Bonfire.Tag.Tags) do
-
-      input_tags = Map.get(attrs, :tags, []) ++ Map.get(attrs, :resource_classified_as, []) ++ Map.get(attrs, :classified_as, [])
-
-      Bonfire.Tag.Tags.maybe_tag(user, thing, input_tags)
+  def ensure_edit_permission(%{} = user, %{} = object) do
+    # TODO refactor to also use Boundaries (when extension active)
+    # TODO check also based on the parent / context? and user's organisation? etc
+    if ValueFlows.Util.is_admin(user) or Map.get(object, :creator_id) == user.id or Map.get(object, :provider_id) == user.id do
+      :ok
     else
-      {:ok, thing}
+      {:error, :not_permitted}
     end
   end
 
-  def map_values(%{} = map, func) do
-    for {k, v} <- map, into: %{}, do: {k, func.(v)}
-  end
 
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
     circles = [:local]
 
-    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles) # FIXME, seems to cause infinite loop
+    # if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles) # FIXME, seems to cause infinite loop
 
     ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id)
 
@@ -237,5 +222,32 @@ defmodule ValueFlows.Util do
   # end
 
   def default_recurse_limit(), do: 2 # TODO: configurable
+
+    @doc """
+  lookup tag from URL(s), to support vf-graphql mode
+  """
+
+  # def try_tag_thing(_user, thing, %{resource_classified_as: urls})
+  #     when is_list(urls) and length(urls) > 0 do
+  #   # todo: lookup tag by URL
+  #   {:ok, thing}
+  # end
+
+
+  def try_tag_thing(user, thing, attrs) do
+    if module_enabled?(Bonfire.Tag.Tags) do
+
+      input_tags = Map.get(attrs, :tags, []) ++ Map.get(attrs, :resource_classified_as, []) ++ Map.get(attrs, :classified_as, [])
+
+      Bonfire.Tag.Tags.maybe_tag(user, thing, input_tags)
+    else
+      {:ok, thing}
+    end
+  end
+
+  def map_values(%{} = map, func) do
+    for {k, v} <- map, into: %{}, do: {k, func.(v)}
+  end
+
 
 end

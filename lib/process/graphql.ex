@@ -298,7 +298,7 @@ defmodule ValueFlows.Process.GraphQL do
   def update_process(%{process: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, process} <- process(%{id: id}, info),
-         :ok <- ensure_update_permission(user, process),
+         :ok <- ValueFlows.Util.ensure_edit_permission(user, process),
          {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, process} <- Processes.update(process, changes) do
@@ -310,20 +310,13 @@ defmodule ValueFlows.Process.GraphQL do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, process} <- process(%{id: id}, info),
-           :ok <- ensure_update_permission(user, process),
+           :ok <- ValueFlows.Util.ensure_edit_permission(user, process),
            {:ok, _} <- Processes.soft_delete(process) do
         {:ok, true}
       end
     end)
   end
 
-  def ensure_update_permission(user, process) do
-    if ValueFlows.Util.is_admin(user) or process.creator_id == user.id do
-      :ok
-    else
-      GraphQL.not_permitted("update")
-    end
-  end
 
   # defp validate_agent(pointer) do
   #   if Pointers.table!(pointer).schema in valid_contexts() do

@@ -1,5 +1,14 @@
 defmodule ValueFlows.Knowledge.Action.Actions do
-  # @on_load :load_actions
+  # @on_load :actions_map
+
+
+  def id(label) do
+    with {:ok, action} <- action(label) do
+      action.id
+    else
+      _ -> nil
+    end
+  end
 
   def action!(label) do
     with {:ok, action} <- action(label) do
@@ -9,12 +18,15 @@ defmodule ValueFlows.Knowledge.Action.Actions do
     end
   end
 
+  def action(%{id: label}), do: action(label)
+  def action(%{label: label}), do: action(label)
+
   def action(label) when is_atom(label) do
     action(Atom.to_string(label))
   end
 
   def action(label) do
-    case load_actions()[label] do
+    case actions_map()[label] do
       nil ->
         {:error, :not_found}
 
@@ -24,10 +36,10 @@ defmodule ValueFlows.Knowledge.Action.Actions do
   end
 
   def actions_list() do
-    Map.values(load_actions())
+    Map.values(actions_map())
   end
 
-  def load_actions do
+  def actions_map do
     %{
       "dropoff" => %ValueFlows.Knowledge.Action{
         id: "dropoff",

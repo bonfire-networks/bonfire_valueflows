@@ -116,14 +116,22 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       assert intent.available_quantity_id != updated.available_quantity_id
     end
 
-    @tag :skip
-    test "fails if invalid action is given" do
+    test "fails if we don't have permission" do
+      user = fake_agent!()
+      random = fake_agent!()
+      intent = fake_intent!(user)
+
+      assert {:error, :not_permitted} =
+               Intents.update(random, intent, intent(%{note: "i can hackz?"}))
+    end
+
+    test "doesn't update if invalid action is given" do
       user = fake_agent!()
       intent = fake_intent!(user)
 
-      # FIXME: doesn't actually check as it isn't a foreign key
-      assert {:error, :not_found} =
+      assert {:ok, %{action: action}} =
                Intents.update(intent, intent(%{action: "sleeping"}))
+      assert action == intent.action
     end
   end
 end

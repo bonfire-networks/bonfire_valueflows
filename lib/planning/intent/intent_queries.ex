@@ -112,6 +112,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], is_nil(c.deleted_at))
   end
 
+  def filter(q, :deleted, true) do
+    where(q, [intent: c], not is_nil(c.deleted_at))
+  end
+
   def filter(q, :disabled) do
     where(q, [intent: c], is_nil(c.disabled_at))
   end

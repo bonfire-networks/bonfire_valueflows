@@ -622,7 +622,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   def prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(:action_id, attr_get_id(attrs, :action))
+    |> maybe_put(:action_id, attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id())
     |> maybe_put(
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)

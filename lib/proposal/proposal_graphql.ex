@@ -242,7 +242,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   def update_proposal(%{proposal: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, proposal} <- proposal(%{id: id}, info),
-         :ok <- ensure_update_permission(user, proposal),
+         :ok <- ValueFlows.Util.ensure_edit_permission(user, proposal),
          {:ok, proposal} <- Proposals.update(proposal, changes) do
       {:ok, %{proposal: proposal}}
     end
@@ -252,20 +252,13 @@ defmodule ValueFlows.Proposal.GraphQL do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, proposal} <- proposal(%{id: id}, info),
-           :ok <- ensure_update_permission(user, proposal),
+           :ok <- ValueFlows.Util.ensure_edit_permission(user, proposal),
            {:ok, _} <- Proposals.soft_delete(proposal) do
         {:ok, true}
       end
     end)
   end
 
-  def ensure_update_permission(user, proposal) do
-    if ValueFlows.Util.is_admin(user) or proposal.creator_id == user.id do
-      :ok
-    else
-      GraphQL.not_permitted("update")
-    end
-  end
 
   # defp validate_agent(pointer) do
   #   if Pointers.table!(pointer).schema in valid_contexts() do

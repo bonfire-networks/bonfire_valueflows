@@ -372,7 +372,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   def update_intent(%{intent: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, intent} <- Intents.by_id(id, user),
-         :ok <- Intents.ensure_update_permission(user, intent),
+         :ok <- ValueFlows.Util.ensure_edit_permission(user, intent),
          {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, intent} <- Intents.update(user, intent, changes) do

@@ -7,6 +7,7 @@ defmodule ValueFlows.EconomicEvent.GraphQL do
   require Logger
 
   import Bonfire.Common.Config, only: [repo: 0]
+  alias ValueFlows.Util
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -354,7 +355,7 @@ defmodule ValueFlows.EconomicEvent.GraphQL do
   def update_event(%{event: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, event} <- event(%{id: id}, info),
-         :ok <- ensure_update_permission(user, event),
+         :ok <- ValueFlows.Util.ensure_edit_permission(user, event),
          {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, event} <- EconomicEvents.update(user, event, changes) do
@@ -366,19 +367,11 @@ defmodule ValueFlows.EconomicEvent.GraphQL do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, event} <- event(%{id: id}, info),
-           :ok <- ensure_update_permission(user, event),
+           :ok <- ValueFlows.Util.ensure_edit_permission(user, event),
            {:ok, _} <- EconomicEvents.soft_delete(event) do
         {:ok, true}
       end
     end)
-  end
-
-  def ensure_update_permission(user, event) do
-    if ValueFlows.Util.is_admin(user) or event.creator_id == user.id do
-      :ok
-    else
-      GraphQL.not_permitted("update")
-    end
   end
 
   # defp validate_agent(pointer) do
