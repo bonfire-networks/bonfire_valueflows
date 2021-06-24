@@ -216,12 +216,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   ## fetchers
 
   def fetch_intent(info, id) do
-    Intents.one([
-      :default,
-      user: GraphQL.current_user(info),
-      id: id
-      # preload: :tags
-    ])
+    Intents.by_id(id, GraphQL.current_user(info))
   end
 
   def agent_intents(%{id: agent}, %{} = _page_opts, info) do
@@ -376,11 +371,11 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def update_intent(%{intent: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, intent} <- intent(%{id: id}, info),
-         :ok <- ensure_update_permission(user, intent),
+         {:ok, intent} <- Intents.by_id(id, user),
+         :ok <- Intents.ensure_update_permission(user, intent),
          {:ok, uploads} <- ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
          changes = Map.merge(changes, uploads),
-         {:ok, intent} <- Intents.update(intent, changes) do
+         {:ok, intent} <- Intents.update(user, intent, changes) do
       {:ok, %{intent: intent}}
     end
   end
@@ -388,20 +383,10 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   def delete_intent(%{id: id}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, intent} <- intent(%{id: id}, info),
-           :ok <- ensure_update_permission(user, intent),
-           {:ok, _} <- Intents.soft_delete(intent) do
+           {:ok, _} <- Intents.soft_delete(user, id) do
         {:ok, true}
       end
     end)
-  end
-
-  def ensure_update_permission(user, intent) do
-    if ValueFlows.Util.is_admin(user) or intent.creator_id == user.id do
-      :ok
-    else
-      GraphQL.not_permitted("update")
-    end
   end
 
   # defp validate_agent(pointer) do

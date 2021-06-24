@@ -26,6 +26,15 @@ defmodule ValueFlows.Planning.Intent.Intents do
   """
   def one(filters), do: repo().single(Queries.query(Intent, filters))
 
+  def by_id(id, current_user \\ nil) do
+    one([
+      :default,
+      user: current_user,
+      id: id
+      # preload: :tags
+    ])
+  end
+
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
@@ -115,8 +124,19 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  # TODO: take the user who is performing the update
-  # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def update(current_user, id, changes) when is_binary(id) do
+    with {:ok, intent} <- by_id(id, current_user) do
+      update(intent, changes)
+    end
+  end
+
+  def update(current_user, %Intent{} = intent, changes) do
+    with :ok <- ensure_update_permission(current_user, intent) do
+      update(intent, changes)
+    end
+  end
+
+  # TODO: turn into private function
   def update(%Intent{} = intent, attrs) do
     attrs = prepare_attrs(attrs, e(intent, :creator, nil))
 
@@ -130,6 +150,19 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
+  def soft_delete(%{} = current_user, id) when is_binary(id) do
+      with {:ok, intent} <- by_id(id, current_user) do
+        soft_delete(current_user, intent)
+      end
+  end
+
+  def soft_delete(%{} = current_user, %Intent{} = intent) do
+      with :ok <- ensure_update_permission(current_user, intent) do
+        soft_delete(intent)
+      end
+  end
+
+  # TODO: turn into private function
   def soft_delete(%Intent{} = intent) do
     repo().transact_with(fn ->
       with {:ok, intent} <- Bonfire.Repo.Delete.soft_delete(intent),
@@ -137,6 +170,14 @@ defmodule ValueFlows.Planning.Intent.Intents do
         {:ok, intent}
       end
     end)
+  end
+
+  def ensure_update_permission(user, intent) do
+    if ValueFlows.Util.is_admin(user) or intent.creator_id == user.id do
+      :ok
+    else
+      {:error, :not_permitted}
+    end
   end
 
   def indexing_object_format(obj) do

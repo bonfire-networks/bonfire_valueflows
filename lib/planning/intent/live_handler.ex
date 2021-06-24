@@ -72,30 +72,22 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     end
   end
 
-  def handle_event("status:finished", %{"id" => id} = attrs, socket) do
+  def handle_event("status:"<>status, %{"id" => id} = attrs, socket) do
 
-    with {:ok, intent} <- Intents.one(id: id),
-         {:ok, intent} <- Intents.update(intent, %{finished: true}) do
-      # IO.inspect(intent)
+    finished? = status == "finished"
 
-      redir = if e(attrs, "redirect_after", nil) do
-          e(attrs, "redirect_after", "/intent/")<>intent.id
-         else
-          e(socket.assigns, :current_url, "#")
-         end
-
-      {:noreply, socket |> push_redirect(to: redir) }
-    end
+    handle_event("update:status", Map.merge(attrs, %{finished: finished?}), socket)
   end
 
   def handle_event("update:"<>what, %{"id" => id} = attrs, socket) do
 
     with {:ok, intent} <- Intents.one(id: id),
-         {:ok, intent} <- Intents.update(intent, attrs) do
+        # TODO: switch to permissioned update
+         {:ok, intent} <- Intents.update(intent, input_to_atoms(attrs)) do
       # IO.inspect(intent)
 
       redir = if e(attrs, "redirect_after", nil) do
-          e(attrs, "redirect_after", "/intent/")<>intent.id
+          e(attrs, "redirect_after", "/intent/")<>id
          else
           e(socket.assigns, :current_url, "#")
          end
@@ -156,4 +148,20 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
       {:noreply, socket |> assign_global(%{intents: intents})}
     end
   end
+
+  def handle_event("delete", %{"id" => id} = attrs, socket) do
+
+    with {:ok, intent} <- Intents.soft_delete(current_user(socket), id) do
+      # IO.inspect(intent)
+
+      redir = if e(attrs, "redirect_after", nil) do
+          e(attrs, "redirect_after", "/")
+         else
+          e(socket.assigns, :current_url, "/")
+         end
+
+      {:noreply, socket |> push_redirect(to: redir) }
+    end
+  end
+
 end
