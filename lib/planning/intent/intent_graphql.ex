@@ -187,7 +187,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     intents_filter_next([param_remove], filter_add, page_opts, filters_acc, current_user)
   end
 
-  defp id_or_me(["me"], current_user), do: Utils.maybe_get(current_user, :id) || raise "You must be logged in for this"
+  defp id_or_me(["me"], current_user), do: Utils.maybe_get(current_user, :id) || raise "You need to be logged in for this"
   defp id_or_me(id, _), do: id
 
 
