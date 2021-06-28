@@ -21,7 +21,7 @@ defmodule ValueFlows.Util do
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
     circles = [:local]
 
-    # if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles) # FIXME, seems to cause infinite loop
+    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles) # FIXME, seems to cause infinite loop
 
     ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id)
 
