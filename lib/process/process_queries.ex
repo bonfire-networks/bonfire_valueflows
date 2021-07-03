@@ -248,19 +248,21 @@ defmodule ValueFlows.Process.Queries do
     limit(q, ^limit)
   end
 
-  def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
+  def filter(q, {:paginate_id, %{after: a, limit: limit}}) when is_binary(a) do
     limit = limit + 2
 
     q
     |> where([process: c], c.id >= ^a)
     |> limit(^limit)
   end
+  def filter(q, {:paginate_id, %{after: [a], limit: limit}}), do: filter(q, {:paginate_id, %{after: a, limit: limit}})
 
-  def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
+  def filter(q, {:paginate_id, %{before: b, limit: limit}}) when is_binary(b) do
     q
     |> where([process: c], c.id <= ^b)
     |> filter(limit: limit + 2)
   end
+  def filter(q, {:paginate_id, %{before: [b], limit: limit}}), do: filter(q, {:paginate_id, %{before: b, limit: limit}})
 
   def filter(q, {:paginate_id, %{limit: limit}}) do
     filter(q, limit: limit + 1)
