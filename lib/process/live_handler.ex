@@ -22,6 +22,7 @@ defmodule ValueFlows.Process.LiveHandler do
   end
 
   def handle_event("update", attrs, %{assigns: %{process: %{id: process_id}}} = socket) do
+    IO.inspect(process: attrs)
     do_update(process_id, attrs |> Map.get("process") |> input_to_atoms(), socket)
   end
 
@@ -30,8 +31,7 @@ defmodule ValueFlows.Process.LiveHandler do
     do_update(id, %{finished: true}, socket)
   end
 
-  def do_update(id, attrs, %{assigns: %{current_user: current_user}} = socket) do
-    IO.inspect(attrs: attrs)
+  def do_update(id, attrs, socket) do
     # TODO: check permissions
     with {:ok, process} <- Processes.one(id: id),
          {:ok, process} <- Processes.update(process, attrs) do
