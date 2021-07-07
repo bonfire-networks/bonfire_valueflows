@@ -31,6 +31,11 @@ defmodule ValueFlows.Process.LiveHandler do
     do_update(id, %{finished: true}, socket)
   end
 
+  def handle_event("status:unfinished", %{"id" => id} = attrs, socket) do
+    # TODO: record by who
+    do_update(id, %{finished: false}, socket)
+  end
+
   def do_update(id, attrs, socket) do
     # TODO: check permissions
     with {:ok, process} <- Processes.one(id: id),
