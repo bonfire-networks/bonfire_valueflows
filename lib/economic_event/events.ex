@@ -292,22 +292,25 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
     Logger.notice("Events.create_with_action: incrementing (eg. producing or raising a new resource), using info from the event and/or resource_conforms_to")
 
-    # IO.inspect(create_with_action: event_attrs)
+    IO.inspect(create_with_action: event_attrs)
 
     resource_conforms_to = ResourceSpecifications.maybe_get(event_attrs)
 
     attrs = %{
           name: Map.get(event_attrs, :note, "Unknown Resource"),
           current_location: Map.get(event_attrs, :at_location),
-          conforms_to: resource_conforms_to
+          conforms_to: resource_conforms_to,
+          # note: Map.get(event_attrs, :resource_note, "")
         }
 
+    IO.inspect(attrs)
     create_somethings(creator, event_attrs, %{
         new_inventoried_resource: Bonfire.Common.Utils.maybe_to_map(
           attrs
             |> Map.merge(
               resource_conforms_to || %{}
             ))
+            |> Map.merge(%{note: Map.get(event_attrs, :resource_note, "")})
       })
   end
 
