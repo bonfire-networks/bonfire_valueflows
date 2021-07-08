@@ -4,10 +4,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   import Bonfire.Common.Config, only: [repo: 0]
 
-
-
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
+
+  @search_type "ValueFlows.ResourceSpecification"
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -26,8 +26,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().many(Queries.query(ResourceSpecification, filters))}
+  def many(filters \\ []), do: {:ok, many!(filters)}
+  def many!(filters \\ []), do: repo().many(Queries.query(ResourceSpecification, filters))
 
+  def search(search) do
+   ValueFlows.Util.maybe_search(search, @search_type) || many!(autocomplete: search)
+  end
 
   def maybe_get(%{resource_conforms_to_id: id}) when is_binary(id) do
     with {:ok, fetched} <- one(id: id) do
@@ -92,7 +96,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "ValueFlows.ResourceSpecification",
+      "index_type" => @search_type,
       "id" => obj.id,
       # "url" => obj.character.canonical_url,
       # "icon" => icon,

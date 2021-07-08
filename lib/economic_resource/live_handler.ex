@@ -5,18 +5,14 @@ defmodule ValueFlows.EconomicResource.LiveHandler do
   alias ValueFlows.EconomicResource.EconomicResources
 
 
+  def handle_event("autocomplete", %{"value"=>search}, socket), do: handle_event("autocomplete", search, socket)
   def handle_event("autocomplete", search, socket) when is_binary(search) do
 
-    matches = with {:ok, matches} <- EconomicResources.many(autocomplete: search) do
-      # IO.inspect(matches)
-      matches |> Enum.map(&to_tuple/1)
-    else
-      _ -> []
-    end
-    IO.inspect(matches)
+    options = ( EconomicResources.search(search) || [] )
+              |> Enum.map(&to_tuple/1)
+    # IO.inspect(matches)
 
-
-    {:noreply, socket |> assign_global(resources_inventoried_as_autocomplete: matches) }
+    {:noreply, socket |> assign_global(economic_resources_autocomplete: options) }
   end
 
 
@@ -26,7 +22,7 @@ defmodule ValueFlows.EconomicResource.LiveHandler do
     selected = {name, select_resource}
 
     IO.inspect(selected)
-    {:noreply, socket |> assign_global(resource_inventoried_as_selected: [selected])}
+    {:noreply, socket |> assign_global(economic_resource_selected: [selected])}
   end
 
   def to_tuple(resource_spec) do

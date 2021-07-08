@@ -12,6 +12,8 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   alias ValueFlows.EconomicResource.Queries
   alias ValueFlows.EconomicEvent.EconomicEvents
 
+  @search_type "ValueFlows.EconomicResource"
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -29,7 +31,13 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().many(Queries.query(EconomicResource, filters))}
+  def many(filters \\ []), do: {:ok, many!(filters)}
+  def many!(filters \\ []), do: repo().many(Queries.query(EconomicResource, filters))
+
+  def search(search) do
+   ValueFlows.Util.maybe_search(search, @search_type) || many!(autocomplete: search)
+  end
+
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -153,7 +161,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "ValueFlows.EconomicResource",
+      "index_type" => @search_type,
       "id" => obj.id,
       # "url" => obj.canonical_url,
       # "icon" => icon,

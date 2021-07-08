@@ -79,6 +79,12 @@ defmodule ValueFlows.Util do
     end
   end
 
+  def maybe_search(search, facets) do
+    maybe_apply(Bonfire.Search, :search_by_type, [search, facets], &none/2)
+  end
+  defp none(_, _), do: nil
+
+
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
     # IO.inspect(thing)
     # IO.inspect(icon_id)

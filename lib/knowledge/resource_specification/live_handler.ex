@@ -24,17 +24,14 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
   end
 
 
+  def handle_event("autocomplete", %{"value"=>search}, socket), do: handle_event("autocomplete", search, socket)
   def handle_event("autocomplete", search, socket) when is_binary(search) do
 
-    matches = with {:ok, matches} <- ResourceSpecifications.many(autocomplete: search) do
-      IO.inspect(matches)
-      matches |> Enum.map(&to_tuple/1)
-    else
-      _ -> []
-    end
+    options = ( ResourceSpecifications.search(search) || [] )
+              |> Enum.map(&to_tuple/1)
     # IO.inspect(matches)
 
-    options = matches ++ [{"Create a new resource specification called: "<>search, search}]
+    options = options ++ [{"Create a new resource specification called: "<>search, search}]
 
     {:noreply, socket |> assign_global(resource_specifications_autocomplete: options) }
   end
