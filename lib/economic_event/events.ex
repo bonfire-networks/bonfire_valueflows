@@ -625,13 +625,13 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   def prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(:action_id, attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id())
+    |> maybe_put(:action_id, e(attrs, :action, :id, e(attrs, :action, nil) ) |> ValueFlows.Knowledge.Action.Actions.id())
     |> maybe_put(
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
-    |> maybe_put(:provider_id, attr_get_id(attrs, :provider))
-    |> maybe_put(:receiver_id, attr_get_id(attrs, :receiver))
+    |> maybe_put(:provider_id, attr_get_agent(attrs, :provider, creator))
+    |> maybe_put(:receiver_id, attr_get_agent(attrs, :receiver, creator))
     |> maybe_put(:input_of_id, attr_get_id(attrs, :input_of))
     |> maybe_put(:output_of_id, attr_get_id(attrs, :output_of))
     |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
@@ -643,6 +643,12 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     |> Util.parse_measurement_attrs(creator)
   end
 
+  def attr_get_agent(attrs, field, creator) do
+    case Map.get(attrs, field) do
+      "me" -> maybe_get_id(creator)
+      other -> maybe_get_id(other)
+    end
+  end
 
   def soft_delete(%EconomicEvent{} = event) do
     repo().transact_with(fn ->

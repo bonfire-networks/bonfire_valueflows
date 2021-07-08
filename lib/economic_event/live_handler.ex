@@ -9,7 +9,7 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    creator = current_user(socket) |> IO.inspect(label: "creator")
+    creator = current_user(socket) #|> IO.inspect(label: "creator")
 
     with obj_attrs <- attrs
                       |> IO.inspect()
@@ -18,7 +18,7 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
                       |> input_to_atoms()
                       # |> Map.get(:event)
                       |> EconomicEvents.prepare_create_attrs(creator)
-                      |> IO.inspect(label: "obj_attrs"),
+                      |> IO.inspect(label: "create_event_attrs"),
     %{valid?: true} = cs <- changeset(obj_attrs),
     {:ok, event} <- EconomicEvents.create(creator, obj_attrs) do
       IO.inspect(created: event)
