@@ -66,9 +66,27 @@ defmodule ValueFlows.Util do
     end
   end
 
-  def indexing_format_creator(obj) do
-    if module_enabled?(Bonfire.Search.Indexer),
-      do: Bonfire.Search.Indexer.format_creator(obj)
+  def indexing_format_creator(%{creator_id: id} = obj) when not is_nil(id) do
+    Bonfire.Repo.maybe_preload(obj,
+      [creator: [
+        :character,
+        profile: [:icon],
+      ]]
+    )
+    |> Map.get(:creator)
+    |> indexing_format_creator()
+  end
+
+  def indexing_format_creator(%Pointers.Pointer{} = pointer) do
+    Bonfire.Common.Pointers.follow!(pointer) |> indexing_format_creator()
+  end
+
+  def indexing_format_creator(%{id: id} = creator) when not is_nil(id) do
+    Bonfire.Me.Integration.indexing_format(maybe_get(creator, :profile), maybe_get(creator, :character))
+  end
+
+  def indexing_format_creator(_) do
+    nil
   end
 
   def indexing_format_tags(obj) do
