@@ -45,6 +45,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
+    IO.inspect(attrs)
     with obj_attrs <- attrs
                       # |> IO.inspect()
                       |> Map.merge(attrs["intent"])
