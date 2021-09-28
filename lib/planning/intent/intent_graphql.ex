@@ -53,6 +53,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.many([:default, limit: Map.get(args, :limit, 10), offset: Map.get(args, :start, 0)])
   end
 
+
   # TODO: pagination on filtered queries
 
   defp intents_filter(page_opts, filters_acc, current_user \\ nil)
@@ -169,7 +170,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          filters_acc, current_user
        ) do
     # finally, if there's no more known params to acumulate, query with the filters
-    Intents.many(filters_acc)
+    Intents.many([:default] ++ filters_acc)
   end
 
   defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc, current_user)

@@ -67,7 +67,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter(q, [:deleted, preload: :quantities])
+    filter(q, [:deleted, order: :default, preload: :quantities])
   end
 
   def filter(q, :offer) do
@@ -246,12 +246,18 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   ## by ordering
 
-  def filter(q, {:order, key}) when key in [:id, :due, :updated_at] do
-    filter(q, order: [desc: key])
+
+
+  def filter(q, {:order, [desc: key]}) when is_atom(key) do
+    order_by(q, [intent: c], desc: field(c, ^key))
   end
 
-  def filter(q, {:order, [desc: key]}) when key in [:id, :due, :updated_at] do
-    order_by(q, [intent: c], desc: field(c, ^key))
+  def filter(q, {:order, [asc: key]}) when is_atom(key) do
+    order_by(q, [intent: c], asc: field(c, ^key))
+  end
+
+  def filter(q, {:order, :default}) do
+    order_by(q, [intent: c], [desc: c.has_beginning, desc: c.has_point_in_time, desc: c.has_end, desc: c.due, desc: c.updated_at, asc: c.id])
   end
 
   def filter(q, {:order, :voted}) do
@@ -263,6 +269,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
     |> join_to(:like_count)
     |> preload(:like_count)
     |> order_by([intent: c, like_count: lc], desc: lc.liker_count)
+  end
+
+  def filter(q, {:order, key}) do
+    filter(q, order: [desc: key])
   end
 
   # grouping and counting
