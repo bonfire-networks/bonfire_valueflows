@@ -257,6 +257,13 @@ defmodule ValueFlows.Util do
   #   {:ok, thing}
   # end
 
+  def maybe_classification(user, tags) when is_list(tags), do: Enum.map(tags, &maybe_classification(user, &1))
+  def maybe_classification(user, %{value: tag}), do: maybe_classification(user, tag)
+  def maybe_classification(user, tag) do
+    with {:ok, c} <- Bonfire.Tag.Tags.maybe_find_tag(user, tag) do
+      c
+    end
+  end
 
   def try_tag_thing(user, thing, attrs) do
     if module_enabled?(Bonfire.Tag.Tags) do

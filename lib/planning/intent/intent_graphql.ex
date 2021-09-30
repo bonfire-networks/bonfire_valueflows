@@ -8,6 +8,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   alias Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
+  alias ValueFlows.Util
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -84,6 +85,10 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   defp intents_filter(%{tag_ids: tag_ids} = page_opts, filters_acc, current_user) do
     intents_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc, current_user)
+  end
+
+  defp intents_filter(%{classified_as: tags} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:classified_as, [tag_ids: Util.maybe_classification(current_user, tags) |> Enum.map(& (&1.id))], page_opts, filters_acc, current_user)
   end
 
   defp intents_filter(%{at_location: at_location_id} = page_opts, filters_acc, current_user) do

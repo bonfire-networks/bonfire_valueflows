@@ -150,6 +150,7 @@ input IntentSearchParams {
   action: [ID]
   inScopeOf: [ID]
   tagIds: [ID]
+  classifiedAs: [URI]
   atLocation: [ID]
   geolocation: GeolocationFilters
   agent: [ID]

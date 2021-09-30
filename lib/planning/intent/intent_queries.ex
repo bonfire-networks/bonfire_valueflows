@@ -4,6 +4,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # alias ValueFlows.Planning.Intents
 
   import Bonfire.Repo.Query, only: [match_admin: 0]
+  alias Bonfire.Common.Utils
   import Ecto.Query
   import Geo.PostGIS
 
@@ -228,12 +229,12 @@ defmodule ValueFlows.Planning.Intent.Queries do
     )
   end
 
-  def filter(q, {:tag_ids, id}) when is_binary(id) do
-    filter(q, {:tag_ids, [id]})
+  def filter(q, {:tag_ids, tag_id}) when is_binary(tag_id) do
+    filter(q, {:tag_ids, [tag_id]})
   end
 
-  def filter(q, {:tag_id, id}) when is_binary(id) do
-    filter(q, {:tag_ids, [id]})
+  def filter(q, {:tag_id, tag_id}) when is_binary(tag_id) do
+    filter(q, {:tag_ids, [tag_id]})
   end
 
   def filter(q, {:output_of_id, id}) when is_binary(id) do

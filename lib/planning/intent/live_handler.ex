@@ -4,10 +4,10 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
 
-  def changeset(attrs \\ %{}) do
-    Intent.validate_changeset(attrs)
-  end
 
+  @doc """
+  Create intents from a markdown-formatted list of checkboxes
+  """
   def create_from_list(current_user, obj_attrs, [i_intent | tail], tree_of_parent_ids, previous_indentation \\ "", latest_intent_id \\ nil) do
 
     indentation = Enum.at(i_intent, 1)
@@ -45,26 +45,21 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    IO.inspect(attrs)
+    # IO.inspect(attrs)
+    current_user = current_user(socket)
     with obj_attrs <- attrs
                       # |> IO.inspect()
                       |> Map.merge(attrs["intent"])
                       |> input_to_atoms()
-                      |> Intents.prepare_attrs()
                       |> IO.inspect(),
-    %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, intent} <- Intents.create(current_user(socket), obj_attrs) do
+    {:ok, intent} <- Intents.create(current_user, obj_attrs) do
       IO.inspect(intent)
 
       case Bonfire.Common.Text.list_checkboxes(intent.note) do
         sub_intents when length(sub_intents) > 0 ->
-          IO.inspect(sub_intents)
+          # IO.inspect(sub_intents)
 
-          create_from_list(current_user(socket), obj_attrs, sub_intents, [intent.id])
-
-          # for sub_intent <- sub_intents do
-          #   Intents.create(current_user(socket), Map.merge(obj_attrs, %{name: Enum.at(sub_intent, 3), note: nil, in_scope_of: [intent.id] }))
-          # end
+          create_from_list(current_user, obj_attrs, sub_intents, [intent.id])
 
         _ -> nil
       end
