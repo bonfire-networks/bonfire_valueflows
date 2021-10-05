@@ -58,6 +58,20 @@ defmodule ValueFlows.Util do
     {:ok, nil}
   end
 
+
+  def search_for_matches(%{name: name, note: note, is_offer: true}) do
+    facets = %{index_type: "ValueFlows.Planning.Need"}
+    Bonfire.Search.Fuzzy.search_filtered(name, facets) || Bonfire.Search.Fuzzy.search_filtered(note, facets)
+  end
+  def search_for_matches(%{name: name, note: note, is_need: true}) do
+    facets = %{index_type: "ValueFlows.Planning.Offer"}
+    Bonfire.Search.Fuzzy.search_filtered(name, facets) || Bonfire.Search.Fuzzy.search_filtered(note, facets)
+  end
+
+  def search_for_matches(%{name: name, note: note}) do
+    Bonfire.Search.Fuzzy.search(name) || Bonfire.Search.Fuzzy.search(note)
+  end
+
   def index_for_search(object) do
     if module_enabled?(Bonfire.Search.Indexer) do
       Bonfire.Search.Indexer.maybe_index_object(object)

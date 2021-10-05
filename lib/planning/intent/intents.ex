@@ -172,10 +172,20 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def indexing_object_format(obj) do
 
+    type = if obj.is_need do
+      "ValueFlows.Planning.Need"
+    else
+      if obj.is_offer do
+        "ValueFlows.Planning.Offer"
+      else
+        "ValueFlows.Planning.Intent"
+      end
+    end
+
     image = ValueFlows.Util.image_url(obj)
 
     %{
-      "index_type" => "ValueFlows.Planning.Intent",
+      "index_type" => type,
       "id" => obj.id,
       # "url" => obj.canonical_url,
       # "icon" => icon,

@@ -28,6 +28,9 @@ defmodule ValueFlows.Planning.Intent do
     belongs_to(:provider, ValueFlows.Util.user_or_org_schema())
     belongs_to(:receiver, ValueFlows.Util.user_or_org_schema())
 
+    field(:is_offer, :boolean, virtual: true)
+    field(:is_need, :boolean, virtual: true)
+
     belongs_to(:available_quantity, Measure, on_replace: :nilify)
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
     belongs_to(:effort_quantity, Measure, on_replace: :nilify)

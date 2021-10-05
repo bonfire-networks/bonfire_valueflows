@@ -9,7 +9,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
   import Geo.PostGIS
 
   def query(Intent) do
-    from(c in Intent, as: :intent)
+    from(c in Intent, as: :intent,
+      select_merge: %{is_offer: not is_nil(c.provider_id) and is_nil(c.receiver_id)},
+      select_merge: %{is_need: not is_nil(c.receiver_id) and is_nil(c.provider_id)},
+    )
   end
 
   def query(:count) do
