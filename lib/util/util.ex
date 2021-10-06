@@ -163,7 +163,7 @@ defmodule ValueFlows.Util do
 
   def is_admin(user) do
     if Map.get(user, :instance_admin) do
-      Map.get(user.instance_admin, :is_instance_admin)
+      Map.get(user.instance_admin, :is_instance_admin, false)
     else
       false # FIXME
     end
