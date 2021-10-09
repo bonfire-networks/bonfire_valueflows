@@ -49,7 +49,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     current_user = current_user(socket)
     with obj_attrs <- attrs
                       # |> IO.inspect()
-                      |> Map.merge(attrs["intent"])
+                      |> Map.merge(e(attrs, "intent", %{}))
                       |> input_to_atoms()
                       |> IO.inspect(),
     {:ok, intent} <- Intents.create(current_user, obj_attrs) do
