@@ -5,7 +5,7 @@ defmodule ValueFlows.Process.GraphQL do
 
   import Bonfire.Common.Config, only: [repo: 0]
   # TODO: don't use this
-  import Bonfire.Common.Utils, only: [map_key_replace_existing: 3]
+  import Bonfire.Common.Utils, only: [map_key_replace_existing: 3, map_key_replace_existing: 4]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -22,6 +22,7 @@ defmodule ValueFlows.Process.GraphQL do
   # alias Bonfire.Common.Enums
   # alias Bonfire.Common.Pointers
 
+  alias ValueFlows.Util
   alias ValueFlows.Process
   alias ValueFlows.Process.Processes
   alias ValueFlows.Process.Queries
@@ -183,7 +184,9 @@ defmodule ValueFlows.Process.GraphQL do
     |> map_key_replace_existing(:provider, :provider_id)
     |> map_key_replace_existing(:receiver, :receiver_id)
     |> map_key_replace_existing(:search_string, :search)
+    |> map_key_replace_existing(:classified_as, :tag_ids, Util.maybe_classification(nil, Map.get(search_params, :classified_as)) |> Enum.map(& (&1.id)))
     |> Keyword.new()
+    |> IO.inspect
   end
 
   def inputs(process, %{action: action_id}, _) when is_binary(action_id) do
