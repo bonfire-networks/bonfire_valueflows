@@ -279,6 +279,10 @@ defmodule ValueFlows.Util do
     end
   end
 
+  def maybe_classification_id(user, tag) do
+    maybe_classification(user, tag) |> e(:id, nil)
+  end
+
   def try_tag_thing(user, thing, attrs) do
     if module_enabled?(Bonfire.Tag.Tags) do
 
