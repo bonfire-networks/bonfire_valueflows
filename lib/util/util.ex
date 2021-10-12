@@ -283,16 +283,25 @@ defmodule ValueFlows.Util do
     maybe_classification(user, tag) |> e(:id, nil)
   end
 
-  def try_tag_thing(user, thing, attrs) do
+  def try_tag_thing(user, thing, %{} = attrs) do
     if module_enabled?(Bonfire.Tag.Tags) do
 
       input_tags = Map.get(attrs, :tags, []) ++ Map.get(attrs, :resource_classified_as, []) ++ Map.get(attrs, :classified_as, [])
 
-      Bonfire.Tag.Tags.maybe_tag(user, thing, input_tags)
+      try_tag_thing(user, thing, input_tags)
     else
       {:ok, thing}
     end
   end
+
+  def try_tag_thing(user, thing, tags) when is_list(tags) do
+    if module_enabled?(Bonfire.Tag.Tags) do
+      Bonfire.Tag.Tags.maybe_tag(user, thing, tags)
+    else
+      {:ok, thing}
+    end
+  end
+
 
   def map_values(%{} = map, func) do
     for {k, v} <- map, into: %{}, do: {k, func.(v)}
