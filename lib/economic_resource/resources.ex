@@ -14,6 +14,8 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
   @search_type "ValueFlows.EconomicResource"
 
+  def federation_module, do: ["ValueFlows:EconomicResource", "EconomicResource"]
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -175,6 +177,14 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     } #|> IO.inspect
   end
 
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :economic_resource, thing, 3, [
+    ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+  end
 
   defp prepare_attrs(attrs, creator \\ nil) do
     attrs

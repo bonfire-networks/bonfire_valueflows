@@ -7,10 +7,10 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-
-
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
+
+  def federation_module, do: ["ValueFlows:ProcessSpecification", "ProcessSpecification"]
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -144,6 +144,15 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     }
   end
 
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :process_specification, thing, 3, [
+      :published_in
+    ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+  end
 
   defp prepare_attrs(attrs) do
     attrs

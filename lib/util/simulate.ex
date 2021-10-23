@@ -293,13 +293,14 @@ defmodule ValueFlows.Simulate do
   def fake_intent!(user, overrides, unit) do
     measure_attrs = %{unit_id: unit.id}
 
-    measures = %{
-      available_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
-      resource_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
-      effort_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs)
-    }
-
-    overrides = Map.merge(overrides, measures)
+    overrides = Map.merge(%{
+        provider: Enum.random([user, nil]),
+        receiver: Enum.random([user, nil]),
+        available_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+        resource_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+        effort_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+      },
+      overrides)
 
     {:ok, intent} = Intents.create(user, intent(overrides))
     intent

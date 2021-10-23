@@ -12,7 +12,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
 
-  def federation_module, do: ["ValueFlows:Intent", "ValueFlows:Need", "ValueFlows:Offer"]
+  def federation_module, do: ["ValueFlows:Intent", "ValueFlows:Need", "ValueFlows:Offer", "Intent", "Need", "Offer"]
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -201,7 +201,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :intent, thing, 2, [
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :intent, thing, 3, [
 
     ])
   end

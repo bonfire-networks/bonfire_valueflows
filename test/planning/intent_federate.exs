@@ -32,6 +32,8 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert activity.local == true
 
       assert activity.data["object"]["name"] == intent.name
+      # assert object["type"] == "ValueFlows:Offer"
+
     end
 
     # test "creates an intent for a basic incoming need" do
@@ -46,7 +48,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
 
     #   object = %{
     #     "name" => "title",
-    #     "note" => "content",
+    #     "summary" => "content",
     #     "type" => "ValueFlows:Need",
     #     "action" => action,
     #     "to" => to
@@ -62,12 +64,12 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
     #   {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
     #   assert actor.data["id"] == activity.data["actor"]
-    #   assert object["note"] == activity.data["object"]["note"]
+    #   assert object["summary"] == activity.data["object"]["summary"]
 
     #   assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
     #   IO.inspect(intent: intent)
     #   assert object["name"] == intent.name
-    #   assert object["note"] == intent.note
+    #   assert object["summary"] == intent.note
     #   assert object["action"] == intent.action_id
     #   assert actor.data["id"] == intent |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
@@ -101,7 +103,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         "id" => "https://kawen.space/pub/objects/01FJNJV113P04FBFM20P5VZVEA",
         "inScopeOf" => [],
         "name" => "Welch and Sons",
-        "note" => "Quisquam cupiditate et minus aut cupiditate in sit.",
+        "summary" => "Quisquam cupiditate et minus aut cupiditate in sit.",
         "publishedIn" => [],
         # "resourceClassifiedAs" => ["https://bonjour.bonfire.cafe/pub/actors/Needs_Offers"],
         # "resourceQuantity" => %{
@@ -120,15 +122,15 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         context: "xyz"
       }
 
-      {:ok, activity} = ActivityPub.create(params) |> IO.inspect
+      {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["note"] == activity.data["object"]["note"]
+      assert object["summary"] == activity.data["object"]["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
-      IO.inspect(intent: intent)
+      # IO.inspect(intent, label: "intent created based on incoming AP")
       assert object["name"] == intent.name
-      assert object["note"] == intent.note
+      assert object["summary"] == intent.note
       assert object["action"] == intent.action_id
       assert actor.data["id"] == intent |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 

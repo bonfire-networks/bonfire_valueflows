@@ -10,6 +10,8 @@ defmodule ValueFlows.Claim.Claims do
 
   alias Bonfire.Common.Pointers
 
+  def federation_module, do: ["ValueFlows:Claim", "Claim"]
+
   def one(filters), do: repo().single(Queries.query(Claim, filters))
 
   def many(filters \\ []), do: {:ok, repo().many(Queries.query(Claim, filters))}
@@ -30,6 +32,19 @@ defmodule ValueFlows.Claim.Claims do
         |> Claim.validate_required()
         |> repo().insert()
         |> maybe_ok_error(&preload_all/1)
+      end
+    end)
+  end
+
+    def create(%{} = creator, %{} = attrs) do
+    repo().transact_with(fn ->
+      attrs = prepare_attrs(attrs)
+
+      with {:ok, claim} <- Claim.create_changeset(creator, attrs)
+        |> Claim.validate_required()
+        |> repo().insert() do
+
+        preload_all(claim)
       end
     end)
   end
@@ -58,4 +73,14 @@ defmodule ValueFlows.Claim.Claims do
     |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
     |> maybe_put(:triggered_by_id, attr_get_id(attrs, :triggered_by))
   end
+
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :claim, thing, 3, [
+    ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+  end
+
 end

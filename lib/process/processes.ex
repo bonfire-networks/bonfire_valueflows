@@ -14,6 +14,8 @@ defmodule ValueFlows.Process.Processes do
   alias ValueFlows.EconomicEvent.EconomicEvents
   alias ValueFlows.Planning.Intent.Intents
 
+  def federation_module, do: ["ValueFlows:Process", "Process"]
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -164,6 +166,15 @@ defmodule ValueFlows.Process.Processes do
     }
   end
 
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :process, thing, 3, [
+      :published_in
+    ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+  end
 
   def prepare_attrs(attrs) do
     attrs

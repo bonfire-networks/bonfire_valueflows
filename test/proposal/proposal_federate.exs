@@ -18,15 +18,11 @@ defmodule ValueFlows.Proposal.FederateTest do
     test "federates/publishes a proposal" do
       user = fake_agent!()
 
-      unit = maybe_fake_unit(user)
-
-      parent = fake_agent!()
-
       location = fake_geolocation!(user)
 
-      proposal = fake_proposal!(user, parent, %{eligible_location_id: location.id})
+      proposal = fake_proposal!(user, %{eligible_location_id: location.id})
 
-      intent = fake_intent!(user, unit)
+      intent = fake_intent!(user)
 
       fake_proposed_intent!(proposal, intent)
 
@@ -37,11 +33,10 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", proposal)
       #IO.inspect(published: activity) ########
 
-      assert activity.object.pointer_id == proposal.id
+      assert activity.pointer_id == proposal.id
       assert activity.local == true
-      assert activity.object.local == true
 
-      assert activity.object.data["name"] == proposal.name
+      assert activity.data["object"]["name"] == proposal.name
     end
   end
 end

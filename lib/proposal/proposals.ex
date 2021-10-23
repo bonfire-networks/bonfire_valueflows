@@ -19,6 +19,8 @@ defmodule ValueFlows.Proposal.Proposals do
 
   alias ValueFlows.Planning.Intent
 
+  def federation_module, do: ["ValueFlows:Proposal", "Proposal"]
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -194,6 +196,10 @@ defmodule ValueFlows.Proposal.Proposals do
     ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, thing, 3, [
       :published_in
     ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
   end
 
   defp prepare_attrs(attrs) do

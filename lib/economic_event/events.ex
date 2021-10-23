@@ -24,6 +24,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   require Logger
 
+  def federation_module, do: ["ValueFlows:EconomicEvent", "EconomicEvent"]
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -670,6 +672,15 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       "creator" => ValueFlows.Util.indexing_format_creator(obj)
       # "index_instance" => URI.parse(obj.character.canonical_url).host, # home instance of object
     }
+  end
+
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :economic_event, thing, 2, [
+    ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
   end
 
 
