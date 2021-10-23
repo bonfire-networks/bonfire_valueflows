@@ -34,7 +34,7 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       #IO.inspect(pre_fed: proposal)
 
-      assert {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", proposal)
+      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", proposal)
       #IO.inspect(published: activity) ########
 
       assert activity.object.pointer_id == proposal.id

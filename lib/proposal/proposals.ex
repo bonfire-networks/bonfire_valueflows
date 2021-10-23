@@ -6,8 +6,6 @@ defmodule ValueFlows.Proposal.Proposals do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-
-
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 

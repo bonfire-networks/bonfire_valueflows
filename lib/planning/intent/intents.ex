@@ -12,6 +12,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
 
+  def federation_module, do: ["ValueFlows:Intent", "ValueFlows:Need", "ValueFlows:Offer"]
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -196,6 +198,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
       "creator" => ValueFlows.Util.indexing_format_creator(obj)
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
     }
+  end
+
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :intent, thing, 2, [
+
+    ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
   end
 
   def prepare_attrs(attrs, creator \\ nil) do
