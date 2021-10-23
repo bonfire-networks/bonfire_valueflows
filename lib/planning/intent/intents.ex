@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, map_key_replace: 3, e: 3, e: 4]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_list: 2, map_key_replace: 3, e: 3, e: 4]
 
   import Bonfire.Common.Config, only: [repo: 0]
 
@@ -214,7 +214,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     attrs
     |> maybe_put(:action_id, e(attrs, :action, :id, e(attrs, :action, nil) ) |> ValueFlows.Knowledge.Action.Actions.id())
     |> maybe_put(:context_id,
-      attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
+      attrs |> Map.get(:in_scope_of) |> maybe_list(&List.first/1)
     )
     |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
     |> maybe_put(:provider_id, attr_get_id(attrs, :provider))

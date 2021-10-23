@@ -2,15 +2,9 @@
 defmodule ValueFlows.Proposal.ProposalsTest do
   use Bonfire.ValueFlows.DataCase, async: true
 
+  alias Bonfire.Common.Utils
   import Bonfire.Common.Simulation
-
-
-
   import Bonfire.Geolocate.Simulate
-
-
-
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 

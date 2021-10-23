@@ -36,45 +36,45 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
 
     end
 
-    # test "creates an intent for a basic incoming need" do
+    test "creates an intent for a basic incoming need" do
 
-    #   {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
 
-    #   action = "produce"
-    #   to = [
-    #     "https://testing.kawen.dance/users/karen",
-    #     "https://www.w3.org/ns/activitystreams#Public"
-    #   ]
+      action = "produce"
+      to = [
+        "https://testing.kawen.dance/users/karen",
+        "https://www.w3.org/ns/activitystreams#Public"
+      ]
 
-    #   object = %{
-    #     "name" => "title",
-    #     "summary" => "content",
-    #     "type" => "ValueFlows:Need",
-    #     "action" => action,
-    #     "to" => to
-    #   }
+      object = %{
+        "name" => "title",
+        "summary" => "content",
+        "type" => "ValueFlows:Need",
+        "action" => action,
+        "to" => to
+      }
 
-    #   params = %{
-    #     actor: actor,
-    #     object: object,
-    #     to: to,
-    #     context: "xyz"
-    #   }
+      params = %{
+        actor: actor,
+        object: object,
+        to: to,
+        context: nil
+      }
 
-    #   {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
+      {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
-    #   assert actor.data["id"] == activity.data["actor"]
-    #   assert object["summary"] == activity.data["object"]["summary"]
+      assert actor.data["id"] == activity.data["actor"]
+      assert object["summary"] == activity.data["object"]["summary"]
 
-    #   assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
-    #   IO.inspect(intent: intent)
-    #   assert object["name"] == intent.name
-    #   assert object["summary"] == intent.note
-    #   assert object["action"] == intent.action_id
-    #   assert actor.data["id"] == intent |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+      assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      IO.inspect(intent: intent)
+      assert object["name"] == intent.name
+      assert object["summary"] == intent.note
+      assert object["action"] == intent.action_id
+      assert actor.data["id"] == intent |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
-    #   # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
-    # end
+      # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
+    end
 
     test "creates an intent for a complex incoming need/offer" do
 
@@ -119,7 +119,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         actor: actor,
         object: object,
         to: to,
-        context: "xyz"
+        context: nil
       }
 
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect

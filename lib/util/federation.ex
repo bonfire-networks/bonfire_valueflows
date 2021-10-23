@@ -24,11 +24,10 @@ defmodule ValueFlows.Util.Federation do
   @fields_from_AP Map.new(@fields_to_AP, fn {key, val} -> {val, key} end)
 
   @graphql_ignore_fields [
-    :communities,
-    :collections,
+    :unit_based,
+
     :my_like,
     :my_flag,
-    :unit_based,
     :feature_count,
     :follower_count,
     :is_local,
@@ -40,10 +39,15 @@ defmodule ValueFlows.Util.Federation do
     :inbox,
     :followers,
     :community_follows,
+    :communities,
+    :collections,
     :intents,
     :processes,
     :proposals,
     :economic_events,
+    :inputs,
+    :intended_inputs,
+    :intended_outputs,
     :inventoried_economic_resources,
     :geom, # see https://www.w3.org/TR/activitystreams-core/#extensibility
   ]
@@ -180,7 +184,7 @@ defmodule ValueFlows.Util.Federation do
     #IO.inspect(e)
 
     ap_graphql_fields_filter(e, field_filters)
-    |> IO.inspect(label: "ap_graphql_fields")
+    # |> IO.inspect(label: "ap_graphql_fields")
   end
 
 

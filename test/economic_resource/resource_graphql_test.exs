@@ -1,12 +1,7 @@
 defmodule ValueFlows.EconomicResource.GraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
-
   import Bonfire.Common.Simulation
-
-
-
-
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

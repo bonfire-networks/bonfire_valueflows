@@ -198,7 +198,15 @@ defmodule ValueFlows.Proposal.Proposals do
     ])
   end
 
+  # def ap_receive_activity(creator, activity, %{data: %{"publishes" => proposed_intents}} = object) do
+  #   IO.inspect(ap_receive_activity: object) #WIP
+  #   for proposed_intent <- proposed_intents do
+  #   end
+  #   ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+  # end
+
   def ap_receive_activity(creator, activity, object) do
+    # IO.inspect(ap_receive_activity: object)
     ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
   end
 

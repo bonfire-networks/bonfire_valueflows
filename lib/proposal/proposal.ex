@@ -59,12 +59,12 @@ defmodule ValueFlows.Proposal do
       ) do
     %Proposal{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       created: DateTime.utc_now(),
       creator_id: creator.id,
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 
