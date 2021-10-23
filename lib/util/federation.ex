@@ -43,6 +43,7 @@ defmodule ValueFlows.Util.Federation do
     :intents,
     :processes,
     :proposals,
+    :economic_events,
     :inventoried_economic_resources,
     :geom, # see https://www.w3.org/TR/activitystreams-core/#extensibility
   ]
