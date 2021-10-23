@@ -44,6 +44,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert activity.local == true
 
       assert activity.data["object"]["name"] == proposal.name
+      # TODO: check that intent creator/provider/receiver/action are included
     end
 
     test "creates a proposal/proposed_intent/proposal for incoming federation " do
@@ -77,12 +78,31 @@ defmodule ValueFlows.Proposal.FederateTest do
           %{
             "id" => "https://kawen.space/pub/objects/01FJQGYPG9Q3HWG1BW2TS0FN86",
             "publishes" => %{
-              "due" => "2021-10-27T18:28:24.908588Z",
+              "action" => "work",
+              "provider" => "https://kawen.space/pub/actors/karen",
+              # "availableQuantity" => %{
+              #   "hasNumericalValue" => 0.6819459786798888,
+              #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
+              #   "type" => "ValueFlows:Measure"
+              # },
+              "context" => [],
+              "due" => "2021-10-29T19:14:58.018729Z",
+              # "effortQuantity" => %{
+              #   "hasNumericalValue" => 0.6733462698502527,
+              #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
+              #   "type" => "ValueFlows:Measure"
+              # },
               "finished" => true,
-              "id" => "https://kawen.space/pub/objects/01FJQGYPE453WN811TZ1V11GSB",
-              "name" => "Rogahn, Crooks and Kozey",
+              "id" => "http://localhost:4000/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
+              "name" => "Leannon Group",
               "resourceClassifiedAs" => [],
-              "summary" => "In rerum rem enim iure nihil odit et maiores voluptas.",
+              # "resourceQuantity" => %{
+              #   "hasNumericalValue" => 0.9790977026822164,
+              #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
+              #   "type" => "ValueFlows:Measure"
+              # },
+              "summary" => "Et eligendi at maxime voluptate.",
+              "tags" => [],
               "type" => "ValueFlows:Intent"
             },
             "reciprocal" => true,
@@ -108,10 +128,19 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       IO.inspect(proposal, label: "proposal created based on incoming AP")
+
       assert object["name"] == proposal.name
       assert object["summary"] == proposal.note
-      # assert object["action"] == proposal.action_id
       assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+
+      assert p_intent_object = object["publishes"] |> List.first
+      assert intent_object = p_intent_object["publishes"]
+
+      assert p_intent = proposal.publishes |> List.first
+      assert intent = p_intent.publishes
+
+      assert intent_object["name"] == intent.name
+      assert intent_object["action"] == intent.action_id
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end

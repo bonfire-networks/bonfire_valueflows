@@ -158,7 +158,9 @@ defmodule ValueFlows.Proposal.Proposals do
   @spec propose_intent(Proposal.t(), Intent.t(), map) ::
           {:ok, ProposedIntent.t()} | {:error, term}
   def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
-    repo().insert(ProposedIntent.changeset(proposal, intent, attrs))
+    with {:ok, proposed_intent} <- repo().insert(ProposedIntent.changeset(proposal, intent, attrs)) do
+      {:ok, proposed_intent |> Map.put(:publishes, intent)}
+    end
   end
 
   @spec delete_proposed_intent(ProposedIntent.t()) :: {:ok, ProposedIntent.t()} | {:error, term}
@@ -193,17 +195,26 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, thing, 3, [
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, thing, 4, [
       :published_in
     ])
   end
 
-  # def ap_receive_activity(creator, activity, %{data: %{"publishes" => proposed_intents}} = object) do
-  #   IO.inspect(ap_receive_activity: object) #WIP
-  #   for proposed_intent <- proposed_intents do
-  #   end
-  #   ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
-  # end
+  def ap_receive_activity(creator, activity, %{data: %{"publishes" => proposed_intents_attrs}} = object) do
+    IO.inspect(ap_receive_activity: object) #WIP
+    with {:ok, proposal} <- ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2) do
+
+      proposed_intents = for %{"publishes" => intent_attrs} = proposed_intent_attrs <- proposed_intents_attrs do
+        # FIXME: should use intent creator, not the proposal's
+        with {:ok, intent} <- ValueFlows.Planning.Intent.Intents.ap_receive_activity(creator, activity, intent_attrs),
+        {:ok, proposed_intent} <- propose_intent(proposal, intent, proposed_intent_attrs) do
+          proposed_intent
+        end
+      end
+
+      {:ok, proposal |> Map.put(:publishes, proposed_intents)}
+    end
+  end
 
   def ap_receive_activity(creator, activity, object) do
     # IO.inspect(ap_receive_activity: object)
