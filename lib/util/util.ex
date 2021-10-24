@@ -19,7 +19,7 @@ defmodule ValueFlows.Util do
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
-    circles = [:local, :activity_pub]
+    circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, [:local, :activity_pub, :guest])
 
     # IO.inspect(circles: circles)
     if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles)
