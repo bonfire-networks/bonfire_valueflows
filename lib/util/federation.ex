@@ -116,7 +116,9 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def ap_prepare_object(obj) do
-    obj |> to_AP_deep_remap() |> IO.inspect(label: "prepared for federation")
+    obj
+    |> to_AP_deep_remap()
+    |> IO.inspect(label: "prepared for federation")
   end
 
   def ap_prepare_activity("create", thing, object, author_id \\ nil) do
@@ -261,7 +263,11 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def to_AP_remap(val, parent_key, _) do
-    {to_AP_field_rename(parent_key), to_AP_deep_remap(val, parent_key)}
+    if is_map(val) && Map.get(val, "id") && length(Map.keys(val))==1 do
+      {to_AP_field_rename(parent_key), Map.get(val, "id") |> Bonfire.Common.URIs.canonical_url()}
+    else
+      {to_AP_field_rename(parent_key), to_AP_deep_remap(val, parent_key)}
+    end
   end
 
   def to_AP_field_rename(k) do
