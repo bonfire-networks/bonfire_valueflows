@@ -19,14 +19,16 @@ defmodule ValueFlows.Util do
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
-    circles = [:local]
+    circles = [:local, :activity_pub]
 
-    # if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles) # FIXME! seems to cause infinite loop
+    # IO.inspect(circles: circles)
+    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles)
 
     # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - publish is triggered by FeedActivities.publish instead
 
-    if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 3) do
+    if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
 
+      # add to activity feed + maybe federate
       Bonfire.Social.FeedActivities.publish(creator, verb, thing, circles)
 
     else
