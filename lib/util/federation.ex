@@ -49,6 +49,7 @@ defmodule ValueFlows.Util.Federation do
     :intended_inputs,
     :intended_outputs,
     :inventoried_economic_resources,
+    :tagged,
     :geom, # see https://www.w3.org/TR/activitystreams-core/#extensibility
   ]
 
