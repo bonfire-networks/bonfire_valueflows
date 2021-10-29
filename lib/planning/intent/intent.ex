@@ -81,7 +81,7 @@ defmodule ValueFlows.Planning.Intent do
 
   @required ~w(name is_public action_id)a
   @cast @required ++
-    ~w(note due finished at_location_id is_disabled image_id context_id input_of_id output_of_id)a ++
+    ~w(note has_beginning has_end has_point_in_time due finished at_location_id is_disabled image_id context_id input_of_id output_of_id)a ++
     ~w(available_quantity_id resource_quantity_id effort_quantity_id resource_conforms_to_id resource_inventoried_as_id provider_id receiver_id)a
 
   def validate_changeset(attrs \\ %{}) do
