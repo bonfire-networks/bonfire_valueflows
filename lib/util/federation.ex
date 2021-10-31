@@ -263,6 +263,10 @@ defmodule ValueFlows.Util.Federation do
     {"type", "ValueFlows:Need"}
   end
 
+  def to_AP_remap(val, "action", %{"id" => action_id}) when not is_nil(action_id) do
+    {"action", Bonfire.Common.URIs.canonical_url(action_id)}
+  end
+
   def to_AP_remap(val, parent_key, _) do
     if is_map(val) && Map.get(val, "id") && length(Map.keys(val))==1 do
       {to_AP_field_rename(parent_key), Map.get(val, "id") |> Bonfire.Common.URIs.canonical_url()}
