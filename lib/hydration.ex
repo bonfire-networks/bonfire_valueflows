@@ -47,6 +47,9 @@ defmodule ValueFlows.Hydration do
       accounting_scope: [
         resolve_type: &__MODULE__.resolve_context_type/2
       ],
+      event_or_commitment: [
+        resolve_type: &ValueFlows.Planning.Satisfaction.GraphQL.event_or_commitment_resolve_type/2
+      ],
       person: agent_fields,
       organization: agent_fields,
       # person: [
@@ -142,7 +145,68 @@ defmodule ValueFlows.Hydration do
         ],
         output_of: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_output_of_edge/3
+        ],
+        satisfied_by: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_satisfied_by_edge/3
         ]
+      },
+      commitment: %{
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
+        ],
+        input_of: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.fetch_input_of_edge/3
+        ],
+        output_of: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.fetch_output_of_edge/3
+        ],
+        provider: [
+          resolve: &fetch_provider_edge/3
+        ],
+        receiver: [
+          resolve: &fetch_receiver_edge/3
+        ],
+        resource_conforms_to: [
+          resolve: &fetch_resource_conforms_to_edge/3
+        ],
+        resource_inventoried_as: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.fetch_resource_inventoried_as_edge/3
+        ],
+        resource_quantity: [
+          resolve: &resource_quantity_edge/3
+        ],
+        effort_quantity: [
+          resolve: &effort_quantity_edge/3
+        ],
+        created: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.fetch_created/3
+        ],
+        in_scope_of: [
+          resolve: &scope_edge/3
+        ],
+        at_location: [
+          resolve: &at_location_edge/3
+        ],
+        tags: [
+          resolve: &tags_edges/3
+        ],
+        satisfies: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.fetch_satisfies_edge/3
+        ]
+      },
+      satisfaction: %{
+        satisfies: [
+          resolve: &ValueFlows.Planning.Satisfaction.GraphQL.fetch_satisfies_edge/3
+        ],
+        satisfied_by: [
+          resolve: &ValueFlows.Planning.Satisfaction.GraphQL.fetch_satisfied_by_edge/3,
+        ],
+        resource_quantity: [
+          resolve: &resource_quantity_edge/3
+        ],
+        effort_quantity: [
+          resolve: &effort_quantity_edge/3
+        ],
       },
       claim: %{
         action: [
@@ -481,6 +545,18 @@ defmodule ValueFlows.Hydration do
         # intents_filtered: [
         #   resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
         # ],
+        commitment: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.commitment/2
+        ],
+        commitments: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.commitments_filtered/2
+        ],
+        satisfaction: [
+          resolve: &ValueFlows.Planning.Satisfaction.GraphQL.satisfaction/2
+        ],
+        satisfactions: [
+          resolve: &ValueFlows.Planning.Satisfaction.GraphQL.satisfactions_filtered/2
+        ],
 
         # Proposal
         proposal: [
@@ -501,11 +577,38 @@ defmodule ValueFlows.Hydration do
 
       # start Mutation resolvers
       value_flows_mutation: %{
-        create_claim: [
-          resolve: &ValueFlows.Claim.GraphQL.create_claim/2
+        create_commitment: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.create_commitment/2
         ],
+        update_commitment: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.update_commitment/2
+        ],
+        delete_commitment: [
+          resolve: &ValueFlows.Planning.Commitment.GraphQL.delete_commitment/2
+        ],
+
         create_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_intent/2
+        ],
+        delete_intent: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
+        ],
+        update_intent: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
+        ],
+
+        create_satisfaction: [
+          resolve: &ValueFlows.Planning.Satisfaction.GraphQL.create/2
+        ],
+        delete_satisfaction: [
+          resolve: &ValueFlows.Planning.Satisfaction.GraphQL.delete/2
+        ],
+        update_satisfaction: [
+          resolve: &ValueFlows.Planning.Satisfaction.GraphQL.update/2
+        ],
+
+        create_claim: [
+          resolve: &ValueFlows.Claim.GraphQL.create_claim/2
         ],
         create_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.create_proposal/2
@@ -528,9 +631,6 @@ defmodule ValueFlows.Hydration do
         update_claim: [
           resolve: &ValueFlows.Claim.GraphQL.update_claim/2
         ],
-        update_intent: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
-        ],
         update_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
         ],
@@ -545,9 +645,6 @@ defmodule ValueFlows.Hydration do
         ],
         delete_claim: [
           resolve: &ValueFlows.Claim.GraphQL.delete_claim/2
-        ],
-        delete_intent: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
         ],
         delete_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2

@@ -20,6 +20,9 @@ defmodule ValueFlows.AllMigrations do
     ValueFlows.Planning.Intent.Migrations.add_references()
 
     ValueFlows.Claim.Migrations.up()
+
+    ValueFlows.Planning.Commitment.Migrations.up()
+    ValueFlows.Planning.Satisfaction.Migrations.up()
   end
 
   def down do
@@ -37,5 +40,7 @@ defmodule ValueFlows.AllMigrations do
     ValueFlows.ValueCalculation.Migrations.down()
 
     ValueFlows.Claim.Migrations.down()
+    ValueFlows.Planning.Commitment.Migrations.down()
+    ValueFlows.Planning.Satisfaction.Migrations.down()
   end
 end

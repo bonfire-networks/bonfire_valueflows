@@ -55,9 +55,6 @@ defmodule ValueFlows.Planning.Intent do
 
     # belongs_to(:agreed_in, Agreement)
 
-    # inverse relationships
-    # has_many(:satisfied_by, Satisfaction)
-
     belongs_to(:creator, ValueFlows.Util.user_schema())
     belongs_to(:context, Pointers.Pointer)
 
