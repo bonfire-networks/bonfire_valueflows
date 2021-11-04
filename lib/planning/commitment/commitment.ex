@@ -2,7 +2,7 @@ defmodule ValueFlows.Planning.Commitment do
   use Pointers.Pointable,
     otp_app: :bonfire,
     source: "vf_commitment",
-    table_id: "C0MM1TMENTED95D6694555B6E8"
+    table_id: "40MM1TMENTED95D6694555B6E8"
 
   alias Ecto.Changeset
 

@@ -2,7 +2,7 @@ defmodule ValueFlows.Planning.Satisfaction do
   use Pointers.Pointable,
     otp_app: :bonfire,
     source: "vf_satisfaction",
-    table_id: "SAT1SFACT10N4F8994AD427E7B"
+    table_id: "1AT1SFACT10N4F8994AD427E7B"
 
   alias Ecto.Changeset
   alias ValueFlows.EconomicEvent
