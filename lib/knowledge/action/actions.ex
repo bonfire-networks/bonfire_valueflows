@@ -1,43 +1,9 @@
 defmodule ValueFlows.Knowledge.Action.Actions do
   # @on_load :actions_map
 
+  @default_actions ~w(accept cite consume deliver-service dropoff lower modify move pack pickup produce raise transfer transfer-all-rights transfer-custody unpack use work)
 
-  def id(label) do
-    with {:ok, action} <- action(label) do
-      action.id
-    else
-      _ -> nil
-    end
-  end
-
-  def action!(label) do
-    with {:ok, action} <- action(label) do
-      action
-    else
-      _ -> nil
-    end
-  end
-
-  def action(%{id: label}), do: action(label)
-  def action(%{label: label}), do: action(label)
-
-  def action(label) when is_atom(label) do
-    action(Atom.to_string(label))
-  end
-
-  def action(label) do
-    case actions_map()[label] do
-      nil ->
-        {:error, :not_found}
-
-      action ->
-        {:ok, action}
-    end
-  end
-
-  def actions_list() do
-    Map.values(actions_map())
-  end
+  # NOTE: you can define new actions below, but do not add them to @default_actions above unless they are already defined at https://w3id.org/valueflows
 
   def actions_map do
     %{
@@ -178,4 +144,43 @@ defmodule ValueFlows.Knowledge.Action.Actions do
       }
     }
   end
+
+  def id(label) do
+    with {:ok, action} <- action(label) do
+      action.id
+    else
+      _ -> nil
+    end
+  end
+
+  def action!(label) do
+    with {:ok, action} <- action(label) do
+      action
+    else
+      _ -> nil
+    end
+  end
+
+  def action(%{id: label}), do: action(label)
+  def action(%{label: label}), do: action(label)
+
+  def action(label) when is_atom(label) do
+    action(Atom.to_string(label))
+  end
+
+  def action(label) do
+    case actions_map()[label] do
+      nil ->
+        {:error, :not_found}
+
+      action ->
+        {:ok, action}
+    end
+  end
+
+  def actions_list() do
+    Map.values(actions_map())
+  end
+
+  def default_actions, do: @default_actions
 end

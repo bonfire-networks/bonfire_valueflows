@@ -5,14 +5,20 @@ defmodule ValueFlows.Util.Federation do
   @log_graphql false
 
   @schema Bonfire.Common.Config.get!(:graphql_schema_module)
-  @all_types Bonfire.Common.Config.get!(:all_types) || []
-  @non_prefixed_types @all_types ++ ["Person", "Organization"]
+
+  @types_to_AP %{
+    "Unit" => "om2:Unit", # using http://www.ontology-of-units-of-measure.org/resource/om-2/
+    "Measure" => "om2:Measure",
+    "SpatialThing" => "Place", # using https://www.w3.org/TR/activitystreams-vocabulary/#places
+  }
+  @types_to_translate Map.keys(@types_to_AP)
+  @non_VF_types ["Person", "Organization"] ++ @types_to_translate
 
   @fields_to_AP %{
     "__typename" => "type",
     "canonicalUrl" => "id",
     "inScopeOf" => "context",
-    "creator" => "actor",
+    "creator" => "attributedTo",
     "displayUsername" => "preferredUsername",
     "created" => "published",
     # "hasBeginning" => "published",
@@ -23,9 +29,9 @@ defmodule ValueFlows.Util.Federation do
   }
   @fields_from_AP Map.new(@fields_to_AP, fn {key, val} -> {val, key} end)
 
-  @graphql_ignore_fields [
-    :unit_based,
 
+  @graphql_ignore_fields [
+    # :unit_based,
     :my_like,
     :my_flag,
     :feature_count,
@@ -74,7 +80,9 @@ defmodule ValueFlows.Util.Federation do
             ),
           {:ok, activity} <- ActivityPub.create(activity_params, id) do
 
-        IO.inspect(activity_created: activity)
+        activity
+        # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
+        |> IO.inspect(label: "ap_publish_activity")
 
         # IO.puts(struct_to_json(activity.data))
         # IO.puts(struct_to_json(activity.object.data))
@@ -149,28 +157,34 @@ defmodule ValueFlows.Util.Federation do
               "cc" => [actor.data["followers"]]
             }
           } do
-        activity_params |> IO.inspect(label: "activity_params")
+        activity_params #|> IO.inspect(label: "activity_params")
       end
     else
       Logger.info("VF - No integration available to federate activity")
     end
   end
 
-  def maybe_id(thing, key) do
-    e(thing, key, :id, e(thing, key, nil))
-  end
 
-  def ap_receive_activity(creator, activity, object, fun) do
+  @doc """
+  Incoming federation
+  """
+  def ap_receive_activity(creator, _activity, %{typename: _} = attrs, fun) do
     # TODO: target guest circle if activity.public==true
     # TODO: target right circles/boundaries based on to/cc
-    IO.inspect(activity: activity)
-    # IO.inspect(object: object)
-    attrs = e(object, :data, object)
-    |> from_AP_deep_remap()
-    |> input_to_atoms()
-    |> IO.inspect(label: "attrs")
+    attrs
+    |> IO.inspect(label: "ap_receive_activity - attrs to create")
 
     fun.(creator, attrs)
+  end
+
+  def ap_receive_activity(creator, activity, %{} = object, fun) do
+    attrs = e(object, :data, object)
+    |> IO.inspect(label: "ap_receive_activity - object to prepare")
+    |> from_AP_deep_remap()
+    |> input_to_atoms()
+    |> Map.put_new(:typename, nil)
+
+    ap_receive_activity(creator, activity, attrs, fun)
   end
 
   defp maybe_get_ap_id_by_local_id("http"<>_ = url) do # TODO better
@@ -215,67 +229,78 @@ defmodule ValueFlows.Util.Federation do
     # |> IO.inspect(label: "ap_graphql_fields_filter")
   end
 
-  def to_AP_deep_remap(map, parent_key \\ nil)
+  defp to_AP_deep_remap(map, parent_key \\ nil)
 
-  def to_AP_deep_remap(map = %{}, parent_key) do
+  defp to_AP_deep_remap(map = %{}, parent_key) do
     map
-    |> Enum.reject(fn {_, v} -> is_nil(v) or v == %{} end)
-    |> Enum.reject(fn {k, _} -> Enum.member?(@graphql_ignore_fields, maybe_to_snake_atom(k)) end) # FIXME: this shouldn't be necessary if ap_graphql_fields_filter filters them all from the query
+    |> Enum.reject(fn {_, v} -> is_empty(v) end)
+    |> Enum.reject(fn {k, _} -> Enum.member?(@graphql_ignore_fields, maybe_to_snake_atom(k)) end) # FIXME: this shouldn't be necessary if ap_graphql_fields_filter correctly filters them all from the query
     |> Enum.map(fn {k, v} -> to_AP_remap(v, k, map) end)
     |> Enum.into(%{})
   end
 
-  def to_AP_deep_remap(list, parent_key) when is_list(list) do
+  defp to_AP_deep_remap(list, parent_key) when is_list(list) do
     list
-    |> Enum.reject(fn v -> is_nil(v) or v == %{} end)
+    |> Enum.reject(fn v -> is_empty(v) end)
     |> Enum.map(fn v -> to_AP_deep_remap(v, parent_key) end)
   end
 
-  def to_AP_deep_remap("SpatialThing", "__typename") do
-    # https://www.w3.org/TR/activitystreams-vocabulary/#places
-    "Place"
+  defp to_AP_deep_remap(type, "__typename") when type in @types_to_translate do
+    @types_to_AP[type]
   end
 
-  def to_AP_deep_remap(type, "__typename") when type not in @non_prefixed_types do # TODO: better
-    # IO.inspect(type: type)
+  defp to_AP_deep_remap(type, "__typename") when type not in @non_VF_types do
     "ValueFlows:#{type}"
   end
 
-  def to_AP_deep_remap(type, "__typename") do
+  defp to_AP_deep_remap(type, "__typename") do
     "#{type}"
   end
 
-  def to_AP_deep_remap(id, "id") do
+  defp to_AP_deep_remap(id, "id") do
     Bonfire.Common.URIs.canonical_url(id)
   end
 
-  def to_AP_deep_remap(val, _parent_key) do
+  defp to_AP_deep_remap(val, _parent_key) do
     #IO.inspect(deep_key_rename_k: parent_key)
     #IO.inspect(deep_key_rename_v: val)
     val
   end
 
-  def to_AP_remap(val, "__typename", %{"__typename" => "Intent", "provider" => provider}) when not is_nil(provider) do
-    {"type", "ValueFlows:Offer"}
+  # defp to_AP_remap(val, "__typename", %{"__typename" => "Intent", "provider" => provider} = _parent_map) when not is_nil(provider) do
+  #   {"type", "ValueFlows:Offer"}
+  # end
+
+  # defp to_AP_remap(val, "__typename", %{"__typename" => "Intent", "receiver" => receiver} = _parent_map) when not is_nil(receiver) do
+  #   {"type", "ValueFlows:Need"}
+  # end
+
+  defp to_AP_remap(action_id, "action", _parent_map) when is_binary(action_id) do
+    ld_action_id = if Enum.member?(ValueFlows.Knowledge.Action.Actions.default_actions, action_id) do
+      "https://w3id.org/valueflows#"<>action_id
+    else
+      Bonfire.Common.URIs.canonical_url(action_id)
+    end
+
+    {"action", ld_action_id}
+  end
+  defp to_AP_remap(%{"id"=>action_id}, "action", _parent_map), do: to_AP_remap(action_id, "action", nil)
+
+  defp to_AP_remap(id, "id", parent_map) when is_binary(id) do
+    # IO.inspect(url: parent_map)
+    {"id", Bonfire.Common.URIs.canonical_url(parent_map)}
   end
 
-  def to_AP_remap(val, "__typename", %{"__typename" => "Intent", "receiver" => receiver}) when not is_nil(receiver) do
-    {"type", "ValueFlows:Need"}
-  end
-
-  def to_AP_remap(val, "action", %{"id" => action_id}) when not is_nil(action_id) do
-    {"action", Bonfire.Common.URIs.canonical_url(action_id)}
-  end
-
-  def to_AP_remap(val, parent_key, _) do
+  defp to_AP_remap(val, parent_key, _parent_map) do
     if is_map(val) && Map.get(val, "id") && length(Map.keys(val))==1 do
-      {to_AP_field_rename(parent_key), Map.get(val, "id") |> Bonfire.Common.URIs.canonical_url()}
+      # when an object has just an ID
+      {to_AP_field_rename(parent_key), Bonfire.Common.URIs.canonical_url(Map.get(val, "id"))}
     else
       {to_AP_field_rename(parent_key), to_AP_deep_remap(val, parent_key)}
     end
   end
 
-  def to_AP_field_rename(k) do
+  defp to_AP_field_rename(k) do
     with rename_field when is_binary(rename_field) <- @fields_to_AP[k] do
       rename_field
     else _ ->
@@ -283,32 +308,50 @@ defmodule ValueFlows.Util.Federation do
     end
   end
 
-  def from_AP_deep_remap(map, parent_key \\ nil)
 
-  def from_AP_deep_remap(map = %{}, _parent_key) do
+  defp from_AP_deep_remap(map, parent_key \\ nil)
+
+  defp from_AP_deep_remap(map = %{}, _parent_key) do
     map
-    |> Enum.reject(fn {_, v} -> is_nil(v) or v == %{} end)
-    |> Enum.map(fn {k, v} -> from_AP_remap(v, k) end)
+    |> Enum.reject(fn {_, v} -> is_empty(v) end)
+    |> Enum.map(fn {k, v} -> {from_AP_field_rename(k), from_AP_remap(v, k)} end)
     |> Enum.into(%{})
   end
 
-  def from_AP_deep_remap(list, parent_key) when is_list(list) do
+  defp from_AP_deep_remap(list, parent_key) when is_list(list) do
     list
-    |> Enum.reject(fn v -> is_nil(v) or v == %{} end)
-    |> Enum.map(fn v -> from_AP_deep_remap(v, parent_key) end)
+    |> Enum.reject(fn v -> is_empty(v) end)
+    |> Enum.map(fn v -> from_AP_remap(v, parent_key) end)
   end
 
-  def from_AP_deep_remap(val, _parent_key) do
+  defp from_AP_deep_remap(val, _parent_key) do
     #IO.inspect(deep_key_rename_k: parent_key)
     #IO.inspect(deep_key_rename_v: val)
     val
   end
 
-  def from_AP_remap(val, parent_key) do
-    {from_AP_field_rename(parent_key), from_AP_deep_remap(val, parent_key)}
+
+  defp from_AP_remap(%{"type" => _, "actor" => creator} = val, parent_key) when not is_nil(creator) do
+    create_nested_object(creator, val, parent_key)
+  end
+  defp from_AP_remap(%{"type" => _, "attributedTo" => creator} = val, parent_key) when not is_nil(creator) do
+    create_nested_object(creator, val, parent_key)
+  end
+  defp from_AP_remap(%{"type" => _, "provider" => creator} = val, parent_key) when not is_nil(creator) do
+    create_nested_object(creator, val, parent_key)
+  end
+  defp from_AP_remap(%{"type" => _, "receiver" => creator} = val, parent_key) when not is_nil(creator) do
+    create_nested_object(creator, val, parent_key)
+  end
+  # defp from_AP_remap(%{"type" => _} = val, parent_key) when not is_nil(creator) do
+  #   create_nested_object(nil, val, parent_key)
+  # end
+
+  defp from_AP_remap(val, parent_key) do
+    from_AP_deep_remap(val, parent_key)
   end
 
-  def from_AP_field_rename(k) do
+  defp from_AP_field_rename(k) do
     with rename_field when is_binary(rename_field) <- @fields_from_AP[k] do
       rename_field
     else _ ->
@@ -316,11 +359,28 @@ defmodule ValueFlows.Util.Federation do
     end
   end
 
+  defp create_nested_object(creator, val, parent_key) do # handle nested object
+    with {:ok, nested_object} <- Bonfire.Federate.ActivityPub.Receiver.receive_object(creator, val)
+    |> IO.inspect(label: "created nested object")
+    do
+      {from_AP_field_rename(parent_key), nested_object}
+    # else _ ->
+    #   {from_AP_field_rename(parent_key), from_AP_deep_remap(val, parent_key)}
+    end
+  end
+
+
+  def is_empty(v) do
+    is_nil(v) or v == %{} or v == [] or v == ""
+  end
 
   def struct_to_json(struct) do
     Jason.encode!(nested_structs_to_maps(struct))
   end
 
+  def maybe_id(thing, key) do
+    e(thing, key, :id, e(thing, key, nil))
+  end
 
   def activity_object_id(%{object: object}) do
     activity_object_id(object)

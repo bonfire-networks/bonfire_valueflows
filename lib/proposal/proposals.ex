@@ -19,7 +19,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
   alias ValueFlows.Planning.Intent
 
-  def federation_module, do: ["ValueFlows:Proposal", "Proposal"]
+  def federation_module, do: ["ValueFlows:Proposal", "Proposal", "ValueFlows:ProposedIntent", "ProposedIntent"]
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -200,21 +200,26 @@ defmodule ValueFlows.Proposal.Proposals do
     ])
   end
 
-  def ap_receive_activity(creator, activity, %{data: %{"publishes" => proposed_intents_attrs}} = object) do
-    IO.inspect(ap_receive_activity: object) #WIP
-    with {:ok, proposal} <- ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2) do
+  # def ap_receive_activity(creator, activity, %{data: %{"publishes" => proposed_intents_attrs}} = object) do
+  #   IO.inspect(ap_receive_activity: object) #WIP for nested objects
+  #   with {:ok, proposal} <- ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2) do
 
-      proposed_intents = for %{"publishes" => intent_attrs} = proposed_intent_attrs <- proposed_intents_attrs do
-        # FIXME: should use intent creator, not the proposal's
-        with {:ok, intent} <- ValueFlows.Planning.Intent.Intents.ap_receive_activity(creator, activity, intent_attrs),
-        {:ok, proposed_intent} <- propose_intent(proposal, intent, proposed_intent_attrs) do
-          proposed_intent
-        end
-      end
+  #     proposed_intents = for %{"publishes" => intent_attrs} = proposed_intent_attrs <- proposed_intents_attrs do
+  #       # FIXME: should use intent creator, not the proposal's
+  #       with {:ok, intent} <- ValueFlows.Planning.Intent.Intents.ap_receive_activity(creator, activity, intent_attrs),
+  #       {:ok, proposed_intent} <- propose_intent(proposal, intent, proposed_intent_attrs) do
+  #         proposed_intent
+  #       end
+  #     end
 
-      {:ok, proposal |> Map.put(:publishes, proposed_intents)}
-    end
-  end
+  #     {:ok, proposal |> Map.put(:publishes, proposed_intents)}
+  #   end
+  # end
+
+  # def ap_receive_activity(creator, activity, %{typename: type} = object) when type in ["ValueFlows:ProposedIntent", "ProposedIntent"] do # TODO
+  #   # IO.inspect(ap_receive_activity: object)
+  #   ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+  # end
 
   def ap_receive_activity(creator, activity, object) do
     # IO.inspect(ap_receive_activity: object)
