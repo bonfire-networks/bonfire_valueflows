@@ -3,7 +3,7 @@ defmodule ValueFlows.Planning.Satisfaction.GraphQL do
   import Bonfire.GraphQL, only: [current_user_or_not_logged_in: 1]
   import Bonfire.Common.Config, only: [repo: 0]
 
-  alias ValueFlows.Planning.Satisfaction.Satisfactions
+  alias ValueFlows.Planning.{Satisfaction, Satisfaction.Satisfactions}
   alias ValueFlows.Planning.Commitment
   alias ValueFlows.EconomicEvent
 
@@ -38,24 +38,9 @@ defmodule ValueFlows.Planning.Satisfaction.GraphQL do
   def fetch_satisfies_edge(_, _, _),
     do: {:ok, nil}
 
-  def fetch_satisfied_by_edge(%{satisfied_by_id: id} = satis, _, info) when is_binary(id) do
-    # XXX: This is a hack where I use the fact that the field `created`
-    # is only available in Commitments.  A proper fix would be to use
-    # Pointers correctly, I think.
-
-    import Commitment.GraphQL, only: [fetch_commitment: 2]
-    import EconomicEvent.GraphQL, only: [fetch_event: 2]
-
-    satis = repo().preload(satis, :satisfied_by)
-
-    maybe_satis_by =
-      case satis.satisfied_by do
-        %{created: _} -> fetch_commitment(info, id)
-        _ -> fetch_event(info, id)
-      end
-
-    with {:ok, satis_by} <- maybe_satis_by,
-         do: {:ok, satis_by}
+  def fetch_satisfied_by_edge(%Satisfaction{} = satis, _, _) do
+    %{satisfied_by: satis_by} = repo().preload(satis, :satisfied_by)
+    {:ok, Bonfire.Common.Pointers.follow!(satis_by)}
   end
 
   def fetch_satisfied_by_edge(_, _, _),
