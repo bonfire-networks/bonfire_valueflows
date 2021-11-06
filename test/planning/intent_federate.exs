@@ -49,7 +49,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       object = %{
         "name" => "title",
         "summary" => "content",
-        "type" => "ValueFlows:Need",
+        "type" => "ValueFlows:Intent",
         "action" => action,
         "to" => to
       }
@@ -67,7 +67,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert object["summary"] == activity.data["object"]["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
-      IO.inspect(intent: intent)
+      # IO.inspect(intent: intent)
       assert object["name"] == intent.name
       assert object["summary"] == intent.note
       assert object["action"] == intent.action_id
@@ -76,7 +76,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end
 
-    test "creates an intent for a complex incoming need/offer" do
+    test "creates an intent for an incoming need/offer with nested objects" do
 
       {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
 
@@ -111,7 +111,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         #   "id" => "https://kawen.space/pub/objects/01FJNJV1110VYYN8AT9PPVEJ0Q",
         #   "type" => "ValueFlows:Measure"
         # },
-        "type" => "ValueFlows:Offer"
+        "type" => "ValueFlows:Intent"
       }
 
 

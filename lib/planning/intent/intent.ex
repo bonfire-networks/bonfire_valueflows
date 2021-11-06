@@ -51,7 +51,8 @@ defmodule ValueFlows.Planning.Intent do
 
     belongs_to(:action, Action, type: :string)
 
-    many_to_many(:published_in, Proposal, join_through: ProposedIntent)
+    has_many(:published_in, ProposedIntent)
+    many_to_many(:published_proposals, Proposal, join_through: ProposedIntent)
 
     belongs_to(:input_of, Process)
     belongs_to(:output_of, Process)

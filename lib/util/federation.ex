@@ -52,6 +52,7 @@ defmodule ValueFlows.Util.Federation do
     :proposals,
     :economic_events,
     :inputs,
+    :outputs,
     :intended_inputs,
     :intended_outputs,
     :inventoried_economic_resources,
@@ -231,7 +232,7 @@ defmodule ValueFlows.Util.Federation do
 
   defp to_AP_deep_remap(map, parent_key \\ nil)
 
-  defp to_AP_deep_remap(map = %{}, parent_key) do
+  defp to_AP_deep_remap(map = %{}, parent_key) when not is_struct(map) do
     map
     |> Enum.reject(fn {_, v} -> is_empty(v) end)
     |> Enum.reject(fn {k, _} -> Enum.member?(@graphql_ignore_fields, maybe_to_snake_atom(k)) end) # FIXME: this shouldn't be necessary if ap_graphql_fields_filter correctly filters them all from the query
@@ -311,7 +312,7 @@ defmodule ValueFlows.Util.Federation do
 
   defp from_AP_deep_remap(map, parent_key \\ nil)
 
-  defp from_AP_deep_remap(map = %{}, _parent_key) do
+  defp from_AP_deep_remap(map = %{}, _parent_key) when not is_struct(map) do
     map
     |> Enum.reject(fn {_, v} -> is_empty(v) end)
     |> Enum.map(fn {k, v} -> {from_AP_field_rename(k), from_AP_remap(v, k)} end)
@@ -337,13 +338,20 @@ defmodule ValueFlows.Util.Federation do
   defp from_AP_remap(%{"type" => _, "attributedTo" => creator} = val, parent_key) when not is_nil(creator) do
     create_nested_object(creator, val, parent_key)
   end
+  defp from_AP_remap(%{"type" => _, "primaryAccountable" => creator} = val, parent_key) when not is_nil(creator) do
+    create_nested_object(creator, val, parent_key)
+  end
   defp from_AP_remap(%{"type" => _, "provider" => creator} = val, parent_key) when not is_nil(creator) do
     create_nested_object(creator, val, parent_key)
   end
   defp from_AP_remap(%{"type" => _, "receiver" => creator} = val, parent_key) when not is_nil(creator) do
     create_nested_object(creator, val, parent_key)
   end
+  defp from_AP_remap(%{"agentType" => _} = val, parent_key) do
+    create_nested_object(val, val, parent_key)
+  end
   # defp from_AP_remap(%{"type" => _} = val, parent_key) when not is_nil(creator) do
+  # TODO: handle types without a known creator (by re-fetching the object?)
   #   create_nested_object(nil, val, parent_key)
   # end
 
@@ -363,7 +371,7 @@ defmodule ValueFlows.Util.Federation do
     with {:ok, nested_object} <- Bonfire.Federate.ActivityPub.Receiver.receive_object(creator, val)
     |> IO.inspect(label: "created nested object")
     do
-      {from_AP_field_rename(parent_key), nested_object}
+      nested_object
     # else _ ->
     #   {from_AP_field_rename(parent_key), from_AP_deep_remap(val, parent_key)}
     end

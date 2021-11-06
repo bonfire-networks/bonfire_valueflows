@@ -313,13 +313,13 @@ defmodule ValueFlows.Simulate do
 
   def fake_proposed_intent!(proposal, intent, overrides \\ %{}) do
     {:ok, proposed_intent} =
-      Proposals.propose_intent(proposal, intent, proposed_intent(overrides))
+      ValueFlows.Proposal.ProposedIntents.propose_intent(proposal, intent, proposed_intent(overrides))
 
     proposed_intent
   end
 
   def fake_proposed_to!(proposed_to, proposed) do
-    {:ok, proposed_to} = Proposals.propose_to(proposed_to, proposed)
+    {:ok, proposed_to} = ValueFlows.Proposal.ProposedTos.propose_to(proposed_to, proposed)
     proposed_to
   end
 

@@ -567,7 +567,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     :ok
   end
 
-  defp validate_user_involvement(_creator, _event) do
+  defp validate_user_involvement(creator, event) do
+    Logger.error("VF - Permission error, creator is #{inspect creator} and provider is #{inspect event.provider} and receiver is #{inspect event.receiver}")
    {:error, error(403, "You cannot do this if you are not receiver or provider.")}
   end
 
@@ -627,7 +628,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   def prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(:action_id, e(attrs, :action, :id, e(attrs, :action, nil) ) |> ValueFlows.Knowledge.Action.Actions.id())
+    |> maybe_put(:action_id, e(attrs, :action, :id, e(attrs, :action, nil) ) |> ValueFlows.Knowledge.Action.Actions.id)
     |> maybe_put(
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
@@ -643,6 +644,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
     |> maybe_put(:calculated_using_id, attr_get_id(attrs, :calculated_using))
     |> Util.parse_measurement_attrs(creator)
+    |> IO.inspect(label: "Events: prepared attrs")
   end
 
   def attr_get_agent(attrs, field, creator) do
