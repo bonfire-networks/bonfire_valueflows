@@ -113,10 +113,36 @@ defmodule ValueFlows.Planning.Intent do
     |> ValueFlows.Util.change_measures(attrs, measure_fields())
     |> change_public()
     |> change_disabled()
+    |> validate_datetime()
     |> Changeset.foreign_key_constraint(
       :at_location_id,
       name: :vf_intent_at_location_id_fkey
     )
+  end
+
+  # validate exclusivity of datetime fields, namely:
+  # has_point_in_time, has_beginning, has_end
+  #
+  # the logic is to allow either of these cases and nothing else
+  # (due is not checked, thus allowed in each case):
+  # * only has_point_in_time
+  # * only has_beginning
+  # * only has_end
+  # * only has_beginning or has_end
+  defp validate_datetime(%Changeset{valid?: false} = cset) do
+    cset
+  end
+
+  defp validate_datetime(%Changeset{changes: %{has_point_in_time: _, has_beginning: _}} = cset) do
+    Changeset.add_error(cset, :has_beginning, "mutually exclusive to has_point_in_time")
+  end
+
+  defp validate_datetime(%Changeset{changes: %{has_point_in_time: _, has_end: _}} = cset) do
+    Changeset.add_error(cset, :has_end, "mutually exclusive to has_point_in_time")
+  end
+
+  defp validate_datetime(%Changeset{} = cset) do
+    cset
   end
 
   def context_module, do: ValueFlows.Planning.Intent.Intents
