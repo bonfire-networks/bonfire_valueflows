@@ -245,6 +245,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], c.input_of_id == ^id)
   end
 
+  def filter(q, {:start_date, start_date}) do
+    where(q, [intent: c], c.has_point_in_time >= ^start_date or c.has_beginning >= ^start_date)
+  end
+
+  def filter(q, {:end_date, end_date}) do
+    where(q, [intent: c], c.has_point_in_time < ^end_date or c.has_end < ^end_date)
+  end
+
   ## by ordering
 
 

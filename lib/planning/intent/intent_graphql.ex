@@ -95,6 +95,14 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     intents_filter_next(:at_location, [at_location_id: at_location_id], page_opts, filters_acc, current_user)
   end
 
+  defp intents_filter(%{start_date: date} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:start_date, [start_date: date], page_opts, filters_acc, current_user)
+  end
+
+  defp intents_filter(%{end_date: date} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:end_date, [end_date: date], page_opts, filters_acc, current_user)
+  end
+
   defp intents_filter(
          %{
            geolocation: %{
