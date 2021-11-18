@@ -211,6 +211,15 @@ defmodule ValueFlows.EconomicResource.Queries do
     where(q, [resource: c], c.state_id == ^id)
   end
 
+  def filter(q, {:tracking_identifier, id}) when is_binary(id) do
+    where(q, [resource: c], c.tracking_identifier == ^id)
+  end
+
+  def filter(q, {:tracking_identifier, ids}) when is_list(ids) do
+    where(q, [resource: c], c.tracking_identifier in ^ids)
+  end
+
+
   def filter(q, {:current_location_id, current_location_ids}) when is_list(current_location_ids) do
     q
     |> join_to(:geolocation)

@@ -3911,6 +3911,7 @@ type ValueFlowsQuery {
     geolocation: GeolocationFilters
     agent: [ID]
     state: [ID]
+    trackingIdentifier: [String]
   ): [EconomicResource]
 
   "Get paginated list of people"

@@ -120,6 +120,10 @@ defmodule ValueFlows.EconomicResource.GraphQL do
     resources_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
   end
 
+  defp resources_filter(%{tracking_identifier: tracking_identifier} = page_opts, filters_acc) do
+    resources_filter_next(:tracking_identifier, [tracking_identifier: tracking_identifier], page_opts, filters_acc)
+  end
+
   defp resources_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
     resources_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
   end
