@@ -96,8 +96,24 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def preload_all(%Intent{} = intent) do
     # shouldn't fail
-    {:ok, intent} = one(id: intent.id, preload: :all)
-    preload_action(intent)
+    # {:ok, intent} = one(id: intent.id, preload: :all) # why query again?
+
+    intent
+    |> repo().maybe_preload([
+      :provider,
+      :receiver,
+      :input_of,
+      :output_of,
+      :creator,
+      :context,
+      :at_location,
+      :resource_inventoried_as,
+      :resource_conforms_to,
+      available_quantity: [:unit],
+      effort_quantity: [:unit],
+      resource_quantity: [:unit]
+    ])
+    |> preload_action()
   end
 
   def preload_action(%Intent{} = intent) do

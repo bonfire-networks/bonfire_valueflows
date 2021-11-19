@@ -682,7 +682,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   def ap_receive_activity(creator, activity, object) do
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+    with {:ok, %{economic_event: event}} <- ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2) do
+      {:ok, event}
+    end
   end
 
 

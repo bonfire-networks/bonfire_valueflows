@@ -350,10 +350,10 @@ defmodule ValueFlows.Util.Federation do
   defp from_AP_remap(%{"agentType" => _} = val, parent_key) do
     create_nested_object(val, val, parent_key)
   end
-  # defp from_AP_remap(%{"type" => _} = val, parent_key) when not is_nil(creator) do
-  # TODO: handle types without a known creator (by re-fetching the object?)
-  #   create_nested_object(nil, val, parent_key)
-  # end
+  defp from_AP_remap(%{"type" => _} = val, parent_key) do
+    # handle types without a known creator (should we be re-fetching the object?)
+    create_nested_object(nil, val, parent_key)
+  end
 
   defp from_AP_remap(val, parent_key) do
     from_AP_deep_remap(val, parent_key)
@@ -367,7 +367,7 @@ defmodule ValueFlows.Util.Federation do
     end
   end
 
-  defp create_nested_object(creator, val, parent_key) do # handle nested object
+  defp create_nested_object(creator, val, parent_key) do # loop through nested objects
     with {:ok, nested_object} <- Bonfire.Federate.ActivityPub.Receiver.receive_object(creator, val)
     |> IO.inspect(label: "created nested object")
     do

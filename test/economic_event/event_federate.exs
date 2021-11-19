@@ -66,24 +66,24 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         "context" => nil,
         "effortQuantity" => %{
           "hasNumericalValue" => 0.8097386376788132,
-          "hasUnit" => "http://localhost:4000/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
-          "id" => "http://localhost:4000/pub/objects/01FKSN9FXFXXJ74M53D1ERD3HK",
+          "hasUnit" => "https://kawen.space/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
+          "id" => "https://kawen.space/pub/objects/01FKSN9FXFXXJ74M53D1ERD3HK",
           "type" => "om2:Measure"
         },
         "hasBeginning" => "2021-09-07T03:05:58.621470Z",
         "hasEnd" => "2022-05-07T12:57:38.913080Z",
         "hasPointInTime" => "2022-04-24T00:53:19.982157Z",
-        "id" => "http://localhost:4000/pub/objects/01FKSN9FXJM5M7AXR8K7S8769B",
+        "id" => "https://kawen.space/pub/objects/01FKSN9FXJM5M7AXR8K7S8769B",
         "inputOf" => %{
           "finished" => false,
-          "id" => "http://localhost:4000/pub/objects/01FKSN9FKE91BVZ0FZ36PKF2AE",
+          "id" => "https://kawen.space/pub/objects/01FKSN9FKE91BVZ0FZ36PKF2AE",
           "name" => "Schaefer, Wolf and Nolan",
           "summary" => "Autem iste aut dolores explicabo dolores aut.",
           "type" => "ValueFlows:Process"
         },
         "outputOf" => %{
           "finished" => false,
-          "id" => "http://localhost:4000/pub/objects/01FKSN9FP9MASJXTNA545RKG7B",
+          "id" => "https://kawen.space/pub/objects/01FKSN9FP9MASJXTNA545RKG7B",
           "name" => "Davis-Walsh",
           "summary" => "Rem nesciunt rerum necessitatibus placeat.",
           "type" => "ValueFlows:Process"
@@ -106,13 +106,13 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
           "type" => "Person"
         },
         "resourceConformsTo" => %{
-          "id" => "http://localhost:4000/pub/objects/01FKSN9FQZA6REGKGJZ6W5HRDQ",
+          "id" => "https://kawen.space/pub/objects/01FKSN9FQZA6REGKGJZ6W5HRDQ",
           "name" => "Mueller LLC",
           "summary" => "Quas sit sint consequatur quasi ex quia et ab.",
           "type" => "ValueFlows:ResourceSpecification"
         },
         "resourceInventoriedAs" => %{
-          "id" => "http://localhost:4000/pub/objects/01FKSN9FVMB34EHMHMED3KJV3Q",
+          "id" => "https://kawen.space/pub/objects/01FKSN9FVMB34EHMHMED3KJV3Q",
           "name" => "Kulas-Prosacco",
           "primaryAccountable" => "https://kawen.space/users/karen",
           "summary" => "Ea esse ad blanditiis numquam dolorem fugit.",
@@ -121,13 +121,13 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         },
         "resourceQuantity" => %{
           "hasNumericalValue" => 0.6858598450509016,
-          "hasUnit" => "http://localhost:4000/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
-          "id" => "http://localhost:4000/pub/objects/01FKSN9FXHN49KZXGAMD7A7W4H",
+          "hasUnit" => "https://kawen.space/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
+          "id" => "https://kawen.space/pub/objects/01FKSN9FXHN49KZXGAMD7A7W4H",
           "type" => "om2:Measure"
         },
         "summary" => "Aut autem nesciunt culpa nostrum enim commodi qui omnis.",
         "toResourceInventoriedAs" => %{
-          "id" => "http://localhost:4000/pub/objects/01FKSN9FT8AQN4ZEYRA2DVVH4J",
+          "id" => "https://kawen.space/pub/objects/01FKSN9FT8AQN4ZEYRA2DVVH4J",
           "name" => "Russel-Fahey",
           "primaryAccountable" => "https://kawen.space/users/karen",
           "summary" => "Eos accusamus quae vitae totam rerum neque aut.",
@@ -152,10 +152,20 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
       assert {:ok, event} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(event, label: "event created based on incoming AP")
-      event = event.economic_event
+      # event = event.economic_event
 
       assert object["summary"] == event.note
-      assert actor.data["id"] == event |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+
+      assert object["id"] == Bonfire.Common.URIs.canonical_url(event)
+      assert actor.data["id"] == Bonfire.Common.URIs.canonical_url(event.creator)
+      assert object["receiver"]["id"] == Bonfire.Common.URIs.canonical_url(event.receiver.id)
+      assert object["resourceConformsTo"]["id"] == Bonfire.Common.URIs.canonical_url(event.resource_conforms_to.id)
+      assert object["resourceInventoriedAs"]["id"] == Bonfire.Common.URIs.canonical_url(event.resource_inventoried_as.id)
+      assert object["toResourceInventoriedAs"]["id"] == Bonfire.Common.URIs.canonical_url(event.to_resource_inventoried_as.id)
+      assert object["outputOf"]["id"] == Bonfire.Common.URIs.canonical_url(event.output_of.id)
+
+      assert object["resourceQuantity"]["hasNumericalValue"] == event.resource_quantity.has_numerical_value
+      # assert object["resourceQuantity"]["hasUnit"]["symbol"] == event.resource_quantity.unit.symbol
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end

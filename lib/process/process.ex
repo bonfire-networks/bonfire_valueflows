@@ -94,13 +94,21 @@ defmodule ValueFlows.Process do
 
   def create_changeset(
         %{} = creator,
-        attrs \\ %{}
+        attrs
       ) do
     attrs
     |> validate_changeset()
     |> Changeset.change(
       creator_id: creator.id,
     )
+  end
+
+  def create_changeset(
+        _,
+        attrs
+      ) do
+    attrs
+    |> validate_changeset()
   end
 
   def update_changeset(%Process{} = process, attrs) do

@@ -37,6 +37,15 @@ defmodule ValueFlows.Util do
     end
   end
 
+  def publish(_creator, verb, %{id: thing_id} =thing) do
+    Logger.info("VF - No creator for object so we don't publish")
+
+    # make visible
+    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(nil, thing, [:local])
+
+    {:ok, nil}
+  end
+
   def publish(%{creator_id: creator_id, id: thing_id}, :update) do
     # TODO: wrong if edited by admin
     ValueFlows.Util.Federation.ap_publish("update", thing_id, creator_id)
@@ -225,16 +234,17 @@ defmodule ValueFlows.Util do
 
         Map.put(acc, k,
           with false <- is_ulid?(unit),
-          {:error, _} <- Bonfire.Quantify.Units.one(label_or_symbol: unit),
-          {:ok, %{id: id} = new_unit} <- Bonfire.Quantify.Units.create(user, %{label: unit, symbol: unit}) do
+          {:error, e} <- Bonfire.Quantify.Units.get_or_create(unit, user) do
 
-            Map.put(v, :unit_id, id)
-            |> Map.drop([:has_unit])
+            Logger.error(e)
+            raise {:error, "Invalid unit used for quantity"}
 
           else
-            {:ok, %{id: id} = found_unit} ->
+            {:ok, %{id: id} = found_or_created_unit} ->
 
-              Map.put(v, :unit_id, id)
+              v
+              |> Map.put(:unit, found_or_created_unit)
+              |> Map.put(:unit_id, id)
               |> Map.drop([:has_unit])
 
             _ ->

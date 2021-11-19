@@ -88,16 +88,22 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
 
       object = %{
         "action" => action,
-        # "availableQuantity" => %{
-        #   "hasNumericalValue" => 0.1,
-        #   "id" => "https://kawen.space/pub/objects/01FJNJV112NT76310KWRXJZWJ0",
-        #   "type" => "ValueFlows:Measure"
-        # },
+        "availableQuantity" => %{
+          "hasNumericalValue" => 0.1,
+          "id" => "https://kawen.space/pub/objects/01FJNJV112NT76310KWRXJZWJ0",
+          "type" => "om2:Measure",
+          "hasUnit" => %{
+            "id" => "https://kawen.space/pub/objects/01FMTXZV656FFKN0Y0BFPS57VA",
+            "label" => "kilo",
+            "symbol" => "kg",
+            "type" => "om2:Unit"
+          }
+        },
         "due" => "2022-07-25T10:44:00.637055Z",
         # "effortQuantity" => %{
         #   "hasNumericalValue" => 0.2,
         #   "id" => "https://kawen.space/pub/objects/01FJNJV110K9T6212CV24W4VCA",
-        #   "type" => "ValueFlows:Measure"
+        #   "type" => "om2:Measure"
         # },
         "finished" => false,
         "id" => "https://kawen.space/pub/objects/01FJNJV113P04FBFM20P5VZVEA",
@@ -109,7 +115,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         # "resourceQuantity" => %{
         #   "hasNumericalValue" => 0.3,
         #   "id" => "https://kawen.space/pub/objects/01FJNJV1110VYYN8AT9PPVEJ0Q",
-        #   "type" => "ValueFlows:Measure"
+        #   "type" => "om2:Measure"
         # },
         "type" => "ValueFlows:Intent"
       }
@@ -128,11 +134,18 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert object["summary"] == activity.data["object"]["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
-      # IO.inspect(intent, label: "intent created based on incoming AP")
+      IO.inspect(intent, label: "intent created based on incoming AP")
+
       assert object["name"] == intent.name
       assert object["summary"] == intent.note
       assert object["action"] == intent.action_id
-      assert actor.data["id"] == intent |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+
+      assert object["id"] == Bonfire.Common.URIs.canonical_url(intent)
+      assert actor.data["id"] == Bonfire.Common.URIs.canonical_url(intent.creator)
+
+      assert object["availableQuantity"]["hasNumericalValue"] == intent.available_quantity.has_numerical_value
+      assert object["availableQuantity"]["hasUnit"]["symbol"] == intent.available_quantity.unit.symbol
+      assert object["availableQuantity"]["hasUnit"]["id"] == Bonfire.Common.URIs.canonical_url(intent.available_quantity.unit)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end

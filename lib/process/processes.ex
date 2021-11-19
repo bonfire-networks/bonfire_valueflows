@@ -113,7 +113,7 @@ defmodule ValueFlows.Process.Processes do
   ## mutations
 
   # @spec create(any(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
-  def create(%{} = creator, attrs) when is_map(attrs) do
+  def create(creator, attrs) when is_map(attrs) do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 

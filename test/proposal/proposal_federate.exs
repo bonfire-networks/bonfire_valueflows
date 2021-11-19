@@ -108,7 +108,7 @@ defmodule ValueFlows.Proposal.FederateTest do
         "context" => [],
         "eligibleLocation" => %{
           "id" => "https://kawen.space/pub/objects/01FJQGYPB6N7XRWPBHDWGJC11N",
-          # "attributedTo" => "https://kawen.space/users/karen",
+          "attributedTo" => "https://kawen.space/users/karen",
           "latitude" => -62.7021413680051,
           "longitude" => 49.090646966696994,
           "name" => "Graham, Padberg and Hahn",
@@ -129,24 +129,24 @@ defmodule ValueFlows.Proposal.FederateTest do
               "provider" => "https://kawen.space/users/karen",
               # "availableQuantity" => %{
               #   "hasNumericalValue" => 0.6819459786798888,
-              #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
-              #   "type" => "ValueFlows:Measure"
+              #   "id" => "https://kawen.space/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
+              #   "type" => "om2:Measure"
               # },
               "context" => [],
               "due" => "2021-10-29T19:14:58.018729Z",
               # "effortQuantity" => %{
               #   "hasNumericalValue" => 0.6733462698502527,
-              #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
-              #   "type" => "ValueFlows:Measure"
+              #   "id" => "https://kawen.space/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
+              #   "type" => "om2:Measure"
               # },
               "finished" => true,
-              "id" => "http://localhost:4000/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
+              "id" => "https://kawen.space/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
               "name" => "Leannon Group",
               "resourceClassifiedAs" => [],
               # "resourceQuantity" => %{
               #   "hasNumericalValue" => 0.9790977026822164,
-              #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
-              #   "type" => "ValueFlows:Measure"
+              #   "id" => "https://kawen.space/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
+              #   "type" => "om2:Measure"
               # },
               "summary" => "Et eligendi at maxime voluptate.",
               "tags" => [],
@@ -173,20 +173,26 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert object["summary"] == activity.data["object"]["summary"]
 
       assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
-      # IO.inspect(proposal, label: "proposal created based on incoming AP")
+      IO.inspect(proposal, label: "proposal created based on incoming AP")
 
       assert object["name"] == proposal.name
       assert object["summary"] == proposal.note
-      assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+
+      assert object["id"] == Bonfire.Common.URIs.canonical_url(proposal)
+      assert actor.data["id"] == Bonfire.Common.URIs.canonical_url(proposal.creator)
+
+      assert object["eligibleLocation"]["name"] == proposal.eligible_location.name
+      assert object["eligibleLocation"]["id"] == Bonfire.Common.URIs.canonical_url(proposal.eligible_location)
 
       assert p_intent_object = object["publishes"] |> List.first
       assert intent_object = p_intent_object["publishes"]
 
       assert p_intent = proposal.publishes |> List.first
-      assert intent = p_intent.publishes
+      assert the_intent = p_intent.publishes
 
-      assert intent_object["name"] == intent.name
-      assert intent_object["action"] == intent.action_id
+      assert intent_object["id"] == Bonfire.Common.URIs.canonical_url(the_intent)
+      assert intent_object["name"] == the_intent.name
+      assert intent_object["action"] == the_intent.action_id
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end
@@ -212,24 +218,24 @@ defmodule ValueFlows.Proposal.FederateTest do
             "provider" => "https://kawen.space/users/karen",
             # "availableQuantity" => %{
             #   "hasNumericalValue" => 0.6819459786798888,
-            #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
-            #   "type" => "ValueFlows:Measure"
+            #   "id" => "https://kawen.space/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
+            #   "type" => "om2:Measure"
             # },
             "context" => [],
             "due" => "2021-10-29T19:14:58.018729Z",
             # "effortQuantity" => %{
             #   "hasNumericalValue" => 0.6733462698502527,
-            #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
-            #   "type" => "ValueFlows:Measure"
+            #   "id" => "https://kawen.space/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
+            #   "type" => "om2:Measure"
             # },
             "finished" => true,
-            "id" => "http://localhost:4000/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
+            "id" => "https://kawen.space/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
             "name" => "Leannon Group",
             "resourceClassifiedAs" => [],
             # "resourceQuantity" => %{
             #   "hasNumericalValue" => 0.9790977026822164,
-            #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
-            #   "type" => "ValueFlows:Measure"
+            #   "id" => "https://kawen.space/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
+            #   "type" => "om2:Measure"
             # },
             "summary" => "Et eligendi at maxime voluptate.",
             "tags" => [],
@@ -310,24 +316,24 @@ defmodule ValueFlows.Proposal.FederateTest do
         "provider" => "https://kawen.space/users/karen",
         # "availableQuantity" => %{
         #   "hasNumericalValue" => 0.6819459786798888,
-        #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
-        #   "type" => "ValueFlows:Measure"
+        #   "id" => "https://kawen.space/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
+        #   "type" => "om2:Measure"
         # },
         "context" => [],
         "due" => "2021-10-29T19:14:58.018729Z",
         # "effortQuantity" => %{
         #   "hasNumericalValue" => 0.6733462698502527,
-        #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
-        #   "type" => "ValueFlows:Measure"
+        #   "id" => "https://kawen.space/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
+        #   "type" => "om2:Measure"
         # },
         "finished" => true,
-        "id" => "http://localhost:4000/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
+        "id" => "https://kawen.space/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
         "name" => "Leannon Group",
         "resourceClassifiedAs" => [],
         # "resourceQuantity" => %{
         #   "hasNumericalValue" => 0.9790977026822164,
-        #   "id" => "http://localhost:4000/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
-        #   "type" => "ValueFlows:Measure"
+        #   "id" => "https://kawen.space/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
+        #   "type" => "om2:Measure"
         # },
         "summary" => "Et eligendi at maxime voluptate.",
         "tags" => [],
