@@ -17,6 +17,22 @@ defmodule ValueFlows.Util.GraphQL do
   #   field :has_next_page, non_null(:boolean)
   # end
 
+  # convert URIs into string
+  def parse_cool_scalar(%Absinthe.Blueprint.Input.String{
+        schema_node: %Absinthe.Type.Scalar{name: "URI"},
+        value: v
+      }) do
+    {:ok, v}
+  end
+
+  # convert non-null URIs into string
+  def parse_cool_scalar(%Absinthe.Blueprint.Input.String{
+        schema_node: %Absinthe.Type.NonNull{of_type: %Absinthe.Type.Scalar{name: "URI"}},
+        value: v
+      }) do
+    {:ok, v}
+  end
+
   def parse_cool_scalar(value), do: {:ok, value}
 
   def serialize_cool_scalar(%{value: value}), do: value

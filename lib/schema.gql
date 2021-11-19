@@ -2,7 +2,7 @@
 A boundary or context grouped around some other record- used for documenting, accounting, planning.
 ## extended for Bonfire (default was `Person | Organization`)
 """
-union AccountingScope = 
+union AccountingScope =
   Person
   | Organization
   | Category
@@ -145,7 +145,7 @@ input IntentSearchParams {
   endDate: DateTime
   finished: Boolean
   # action: ID
-  
+
   ## added for Bonfire
   action: [ID]
   inScopeOf: [ID]
@@ -423,7 +423,7 @@ input AgreementUpdateParams {
 }
 
 """
-A way to tie an economic event that is given in loose fulfilment for another economic event, without commitments or expectations. 
+A way to tie an economic event that is given in loose fulfilment for another economic event, without commitments or expectations.
 Supports the gift economy.
 """
 type Appreciation {
@@ -754,7 +754,7 @@ type ValueCalculation {
   Used to filter valueCalculations to find the one that matches the event.
   """
   resourceConformsTo: ResourceSpecification
-  
+
   """
   The resource specification the event will apply to.
   """
@@ -1818,9 +1818,9 @@ type Intent {
   finished: Boolean
 
   """
-  The uri to an image relevant to the intent, such as a photo. 
+  The uri to an image relevant to the intent, such as a photo.
   """
-  image: URI 
+  image: URI
 
   """
   A textual description or comment.
@@ -3774,7 +3774,7 @@ type ValueFlowsQuery {
 
   claim(id: ID): Claim
   claims(start: ID, limit: Int): [Claim!]
-  
+
   valueCalculation(id: ID): ValueCalculation
   valueCalculationsPages(
     limit: Int
@@ -3818,7 +3818,7 @@ type ValueFlowsQuery {
   plans(start: ID, limit: Int): [Plan!]
 
   commitment(id: ID): Commitment
-  commitments(start: ID, limit: Int): [Commitment!]
+  commitments(filter: agentCommitmentSearchParams, start: ID, limit: Int): [Commitment!]
 
   intent(id: ID): Intent
   intents(filter: IntentSearchParams, start: ID, limit: Int): [Intent!]
@@ -3957,7 +3957,7 @@ type ValueFlowsMutation {
   Erase record of an organization and thus remove it from the collaboration space
   """
   deleteOrganization(id: ID!): Boolean
-  
+
   createAgentRelationship(
     relationship: AgentRelationshipCreateParams!
   ): AgentRelationshipResponse
@@ -4012,7 +4012,7 @@ type ValueFlowsMutation {
     processSpecification: ProcessSpecificationUpdateParams
   ): ProcessSpecificationResponse
   deleteProcessSpecification(id: ID!): Boolean
-  
+
   createEconomicEvent(
     event: EconomicEventCreateParams!
     newInventoriedResource: EconomicResourceCreateParams

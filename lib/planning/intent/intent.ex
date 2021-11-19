@@ -59,9 +59,6 @@ defmodule ValueFlows.Planning.Intent do
 
     # belongs_to(:agreed_in, Agreement)
 
-    # inverse relationships
-    # has_many(:satisfied_by, Satisfaction)
-
     belongs_to(:creator, ValueFlows.Util.user_schema())
     belongs_to(:context, Pointers.Pointer)
 
@@ -85,7 +82,7 @@ defmodule ValueFlows.Planning.Intent do
 
   @required ~w(name is_public action_id)a
   @cast @required ++
-    ~w(note due finished at_location_id is_disabled image_id context_id input_of_id output_of_id)a ++
+    ~w(note has_beginning has_end has_point_in_time due finished at_location_id is_disabled image_id context_id input_of_id output_of_id)a ++
     ~w(available_quantity_id resource_quantity_id effort_quantity_id resource_conforms_to_id resource_inventoried_as_id provider_id receiver_id)a
 
   def validate_changeset(attrs \\ %{}) do
@@ -120,10 +117,36 @@ defmodule ValueFlows.Planning.Intent do
     |> ValueFlows.Util.change_measures(attrs, measure_fields())
     |> change_public()
     |> change_disabled()
+    |> validate_datetime()
     |> Changeset.foreign_key_constraint(
       :at_location_id,
       name: :vf_intent_at_location_id_fkey
     )
+  end
+
+  # validate exclusivity of datetime fields, namely:
+  # has_point_in_time, has_beginning, has_end
+  #
+  # the logic is to allow either of these cases and nothing else
+  # (due is not checked, thus allowed in each case):
+  # * only has_point_in_time
+  # * only has_beginning
+  # * only has_end
+  # * only has_beginning or has_end
+  defp validate_datetime(%Changeset{valid?: false} = cset) do
+    cset
+  end
+
+  defp validate_datetime(%Changeset{changes: %{has_point_in_time: _, has_beginning: _}} = cset) do
+    Changeset.add_error(cset, :has_beginning, "mutually exclusive to has_point_in_time")
+  end
+
+  defp validate_datetime(%Changeset{changes: %{has_point_in_time: _, has_end: _}} = cset) do
+    Changeset.add_error(cset, :has_end, "mutually exclusive to has_point_in_time")
+  end
+
+  defp validate_datetime(%Changeset{} = cset) do
+    cset
   end
 
   def context_module, do: ValueFlows.Planning.Intent.Intents

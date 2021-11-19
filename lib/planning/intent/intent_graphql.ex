@@ -21,6 +21,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Planning.Intent.Queries
+  alias ValueFlows.Planning.Satisfaction.Satisfactions
 
   ## resolvers
 
@@ -46,7 +47,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
 
   def intents_filtered(%{filter: filters} = args, info) when is_map(filters) and filters != %{} do
-    IO.inspect(intents_filter: filters)
     intents_filter(filters, [limit: Map.get(args, :limit, 10), offset: Map.get(args, :start, 0)], GraphQL.current_user(info))
   end
 
@@ -93,6 +93,14 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   defp intents_filter(%{at_location: at_location_id} = page_opts, filters_acc, current_user) do
     intents_filter_next(:at_location, [at_location_id: at_location_id], page_opts, filters_acc, current_user)
+  end
+
+  defp intents_filter(%{start_date: date} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:start_date, [start_date: date], page_opts, filters_acc, current_user)
+  end
+
+  defp intents_filter(%{end_date: date} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:end_date, [end_date: date], page_opts, filters_acc, current_user)
   end
 
   defp intents_filter(
@@ -312,6 +320,12 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   def fetch_output_of_edge(_, _, _) do
     {:ok, nil}
   end
+
+  def fetch_satisfied_by_edge(%{id: id}, _, _) when is_binary(id),
+    do: Satisfactions.many([:default, satisfies_id: id])
+
+  def fetch_satisfied_by_edge(_, _, _),
+    do: {:ok, nil}
 
   def list_intents(page_opts, base_filters) do
     FetchPage.run(%FetchPage{
