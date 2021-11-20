@@ -56,7 +56,7 @@ defmodule ValueFlows.Planning.Satisfaction do
   @cast @reqr ++
     ~w[
       resource_quantity_id effort_quantity_id note
-      is_public is_disabled
+      disabled_at
     ]a
 
   @spec create_changeset(struct(), attrs()) :: Changeset.t()

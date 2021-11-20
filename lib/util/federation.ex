@@ -61,11 +61,19 @@ defmodule ValueFlows.Util.Federation do
   ]
 
   def ap_publish_activity(
+        activity_type,
+        schema_type,
+        thing,
+        query_depth \\ 2,
+        extra_field_filters \\ []
+      )
+
+  def ap_publish_activity(
         "create" = activity_type,
         schema_type,
         %{id: id} = thing,
-        query_depth \\ 2,
-        extra_field_filters \\ []
+        query_depth,
+        extra_field_filters
       )
     when is_binary(id) do
 
@@ -83,7 +91,7 @@ defmodule ValueFlows.Util.Federation do
 
         activity
         # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
-        |> IO.inspect(label: "ap_publish_activity")
+        |> IO.inspect(label: "VF - ap_publish_activity - create")
 
         # IO.puts(struct_to_json(activity.data))
         # IO.puts(struct_to_json(activity.object.data))
@@ -98,6 +106,16 @@ defmodule ValueFlows.Util.Federation do
         e -> {:error, e}
       end
     end
+  end
+
+  def ap_publish_activity(
+        activity_type,
+        schema_type,
+        _thing,
+        _query_depth,
+        _extra_field_filters
+      ) do
+      throw {:error, "VF - activities of type #{activity_type} are not yet supported, so skip federating this #{schema_type}"}
   end
 
   def ap_fetch_object(id, schema_type, query_depth \\ 2, extra_field_filters \\ []) do

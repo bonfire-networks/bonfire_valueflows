@@ -38,7 +38,9 @@ defmodule ValueFlows.Planning.Commitment do
     # for the field `created`, use Pointers.ULID.timestamp/1
 
     field :finished, :boolean, default: false
-    field :deletable, :boolean, default: false
+
+    field :deletable, :boolean, default: false # should this be a virtual field?
+
     field :note, :string
     field :agreed_in, :string
 
@@ -77,9 +79,9 @@ defmodule ValueFlows.Planning.Commitment do
       resource_classified_as resource_conforms_to_id resource_inventoried_as_id
       resource_quantity_id effort_quantity_id
       has_beginning has_end has_point_in_time due
-      finished deletable note agreed_in
+      finished note agreed_in
       context_id at_location_id
-      is_public is_disabled
+      deleted_at disabled_at
     ]a
 
   @spec create_changeset(struct(), attrs()) :: Changeset.t()
