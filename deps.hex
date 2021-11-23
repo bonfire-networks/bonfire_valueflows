@@ -10,4 +10,4 @@ telemetry_metrics = "~> 0.4"
 telemetry_poller = "~> 0.4"
 # for this extension:
 stream_data = "~> 0.5"
-decimal = "~> 2.0"
+decimal = "~> 1.6 or ~> 2.0"
