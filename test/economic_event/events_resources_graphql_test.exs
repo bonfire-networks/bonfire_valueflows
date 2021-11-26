@@ -59,7 +59,7 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
       assert_economic_event(event)
       assert_economic_resource(resource)
       # IO.inspect(resource: resource)
-      assert resource["name"] == "testing new resource"
+      assert resource["name"] =~ "testing new resource"
     end
 
     test "produce a new economic resource via an economic event, with a resource specification, but without specific user input about the resource" do
@@ -85,7 +85,7 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
       assert_economic_event(event)
       assert_economic_resource(resource)
       # IO.inspect(resource: resource)
-      assert resource["name"] == "resource specified"
+      assert resource["name"] =~ "resource specified"
       assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
       assert resource["conformsTo"]["id"] == resource_conforms_to.id
     end

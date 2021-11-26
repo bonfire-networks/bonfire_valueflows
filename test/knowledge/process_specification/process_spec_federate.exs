@@ -23,7 +23,7 @@ defmodule ValueFlows.ProcessSpecification.FederateTest do
       assert activity.pointer_id == process_spec.id
       assert activity.local == true
 
-      assert activity.data["object"]["name"] == process_spec.name
+      assert activity.data["object"]["name"] =~ process_spec.name
     end
   end
 end

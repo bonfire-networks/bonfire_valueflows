@@ -80,13 +80,13 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] == activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(proposal, label: "proposal created based on incoming AP")
 
-      assert object["name"] == proposal.name
-      assert object["summary"] == proposal.note
+      assert object["name"] =~ proposal.name
+      assert object["summary"] =~ proposal.note
       assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
@@ -170,18 +170,18 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] == activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       IO.inspect(proposal, label: "proposal created based on incoming AP")
 
-      assert object["name"] == proposal.name
-      assert object["summary"] == proposal.note
+      assert object["name"] =~ proposal.name
+      assert object["summary"] =~ proposal.note
 
       assert object["id"] == Bonfire.Common.URIs.canonical_url(proposal)
       assert actor.data["id"] == Bonfire.Common.URIs.canonical_url(proposal.creator)
 
-      assert object["eligibleLocation"]["name"] == proposal.eligible_location.name
+      assert object["eligibleLocation"]["name"] =~ proposal.eligible_location.name
       assert object["eligibleLocation"]["id"] == Bonfire.Common.URIs.canonical_url(proposal.eligible_location)
 
       assert p_intent_object = object["publishes"] |> List.first
@@ -191,7 +191,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert the_intent = p_intent.publishes
 
       assert intent_object["id"] == Bonfire.Common.URIs.canonical_url(the_intent)
-      assert intent_object["name"] == the_intent.name
+      assert intent_object["name"] =~ the_intent.name
       assert intent_object["action"] == the_intent.action_id
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
@@ -275,7 +275,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] == activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, p_intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(p_intent, label: "proposed intent created based on incoming AP")
@@ -288,12 +288,12 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert proposal_object = object["publishedIn"]
       assert intent_object = object["publishes"]
 
-      assert proposal_object["name"] == proposal.name
-      assert proposal_object["summary"] == proposal.note
+      assert proposal_object["name"] =~ proposal.name
+      assert proposal_object["summary"] =~ proposal.note
 
       assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
-      assert intent_object["name"] == intent.name
+      assert intent_object["name"] =~ intent.name
       assert intent_object["action"] == intent.action_id
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
@@ -379,7 +379,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] == activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       IO.inspect(intent, label: "intent created based on incoming AP")
@@ -392,12 +392,12 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       assert p_intent_object["reciprocal"] == true
 
-      assert proposal_object["name"] == proposal.name
-      assert proposal_object["summary"] == proposal.note
+      assert proposal_object["name"] =~ proposal.name
+      assert proposal_object["summary"] =~ proposal.note
 
       assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
-      assert object["name"] == intent.name
+      assert object["name"] =~ intent.name
       assert object["action"] == intent.action_id
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)

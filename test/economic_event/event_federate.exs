@@ -46,7 +46,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert activity.pointer_id == event.id
       assert activity.local == true
 
-      assert activity.data["object"]["summary"] == event.note
+      assert activity.data["object"]["summary"] =~ event.note
     end
   end
 
@@ -148,13 +148,13 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect(label: "AP activity")
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] == activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, event} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(event, label: "event created based on incoming AP")
       # event = event.economic_event
 
-      assert object["summary"] == event.note
+      assert object["summary"] =~ event.note
 
       assert object["id"] == Bonfire.Common.URIs.canonical_url(event)
       assert actor.data["id"] == Bonfire.Common.URIs.canonical_url(event.creator)

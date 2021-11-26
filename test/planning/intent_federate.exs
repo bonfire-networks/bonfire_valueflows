@@ -31,7 +31,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert activity.pointer_id == intent.id
       assert activity.local == true
 
-      assert activity.data["object"]["name"] == intent.name
+      assert activity.data["object"]["name"] =~ intent.name
       # assert object["type"] == "ValueFlows:Offer"
 
     end
@@ -64,12 +64,12 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] == activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(intent: intent)
-      assert object["name"] == intent.name
-      assert object["summary"] == intent.note
+      assert object["name"] =~ intent.name
+      assert object["summary"] =~ intent.note
       assert object["action"] == intent.action_id
       assert actor.data["id"] == intent |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
@@ -131,13 +131,13 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] == activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       IO.inspect(intent, label: "intent created based on incoming AP")
 
-      assert object["name"] == intent.name
-      assert object["summary"] == intent.note
+      assert object["name"] =~ intent.name
+      assert object["summary"] =~ intent.note
       assert object["action"] == intent.action_id
 
       assert object["id"] == Bonfire.Common.URIs.canonical_url(intent)
