@@ -32,7 +32,7 @@ defmodule ValueFlows.EconomicEvent.Trace do
   end
 
   def trace(id, recurse_limit, recurse_counter) when is_binary(id) do
-    with {:ok, obj} <- Bonfire.Common.Pointers.get(id) do
+    with {:ok, obj} <- Bonfire.Common.Pointers.get(id, skip_boundary_check: true) do
       trace(obj, recurse_limit, recurse_counter)
     end
   end

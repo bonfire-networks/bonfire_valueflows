@@ -103,6 +103,10 @@ defmodule ValueFlows.Agent.GraphQL do
     {:ok, ValueFlows.Agent.Agents.agent(id, Bonfire.GraphQL.current_user(info))}
   end
 
+  def agent(_, info) do
+    my_agent(nil, info)
+  end
+
   def my_agent(_, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       {:ok, user |> ValueFlows.Agent.Agents.character_to_agent()}

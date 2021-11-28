@@ -2091,7 +2091,7 @@ input IntentUpdateParams {
 """
 A formal or informal group, or legal organization.
 """
-type Organization implements Agent {
+type Organization { # implements Agent {
   id: ID!
 
   """
@@ -2140,7 +2140,7 @@ type OrganizationResponse {
 """
 A natural person.
 """
-type Person implements Agent {
+type Person { # implements Agent {
   id: ID!
 
   """

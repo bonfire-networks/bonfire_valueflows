@@ -57,8 +57,8 @@ defmodule ValueFlows.Claim.GraphQL do
 
   def create_claim(%{claim: %{provider: provider_id, receiver: receiver_id} = attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, provider} <- Pointers.one(id: provider_id),
-         {:ok, receiver} <- Pointers.one(id: receiver_id),
+         {:ok, provider} <- Pointers.one(id: provider_id, skip_boundary_check: true),
+         {:ok, receiver} <- Pointers.one(id: receiver_id, skip_boundary_check: true),
          {:ok, claim} <- Claims.create(user, provider, receiver, attrs) do
       {:ok, %{claim: claim}}
     end

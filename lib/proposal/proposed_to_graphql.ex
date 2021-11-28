@@ -52,9 +52,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
   def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
     with :ok <- GraphQL.is_authenticated(info),
-         {:ok, pointer} <- Pointers.one(id: agent_id),
-        #  :ok <- validate_context(pointer),
-         agent = Pointers.follow!(pointer),
+         {:ok, agent} <- Pointers.get(agent_id),
          {:ok, proposed} <- ValueFlows.Proposal.GraphQL.proposal(%{id: proposed_id}, info),
          {:ok, proposed_to} <- ValueFlows.Proposal.ProposedTos.propose_to(agent, proposed) do
       {:ok, %{proposed_to: %{proposed_to | proposed_to: agent, proposed: proposed}}}

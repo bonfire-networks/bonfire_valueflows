@@ -26,8 +26,8 @@ defmodule ValueFlows.Claim.Claims do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, provider_ptr} <- Pointers.one(id: provider.id),
-           {:ok, receiver_ptr} <- Pointers.one(id: receiver.id) do
+      with {:ok, provider_ptr} <- Pointers.one(id: provider.id, skip_boundary_check: true),
+           {:ok, receiver_ptr} <- Pointers.one(id: receiver.id, skip_boundary_check: true) do
         Claim.create_changeset(creator, provider_ptr, receiver_ptr, attrs)
         |> Claim.validate_required()
         |> repo().insert()
