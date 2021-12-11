@@ -18,7 +18,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
                       |> IO.inspect(),
     %{valid?: true} = cs <- changeset(obj_attrs),
     {:ok, resource_spec} <- ResourceSpecifications.create(current_user(socket), obj_attrs) do
-      IO.inspect(resource_spec)
+      # IO.inspect(resource_spec)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/resource_spec/")<>resource_spec.id)}
     end
   end
@@ -29,9 +29,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
 
     options = ( ResourceSpecifications.search(search) || [] )
               |> Enum.map(&to_tuple/1)
-    # IO.inspect(matches)
 
     options = options ++ [{"Create a new resource specification called: "<>search, search}]
+
+    IO.inspect(options: options)
 
     {:noreply, socket |> assign_global(resource_specifications_autocomplete: options) }
   end
