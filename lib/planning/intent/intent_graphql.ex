@@ -79,6 +79,14 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     intents_filter_next(:status, [status: status], page_opts, filters_acc, current_user)
   end
 
+  defp intents_filter(%{finished: true} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:finished, [status: :closed], page_opts, filters_acc, current_user)
+  end
+
+  defp intents_filter(%{finished: false} = page_opts, filters_acc, current_user) do
+    intents_filter_next(:finished, [status: :open], page_opts, filters_acc, current_user)
+  end
+
   defp intents_filter(%{in_scope_of: context_id} = page_opts, filters_acc, current_user) do
     intents_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc, current_user)
   end
