@@ -1,6 +1,6 @@
-# Bonfire:Valueflows
+# ValueFlows
 
-An extension that brings [ValueFlows](https://valueflo.ws/) to [Bonfire](https://bonfire.cafe/) apps.
+`ValueFlows` is a [Bonfire](https://bonfire.cafe/) extension that implements [ValueFlows](https://valueflo.ws/) for federated networks to conduct economic activities.
 
 Implemented so far:
 
@@ -22,7 +22,7 @@ As well as an optional GraphQL API for all of the above...
 
 ## Copyright and License
 
-Copyright (c) 2020 ValueFlows, CommonsPub, Reflow & Bonfire Contributors
+Copyright (c) 2021 ValueFlows, CommonsPub, Reflow & Bonfire Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
