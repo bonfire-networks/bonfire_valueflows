@@ -4,7 +4,7 @@ defmodule ValueFlows.EconomicEvent do
     source: "vf_event",
     table_id: "2CTVA10BSERVEDF10WS0FVA1VE"
 
-  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
 

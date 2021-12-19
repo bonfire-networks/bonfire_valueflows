@@ -103,7 +103,7 @@ defmodule ValueFlows.Planning.Commitment do
 
   @spec common_changeset(Chageset.t(), attrs()) :: Changeset.t()
   defp common_changeset(cset, attrs) do
-    import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+    import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
 
     cset
     |> ValueFlows.Util.change_measures(attrs, measure_fields())

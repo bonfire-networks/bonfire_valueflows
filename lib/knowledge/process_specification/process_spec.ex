@@ -4,7 +4,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
     source: "vf_process_spec",
     table_id: "2SPEC1F1CAT10NF0RPR0CESSES"
 
-  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
 

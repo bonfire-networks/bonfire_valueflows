@@ -4,7 +4,7 @@ defmodule ValueFlows.Process do
     source: "vf_process",
     table_id: "4AYF0R1NPVTST0BEC0ME0VTPVT"
 
-  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
 

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Claim.Queries do
-  import Bonfire.Repo.Query, only: [match_admin: 0]
+  import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
 
 

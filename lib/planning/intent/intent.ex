@@ -4,7 +4,7 @@ defmodule ValueFlows.Planning.Intent do
     source: "vf_intent",
     table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
 
-  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
 

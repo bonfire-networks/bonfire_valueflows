@@ -1,7 +1,7 @@
 defmodule ValueFlows.Knowledge.Action do
   use Ecto.Schema
 
-  # import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  # import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
 
   # import Ecto.Enum
 
