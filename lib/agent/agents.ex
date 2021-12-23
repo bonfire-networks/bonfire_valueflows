@@ -2,9 +2,8 @@
 defmodule ValueFlows.Agent.Agents do
   # alias ValueFlows.{Simulate}
   require Logger
-  import Bonfire.Common.Utils, only: [maybe_put: 3]
-
-
+  import Bonfire.Common.Utils, only: [maybe_put: 3, merge_structs_as_map: 2]
+  import Bonfire.Common.Config, only: [repo: 0]
 
 
   # TODO - change approach to allow pagination
@@ -36,14 +35,17 @@ defmodule ValueFlows.Agent.Agents do
     # a = Bonfire.Repo.maybe_preload(a, [icon: [:content], image: [:content]])
 
     a = a
-    |> Map.merge(Map.get(a, :profile, %{}))
-    |> Map.merge(Map.get(a, :character, %{}))
+    |> repo().maybe_preload(:shared_user)
+    # |> IO.inspect()
+    |> merge_structs_as_map(Map.get(a, :profile, %{}))
+    |> merge_structs_as_map(Map.get(a, :character, %{}))
 
     a
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> maybe_put(:primary_location, agent_location(a))
     |> maybe_put(:note, Map.get(a, :summary))
     # |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
+    |> IO.inspect()
     |> add_type()
     # |> IO.inspect()
   end
@@ -73,15 +75,21 @@ defmodule ValueFlows.Agent.Agents do
   #   |> Map.put(:agent_type, :organization)
   # end
 
-  def add_type(%{__struct__: type}= a) do
+  def add_type(a) do
     user_type = ValueFlows.Util.user_schema()
     org_type = ValueFlows.Util.org_schema()
 
-    case type do
-      user_type ->
+    case a do
+      %{shared_user: %{id: _}} -> # for SharedUser within a User
+        a
+        |> Map.put(:agent_type, :organization)
+      %{__struct__: user_type} ->
         a
         |> Map.put(:agent_type, :person)
-      org_type ->
+      %{__typename: user_type} ->
+        a
+        |> Map.put(:agent_type, :person)
+      %{__struct__: org_type} ->
         a
         |> Map.put(:agent_type, :organization)
       _ ->

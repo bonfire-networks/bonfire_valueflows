@@ -6,24 +6,44 @@ defmodule ValueFlows.Agent.Organizations do
   def organizations(signed_in_user) do
     if Bonfire.Common.Utils.module_enabled?(Organisation.Organisations) do
       with {:ok, orgs} = Organisation.Organisations.many([:default, user: signed_in_user]) do
-        Enum.map(
-          orgs,
-          &(&1
-            |> ValueFlows.Agent.Agents.character_to_agent())
-        )
+        format(orgs)
       end
     else
-      []
+      if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+         Bonfire.Me.Users.list() |> format()
+      else
+        Logger.error("organizations feature not implemented")
+        []
+      end
     end
+  end
+
+  defp format(orgs) when is_list(orgs), do: Enum.map(orgs, &format/1) |> Enum.reject(fn
+      %{agent_type: :person} -> true
+      _ -> false
+    end)
+
+  defp format(org) do
+    org
+    |> ValueFlows.Agent.Agents.character_to_agent()
   end
 
   def organization(id, signed_in_user) do
     if Bonfire.Common.Utils.module_enabled?(Organisation.Organisations) do
       with {:ok, org} = Organisation.Organisations.one([:default, id: id, user: signed_in_user]) do
-        ValueFlows.Agent.Agents.character_to_agent(org)
+        format(org)
       end
     else
-      %{}
+      if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+         with {:ok, org} <- Bonfire.Me.Users.by_id(id) do
+          format(org)
+         else _ ->
+          nil
+        end
+      else
+        Logger.error("organizations feature not implemented")
+        %{}
+      end
     end
   end
 end

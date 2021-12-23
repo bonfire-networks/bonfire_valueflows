@@ -4,50 +4,50 @@ defmodule ValueFlows.Agent.People do
   require Logger
 
   def people(signed_in_user) do
-    people = if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
-         Bonfire.Me.Users.list()
+    if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+         Bonfire.Me.Users.list() |> format()
     else
       if Bonfire.Common.Utils.module_enabled?(CommonsPub.Users) do
         {:ok, users} = CommonsPub.Users.many([:default, user: signed_in_user])
-        users
+        format(users)
       else
+        Logger.error("people feature not implemented")
         []
       end
     end
 
-    Enum.map(
-      people,
-      &(&1
-        |> ValueFlows.Agent.Agents.character_to_agent())
-    )
-
   end
 
+  defp format(people) when is_list(people), do: Enum.map(people, &format/1) |> Enum.reject(fn
+      %{agent_type: :organization} -> true
+      _ -> false
+    end)
+
+  defp format(person) do
+    person
+    |> ValueFlows.Agent.Agents.character_to_agent()
+  end
 
   def person(id, signed_in_user) when is_binary(id) do
-    person = if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
-         with {:ok, user} <- Bonfire.Me.Users.by_id(id) do
-          user
+    if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+         with {:ok, person} <- Bonfire.Me.Users.by_id(id) do
+          format(person)
          else _ ->
           nil
         end
     else
       if Bonfire.Common.Utils.module_enabled?(CommonsPub.Users) do
-        with {:ok, user} <-
+        with {:ok, person} <-
               CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
-          user
+          format(person)
         else _ ->
           nil
         end
+      else
+        Logger.error("people feature not implemented")
+        nil
       end
     end
-
-    if person do
-      ValueFlows.Agent.Agents.character_to_agent(person)
-    else
-      nil
-    end
-
   end
 
   def person(_, _), do: nil
