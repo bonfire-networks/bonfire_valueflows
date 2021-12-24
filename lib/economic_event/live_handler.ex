@@ -27,8 +27,8 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
       if e(event, :economic_resource, :id, nil) do
         {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/resource/")<>e(event, :economic_resource, :id, ""))}
       else
-        # {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/event/")<>e(event, :economic_event, :id, ""))}
-        {:noreply, socket |> put_flash(:success, "Event recorded!")}
+        {:noreply, socket |> push_redirect(to: path(e(event, :economic_event, nil)))}
+        # {:noreply, socket |> put_flash(:success, "Event recorded!")}
       end
     # else
     #   {:error, error} ->

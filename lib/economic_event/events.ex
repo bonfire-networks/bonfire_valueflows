@@ -591,7 +591,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     if is_nil(resource.primary_accountable_id) or provider_id == resource.primary_accountable_id do
       :ok
     else
-      {:error, error(403, "You cannot do this since the provider is not accountable for the resource.")}
+      {:error, error(403, "You cannot do this since the provider (agent ID #{provider_id}) is not the one accountable for the resource (agent ID #{resource.primary_accountable_id}).")}
     end
   end
 

@@ -272,6 +272,7 @@ defmodule ValueFlows.Util do
   # end
 
   def default_recurse_limit(), do: 2 # TODO: configurable
+  def max_recurse_limit(), do: 1000 # TODO: configurable
 
     @doc """
   lookup tag from URL(s), to support vf-graphql mode

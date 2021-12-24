@@ -12,6 +12,7 @@ defmodule ValueFlows.EconomicEvent.Trace do
   alias ValueFlows.EconomicResource.EconomicResources
   alias ValueFlows.Process.Processes
 
+  @max_recurse_limit Util.max_recurse_limit()
 
   def trace(obj, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0)
 
@@ -40,6 +41,8 @@ defmodule ValueFlows.EconomicEvent.Trace do
 
   defp maybe_recurse(objects, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0)
 
+  defp maybe_recurse(objects, recurse_limit, recurse_counter) when is_nil(recurse_limit) or recurse_limit > @max_recurse_limit, do: maybe_recurse(objects, Util.default_recurse_limit(), recurse_counter)
+
   defp maybe_recurse(objects, recurse_limit, recurse_counter) when is_nil(recurse_limit) or (recurse_counter + 1) < recurse_limit do
     if (recurse_counter + 1) < recurse_limit || Util.default_recurse_limit() do
       Logger.info("Trace: recurse level #{recurse_counter} of #{recurse_limit}")
@@ -56,7 +59,7 @@ defmodule ValueFlows.EconomicEvent.Trace do
   defp recurse(objects, recurse_limit, recurse_counter) when is_list(objects) and length(objects)>0 do
     Enum.map(
       objects,
-      &recurse(&1, recurse_limit, recurse_counter)
+      &maybe_recurse(&1, recurse_limit, recurse_counter)
     )
     |> List.flatten()
     |> Enum.uniq()

@@ -45,7 +45,7 @@ defmodule ValueFlows.Agent.Agents do
     |> maybe_put(:primary_location, agent_location(a))
     |> maybe_put(:note, Map.get(a, :summary))
     # |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
-    |> IO.inspect()
+    # |> IO.inspect()
     |> add_type()
     # |> IO.inspect()
   end
