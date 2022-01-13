@@ -179,13 +179,10 @@ defmodule ValueFlows.EconomicResource.Queries do
     where(q, [resource: c], c.context_id in ^ids)
   end
 
-  def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [resource: c], c.primary_accountable_id == ^id or c.creator_id == ^id)
+  def filter(q, {:agent_id, id}) do
+    filter(q, {:primary_accountable_id, id})
   end
 
-  def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [resource: c], c.primary_accountable_id in ^ids or c.creator_id in ^ids)
-  end
 
   def filter(q, {:primary_accountable_id, id}) when is_binary(id) do
     where(q, [resource: c], c.primary_accountable_id == ^id)
