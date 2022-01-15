@@ -331,7 +331,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           current_location: Map.get(event_attrs, :at_location)
         }
 
-    new_inventoried_resource_attrs = with {:ok, fetched} <- EconomicResources.one(id: resource_inventoried_as_id) do
+    new_inventoried_resource_attrs = with {:ok, fetched} <- EconomicResources.one([:preload_primary_accountable, id: resource_inventoried_as_id]) do
       Logger.notice(log<>" creating the target resource based on info from resource_inventoried_as and the event")
 
       Bonfire.Common.Utils.maybe_to_map(
@@ -367,7 +367,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           current_location: Map.get(event_attrs, :at_location)
         }
 
-    new_inventoried_resource_attrs = with {:ok, fetched} <- EconomicResources.one(id: resource_inventoried_as_id) do
+    new_inventoried_resource_attrs = with {:ok, fetched} <- EconomicResources.one([:preload_primary_accountable, id: resource_inventoried_as_id]) do
       Logger.notice(log<>" creating the target resource based on info from resource_inventoried_as and the event")
 
       Bonfire.Common.Utils.maybe_to_map(
@@ -409,10 +409,15 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
             ),
           {:ok, event_ret} <- create_event(
             creator,
-            Map.merge(event_attrs, %{field_name => new_resource_id}
-          )) do
+            Map.merge(event_attrs, %{field_name => new_resource_id})
+          ) do
 
-        {:ok, event_ret |> Map.put(:economic_resource, new_resource)}
+        {:ok, event_ret
+          |> Map.put(:economic_resource,
+              new_resource
+              # |> Map.merge(%{primary_accountable: creator}) # preload
+            )
+        }
       end
     end)
   end
@@ -522,7 +527,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
             and not is_nil(to_resource_id)
             and not is_nil(provider_id) and not is_nil(receiver_id)
             and provider_id != receiver_id do
-    with {:ok, to_resource} <- EconomicResources.one([:default, id: to_resource_id]),
+    with {:ok, to_resource} <- EconomicResources.one([:preload_primary_accountable, id: to_resource_id]),
          :ok <- validate_provider_is_primary_accountable(event),
          {:ok, to_resource} <- EconomicResources.update(to_resource, %{primary_accountable: receiver_id}) do
 
@@ -569,14 +574,14 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   defp validate_user_involvement(creator, event) do
     Logger.error("VF - Permission error, creator is #{inspect creator} and provider is #{inspect event.provider} and receiver is #{inspect event.receiver}")
-   {:error, error(403, "You cannot do this if you are not receiver or provider.")}
+   {:error, error(403, "You cannot do this because you are not involved in that event.")}
   end
 
   defp validate_provider_is_primary_accountable(
          %{resource_inventoried_as_id: resource_id, provider_id: provider_id} = _event
        )
        when not is_nil(resource_id) and not is_nil(provider_id) do
-    with {:ok, resource} <- EconomicResources.one([:default, id: resource_id]) do
+    with {:ok, resource} <- EconomicResources.one([:preload_primary_accountable, id: resource_id]) do
       validate_provider_is_primary_accountable(%{
         resource_inventoried_as: resource,
         provider_id: provider_id
@@ -591,7 +596,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     if is_nil(resource.primary_accountable_id) or provider_id == resource.primary_accountable_id do
       :ok
     else
-      {:error, error(403, "You cannot do this since the provider (agent ID #{provider_id}) is not the one accountable for the resource (agent ID #{resource.primary_accountable_id}).")}
+      # IO.inspect(resource.primary_accountable)
+      {:error, error(403, "You cannot do this because you are not accountable for that resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)}")}
     end
   end
 
@@ -603,13 +609,13 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
          %{to_resource_inventoried_as_id: resource_id, receiver_id: receiver_id, provider_id: provider_id} = _event
        )
        when not is_nil(resource_id) do
-    with {:ok, resource} <- EconomicResources.one([:default, id: resource_id]) do
+    with {:ok, resource} <- EconomicResources.one([:preload_primary_accountable, id: resource_id]) do
       if is_nil(resource.primary_accountable_id)
          or receiver_id == resource.primary_accountable_id
          or provider_id == resource.primary_accountable_id do
         :ok
       else
-        {:error, error(403, "You cannot do this since neither the receiver nor provider are accountable for the target resource.")}
+        {:error, error(403, "You cannot do this because you are not accountable for the target resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)})")}
       end
     end
   end

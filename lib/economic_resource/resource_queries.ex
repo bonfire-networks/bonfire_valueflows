@@ -102,6 +102,14 @@ defmodule ValueFlows.EconomicResource.Queries do
     ]
   end
 
+  def filter(q, :preload_primary_accountable) do
+    filter q, [
+      :deleted,
+      preload: :primary_accountable,
+      # preload: :unit_of_effort,
+    ]
+  end
+
   def filter(q, :offer) do
     where(q, [resource: c], is_nil(c.receiver_id))
   end
@@ -325,7 +333,7 @@ defmodule ValueFlows.EconomicResource.Queries do
   end
 
   def filter(q, {:preload, :primary_accountable}) do
-    preload(q, :primary_accountable)
+    preload(q, [primary_accountable: [:profile, :character]])
   end
 
   def filter(q, {:preload, :receiver}) do

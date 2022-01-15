@@ -19,17 +19,18 @@ defmodule ValueFlows.Util do
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
-    circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, [:local, :activity_pub, :guest])
+    preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "local") |> IO.inspect(label: "VF boundary")
 
-    # IO.inspect(circles: circles)
-    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles)
+    circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, []) ++ [e(thing, :context_id, nil)] |> IO.inspect(label: "VF circles, including scope if any")
 
-    # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - publish is triggered by FeedActivities.publish instead
+    # if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles)  # deprecate - setting permissions is triggered by FeedActivities.publish instead
 
-    if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
+    # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - AP publishing is triggered by FeedActivities.publish instead
+
+    if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 5) do
 
       # add to activity feed + maybe federate
-      Bonfire.Social.FeedActivities.publish(creator, verb, thing, circles)
+      Bonfire.Social.FeedActivities.publish(creator, verb, thing, circles, preset_boundary)
 
     else
       Logger.info("VF - No integration available to publish activity")
