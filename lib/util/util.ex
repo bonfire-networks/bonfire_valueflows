@@ -23,7 +23,7 @@ defmodule ValueFlows.Util do
 
     circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, []) ++ [e(thing, :context_id, nil)] |> IO.inspect(label: "VF circles, including scope if any")
 
-    # if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(creator, thing, circles)  # deprecate - setting permissions is triggered by FeedActivities.publish instead
+    # if module_enabled?(Bonfire.Me.Boundaries), do: Bonfire.Me.Boundaries.maybe_make_visible_for(creator, thing, circles)  # deprecate - setting permissions is triggered by FeedActivities.publish instead
 
     # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - AP publishing is triggered by FeedActivities.publish instead
 
@@ -42,7 +42,7 @@ defmodule ValueFlows.Util do
     Logger.info("VF - No creator for object so we don't publish")
 
     # make visible
-    if module_enabled?(Bonfire.Me.Users.Boundaries), do: Bonfire.Me.Users.Boundaries.maybe_make_visible_for(nil, thing, [:local])
+    if module_enabled?(Bonfire.Me.Boundaries), do: Bonfire.Me.Boundaries.maybe_make_visible_for(nil, thing, [:local])
 
     {:ok, nil}
   end
