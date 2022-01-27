@@ -43,6 +43,7 @@ defmodule ValueFlows.Util.Federation do
     :threads,
     :outbox,
     :inbox,
+    :notifications,
     :followers,
     :community_follows,
     :communities,
