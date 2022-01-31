@@ -8,7 +8,7 @@ defmodule ValueFlows.Util do
   def ensure_edit_permission(%{} = user, %{} = object) do
     # TODO refactor to also use Boundaries (when extension active)
     # TODO check also based on the parent / context? and user's organisation? etc
-    if ValueFlows.Util.is_admin(user) or Map.get(object, :creator_id) == user.id or Map.get(object, :provider_id) == user.id do
+    if ValueFlows.Util.is_admin?(user) or Map.get(object, :creator_id) == user.id or Map.get(object, :provider_id) == user.id do
       :ok
     else
       {:error, :not_permitted}
@@ -187,7 +187,7 @@ defmodule ValueFlows.Util do
     end
   end
 
-  def is_admin(user) do
+  def is_admin?(user) do
     if Map.get(user, :instance_admin) do
       Map.get(user.instance_admin, :is_instance_admin, false)
     else
