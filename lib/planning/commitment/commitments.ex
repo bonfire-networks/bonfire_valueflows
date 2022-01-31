@@ -98,7 +98,7 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
 
   @spec prep_attrs(attrs(), struct()) :: attrs()
   def prep_attrs(attrs, creator \\ nil) do
-    import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, e: 3, e: 4]
+    use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, e: 3, e: 4]
 
     attrs
     |> maybe_put(

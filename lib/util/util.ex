@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util do
-  import Bonfire.Common.Utils
+  use Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
 
   require Logger

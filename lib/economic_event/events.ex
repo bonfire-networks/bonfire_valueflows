@@ -2,7 +2,7 @@
 defmodule ValueFlows.EconomicEvent.EconomicEvents do
   use OK.Pipe
 
-  import Bonfire.Common.Utils
+  use Bonfire.Common.Utils
 
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util

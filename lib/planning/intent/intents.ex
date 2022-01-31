@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_list: 2, map_key_replace: 3, e: 3, e: 4]
+  use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_list: 2, map_key_replace: 3, e: 3, e: 4]
 
   import Bonfire.Common.Config, only: [repo: 0]
 

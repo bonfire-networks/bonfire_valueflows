@@ -2,7 +2,7 @@
 defmodule ValueFlows.ValueCalculation.ValueCalculations do
   use OK.Pipe
 
-  import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2, attr_get_id: 2]
+  use Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2, attr_get_id: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
 

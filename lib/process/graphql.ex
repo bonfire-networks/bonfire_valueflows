@@ -5,7 +5,7 @@ defmodule ValueFlows.Process.GraphQL do
 
   import Bonfire.Common.Config, only: [repo: 0]
   # TODO: don't use this
-  import Bonfire.Common.Utils, only: [map_key_replace_existing: 3, map_key_replace_existing: 4]
+  use Bonfire.Common.Utils, only: [map_key_replace_existing: 3, map_key_replace_existing: 4]
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{

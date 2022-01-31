@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
-  import Bonfire.Common.Utils, only: [maybe: 2, maybe_put: 3]
+  use Bonfire.Common.Utils, only: [maybe: 2, maybe_put: 3]
 
   import Bonfire.Common.Config, only: [repo: 0]
 

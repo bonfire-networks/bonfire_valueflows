@@ -94,7 +94,7 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
 
   @spec prep_attrs(attrs(), struct()) :: attrs()
   defp prep_attrs(attrs, creator) do
-    import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]
+    use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]
 
     attrs
     |> maybe_put(:satisfies_id, attr_get_id(attrs, :satisfies))

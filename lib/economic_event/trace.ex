@@ -1,5 +1,5 @@
 defmodule ValueFlows.EconomicEvent.Trace do
-  import Bonfire.Common.Utils
+  use Bonfire.Common.Utils
   require Logger
 
   alias ValueFlows.Util
