@@ -196,11 +196,13 @@ defmodule ValueFlows.Util do
   end
 
   def user_schema() do
-    Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:user_schema, Bonfire.Data.Identity.User))
+    # Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:user_schema, Bonfire.Data.Identity.User))
+    Pointers.Pointer
   end
 
   def org_schema() do
-    Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:organisation_schema, user_schema()))
+    # Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:organisation_schema, user_schema()))
+    Pointers.Pointer
   end
 
   def user_or_org_schema() do

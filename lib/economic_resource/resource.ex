@@ -63,7 +63,7 @@ defmodule ValueFlows.EconomicResource do
     many_to_many(:tags, Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Tag),
       join_through: Bonfire.Tag.Tagged,
       unique: true,
-      join_keys: [pointer_id: :id, tag_id: :id],
+      join_keys: [id: :id, tag_id: :id],
       on_replace: :delete
     )
 
