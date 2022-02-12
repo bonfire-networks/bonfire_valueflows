@@ -41,7 +41,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
 
     has_many(:conforming_resources, ValueFlows.EconomicResource, foreign_key: :conforms_to_id)
 
-    many_to_many(:tags, Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Tag),
+    many_to_many(:tags, Pointers.Pointer,
       join_through: Bonfire.Tag.Tagged,
       unique: true,
       join_keys: [id: :id, tag_id: :id],

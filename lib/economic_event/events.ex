@@ -3,7 +3,6 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   use OK.Pipe
 
   use Bonfire.Common.Utils
-
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
 
@@ -650,7 +649,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
     |> maybe_put(:calculated_using_id, attr_get_id(attrs, :calculated_using))
     |> Util.parse_measurement_attrs(creator)
-    |> IO.inspect(label: "Events: prepared attrs")
+    # |> IO.inspect(label: "Events: prepared attrs")
   end
 
   def attr_get_agent(attrs, field, creator) do

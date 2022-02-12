@@ -1,5 +1,6 @@
 defmodule ValueFlows.EconomicEvent.LiveHandler do
   use Bonfire.Web, :live_handler
+  use Arrows
 
   alias ValueFlows.EconomicEvent
   alias ValueFlows.EconomicEvent.EconomicEvents
@@ -13,12 +14,12 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
     # IO.inspect(socket: socket)
 
     with obj_attrs <- attrs
-                      |> IO.inspect()
+                      # |> IO.inspect()
                       |> Map.merge(attrs["economic_event"])
                       |> Map.drop(["economic_event"])
                       |> input_to_atoms()
                       # |> Map.get(:event)
-                      |> EconomicEvents.prepare_create_attrs(creator)
+                      |> prepare_attrs(creator)
                       |> IO.inspect(label: "create_event_attrs"),
     %{valid?: true} = cs <- changeset(obj_attrs),
     {:ok, event} <- EconomicEvents.create(creator, obj_attrs) do
@@ -39,5 +40,22 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
     end
   end
 
+  def prepare_attrs(attrs, creator) do
+    attrs
+    |> EconomicEvents.prepare_create_attrs(creator)
+    |> maybe_put(:has_point_in_time, maybe_date(e(attrs, :has_point_in_time, nil)))
+    |> maybe_put(:has_beginning, maybe_date(e(attrs, :has_beginning, nil)))
+    |> maybe_put(:has_end, maybe_date(e(attrs, :has_end, nil)))
+  end
 
+  def maybe_date(d) when is_binary(d) and d !="" do
+    Date.from_iso8601(d)
+    ~> NaiveDateTime.new(~T[00:00:00])
+    ~> Ecto.Type.cast(:utc_datetime_usec, ...)
+    |> debug
+    |> ok_or()
+  end
+  def maybe_date(_d) do
+    nil
+  end
 end
