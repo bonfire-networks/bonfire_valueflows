@@ -40,9 +40,9 @@ defmodule ValueFlows.Planning.Intent.Queries do
     join(q, jq, [intent: c], g in assoc(c, :at_location), as: :geolocation)
   end
 
-  def join_to(q, :like_count, jq) do
-    join(q, jq, [intent: c], g in assoc(c, :like_count), as: :like_count)
-  end
+  # def join_to(q, :like_count, jq) do
+  #   join(q, jq, [intent: c], g in assoc(c, :like_count), as: :like_count)
+  # end
 
   def join_to(q, :tags, jq) do
     join(q, jq, [intent: c], t in assoc(c, :tags), as: :tags)
@@ -276,12 +276,12 @@ defmodule ValueFlows.Planning.Intent.Queries do
     filter(q, order: [desc: :voted])
   end
 
-  def filter(q, {:order, [desc: :voted]}) do
-    q
-    |> join_to(:like_count)
-    |> preload(:like_count)
-    |> order_by([intent: c, like_count: lc], desc: lc.liker_count)
-  end
+  # def filter(q, {:order, [desc: :voted]}) do
+  #   q
+  #   |> join_to(:like_count)
+  #   |> preload(:like_count)
+  #   |> order_by([intent: c, like_count: lc], desc: lc.liker_count)
+  # end
 
   def filter(q, {:order, key}) do
     filter(q, order: [desc: key])
