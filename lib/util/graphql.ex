@@ -68,13 +68,11 @@ defmodule ValueFlows.Util.GraphQL do
     {:ok, nil}
   end
 
-  def fetch_classifications_edge(%{tags: _tags, resource_classified_as: _} = thing, _, _) do
-    thing = repo().preload(thing, tags: [:peered])
+  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
+    thing = repo().maybe_preload(thing, tags: [:peered])
 
     urls = Utils.e(thing, :tags, [])
     |> Enum.map(&Bonfire.Common.URIs.canonical_url(&1))
-    # |> Kernel.++ Utils.e(thing, :resource_classified_as, [])
-    # |> IO.inspect
 
     {:ok, urls }
   end
