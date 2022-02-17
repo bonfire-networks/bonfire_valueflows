@@ -30,7 +30,7 @@ defmodule ValueFlows.Util do
     if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
 
       # add to activity feed + maybe federate
-      Bonfire.Social.FeedActivities.publish(creator, verb, thing, preset: preset_boundary, to_circles: circles)
+      Bonfire.Social.FeedActivities.publish(creator, verb, thing, boundary: preset_boundary, to_circles: circles)
 
     else
       Logger.info("VF - No integration available to publish activity")
