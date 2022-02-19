@@ -45,19 +45,19 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    # IO.inspect(attrs)
+    # debug(attrs)
     current_user = current_user(socket)
     with obj_attrs <- attrs
-                      # |> IO.inspect()
+                      # |> debug()
                       |> Map.merge(e(attrs, "intent", %{}))
                       |> input_to_atoms()
-                      |> IO.inspect(),
+                      |> debug(),
     {:ok, intent} <- Intents.create(current_user, obj_attrs) do
-      IO.inspect(intent)
+      debug(intent)
 
       case Bonfire.Common.Text.list_checkboxes(intent.note) do
         sub_intents when length(sub_intents) > 0 ->
-          # IO.inspect(sub_intents)
+          # debug(sub_intents)
 
           create_from_list(current_user, obj_attrs, sub_intents, [intent.id])
 
@@ -80,7 +80,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     with {:ok, intent} <- Intents.one(id: id),
         # TODO: switch to permissioned update
          {:ok, intent} <- Intents.update(intent, input_to_atoms(attrs)) do
-      # IO.inspect(intent)
+      # debug(intent)
 
       redir = if e(attrs, "redirect_after", nil) do
           e(attrs, "redirect_after", "/intent/")<>id
@@ -93,26 +93,26 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   end
 
   def handle_event("update:"<>what, attrs, %{assigns: %{intent: %{id: intent_id}}} = socket) when is_binary(intent_id) do
-    # IO.inspect(socket)
+    # debug(socket)
 
     handle_event("update:"<>what, Map.merge(%{"id" => intent_id}, attrs), socket)
   end
 
   def handle_event("assign:select", %{"id" => assign_to, "name"=> name} = attrs, %{assigns: %{intent: %{id: intent_id}}} = socket) when is_binary(assign_to) do
-    # IO.inspect(socket)
+    # debug(socket)
 
     assign_to(assign_to, intent_id, path(socket.view, intent_id), current_user(socket), socket)
   end
 
   def handle_event("assign:select", %{"id" => assign_to, "name"=> name, "context_id" => intent_id} = attrs, %{assigns: %{process: %{id: process_id}}} = socket) when is_binary(assign_to) do
-    # IO.inspect(socket)
+    # debug(socket)
 
     assign_to(assign_to, intent_id, path(socket.view, process_id), current_user(socket), socket)
 
   end
 
   def handle_event("assign:select", %{"id" => assign_to, "name"=> name, "context_id" => intent_id} = attrs, socket) when is_binary(assign_to) do
-    # IO.inspect(socket)
+    # debug(socket)
 
     assign_to(assign_to, intent_id, nil, current_user(socket), socket)
   end
@@ -122,7 +122,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
     with {:ok, intent} <- Intents.one(id: intent_id),
          {:ok, intent} <- Intents.update(intent, %{provider: assign_to_id}) do
-      # IO.inspect(intent)
+      # debug(intent)
       {:noreply, socket |> push_redirect(to: redirect_path || e(socket.assigns, :current_url, "#"))}
     end
   end
@@ -148,7 +148,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   def handle_event("delete", %{"id" => id} = attrs, socket) do
 
     with {:ok, intent} <- Intents.soft_delete(current_user(socket), id) do
-      # IO.inspect(intent)
+      # debug(intent)
 
       redir = if e(attrs, "redirect_after", nil) do
           e(attrs, "redirect_after", "/")

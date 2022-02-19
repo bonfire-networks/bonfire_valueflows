@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Agent.Organizations do
   # alias ValueFlows.Simulate
-  require Logger
+  import Where
 
   def organizations(signed_in_user) do
     if Bonfire.Common.Utils.module_enabled?(Organisation.Organisations) do
@@ -12,7 +12,7 @@ defmodule ValueFlows.Agent.Organizations do
       if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
          Bonfire.Me.Users.list() |> format()
       else
-        Logger.error("organizations feature not implemented")
+        error("organizations feature not implemented")
         []
       end
     end
@@ -41,7 +41,7 @@ defmodule ValueFlows.Agent.Organizations do
           nil
         end
       else
-        Logger.error("organizations feature not implemented")
+        error("organizations feature not implemented")
         %{}
       end
     end

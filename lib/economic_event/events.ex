@@ -21,7 +21,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   import Bonfire.Fail.Error
 
-  require Logger
+  import Where
 
   def federation_module, do: ["ValueFlows:EconomicEvent", "EconomicEvent"]
 
@@ -183,7 +183,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       do
 
     error =  "Oops, you cannot act on three resources in one event."
-    Logger.warn("Events.create/3: "<>error)
+    warn("Events.create/3: "<>error)
 
     IO.inspect(event_with_three_resources: [
       %{
@@ -572,7 +572,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   defp validate_user_involvement(creator, event) do
-    Logger.error("VF - Permission error, creator is #{inspect creator} and provider is #{inspect event.provider} and receiver is #{inspect event.receiver}")
+    error("VF - Permission error, creator is #{inspect creator} and provider is #{inspect event.provider} and receiver is #{inspect event.receiver}")
    {:error, error(403, "You cannot do this because you are not involved in that event.")}
   end
 

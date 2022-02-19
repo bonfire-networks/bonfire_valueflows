@@ -10,20 +10,20 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    creator = current_user(socket) #|> IO.inspect(label: "creator")
-    # IO.inspect(socket: socket)
+    creator = current_user(socket) #|> debug(label: "creator")
+    # debug(socket: socket)
 
     with obj_attrs <- attrs
-                      # |> IO.inspect()
+                      # |> debug()
                       |> Map.merge(attrs["economic_event"])
                       |> Map.drop(["economic_event"])
                       |> input_to_atoms()
                       # |> Map.get(:event)
                       |> prepare_attrs(creator)
-                      |> IO.inspect(label: "create_event_attrs"),
+                      |> debug(label: "create_event_attrs"),
     %{valid?: true} = cs <- changeset(obj_attrs),
     {:ok, event} <- EconomicEvents.create(creator, obj_attrs) do
-      # IO.inspect(created: event)
+      # debug(created: event)
 
       if e(event, :economic_resource, :id, nil) do
         {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/resource/")<>e(event, :economic_resource, :id, ""))}

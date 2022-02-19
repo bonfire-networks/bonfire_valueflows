@@ -2,7 +2,7 @@
 if Code.ensure_loaded?(Bonfire.GraphQL) do
   defmodule ValueFlows.Schema do
     use Absinthe.Schema.Notation
-    require Logger
+    import Where
 
     @external_resource "lib/schema.gql"
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Agent.Agents do
   # alias ValueFlows.{Simulate}
-  require Logger
+  import Where
   use Bonfire.Common.Utils, only: [maybe_put: 3, merge_structs_as_map: 2]
   import Bonfire.Common.Config, only: [repo: 0]
 

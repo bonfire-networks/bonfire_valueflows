@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Process.GraphQL do
-  require Logger
+  import Where
 
   import Bonfire.Common.Config, only: [repo: 0]
   # TODO: don't use this

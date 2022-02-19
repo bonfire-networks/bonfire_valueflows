@@ -1,6 +1,6 @@
 defmodule ValueFlows.EconomicEvent.Trace do
   use Bonfire.Common.Utils
-  require Logger
+  import Where
 
   alias ValueFlows.Util
 
@@ -45,7 +45,7 @@ defmodule ValueFlows.EconomicEvent.Trace do
 
   defp maybe_recurse(objects, recurse_limit, recurse_counter) when is_nil(recurse_limit) or (recurse_counter + 1) < recurse_limit do
     if (recurse_counter + 1) < recurse_limit || Util.default_recurse_limit() do
-      Logger.info("Trace: recurse level #{recurse_counter} of #{recurse_limit}")
+      debug("Trace: recurse level #{recurse_counter} of #{recurse_limit}")
       recurse(objects, recurse_limit, recurse_counter+1)
       # |> IO.inspect(label: "Trace recursed")
     else

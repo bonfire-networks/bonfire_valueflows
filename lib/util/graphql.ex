@@ -5,7 +5,7 @@ defmodule ValueFlows.Util.GraphQL do
   alias Bonfire.GraphQL
   alias Bonfire.Common.Utils
 
-  require Logger
+  import Where
 
   # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
@@ -167,7 +167,7 @@ defmodule ValueFlows.Util.GraphQL do
       if Utils.module_enabled?(CommonsPub.Web.GraphQL.UploadResolver) do
         CommonsPub.Web.GraphQL.UploadResolver.upload(user, changes, info)
       else
-        Logger.error("VF - upload via GraphQL is not implemented")
+        error("VF - upload via GraphQL is not implemented")
         {:ok, %{}}
       end
     end
@@ -177,7 +177,7 @@ defmodule ValueFlows.Util.GraphQL do
     if Utils.module_enabled?(Bonfire.Tag.GraphQL.TagResolver) do
       Bonfire.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
     else
-      Logger.warn("Cannot resolve tags")
+      warn("Cannot resolve tags")
       {:ok, nil}
     end
   end

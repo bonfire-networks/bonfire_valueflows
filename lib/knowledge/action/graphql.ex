@@ -3,7 +3,7 @@ if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Knowledge.Action.GraphQL do
 
 
-  require Logger
+  import Where
 
   # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/knowledge.gql"

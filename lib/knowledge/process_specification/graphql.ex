@@ -2,7 +2,7 @@
 if Code.ensure_loaded?(Bonfire.GraphQL) do
 defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
-  require Logger
+  import Where
 
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
