@@ -206,7 +206,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         _
       )
       when not is_nil(from_existing_resource) do
-    Logger.notice("Events.create/3: recording an event between two EXISTING resources")
+    debug("Events.create/3: recording an event between two EXISTING resources")
 
     create_event(creator, event_attrs)
   end
@@ -221,7 +221,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         }
       )
       when not is_nil(from_existing_resource) do
-    Logger.notice("Events.create/3: creating a new TO resource to go with an existing FROM resource")
+    debug("Events.create/3: creating a new TO resource to go with an existing FROM resource")
 
     new_resource_attrs =
       new_inventoried_resource
@@ -245,7 +245,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         }
       )
       when not is_nil(to_existing_resource) do
-    Logger.notice("Events.create/3: creating a new FROM resource to go with an existing TO resource")
+    debug("Events.create/3: creating a new FROM resource to go with an existing TO resource")
 
     new_resource_attrs =
       new_inventoried_resource
@@ -263,7 +263,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         new_inventoried_resource: new_inventoried_resource
       }) do
 
-    Logger.notice("Events.create/3: creating a NEW resource")
+    debug("Events.create/3: creating a NEW resource")
 
     new_resource_attrs =
       new_inventoried_resource
@@ -282,7 +282,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   defp create_somethings(creator, event_attrs, _) do
-    Logger.notice("Events.create/3: creating an event but NOT a resource")
+    debug("Events.create/3: creating an event but NOT a resource")
     create_event(creator, event_attrs)
   end
 
@@ -290,7 +290,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   defp create_with_action(creator, event_attrs, %{resource_effect: resource_effect} = _action)
       when resource_effect == "increment" do
 
-    Logger.notice("Events.create_with_action: incrementing (eg. producing or raising a new resource), using info from the event and/or resource_conforms_to")
+    debug("Events.create_with_action: incrementing (eg. producing or raising a new resource), using info from the event and/or resource_conforms_to")
 
     IO.inspect(create_with_action: event_attrs)
 
@@ -330,7 +330,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         }
 
     new_inventoried_resource_attrs = with {:ok, fetched} <- EconomicResources.one([:preload_primary_accountable, id: resource_inventoried_as_id]) do
-      Logger.notice(log<>" creating the target resource based on info from resource_inventoried_as and the event")
+      debug(log<>" creating the target resource based on info from resource_inventoried_as and the event")
 
       Bonfire.Common.Utils.maybe_to_map(
         attrs
@@ -339,7 +339,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         ))
 
     else _ ->
-      Logger.notice(log<>" creating a blank target resource (based on info from the event)")
+      debug(log<>" creating a blank target resource (based on info from the event)")
 
       attrs
     end
@@ -366,7 +366,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         }
 
     new_inventoried_resource_attrs = with {:ok, fetched} <- EconomicResources.one([:preload_primary_accountable, id: resource_inventoried_as_id]) do
-      Logger.notice(log<>" creating the target resource based on info from resource_inventoried_as and the event")
+      debug(log<>" creating the target resource based on info from resource_inventoried_as and the event")
 
       Bonfire.Common.Utils.maybe_to_map(
         attrs
@@ -375,7 +375,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
         ))
 
     else _ ->
-      Logger.notice(log<>" creating a blank target resource (based on info from the event)")
+      debug(log<>" creating a blank target resource (based on info from the event)")
 
       attrs
     end
@@ -387,7 +387,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   defp create_with_action(creator, event_attrs, _) do
-    Logger.notice("Events.create_with_action: creating an event but not a resource")
+    debug("Events.create_with_action: creating an event but not a resource")
     create_event(creator, event_attrs)
   end
 
@@ -529,17 +529,17 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
          :ok <- validate_provider_is_primary_accountable(event),
          {:ok, to_resource} <- EconomicResources.update(to_resource, %{primary_accountable: receiver_id}) do
 
-            Logger.notice("Events.maybe_transfer_resource: updated the primary_accountable of the to_resource")
+            debug("Events.maybe_transfer_resource: updated the primary_accountable of the to_resource")
             {:ok, %{event | to_resource_inventoried_as: to_resource}}
 
          else _ ->
-            Logger.notice("Events.maybe_transfer_resource: did not transfer the resource (could not find or update the to_resource, or user not authorized to do so)")
+            debug("Events.maybe_transfer_resource: did not transfer the resource (could not find or update the to_resource, or user not authorized to do so)")
             {:ok, event}
     end
   end
 
   defp maybe_transfer_resource(event) do
-    Logger.notice("Events.maybe_transfer_resource: did not transfer the resource (criteria not met)")
+    debug("Events.maybe_transfer_resource: did not transfer the resource (criteria not met)")
     {:ok, event}
   end
 
