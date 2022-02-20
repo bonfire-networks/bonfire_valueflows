@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.ValueCalculation.ValueCalculations do
-  use OK.Pipe
-
+  use Arrows
   use Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2, attr_get_id: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]

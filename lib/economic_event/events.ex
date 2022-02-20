@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.EconomicEvent.EconomicEvents do
-  use OK.Pipe
-
   use Bonfire.Common.Utils
+  use Arrows
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
 
@@ -19,7 +18,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   alias ValueFlows.Process.Processes
   alias ValueFlows.ValueCalculation.ValueCalculations
 
-  import Bonfire.Fail.Error
+  import Bonfire.Fail
 
   import Where
 
@@ -573,7 +572,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   defp validate_user_involvement(creator, event) do
     error("VF - Permission error, creator is #{inspect creator} and provider is #{inspect event.provider} and receiver is #{inspect event.receiver}")
-   {:error, error(403, "You cannot do this because you are not involved in that event.")}
+   {:error, fail(403, "You cannot do this because you are not involved in that event.")}
   end
 
   defp validate_provider_is_primary_accountable(
@@ -614,7 +613,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
          or provider_id == resource.primary_accountable_id do
         :ok
       else
-        {:error, error(403, "You cannot do this because you are not accountable for the target resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)})")}
+        {:error, fail(403, "You cannot do this because you are not accountable for the target resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)})")}
       end
     end
   end
