@@ -134,7 +134,7 @@ defmodule ValueFlows.Util.Federation do
              @log_graphql
            ) do
 
-      # debug(obj, label: "queried via API")
+      # debug(obj, "queried via API")
 
       obj
     end
