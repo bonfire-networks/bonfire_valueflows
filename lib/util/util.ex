@@ -41,8 +41,8 @@ defmodule ValueFlows.Util do
   def publish(_creator, verb, %{id: thing_id} =thing) do
     debug("VF - No creator for object so we don't publish")
 
-    # make visible
-    if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.maybe_make_visible_for(nil, thing, [:local])
+    # make visible - FIXME
+    # if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.maybe_make_visible_for(nil, thing, [:local])
 
     {:ok, nil}
   end
