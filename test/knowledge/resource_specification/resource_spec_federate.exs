@@ -7,7 +7,7 @@ defmodule ValueFlows.ResourceSpecification.FederateTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "resource spec" do
     test "federates/publishes" do

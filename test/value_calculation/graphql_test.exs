@@ -9,7 +9,7 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
 
   alias ValueFlows.ValueCalculation.ValueCalculations
 
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "valueCalculation" do
     test "fetches by ID (via HTTP)" do
@@ -36,7 +36,7 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
       })
 
       assert queried =
-        Bonfire.GraphQL.QueryHelper.run_query_id(
+        Bonfire.API.GraphQL.QueryHelper.run_query_id(
           calc.id,
           @schema,
           :value_calculation,

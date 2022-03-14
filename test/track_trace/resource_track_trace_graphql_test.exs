@@ -12,7 +12,7 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
   # import Bonfire.Geolocate.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "EconomicResources.track" do
     test "Returns a list of EconomicEvents that are inputs to Processes " do

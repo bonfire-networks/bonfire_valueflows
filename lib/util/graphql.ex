@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.Util.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
-  alias Bonfire.GraphQL
+  alias Bonfire.API.GraphQL
   alias Bonfire.Common.Utils
 
   import Where
@@ -44,7 +44,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def scope_edge(%{in_scope_of: ids}, page_opts, info),
-    do: Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: ids}, page_opts, info)
+    do: Bonfire.API.GraphQL.CommonResolver.context_edges(%{context_ids: ids}, page_opts, info)
 
   def scope_edge(%{context_id: id}, page_opts, info),
     do: scope_edge(%{in_scope_of: [id]}, page_opts, info)

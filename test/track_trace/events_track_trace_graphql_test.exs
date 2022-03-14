@@ -14,7 +14,7 @@ defmodule ValueFlows.EconomicEvent.EventsTrackTraceGraphQLTest do
   # import Bonfire.Geolocate.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
 
   describe "EconomicEvent.track" do

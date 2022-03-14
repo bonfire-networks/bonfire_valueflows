@@ -92,7 +92,7 @@ defmodule ValueFlows.Util.Federation do
 
         activity
         # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
-        |> debug(label: "VF - ap_publish_activity - create")
+        |> debug("VF - ap_publish_activity - create")
 
         # IO.puts(struct_to_json(activity.data))
         # IO.puts(struct_to_json(activity.object.data))
@@ -125,7 +125,7 @@ defmodule ValueFlows.Util.Federation do
     debug("ValueFlows.Federation - query all fields except #{inspect field_filters}")
 
     with obj <-
-           Bonfire.GraphQL.QueryHelper.run_query_id(
+           Bonfire.API.GraphQL.QueryHelper.run_query_id(
              id,
              @schema,
              schema_type,
@@ -147,7 +147,7 @@ defmodule ValueFlows.Util.Federation do
   def ap_prepare_object(obj) do
     obj
     |> to_AP_deep_remap()
-    |> debug(label: "prepared for federation")
+    |> debug("prepared for federation")
   end
 
   def ap_prepare_activity("create", thing, object, author_id \\ nil) do
@@ -177,7 +177,7 @@ defmodule ValueFlows.Util.Federation do
               "cc" => [actor.data["followers"]]
             }
           } do
-        activity_params #|> debug(label: "activity_params")
+        activity_params #|> debug("activity_params")
       end
     else
       debug("VF - No integration available to federate activity")
@@ -192,14 +192,14 @@ defmodule ValueFlows.Util.Federation do
     # TODO: target guest circle if activity.public==true
     # TODO: target right circles/boundaries based on to/cc
     attrs
-    |> debug(label: "ap_receive_activity - attrs to create")
+    |> debug("ap_receive_activity - attrs to create")
 
     fun.(creator, attrs)
   end
 
   def ap_receive_activity(creator, activity, %{} = object, fun) do
     attrs = e(object, :data, object)
-    |> debug(label: "ap_receive_activity - object to prepare")
+    |> debug("ap_receive_activity - object to prepare")
     |> from_AP_deep_remap()
     |> input_to_atoms()
     |> Map.put_new(:typename, nil)
@@ -221,7 +221,7 @@ defmodule ValueFlows.Util.Federation do
     #debug(e)
 
     ap_graphql_fields_filter(e, field_filters)
-    # |> debug(label: "ap_graphql_fields")
+    # |> debug("ap_graphql_fields")
   end
 
 
@@ -246,7 +246,7 @@ defmodule ValueFlows.Util.Federation do
       _ ->
         if e not in field_filters, do: e
     end
-    # |> debug(label: "ap_graphql_fields_filter")
+    # |> debug("ap_graphql_fields_filter")
   end
 
   defp to_AP_deep_remap(map, parent_key \\ nil)
@@ -388,7 +388,7 @@ defmodule ValueFlows.Util.Federation do
 
   defp create_nested_object(creator, val, parent_key) do # loop through nested objects
     with {:ok, nested_object} <- Bonfire.Federate.ActivityPub.Receiver.receive_object(creator, val)
-    |> debug(label: "created nested object")
+    |> debug("created nested object")
     do
       nested_object
     # else _ ->

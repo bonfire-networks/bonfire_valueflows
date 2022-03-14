@@ -12,7 +12,7 @@ defmodule ValueFlows.Process.GraphQLTest do
   alias ValueFlows.Process.Processes
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "Process" do
     test "fetches a basic process by ID (via HTTP)" do
@@ -30,7 +30,7 @@ defmodule ValueFlows.Process.GraphQLTest do
       process = fake_process!(user)
 
       assert queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  process.id,
                  @schema,
                  :process,

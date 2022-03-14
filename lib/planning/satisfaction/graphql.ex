@@ -1,6 +1,6 @@
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.Planning.Satisfaction.GraphQL do
-  import Bonfire.GraphQL, only: [current_user_or_not_logged_in: 1]
+  import Bonfire.API.GraphQL, only: [current_user_or_not_logged_in: 1]
   import Bonfire.Common.Config, only: [repo: 0]
 
   alias ValueFlows.Planning.{Satisfaction, Satisfaction.Satisfactions}
@@ -8,7 +8,7 @@ defmodule ValueFlows.Planning.Satisfaction.GraphQL do
   alias ValueFlows.EconomicEvent
 
   def satisfaction(%{id: id}, info) do
-    alias Bonfire.GraphQL.ResolveField
+    alias Bonfire.API.GraphQL.ResolveField
 
     ResolveField.run(%ResolveField{
       module: __MODULE__,
@@ -25,7 +25,7 @@ defmodule ValueFlows.Planning.Satisfaction.GraphQL do
   end
 
   def fetch_satisfaction(info, id) do
-    import Bonfire.GraphQL, only: [current_user: 1]
+    import Bonfire.API.GraphQL, only: [current_user: 1]
 
     Satisfactions.by_id(id, current_user(info))
   end

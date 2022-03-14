@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.ValueCalculation.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
 
-  alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{FetchPage, ResolveField, ResolveRootPage}
+  alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{FetchPage, ResolveField, ResolveRootPage}
   alias ValueFlows.ValueCalculation.ValueCalculations
 
   def value_calculation(%{id: id}, info) do

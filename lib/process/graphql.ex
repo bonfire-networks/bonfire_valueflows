@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.Process.GraphQL do
   import Where
 
@@ -7,8 +7,8 @@ defmodule ValueFlows.Process.GraphQL do
   # TODO: don't use this
   use Bonfire.Common.Utils, only: [map_key_replace_existing: 3, map_key_replace_existing: 4]
 
-  alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{
+  alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -26,7 +26,7 @@ defmodule ValueFlows.Process.GraphQL do
   alias ValueFlows.Process
   alias ValueFlows.Process.Processes
   alias ValueFlows.Process.Queries
-  # alias Bonfire.GraphQL.CommonResolver
+  # alias Bonfire.API.GraphQL.CommonResolver
 
   # SDL schema import
   #  use Absinthe.Schema.Notation

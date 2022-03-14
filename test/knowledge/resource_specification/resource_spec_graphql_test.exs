@@ -11,7 +11,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "resourceSpecification" do
     test "fetches a resource specification by ID" do
@@ -30,7 +30,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       spec = fake_resource_specification!(user)
 
       assert queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  spec.id,
                  @schema,
                  :resource_specification,

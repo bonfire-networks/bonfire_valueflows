@@ -7,7 +7,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   import Tesla.Mock
 

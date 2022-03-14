@@ -10,7 +10,7 @@ defmodule ValueFlows.Proposal.FederateTest do
   import Tesla.Mock
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   setup do
     mock(fn

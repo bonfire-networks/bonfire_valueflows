@@ -10,7 +10,7 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    creator = current_user(socket) #|> debug(label: "creator")
+    creator = current_user(socket) #|> debug("creator")
     # debug(socket: socket)
 
     with obj_attrs <- attrs
@@ -20,7 +20,7 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
                       |> input_to_atoms()
                       # |> Map.get(:event)
                       |> prepare_attrs(creator)
-                      |> debug(label: "create_event_attrs"),
+                      |> debug("create_event_attrs"),
     %{valid?: true} = cs <- changeset(obj_attrs),
     {:ok, event} <- EconomicEvents.create(creator, obj_attrs) do
       # debug(created: event)

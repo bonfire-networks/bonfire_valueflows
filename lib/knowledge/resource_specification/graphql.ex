@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   import Where
 
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
 
-  alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{
+  alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{
     ResolveField,
     ResolvePages,
     ResolveRootPage,
@@ -60,7 +60,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Bonfire.GraphQL.Pagination.pages(
+    Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       ResourceSpecification,
       cursor_fn,

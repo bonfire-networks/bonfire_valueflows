@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.GraphQL.Subscriptions do
   use Absinthe.Schema.Notation
 

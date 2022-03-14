@@ -53,16 +53,16 @@
 
 # def graphql_document_for(schema, type, nesting, override_fun \\ []) do
   #   schema
-  #   |> Bonfire.GraphQL.QueryHelper.fields_for(type, nesting)
+  #   |> Bonfire.API.GraphQL.QueryHelper.fields_for(type, nesting)
   #   # |> IO.inspect()
-  #   |> Bonfire.GraphQL.QueryHelper.apply_overrides(override_fun)
-  #   |> Bonfire.GraphQL.QueryHelper.format_fields(type, 10, schema)
+  #   |> Bonfire.API.GraphQL.QueryHelper.apply_overrides(override_fun)
+  #   |> Bonfire.API.GraphQL.QueryHelper.format_fields(type, 10, schema)
   #   |> List.to_string()
   # end
 
 
 # def graphql_get_proposal_attempt3(id) do
-  #   query = Bonfire.GraphQL.QueryHelper.document_for(@schema, :proposal, 4, &fields_filter/1)
+  #   query = Bonfire.API.GraphQL.QueryHelper.document_for(@schema, :proposal, 4, &fields_filter/1)
   #   IO.inspect(query)
 
   #   with {:ok, g} <-

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.EconomicResource.GraphQL do
   # default to 100 km radius
   @radius_default_distance 100_000
@@ -9,8 +9,8 @@ defmodule ValueFlows.EconomicResource.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
 
-  alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{
+  alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{
     ResolveField,
     # ResolvePage,
     ResolvePages,
@@ -25,7 +25,7 @@ defmodule ValueFlows.EconomicResource.GraphQL do
   alias ValueFlows.EconomicResource.EconomicResources
   alias ValueFlows.EconomicResource.Queries
   # alias ValueFlows.Knowledge.Action.Actions
-  # alias Bonfire.GraphQL.CommonResolver
+  # alias Bonfire.API.GraphQL.CommonResolver
 
   # SDL schema import
   # use Absinthe.Schema.Notation

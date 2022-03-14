@@ -1,12 +1,12 @@
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.Proposal.ProposedToGraphQL do
   use Absinthe.Schema.Notation
 
-  alias Bonfire.GraphQL
+  alias Bonfire.API.GraphQL
   alias Bonfire.Common.Pointers
   alias ValueFlows.Proposal.Proposals
 
-  alias Bonfire.GraphQL.ResolveField
+  alias Bonfire.API.GraphQL.ResolveField
 
   import Bonfire.Common.Config, only: [repo: 0]
 

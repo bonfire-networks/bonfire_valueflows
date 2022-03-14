@@ -11,7 +11,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "proposal" do
     test "fetches a proposal by ID (via GraphQL HTTP)" do
@@ -52,7 +52,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       end)
 
       assert proposal_queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  proposal.id,
                  @schema,
                  :proposal,

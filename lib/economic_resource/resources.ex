@@ -5,8 +5,8 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
 
-  # alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{Fields, Page}
+  # alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{Fields, Page}
 
   alias ValueFlows.EconomicResource
   alias ValueFlows.EconomicResource.Queries
@@ -81,7 +81,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Bonfire.GraphQL.Pagination.pages(
+    Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       EconomicResource,
       cursor_fn,

@@ -8,7 +8,7 @@ defmodule ValueFlows.Claim.GraphQLTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "Claim" do
     test "fetches a claim by ID (via HTTP)" do
@@ -35,7 +35,7 @@ defmodule ValueFlows.Claim.GraphQLTest do
       })
 
       assert queried =
-        Bonfire.GraphQL.QueryHelper.run_query_id(
+        Bonfire.API.GraphQL.QueryHelper.run_query_id(
           claim.id,
           @schema,
           :claim,

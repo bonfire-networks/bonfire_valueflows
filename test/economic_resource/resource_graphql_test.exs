@@ -12,7 +12,7 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
   # import Bonfire.Geolocate.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "EconomicResource" do
     test "fetches a basic economic resource by ID" do
@@ -49,7 +49,7 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
       #IO.inspect(created: resource)
 
       assert queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  resource.id,
                  @schema,
                  :economic_resource,

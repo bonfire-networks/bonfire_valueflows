@@ -14,7 +14,7 @@ defmodule ValueFlows.EconomicEvent.EventsGraphQLTest do
   # import Bonfire.Geolocate.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "EconomicEvent" do
     test "fetches an economic event by ID (via HTTP)" do
@@ -76,7 +76,7 @@ defmodule ValueFlows.EconomicEvent.EventsGraphQLTest do
       #IO.inspect(created: event)
 
       assert queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  event.id,
                  @schema,
                  :economic_event,

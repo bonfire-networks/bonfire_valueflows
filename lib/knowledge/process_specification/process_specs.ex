@@ -4,8 +4,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   import Bonfire.Common.Config, only: [repo: 0]
 
-  # alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{Fields, Page}
+  # alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{Fields, Page}
 
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
@@ -71,7 +71,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Bonfire.GraphQL.Pagination.pages(
+    Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       ProcessSpecification,
       cursor_fn,

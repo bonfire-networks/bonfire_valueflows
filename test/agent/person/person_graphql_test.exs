@@ -3,7 +3,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
 
   # import Bonfire.Common.Simulation
 
-  # import Bonfire.GraphQL.Test.GraphQLAssertions
+  # import Bonfire.API.GraphQL.Test.GraphQLAssertions
 
   import Bonfire.Geolocate.Test.Faking
 
@@ -12,7 +12,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "person" do
     test "fetches an existing person by id (via HTTP)" do
@@ -74,7 +74,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       #IO.inspect(event: event)
 
       assert queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  user.id,
                  @schema,
                  :person,

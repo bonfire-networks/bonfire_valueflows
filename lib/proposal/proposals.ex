@@ -3,8 +3,8 @@ defmodule ValueFlows.Proposal.Proposals do
   use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
-  # alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{Fields, Page}
+  # alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{Fields, Page}
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
@@ -81,7 +81,7 @@ defmodule ValueFlows.Proposal.Proposals do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Bonfire.GraphQL.Pagination.pages(
+    Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       Proposal,
       cursor_fn,

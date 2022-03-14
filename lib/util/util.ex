@@ -19,9 +19,9 @@ defmodule ValueFlows.Util do
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
-    preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "local") |> debug(label: "VF preset boundary to use")
+    preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "local") |> debug("VF preset boundary to use")
 
-    circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, []) ++ [e(thing, :context_id, nil)] |> debug(label: "VF: circles to include, including scope if any")
+    circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, []) ++ [e(thing, :context_id, nil)] |> debug("VF: circles to include, including scope if any")
 
     # if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.maybe_make_visible_for(creator, thing, circles)  # deprecate - setting permissions is triggered by FeedActivities.publish instead
 

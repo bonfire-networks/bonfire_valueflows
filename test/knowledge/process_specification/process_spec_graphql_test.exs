@@ -10,7 +10,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "processSpecification" do
     test "fetches a process specification by ID (via HTTP)" do
@@ -28,7 +28,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
       spec = fake_process_specification!(user)
 
       assert queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  spec.id,
                  @schema,
                  :process_specification,

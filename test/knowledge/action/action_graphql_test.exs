@@ -8,7 +8,7 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "action" do
     test "fetches an existing action by label (via HTTP)" do
@@ -25,7 +25,7 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
       action = action()
 
       assert queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  action.label,
                  @schema,
                  :action,

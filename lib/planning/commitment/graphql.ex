@@ -1,8 +1,8 @@
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.Planning.Commitment.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
 
-  alias Bonfire.{GraphQL, GraphQL.ResolveField}
+  alias Bonfire.API.{GraphQL, GraphQL.ResolveField}
   alias ValueFlows.Planning.{Commitment.Commitments, Satisfaction.Satisfactions}
 
   def commitment(%{id: id}, info) do

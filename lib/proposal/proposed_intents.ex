@@ -3,8 +3,8 @@ defmodule ValueFlows.Proposal.ProposedIntents do
   use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
-  # alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{Fields, Page}
+  # alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{Fields, Page}
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal

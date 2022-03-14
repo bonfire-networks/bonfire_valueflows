@@ -17,7 +17,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   alias ValueFlows.Planning.Intent.Intents
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
   describe "intent" do
     test "fetches an existing intent by ID (via Graphql/HTTP)" do
@@ -55,7 +55,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       fake_proposed_intent!(proposal, intent)
 
       assert intent_queried =
-               Bonfire.GraphQL.QueryHelper.run_query_id(
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
                  intent.id,
                  @schema,
                  :intent,

@@ -12,7 +12,7 @@ defmodule ValueFlows.Process.TrackTraceGraphQLTest do
   alias ValueFlows.Process.Processes
 
   @debug false
-  @schema Bonfire.GraphQL.Schema
+  @schema Bonfire.API.GraphQL.Schema
 
 
   describe "Process.track" do
