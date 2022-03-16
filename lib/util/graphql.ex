@@ -3,7 +3,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule ValueFlows.Util.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
   alias Bonfire.API.GraphQL
-  alias Bonfire.Common.Utils
+  use Bonfire.Common.Utils
 
   import Where
 
@@ -161,10 +161,10 @@ defmodule ValueFlows.Util.GraphQL do
   def image_content_url(_, _, _), do: {:ok, nil}
 
   def maybe_upload(user, changes, info) do
-    if Utils.module_enabled?(Bonfire.Files.GraphQL) do
+    if module_enabled?(Bonfire.Files.GraphQL) do
       Bonfire.Files.GraphQL.upload(user, changes, info)
     else
-      if Utils.module_enabled?(CommonsPub.Web.GraphQL.UploadResolver) do
+      if module_enabled?(CommonsPub.Web.GraphQL.UploadResolver) do
         CommonsPub.Web.GraphQL.UploadResolver.upload(user, changes, info)
       else
         error("VF - upload via GraphQL is not implemented")
@@ -174,7 +174,7 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def tags_edges(a, b, c) do
-    if Utils.module_enabled?(Bonfire.Tag.GraphQL.TagResolver) do
+    if module_enabled?(Bonfire.Tag.GraphQL.TagResolver) do
       Bonfire.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
     else
       warn("Cannot resolve tags")

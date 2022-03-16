@@ -4,12 +4,12 @@ defmodule ValueFlows.Agent.Organizations do
   import Where
 
   def organizations(signed_in_user) do
-    if Bonfire.Common.Utils.module_enabled?(Organisation.Organisations) do
+    if Bonfire.Common.Extend.module_enabled?(Organisation.Organisations) do
       with {:ok, orgs} = Organisation.Organisations.many([:default, user: signed_in_user]) do
         format(orgs)
       end
     else
-      if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+      if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
          Bonfire.Me.Users.list() |> format()
       else
         error("organizations feature not implemented")
@@ -29,12 +29,12 @@ defmodule ValueFlows.Agent.Organizations do
   end
 
   def organization(id, signed_in_user) do
-    if Bonfire.Common.Utils.module_enabled?(Organisation.Organisations) do
+    if Bonfire.Common.Extend.module_enabled?(Organisation.Organisations) do
       with {:ok, org} = Organisation.Organisations.one([:default, id: id, user: signed_in_user]) do
         format(org)
       end
     else
-      if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+      if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
          with {:ok, org} <- Bonfire.Me.Users.by_id(id) do
           format(org)
          else _ ->

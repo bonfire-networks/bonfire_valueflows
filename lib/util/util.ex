@@ -104,7 +104,7 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_creator(%Pointers.Pointer{} = pointer) do
-    Bonfire.Common.Pointers.follow!(pointer) |> indexing_format_creator()
+    Bonfire.Common.Pointers.get(pointer) |> indexing_format_creator()
   end
 
   def indexing_format_creator(%{id: id} = creator) when not is_nil(id) do

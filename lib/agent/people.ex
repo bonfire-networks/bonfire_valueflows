@@ -4,10 +4,10 @@ defmodule ValueFlows.Agent.People do
   import Where
 
   def people(signed_in_user) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
          Bonfire.Me.Users.list() |> format()
     else
-      if Bonfire.Common.Utils.module_enabled?(CommonsPub.Users) do
+      if Bonfire.Common.Extend.module_enabled?(CommonsPub.Users) do
         {:ok, users} = CommonsPub.Users.many([:default, user: signed_in_user])
         format(users)
       else
@@ -29,14 +29,14 @@ defmodule ValueFlows.Agent.People do
   end
 
   def person(id, signed_in_user) when is_binary(id) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Users) do
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
          with {:ok, person} <- Bonfire.Me.Users.by_id(id) do
           format(person)
          else _ ->
           nil
         end
     else
-      if Bonfire.Common.Utils.module_enabled?(CommonsPub.Users) do
+      if Bonfire.Common.Extend.module_enabled?(CommonsPub.Users) do
         with {:ok, person} <-
               CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
           format(person)

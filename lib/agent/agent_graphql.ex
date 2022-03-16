@@ -22,7 +22,7 @@ defmodule ValueFlows.Agent.GraphQL do
   # with pagination
   def people(page_opts, info) do
     people_pages =
-      if Bonfire.Common.Utils.module_enabled?(CommonsPub.Web.GraphQL.UsersResolver) do
+      if Bonfire.Common.Extend.module_enabled?(CommonsPub.Web.GraphQL.UsersResolver) do
         with {:ok, users_pages} <- CommonsPub.Web.GraphQL.UsersResolver.users(page_opts, info) do
           people =
             Enum.map(
@@ -63,7 +63,7 @@ defmodule ValueFlows.Agent.GraphQL do
   # with pagination
   def organizations(page_opts, info) do
     orgz_pages =
-      if Bonfire.Common.Utils.module_enabled?(Organisation.GraphQL.Resolver) do
+      if Bonfire.Common.Extend.module_enabled?(Organisation.GraphQL.Resolver) do
         with {:ok, pages} <- Organisation.GraphQL.Resolver.organisations(page_opts, info) do
           orgz =
             Enum.map(

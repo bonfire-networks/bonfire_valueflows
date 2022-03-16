@@ -40,7 +40,7 @@ defmodule ValueFlows.Planning.Satisfaction.GraphQL do
 
   def fetch_satisfied_by_edge(%Satisfaction{} = satis, _, _) do
     %{satisfied_by: satis_by} = repo().preload(satis, :satisfied_by)
-    {:ok, Bonfire.Common.Pointers.follow!(satis_by)}
+    {:ok, Bonfire.Common.Pointers.get(satis_by)}
   end
 
   def fetch_satisfied_by_edge(_, _, _),

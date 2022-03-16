@@ -72,10 +72,10 @@ defmodule ValueFlows.Simulate do
   end
 
   def maybe_fake_user(overrides) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Me.Fake) do
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Fake) do
         Bonfire.Me.Fake.fake_user!(overrides)
       else
-        if Bonfire.Common.Utils.module_enabled?(CommonsPub.Utils.Simulate), do: CommonsPub.Utils.Simulate.fake_user!(overrides)
+        if Bonfire.Common.Extend.module_enabled?(CommonsPub.Utils.Simulate), do: CommonsPub.Utils.Simulate.fake_user!(overrides)
       end
   end
   def fake_agent!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
@@ -395,13 +395,13 @@ defmodule ValueFlows.Simulate do
   ## Aliases for functions in other Bonfire extensions ##
 
   def some_fake_categories(user, num \\ 5) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Classify.Simulate),
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Classify.Simulate),
     do: some(num, fn -> Bonfire.Classify.Simulate.fake_category!(user).id end),
     else: []
   end
 
   def maybe_fake_unit(user) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Quantify.Simulate),
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Quantify.Simulate),
     do: Bonfire.Quantify.Simulate.fake_unit!(user),
     else: %{id: nil}
   end

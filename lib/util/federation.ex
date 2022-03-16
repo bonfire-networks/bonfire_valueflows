@@ -78,7 +78,7 @@ defmodule ValueFlows.Util.Federation do
       )
     when is_binary(id) do
 
-    if Bonfire.Common.Utils.module_enabled?(ActivityPub) do
+    if Bonfire.Common.Extend.module_enabled?(ActivityPub) do
 
       debug("ValueFlows.Federation - create #{schema_type}")
 
@@ -152,7 +152,7 @@ defmodule ValueFlows.Util.Federation do
 
   def ap_prepare_activity("create", thing, object, author_id \\ nil) do
 
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Federate.ActivityPub.Utils) do
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Utils) do
 
       with context <-
             maybe_get_ap_id_by_local_id(Map.get(object, "context")),
@@ -427,7 +427,7 @@ defmodule ValueFlows.Util.Federation do
 
   # FIXME ?
   def ap_publish(verb, thing_id, user_id) do
-    if Bonfire.Common.Utils.module_enabled?(Bonfire.Federate.ActivityPub.APPublishWorker) do
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.APPublishWorker) do
       Bonfire.Federate.ActivityPub.APPublishWorker.enqueue(verb, %{
         "context_id" => thing_id,
         "user_id" => user_id
