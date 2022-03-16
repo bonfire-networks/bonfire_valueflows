@@ -31,11 +31,7 @@ defmodule Bonfire.ValueFlows.DataCase do
     import Bonfire.Common.Config, only: [repo: 0]
     Cachex.clear(:ap_actor_cache)
     Cachex.clear(:ap_object_cache)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(repo())
-
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(repo(), {:shared, self()})
-    end
+    Bonfire.Common.Test.Interactive.setup_test_repo(tags)
 
     :ok
   end
