@@ -1,20 +1,37 @@
 defmodule ValueFlows.EconomicEvent.FederateTest do
-  use Bonfire.ValueFlows.DataCase
+  use Bonfire.ValueFlows.ConnCase
+
   alias Bonfire.Common.Utils
   import Bonfire.Common.Simulation
   import Bonfire.Geolocate.Simulate
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
+  alias Bonfire.Federate.ActivityPub.Simulate
+  alias ValueFlows.EconomicEvent.EconomicEvents
 
   @debug false
   @schema Bonfire.API.GraphQL.Schema
 
   import Tesla.Mock
 
+  @remote_instance "https://kawen.space"
+  @actor_name "karen@kawen.space"
+  @remote_actor @remote_instance<>"/users/karen"
+  @remote_actor_url @remote_instance<>"/@karen"
+  @webfinger @remote_instance<>"/.well-known/webfinger?resource=acct:"<>@actor_name
+
+  # TODO: move this into fixtures
   setup do
     mock(fn
-      %{method: :get, url: "https://kawen.space/users/karen"} ->
-        json(Bonfire.Federate.ActivityPub.Simulate.actor_json("https://kawen.space/users/karen"))
+      %{method: :get, url: @remote_actor} ->
+        json(Simulate.actor_json(@remote_actor))
+      %{method: :get, url: @remote_actor_url} ->
+        json(Simulate.actor_json(@remote_actor))
+      %{method: :get, url: @webfinger} ->
+        json(Simulate.webfingered())
+      other ->
+        IO.inspect(other, label: "mock not configured")
+        nil
     end)
 
     :ok
@@ -48,11 +65,154 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
       assert activity.data["object"]["summary"] =~ event.note
     end
+
+    test "transfer an existing economic resource to a remote agent/actor by AP URI" do
+
+      user = fake_agent!()
+
+      unit = maybe_fake_unit(user)
+      resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
+      to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
+
+      q =
+        create_economic_event_mutation(
+          fields: [
+            :id,
+            receiver: [:id],
+            resource_quantity: [:has_numerical_value],
+            resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ],
+            to_resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ]
+          ]
+        )
+
+      conn = user_conn(user)
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "action" => "transfer",
+            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceInventoriedAs" => resource_inventoried_as.id,
+            "toResourceInventoriedAs" => to_resource_inventoried_as.id,
+            # "provider" => user.id,
+            "receiver" => @remote_actor
+          })
+      }
+
+      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert event = response["economicEvent"]
+      assert_economic_event(event)
+
+      assert {:ok, local_event} = EconomicEvents.one(id: event["id"])
+
+      assert Bonfire.Common.URIs.canonical_url(event["receiver"]) == @remote_actor
+
+      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
+      #IO.inspect(published: activity)
+
+      assert activity.pointer_id == local_event.id
+      assert activity.local == true
+
+      assert activity.data["object"]["summary"] =~ local_event.note
+
+      # assert activity.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
+
+      {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+      assert activity.data["object"]["receiver"]["id"] == @remote_actor
+
+      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+
+      assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
+               to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+    end
+
+
+    test "transfer an existing economic resource to a remote agent/actor by username" do
+      Cachex.clear(:ap_actor_cache)
+      Cachex.clear(:ap_object_cache)
+
+      user = fake_agent!()
+
+      unit = maybe_fake_unit(user)
+      resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
+      to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
+
+      q =
+        create_economic_event_mutation(
+          fields: [
+            :id,
+            receiver: [:id],
+            resource_quantity: [:has_numerical_value],
+            resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ],
+            to_resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ]
+          ]
+        )
+
+      conn = user_conn(user)
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "action" => "transfer",
+            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceInventoriedAs" => resource_inventoried_as.id,
+            "toResourceInventoriedAs" => to_resource_inventoried_as.id,
+            # "provider" => user.id,
+            "receiver" => @actor_name
+          })
+      }
+
+      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert event = response["economicEvent"]
+      assert_economic_event(event)
+
+      assert {:ok, local_event} = EconomicEvents.one(id: event["id"])
+
+      assert Bonfire.Common.URIs.canonical_url(event["receiver"]) == @remote_actor
+
+      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
+      #IO.inspect(published: activity)
+
+      assert activity.pointer_id == local_event.id
+      assert activity.local == true
+
+      assert activity.data["object"]["summary"] =~ local_event.note
+
+      # assert activity.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
+
+      {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+      assert activity.data["object"]["receiver"]["id"] == @remote_actor
+
+      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+
+      assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
+               to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+    end
   end
 
   test "creates an economic event from an incoming federated activity " do
+      Cachex.clear(:ap_actor_cache)
+      Cachex.clear(:ap_object_cache)
 
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
 
       to = [
         "https://testing.kawen.dance/users/karen",
@@ -61,8 +221,8 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
       object = %{
         "action" => "https://w3id.org/valueflows#consume",
-        "actor" => "https://kawen.space/users/karen",
-        "attributedTo" => "https://kawen.space/users/karen",
+        "actor" => @remote_actor,
+        "attributedTo" => @remote_actor,
         "context" => nil,
         "effortQuantity" => %{
           "hasNumericalValue" => 0.8097386376788132,
@@ -90,18 +250,18 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         },
         "provider" => %{
           "agentType" => "Person",
-          "id" => "https://kawen.space/users/karen",
+          "id" => @remote_actor,
           "name" => "Dr. Annalise Hane",
-          "preferredUsername" => "orland_ward",
+          "preferredUsername" => "karen",
           "summary" => "Quasi vitae repudiandae et est enim minus aut vero repudiandae.",
           "type" => "Person"
         },
         "published" => "2021-11-06T03:39:50.790006Z",
         "receiver" => %{
           "agentType" => "Person",
-          "id" => "https://kawen.space/users/karen",
+          "id" => @remote_actor,
           "name" => "Dr. Annalise Hane",
-          "preferredUsername" => "orland_ward",
+          "preferredUsername" => "karen",
           "summary" => "Quasi vitae repudiandae et est enim minus aut vero repudiandae.",
           "type" => "Person"
         },
@@ -114,7 +274,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         "resourceInventoriedAs" => %{
           "id" => "https://kawen.space/pub/objects/01FKSN9FVMB34EHMHMED3KJV3Q",
           "name" => "Kulas-Prosacco",
-          "primaryAccountable" => "https://kawen.space/users/karen",
+          "primaryAccountable" => @remote_actor,
           "summary" => "Ea esse ad blanditiis numquam dolorem fugit.",
           "trackingIdentifier" => "0d28b152-0fd3-426b-936b-943ad75120aa",
           "type" => "ValueFlows:EconomicResource"
@@ -129,7 +289,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         "toResourceInventoriedAs" => %{
           "id" => "https://kawen.space/pub/objects/01FKSN9FT8AQN4ZEYRA2DVVH4J",
           "name" => "Russel-Fahey",
-          "primaryAccountable" => "https://kawen.space/users/karen",
+          "primaryAccountable" => @remote_actor,
           "summary" => "Eos accusamus quae vitae totam rerum neque aut.",
           "trackingIdentifier" => "418ce00f-593b-43fd-a290-2ee18dd23324",
           "type" => "ValueFlows:EconomicResource"

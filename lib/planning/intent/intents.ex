@@ -237,7 +237,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
         a_proposed_intent_attrs = a_proposed_intent_attrs |> Map.put(:publishes, intent)
         IO.inspect(a_proposed_intent_attrs, label: "ap_receive_activity - attrs for a_proposed_intent_attrs")
 
-        with {:ok, proposed_intent} <- ValueFlows.Proposal.ProposedIntents.ap_receive_activity(creator, activity, a_proposed_intent_attrs) do
+        with {:ok, proposed_intent} <- ValueFlows.Util.Federation.create_nested_object(creator, a_proposed_intent_attrs, intent) do
           proposed_intent
         end
       end

@@ -122,14 +122,14 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   def inputs_of(attrs, action_id \\ nil)
 
   def inputs_of(process, action_id) when not is_nil(action_id) do
-    case maybe_get_id(process) do
+    case ulid(process) do
       id when is_binary(id) -> many([:default, input_of_id: id, action_id: action_id])
       _ -> {:ok, nil}
     end
   end
 
   def inputs_of(process, _) do
-    case maybe_get_id(process) do
+    case ulid(process) do
       id when is_binary(id) -> many([:default, input_of_id: id])
       _ -> {:ok, nil}
     end
@@ -138,14 +138,14 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   def outputs_of(attrs, action_id \\ nil)
 
   def outputs_of(process, action_id) when not is_nil(action_id) do
-    case maybe_get_id(process) do
+    case ulid(process) do
       id when is_binary(id) -> many([:default, output_of_id: id, action_id: action_id])
       _ -> {:ok, nil}
     end
   end
 
   def outputs_of(process, _) do
-    case maybe_get_id(process) do
+    case ulid(process) do
       id when is_binary(id) -> many([:default, output_of_id: id])
       _ -> {:ok, nil}
     end
@@ -637,8 +637,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
-    |> maybe_put(:provider_id, attr_get_agent(attrs, :provider, creator))
-    |> maybe_put(:receiver_id, attr_get_agent(attrs, :receiver, creator))
+    |> maybe_put(:provider_id, Util.attr_get_agent(attrs, :provider, creator))
+    |> maybe_put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
     |> maybe_put(:input_of_id, attr_get_id(attrs, :input_of))
     |> maybe_put(:output_of_id, attr_get_id(attrs, :output_of))
     |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
@@ -649,13 +649,6 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     |> maybe_put(:calculated_using_id, attr_get_id(attrs, :calculated_using))
     |> Util.parse_measurement_attrs(creator)
     # |> IO.inspect(label: "Events: prepared attrs")
-  end
-
-  def attr_get_agent(attrs, field, creator) do
-    case Map.get(attrs, field) do
-      "me" -> maybe_get_id(creator)
-      other -> maybe_get_id(other)
-    end
   end
 
   def soft_delete(%EconomicEvent{} = event) do

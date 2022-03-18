@@ -70,6 +70,13 @@ defmodule ValueFlows.Util do
     {:ok, nil}
   end
 
+  def attr_get_agent(attrs, field, creator) do
+    case Map.get(attrs, field) do
+      "me" -> ulid(creator)
+      id_or_uri_or_username when is_binary(id_or_uri_or_username) -> ulid(id_or_uri_or_username) || Bonfire.Federate.ActivityPub.Utils.get_by_url_ap_id_or_username(id_or_uri_or_username) |> ulid()
+      other -> ulid(other)
+    end
+  end
 
   def search_for_matches(%{name: name, note: note, is_offer: true}) do
     facets = %{index_type: "ValueFlows.Planning.Need"}

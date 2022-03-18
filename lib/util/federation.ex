@@ -386,7 +386,7 @@ defmodule ValueFlows.Util.Federation do
     end
   end
 
-  defp create_nested_object(creator, val, parent_key) do # loop through nested objects
+  def create_nested_object(creator, val, _parent_key) do # loop through nested objects
     with {:ok, nested_object} <- Bonfire.Federate.ActivityPub.Receiver.receive_object(creator, val)
     |> debug("created nested object")
     do
@@ -406,7 +406,7 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def maybe_id(thing, key) do
-    e(thing, key, :id, e(thing, key, nil))
+    e(thing, key, :id, nil) || e(thing, "#{key}_id", nil) || e(thing, key, nil)
   end
 
   def activity_object_id(%{object: object}) do

@@ -47,6 +47,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       ]
 
       object = %{
+        "id" => "https://kawen.space/"<>Pointers.ULID.generate(),
         "name" => "title",
         "summary" => "content",
         "type" => "ValueFlows:Intent",

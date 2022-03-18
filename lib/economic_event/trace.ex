@@ -80,7 +80,7 @@ defmodule ValueFlows.EconomicEvent.Trace do
   def resource(resource_or_id, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0)
 
   def resource(resource_or_id, recurse_limit, recurse_counter) do
-    with {:ok, events} <- EconomicEvents.many([:default, trace_resource: maybe_get_id(resource_or_id)]) do
+    with {:ok, events} <- EconomicEvents.many([:default, trace_resource: ulid(resource_or_id)]) do
       {:ok, events
         |> maybe_recurse(recurse_limit, recurse_counter)
       }

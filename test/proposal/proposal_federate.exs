@@ -173,7 +173,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
-      IO.inspect(proposal, label: "proposal created based on incoming AP")
+      IO.inspect(proposal, label: "proposal with intent created based on incoming AP")
 
       assert object["name"] =~ proposal.name
       assert object["summary"] =~ proposal.note
@@ -275,7 +275,6 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] =~ activity.data["object"]["summary"]
 
       assert {:ok, p_intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(p_intent, label: "proposed intent created based on incoming AP")
@@ -365,9 +364,6 @@ defmodule ValueFlows.Proposal.FederateTest do
           }
         }]
       }
-
-
-
 
       params = %{
         actor: actor,
