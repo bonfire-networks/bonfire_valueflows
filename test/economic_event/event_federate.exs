@@ -67,6 +67,8 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
     end
 
     test "transfer an existing economic resource to a remote agent/actor by AP URI" do
+      Cachex.clear(:ap_actor_cache)
+      Cachex.clear(:ap_object_cache)
 
       user = fake_agent!()
 
