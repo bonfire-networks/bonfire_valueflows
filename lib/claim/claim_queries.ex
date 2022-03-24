@@ -2,7 +2,7 @@
 defmodule ValueFlows.Claim.Queries do
   import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
-
+  import Where
 
   alias ValueFlows.Claim
 
@@ -126,4 +126,7 @@ defmodule ValueFlows.Claim.Queries do
       :triggered_by,
     ])
   end
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+
 end

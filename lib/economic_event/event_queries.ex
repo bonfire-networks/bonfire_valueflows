@@ -6,6 +6,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
   import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
+  import Where
 
   def query(EconomicEvent) do
     from(c in EconomicEvent, as: :event)
@@ -385,4 +386,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
   # end
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+
 end

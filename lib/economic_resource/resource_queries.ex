@@ -6,6 +6,7 @@ defmodule ValueFlows.EconomicResource.Queries do
   import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
+  import Where
 
   def query(EconomicResource) do
     from(c in EconomicResource, as: :resource)
@@ -404,5 +405,5 @@ defmodule ValueFlows.EconomicResource.Queries do
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

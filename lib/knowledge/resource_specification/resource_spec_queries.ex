@@ -6,6 +6,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS
+  import Where
 
   def query(ResourceSpecification) do
     from(c in ResourceSpecification, as: :resource_spec)
@@ -230,4 +231,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

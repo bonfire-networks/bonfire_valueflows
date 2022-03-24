@@ -5,6 +5,12 @@ defmodule ValueFlows.Util do
 
   import Where
 
+  def common_filters(q, unknown_filter) do
+    # TODO: implement boundary checking here
+    error(unknown_filter, "Unknown query filter, skipping")
+    q
+  end
+
   def ensure_edit_permission(%{} = user, %{} = object) do
     # TODO refactor to also use Boundaries (when extension active)
     # TODO check also based on the parent / context? and user's organisation? etc
@@ -18,26 +24,14 @@ defmodule ValueFlows.Util do
 
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
-    # TODO: make default audience configurable & per object audience selectable by user in API and UI
-    preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "local") |> debug("VF preset boundary to use")
-
-    circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, [])
-              ++ [
-                e(thing, :context_id, nil),
-                e(thing, :provider_id, nil),
-                e(thing, :receiver_id, nil)
-              ]
-
-    debug(circles, "VF: circles to include, including scope/provider/receiver and scope if any")
-
-    # if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.maybe_make_visible_for(creator, thing, circles)  # deprecate - setting permissions is triggered by FeedActivities.publish instead
+    opts = recipients_and_boundaries(creator, thing) # this sets permissions & returns recipients in opts to be used for publishing
 
     # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - AP publishing is triggered by FeedActivities.publish instead
 
     if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
 
       # add to activity feed + maybe federate
-      Bonfire.Social.FeedActivities.publish(creator, verb, thing, boundary: preset_boundary, to_circles: circles)
+      Bonfire.Social.FeedActivities.publish(creator, verb, thing, opts)
 
     else
       debug("VF - No integration available to publish activity")
@@ -46,12 +40,31 @@ defmodule ValueFlows.Util do
   end
 
   def publish(_creator, verb, %{id: thing_id} =thing) do
-    debug("VF - No creator for object so we don't publish")
+    debug("VF - No creator for object so we can't publish it")
 
-    # make visible - FIXME
-    # if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.maybe_make_visible_for(nil, thing, [:local])
+    # make visible
+    recipients_and_boundaries(e(thing, :creator, e(thing, :provider, nil)), thing)
 
     {:ok, nil}
+  end
+
+  defp recipients_and_boundaries(creator, thing) do
+    # TODO: make default audience configurable & per object audience selectable by user in API and UI
+    preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")
+
+    recipients = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, [])
+              ++ [
+                e(thing, :context_id, nil),
+                e(thing, :provider_id, nil),
+                e(thing, :receiver_id, nil)
+              ]
+
+    opts = [boundary: preset_boundary, to_circles: recipients]
+    debug(opts, "boundaries to set & recipients to include (should include scope, provider, and receiver if any)")
+
+    if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
+
+    opts
   end
 
   def publish(%{creator_id: creator_id, id: thing_id}, :update) do

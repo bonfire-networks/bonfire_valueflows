@@ -6,6 +6,7 @@ defmodule ValueFlows.Proposal.Queries do
   import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
+  import Where
 
   def query(Proposal) do
     from(c in Proposal, as: :proposal)
@@ -159,4 +160,5 @@ defmodule ValueFlows.Proposal.Queries do
     select(q, [proposal: c], {field(c, ^key), count(c.id)})
   end
 
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

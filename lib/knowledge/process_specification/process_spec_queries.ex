@@ -6,6 +6,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS
+  import Where
 
   def query(ProcessSpecification) do
     from(c in ProcessSpecification, as: :process_spec)
@@ -195,4 +196,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   # end
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

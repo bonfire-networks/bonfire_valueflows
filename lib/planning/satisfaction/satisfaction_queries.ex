@@ -1,5 +1,6 @@
 defmodule ValueFlows.Planning.Satisfaction.Queries do
   import Ecto.Query
+  import Where
 
   alias ValueFlows.Planning.Satisfaction
 
@@ -147,4 +148,6 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
 
   def filter(q, {:paginate_id, %{limit: limit}}),
     do: filter(q, limit: limit + 1)
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

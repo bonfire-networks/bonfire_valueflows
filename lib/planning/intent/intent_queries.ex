@@ -7,6 +7,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   alias Bonfire.Common.Utils
   import Ecto.Query
   import Geo.PostGIS
+  import Where
 
   def query(Intent) do
     from(c in Intent, as: :intent,
@@ -370,4 +371,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # end
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

@@ -1,5 +1,6 @@
 defmodule ValueFlows.Proposal.ProposedToQueries do
   import Ecto.Query
+  import Where
 
   alias ValueFlows.Proposal.ProposedTo
 
@@ -74,4 +75,6 @@ defmodule ValueFlows.Proposal.ProposedToQueries do
   def filter(q, {:count, key}) when is_atom(key) do
     select(q, [proposed_to: pt], {field(pt, ^key), count(pt.id)})
   end
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

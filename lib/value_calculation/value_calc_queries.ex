@@ -2,6 +2,7 @@
 defmodule ValueFlows.ValueCalculation.Queries do
   import Bonfire.Repo.Common, only: [match_admin: 0]
   import Ecto.Query
+  import Where
 
   alias ValueFlows.ValueCalculation
   alias ValueFlows.EconomicEvent
@@ -173,4 +174,6 @@ defmodule ValueFlows.ValueCalculation.Queries do
       :value_resource_conforms_to,
     ])
   end
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end

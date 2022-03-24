@@ -4,6 +4,7 @@ defmodule ValueFlows.Planning.Commitment.Queries do
 
   import Ecto.Query
   import Geo.PostGIS
+  import Where
 
   def query(Commitment),
     do: from(c in Commitment, as: :commitment)
@@ -255,4 +256,7 @@ defmodule ValueFlows.Planning.Commitment.Queries do
 
   def filter(q, {:paginate_id, %{limit: limit}}),
     do: filter(q, limit: limit + 1)
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+
 end

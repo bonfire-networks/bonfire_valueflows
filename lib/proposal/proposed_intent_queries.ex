@@ -1,5 +1,6 @@
 defmodule ValueFlows.Proposal.ProposedIntentQueries do
   import Ecto.Query
+  import Where
 
   alias ValueFlows.Proposal.ProposedIntent
 
@@ -82,4 +83,6 @@ defmodule ValueFlows.Proposal.ProposedIntentQueries do
   def filter(q, {:count, key}) when is_atom(key) do
     select(q, [proposed_intent: c], {field(c, ^key), count(c.id)})
   end
+
+  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
 end
