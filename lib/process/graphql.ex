@@ -184,7 +184,7 @@ defmodule ValueFlows.Process.GraphQL do
     |> map_key_replace_existing(:provider, :provider_id)
     |> map_key_replace_existing(:receiver, :receiver_id)
     |> map_key_replace_existing(:search_string, :search)
-    |> map_key_replace_existing(:classified_as, :tag_ids, Util.maybe_classification(nil, Map.get(search_params, :classified_as)) |> Enum.map(& (&1.id)))
+    |> map_key_replace_existing(:classified_as, :tag_ids, Util.maybe_classification_id(nil, Map.get(search_params, :classified_as)))
     |> Keyword.new()
     |> IO.inspect
   end

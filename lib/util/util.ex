@@ -329,6 +329,9 @@ defmodule ValueFlows.Util do
     end
   end
 
+  def maybe_classification_id(user, tags) when is_list(tags) do
+    Enum.map(tags, &maybe_classification_id(user, &1))
+  end
   def maybe_classification_id(user, tag) do
     maybe_classification(user, tag) |> e(:id, nil)
   end
