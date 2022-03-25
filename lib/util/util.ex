@@ -52,14 +52,21 @@ defmodule ValueFlows.Util do
     # TODO: make default audience configurable & per object audience selectable by user in API and UI
     preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")
 
-    recipients = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, [])
+    to_circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, [])
               ++ [
                 e(thing, :context_id, nil),
                 e(thing, :provider_id, nil),
                 e(thing, :receiver_id, nil)
               ]
 
-    opts = [boundary: preset_boundary, to_circles: recipients]
+    to_feeds = if module_enabled?(Bonfire.Social.Feeds), do:
+                  Bonfire.Social.Feeds.feed_ids(:notifications, [
+                    e(thing, :context_id, nil),
+                    e(thing, :provider_id, nil),
+                    e(thing, :receiver_id, nil)
+              ])
+
+    opts = [boundary: preset_boundary, to_circles: to_circles, to_feeds: to_feeds]
     debug(opts, "boundaries to set & recipients to include (should include scope, provider, and receiver if any)")
 
     if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
