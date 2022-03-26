@@ -226,16 +226,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def ap_receive_activity(creator, activity, %{data: %{"publishedIn" => proposed_intents_attrs}} = object) when is_list(proposed_intents_attrs) and length(proposed_intents_attrs)>0 do
-    IO.inspect(object, label: "ap_receive_activity - handle Intent with nested ProposedIntent (and usually Proposal too)")
+    debug(object, "handle Intent with nested ProposedIntent (and usually Proposal too)")
 
-    intent_attrs = pop_in(object, [:data, "publishedIn"]) |> elem(1) # remove nested objects to avoid double-creations
+    intent_attrs = object |> Utils.maybe_to_map() |> pop_in([:data, "publishedIn"]) |> elem(1) # remove nested objects to avoid double-creations
 
     with {:ok, intent} <- ValueFlows.Util.Federation.ap_receive_activity(creator, activity, intent_attrs, &create/2) do
 
       proposed_intents = for a_proposed_intent_attrs <- proposed_intents_attrs do
 
         a_proposed_intent_attrs = a_proposed_intent_attrs |> Map.put(:publishes, intent)
-        IO.inspect(a_proposed_intent_attrs, label: "ap_receive_activity - attrs for a_proposed_intent_attrs")
+        debug(a_proposed_intent_attrs, "attrs for a_proposed_intent_attrs")
 
         with {:ok, proposed_intent} <- ValueFlows.Util.Federation.create_nested_object(creator, a_proposed_intent_attrs, intent) do
           proposed_intent

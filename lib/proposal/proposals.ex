@@ -167,7 +167,7 @@ defmodule ValueFlows.Proposal.Proposals do
   def ap_receive_activity(creator, activity, %{data: %{"publishes" => proposed_intents_attrs}} = object) when is_list(proposed_intents_attrs) and length(proposed_intents_attrs)>0 do
     IO.inspect(object, label: "ap_receive_activity - handle Proposal with nested ProposedIntent (and usually Intent too)")
 
-    proposal_attrs = pop_in(object, [:data, "publishes"]) |> elem(1) # remove nested objects to avoid double-creations
+    proposal_attrs = object |> Utils.maybe_to_map() |> pop_in([:data, "publishes"]) |> elem(1) # remove nested objects to avoid double-creations
 
     with {:ok, proposal} <- ValueFlows.Util.Federation.ap_receive_activity(creator, activity, proposal_attrs, &create/2) do
 

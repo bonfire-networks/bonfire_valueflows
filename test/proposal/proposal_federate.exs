@@ -40,10 +40,10 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", proposal)
       #IO.inspect(published: activity) ########
 
-      assert activity.pointer_id == proposal.id
+      assert activity.object.pointer_id == proposal.id
       assert activity.local == true
 
-      assert activity.data["object"]["name"] == proposal.name
+      assert activity.object.data["name"] == proposal.name
       # TODO: check that intent creator/provider/receiver/action are included
     end
 
@@ -80,7 +80,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] =~ activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(proposal, label: "proposal created based on incoming AP")
@@ -170,7 +170,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] =~ activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       IO.inspect(proposal, label: "proposal with intent created based on incoming AP")
@@ -375,7 +375,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] =~ activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       IO.inspect(intent, label: "intent created based on incoming AP")

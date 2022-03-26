@@ -60,10 +60,10 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", event)
       #IO.inspect(published: activity)
 
-      assert activity.pointer_id == event.id
+      assert activity.object.pointer_id == event.id
       assert activity.local == true
 
-      assert activity.data["object"]["summary"] =~ event.note
+      assert activity.object.data["summary"] =~ event.note
     end
 
     test "transfer an existing economic resource to a remote agent/actor by AP URI" do
@@ -120,15 +120,15 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
       #IO.inspect(published: activity)
 
-      assert activity.pointer_id == local_event.id
+      assert activity.object.pointer_id == local_event.id
       assert activity.local == true
 
-      assert activity.data["object"]["summary"] =~ local_event.note
+      assert activity.object.data["summary"] =~ local_event.note
 
       # assert activity.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
 
       {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
-      assert activity.data["object"]["receiver"]["id"] == @remote_actor
+      assert activity.object.data["receiver"]["id"] == @remote_actor
 
       assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
                resource_inventoried_as.accounting_quantity.has_numerical_value - 42
@@ -192,15 +192,15 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
       #IO.inspect(published: activity)
 
-      assert activity.pointer_id == local_event.id
+      assert activity.object.pointer_id == local_event.id
       assert activity.local == true
 
-      assert activity.data["object"]["summary"] =~ local_event.note
+      assert activity.object.data["summary"] =~ local_event.note
 
       # assert activity.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
 
       {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
-      assert activity.data["object"]["receiver"]["id"] == @remote_actor
+      assert activity.object.data["receiver"]["id"] == @remote_actor
 
       assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
                resource_inventoried_as.accounting_quantity.has_numerical_value - 42
@@ -310,7 +310,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect(label: "AP activity")
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] =~ activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, event} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(event, label: "event created based on incoming AP")

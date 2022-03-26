@@ -30,6 +30,7 @@ defmodule Bonfire.ValueFlows.ConnCase do
       alias Bonfire.ValueFlows.Web.Router.Helpers, as: Routes
 
       import Bonfire.Common.Config, only: [repo: 0]
+      import Where
 
       # The default endpoint for testing
       @endpoint Bonfire.Common.Config.get!(:endpoint_module)

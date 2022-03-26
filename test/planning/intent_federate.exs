@@ -28,10 +28,10 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", intent)
       #IO.inspect(published: activity) ########
 
-      assert activity.pointer_id == intent.id
+      assert activity.object.pointer_id == intent.id
       assert activity.local == true
 
-      assert activity.data["object"]["name"] =~ intent.name
+      assert activity.object.data["name"] =~ intent.name
       # assert object["type"] == "ValueFlows:Offer"
 
     end
@@ -65,7 +65,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] =~ activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       # IO.inspect(intent: intent)
@@ -132,7 +132,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
 
       assert actor.data["id"] == activity.data["actor"]
-      assert object["summary"] =~ activity.data["object"]["summary"]
+      assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
       IO.inspect(intent, label: "intent created based on incoming AP")

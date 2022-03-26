@@ -1,5 +1,6 @@
 defmodule ValueFlows.Util.Federation do
   use Bonfire.Common.Utils
+  alias Bonfire.Common.URIs
   import Where
 
   @log_graphql false
@@ -70,7 +71,7 @@ defmodule ValueFlows.Util.Federation do
       )
 
   def ap_publish_activity(
-        "create" = activity_type,
+        activity_type,
         schema_type,
         %{id: id} = thing,
         query_depth,
@@ -80,46 +81,63 @@ defmodule ValueFlows.Util.Federation do
 
     if Bonfire.Common.Extend.module_enabled?(ActivityPub) do
 
-      debug("ValueFlows.Federation - create #{schema_type}")
+      debug("ValueFlows.Federation - #{activity_type} #{schema_type}")
 
-      with %{} = api_object <- ap_fetch_object(id, schema_type, query_depth, extra_field_filters) |> ap_prepare_object(),
-           activity_params <- ap_prepare_activity(
+      with %{} = api_object <- fetch_api_object(id, schema_type, query_depth, extra_field_filters) |> ap_prepare_object(),
+           %{} = activity_params <- ap_prepare_activity(
               activity_type,
               thing,
               api_object
-            ),
-          {:ok, activity} <- ActivityPub.create(activity_params, id) do
-
-        activity
-        # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
-        |> debug("VF - ap_publish_activity - create")
-
-        # IO.puts(struct_to_json(activity.data))
-        # IO.puts(struct_to_json(activity.object.data))
-
-        # if is_map_key(thing, :canonical_url) do
-        #   Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
-        #   |> Bonfire.Repo.update()
-        # end
-
-        {:ok, activity}
-      else
-        e -> {:error, e}
+            ) do
+        ap_do(activity_type, activity_params, id)
       end
     end
   end
 
-  def ap_publish_activity(
-        activity_type,
-        schema_type,
-        _thing,
-        _query_depth,
-        _extra_field_filters
-      ) do
-      throw {:error, "VF - activities of type #{activity_type} are not yet supported, so skip federating this #{schema_type}"}
+
+  def ap_do("create", activity_params, id) do
+    with {:ok, activity} <- ActivityPub.create(activity_params, id) do
+
+      activity
+      # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
+      |> debug("VF - ap_publish_activity - create")
+
+      # IO.puts(struct_to_json(activity.data))
+      # IO.puts(struct_to_json(activity.object.data))
+
+      # if is_map_key(thing, :canonical_url) do
+      #   Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
+      #   |> Bonfire.Repo.update()
+      # end
+
+      {:ok, activity}
+    else
+      e -> {:error, e}
+    end
   end
 
-  def ap_fetch_object(id, schema_type, query_depth \\ 2, extra_field_filters \\ []) do
+  def ap_do("update", activity_params, _id) do
+    with {:ok, activity} <- ActivityPub.update(activity_params) do
+
+      activity
+      # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
+      |> debug("VF - ap_publish_activity - update")
+
+      {:ok, activity}
+    else
+      e -> {:error, e}
+    end
+  end
+
+  def ap_do(
+        activity_type,
+        _activity_params,
+        _id
+      ) do
+      throw {:error, "ValueFlows.Federation - activities of type #{activity_type} are not yet supported, so skip federation"}
+  end
+
+  def fetch_api_object(id, schema_type, query_depth \\ 2, extra_field_filters \\ []) do
     field_filters = @graphql_ignore_fields ++ extra_field_filters
 
     debug("ValueFlows.Federation - query all fields except #{inspect field_filters}")
@@ -147,37 +165,47 @@ defmodule ValueFlows.Util.Federation do
   def ap_prepare_object(obj) do
     obj
     |> to_AP_deep_remap()
-    |> debug("prepared for federation")
+    |> debug("ValueFlows.Federation - object prepared")
   end
 
-  def ap_prepare_activity("create", thing, object, author_id \\ nil) do
+  def ap_prepare_activity(_activity_type, thing, ap_object, author_id \\ nil, object_ap_id \\ nil) do
 
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Utils) do
 
       with context <-
-            maybe_get_ap_id_by_local_id(Map.get(object, "context")),
+            maybe_get_ap_id_by_local_id(Map.get(ap_object, "context") |> dump),
           author <-
-            author_id || maybe_id(thing, "creator") || maybe_id(thing, "primary_accountable") ||
-              maybe_id(thing, "provider") || maybe_id(thing, "receiver"),
+            author_id || maybe_id(thing, :creator) || maybe_id(thing, :primary_accountable) ||
+              maybe_id(thing, :provider) || maybe_id(thing, :receiver),
           actor <- Bonfire.Federate.ActivityPub.Utils.get_cached_actor_by_local_id!(author),
-          ap_id <- Bonfire.Federate.ActivityPub.Utils.generate_object_ap_id(thing),
-          object <-
-            Map.merge(object, %{
-              "id" => ap_id,
+          object_ap_id <- object_ap_id || URIs.canonical_url(thing),
+          ap_object <-
+            Map.merge(ap_object, %{
+              "id" => object_ap_id,
               "actor" => actor.ap_id,
               "attributedTo" => actor.ap_id
             })
             |> maybe_put("context", context),
           activity_params = %{
+            local: true, # FIXME: handle remote objects in references
             actor: actor,
-            to: [Bonfire.Federate.ActivityPub.Utils.public_uri(), context] |> Enum.reject(&is_nil/1),
-            object: object,
+            to: [
+                Bonfire.Federate.ActivityPub.Utils.public_uri(), # FIMXE: only for public objects
+                context,
+                URIs.canonical_url(e(thing, :primary_accountable, nil)),
+                URIs.canonical_url(e(thing, :provider, nil)),
+                URIs.canonical_url(e(thing, :receiver, nil)),
+              ]
+              |> filter_empty([]),
+            cc: [],
+            object: ap_object,
             context: context,
             additional: %{
               "cc" => [actor.data["followers"]]
             }
           } do
-        activity_params #|> debug("activity_params")
+        activity_params
+        |> debug("ValueFlows.Federation - activity prepared")
       end
     else
       debug("VF - No integration available to federate activity")
