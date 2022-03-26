@@ -483,7 +483,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           EconomicEvent.create_changeset(event.creator, new_event_attrs)
           |> EconomicEvent.validate_create_changeset()
           |> repo().insert()
-          ~>> post_create_event(event.creator, new_event_attrs)
+          ~> post_create_event(event.creator, new_event_attrs)
         end
 
       {:error, :not_found} ->
