@@ -49,7 +49,7 @@ defmodule ValueFlows.Util do
   end
 
   defp recipients_and_boundaries(creator, thing) do
-    # TODO: make default audience configurable & per object audience selectable by user in API and UI
+    # TODO: make default audience configurable & per object audience selectable by user in API and UI (note: also in `Federation.ap_prepare_activity`)
     preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")
 
     to_circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, [])

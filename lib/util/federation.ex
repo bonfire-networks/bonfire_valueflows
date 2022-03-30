@@ -1,6 +1,7 @@
 defmodule ValueFlows.Util.Federation do
   use Bonfire.Common.Utils
   alias Bonfire.Common.URIs
+  import Bonfire.Common.Config, only: [repo: 0]
   import Where
 
   @log_graphql false
@@ -172,6 +173,12 @@ defmodule ValueFlows.Util.Federation do
 
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Utils) do
 
+      thing = thing
+              |> repo().maybe_preload(:creator)
+              |> repo().maybe_preload(:primary_accountable)
+              |> repo().maybe_preload(:provider)
+              |> repo().maybe_preload(:receiver)
+
       with context <-
             maybe_get_ap_id_by_local_id(Map.get(ap_object, "context") |> dump),
           author <-
@@ -190,14 +197,15 @@ defmodule ValueFlows.Util.Federation do
             local: true, # FIXME: handle remote objects in references
             actor: actor,
             to: [
-                Bonfire.Federate.ActivityPub.Utils.public_uri(), # FIMXE: only for public objects
+                (if Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")=="public", do: Bonfire.Federate.ActivityPub.Utils.public_uri()), # uses an instance-wide default for now
                 context,
                 URIs.canonical_url(e(thing, :primary_accountable, nil)),
                 URIs.canonical_url(e(thing, :provider, nil)),
                 URIs.canonical_url(e(thing, :receiver, nil)),
               ]
-              |> filter_empty([]),
-            cc: [],
+              |> filter_empty([])
+              |> debug("AP recipients"),
+            cc: [actor.data["followers"]],
             object: ap_object,
             context: context,
             additional: %{
