@@ -42,11 +42,8 @@ defmodule Bonfire.ValueFlows.MixProject do
       "rebar.setup": ["local.rebar --force"],
       "js.deps.get": ["cmd npm install --prefix assets"],
       "ecto.seeds": ["run priv/repo/seeds.exs"],
-      "bonfire.deps.update": ["deps.update #{@bonfire_deps}"],
-      "bonfire.deps.clean": ["deps.clean #{@bonfire_deps} --build"],
-      "bonfire.deps": ["bonfire.deps.update", "bonfire.deps.clean"],
-      setup: ["hex.setup", "rebar.setup", "deps.get", "bonfire.deps.clean", "ecto.setup", "js.deps.get"],
-      updates: ["deps.get", "bonfire.deps.clean", "ecto.migrate", "js.deps.get"],
+      setup: ["hex.setup", "rebar.setup", "deps.get", "ecto.setup", "js.deps.get"],
+      updates: ["deps.get", "ecto.migrate", "js.deps.get"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "ecto.seeds"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
