@@ -423,7 +423,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   @doc """
   Create an Event (with preexisting resources). Use create/3 instead.
   """
-  defp create_event(%{} = creator, new_event_attrs) do
+  defp create_event(creator, new_event_attrs) do
 
     repo().transact_with(fn ->
       with :ok <- validate_user_involvement(creator, new_event_attrs),
@@ -674,7 +674,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :economic_event, thing, 2, [
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :economic_event, thing, 3, [
     ])
   end
 

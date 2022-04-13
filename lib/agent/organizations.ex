@@ -28,14 +28,14 @@ defmodule ValueFlows.Agent.Organizations do
     |> ValueFlows.Agent.Agents.character_to_agent()
   end
 
-  def organization(id, signed_in_user) do
+  def organization(id, current_user) do
     if Bonfire.Common.Extend.module_enabled?(Organisation.Organisations) do
-      with {:ok, org} = Organisation.Organisations.one([:default, id: id, user: signed_in_user]) do
+      with {:ok, org} = Organisation.Organisations.one([:default, id: id, user: current_user]) do
         format(org)
       end
     else
       if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
-         with {:ok, org} <- Bonfire.Me.Users.by_id(id) do
+         with {:ok, org} <- Bonfire.Me.Users.by_id(id, current_user: current_user) do
           format(org)
          else _ ->
           nil

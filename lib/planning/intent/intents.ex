@@ -133,8 +133,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent) do
 
-        Absinthe.Subscription.publish(Bonfire.Web.Endpoint, intent, intent_created: :all)
-        if intent.context_id, do: Absinthe.Subscription.publish(Bonfire.Web.Endpoint, intent, intent_created: intent.context_id)
+        Absinthe.Subscription.publish(Bonfire.Common.Config.get!(:endpoint_module), intent, intent_created: :all)
+        if intent.context_id, do: Absinthe.Subscription.publish(Bonfire.Common.Config.get!(:endpoint_module), intent, intent_created: intent.context_id)
 
         indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
 
@@ -237,7 +237,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
         a_proposed_intent_attrs = a_proposed_intent_attrs |> Map.put(:publishes, intent)
         debug(a_proposed_intent_attrs, "attrs for a_proposed_intent_attrs")
 
-        with {:ok, proposed_intent} <- ValueFlows.Util.Federation.create_nested_object(creator, a_proposed_intent_attrs, intent) do
+        with {:ok, proposed_intent} <- ValueFlows.Util.Federation.maybe_create_nested_object(creator, a_proposed_intent_attrs, intent) do
           proposed_intent
         end
       end

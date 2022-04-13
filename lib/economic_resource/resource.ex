@@ -7,8 +7,6 @@ defmodule ValueFlows.EconomicResource do
   import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
 
-
-
   alias Bonfire.Quantify.Measure
   alias Bonfire.Quantify.Unit
 
@@ -75,18 +73,19 @@ defmodule ValueFlows.EconomicResource do
     ~w(primary_accountable_id state_id contained_in_id unit_of_effort_id conforms_to_id current_location_id)a
 
   def create_changeset(
-        %{} = creator,
+        creator,
         attrs
       ) do
     %EconomicResource{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      creator_id: creator.id,
+      creator_id: Bonfire.Common.Utils.ulid(creator),
       is_public: true
     )
     |> Changeset.validate_required(@required)
     |> common_changeset(attrs)
   end
+
 
   def update_changeset(%EconomicResource{} = resource, attrs) do
     resource

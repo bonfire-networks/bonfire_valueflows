@@ -34,20 +34,17 @@ defmodule ValueFlows.Agent.Agents do
   def character_to_agent(a) do
     # a = Bonfire.Repo.maybe_preload(a, [icon: [:content], image: [:content]])
 
-    a = a
+    a
     |> repo().maybe_preload(:shared_user)
     # |> IO.inspect()
-    |> merge_structs_as_map(Map.get(a, :profile, %{}))
-    |> merge_structs_as_map(Map.get(a, :character, %{}))
-
-    a
+    |> merge_structs_as_map(Utils.e(a, :profile, %{name: Utils.e(a, :character, :username, "anonymous")}))
+    |> merge_structs_as_map(Utils.e(a, :character, %{}))
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> maybe_put(:primary_location, agent_location(a))
-    |> maybe_put(:note, Map.get(a, :summary))
+    |> maybe_put(:note, Utils.e(a, :profile, :summary))
     # |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
-    # |> IO.inspect()
     |> add_type()
-    # |> IO.inspect()
+    # |> dump()
   end
 
   def agent_location(%{profile_id: profile_id} = a) when not is_nil(profile_id) do

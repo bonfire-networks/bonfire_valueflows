@@ -175,7 +175,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
         a_proposed_intent_attrs = a_proposed_intent_attrs |> Map.put(:published_in, proposal)
 
-        with {:ok, proposed_intent} <- ValueFlows.Util.Federation.create_nested_object(creator, a_proposed_intent_attrs, proposal) do
+        with {:ok, proposed_intent} <- ValueFlows.Util.Federation.maybe_create_nested_object(creator, a_proposed_intent_attrs, proposal) do
           proposed_intent
         end
       end

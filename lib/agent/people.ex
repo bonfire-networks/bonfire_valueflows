@@ -28,9 +28,9 @@ defmodule ValueFlows.Agent.People do
     |> ValueFlows.Agent.Agents.character_to_agent()
   end
 
-  def person(id, signed_in_user) when is_binary(id) do
+  def person(id, current_user) when is_binary(id) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
-         with {:ok, person} <- Bonfire.Me.Users.by_id(id) do
+         with {:ok, person} <- Bonfire.Me.Users.by_id(id, current_user: current_user) do
           format(person)
          else _ ->
           nil
@@ -38,7 +38,7 @@ defmodule ValueFlows.Agent.People do
     else
       if Bonfire.Common.Extend.module_enabled?(CommonsPub.Users) do
         with {:ok, person} <-
-              CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
+              CommonsPub.Users.one([:default, :geolocation, id: id, user: current_user]) do
           format(person)
         else _ ->
           nil
