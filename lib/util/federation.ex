@@ -204,7 +204,7 @@ defmodule ValueFlows.Util.Federation do
                 e(ap_object, "primaryAccountable", "id", nil),
                 e(ap_object, "provider", "id", nil),
                 e(ap_object, "receiver", "id", nil),
-                e(ap_object, "resourceInventoriedAs", "primaryAccountable", nil),
+                e(ap_object, "resourceInventoriedAs", "primaryAccountable", "id", nil),
               ]
               |> filter_empty([])
               |> Enum.uniq()
@@ -412,31 +412,39 @@ defmodule ValueFlows.Util.Federation do
     action_name
   end
 
-  defp from_AP_remap(%{"type" => _, "actor" => creator} = val, parent_key) when not is_nil(creator) do
-    maybe_create_nested_object(creator, val, parent_key)
+  # first create embeded nested objects that have actor/author info
+  defp from_AP_remap(%{"actor" => creator, "type"=>_, "id"=>_} = object, parent_key) when not is_nil(creator) do
+    maybe_create_nested_object(creator, object, parent_key)
   end
-  defp from_AP_remap(%{"type" => _, "attributedTo" => creator} = val, parent_key) when not is_nil(creator) do
-    maybe_create_nested_object(creator, val, parent_key)
+  defp from_AP_remap(%{"attributedTo" => creator, "type"=>_, "id"=>_} = object, parent_key) when not is_nil(creator) do
+    maybe_create_nested_object(creator, object, parent_key)
   end
-  defp from_AP_remap(%{"type" => _, "primaryAccountable" => creator} = val, parent_key) when not is_nil(creator) do
-    maybe_create_nested_object(creator, val, parent_key)
+  defp from_AP_remap(%{"primaryAccountable" => creator, "type"=>_, "id"=>_} = object, parent_key) when not is_nil(creator) do
+    maybe_create_nested_object(creator, object, parent_key)
   end
-  defp from_AP_remap(%{"type" => _, "provider" => creator} = val, parent_key) when not is_nil(creator) do
-    maybe_create_nested_object(creator, val, parent_key)
+  defp from_AP_remap(%{"provider" => creator, "type"=>_, "id"=>_} = object, parent_key) when not is_nil(creator) do
+    maybe_create_nested_object(creator, object, parent_key)
   end
-  defp from_AP_remap(%{"type" => _, "receiver" => creator} = val, parent_key) when not is_nil(creator) do
-    maybe_create_nested_object(creator, val, parent_key)
-  end
-  defp from_AP_remap(%{"agentType" => _} = val, parent_key) do
-    maybe_create_nested_object(val, val, parent_key)
-  end
-  defp from_AP_remap(%{"type" => _} = val, parent_key) do
-    # handle types without a known creator (should we be re-fetching the object?)
-    maybe_create_nested_object(nil, val, parent_key)
+  defp from_AP_remap(%{"receiver" => creator, "type"=>_, "id"=>_} = object, parent_key) when not is_nil(creator) do
+    maybe_create_nested_object(creator, object, parent_key)
   end
 
-  defp from_AP_remap(val, parent_key) when is_binary(val) and parent_key not in ["id", "url", "href", "@context", "om2"] do
-    info({val, parent_key}, "nested??")
+  # then create agents
+  defp from_AP_remap(%{"type" => type, "id"=>_} = object, parent_key) when type in ["Actor", "Person", "Organization", "Application", "Service"] do
+    maybe_create_nested_object(object, object, parent_key)
+  end
+  defp from_AP_remap(%{"agentType" => _, "id"=>_} = object, parent_key) do
+    maybe_create_nested_object(object, object, parent_key)
+  end
+
+  # then try to handle objects without known authorship (maybe we should be re-fetching these?)
+  defp from_AP_remap(%{"type"=>_, "id"=>_} = object, parent_key) do
+    maybe_create_nested_object(nil, object, parent_key)
+  end
+
+  # then handle any non-embeded objects
+  defp from_AP_remap(val, parent_key) when is_binary(val) and parent_key not in ["id", "url", "href", "@context", "om2", "type", "und", "name", "summary", "content"] do
+    info({val, parent_key}, "handle nested?")
 
     with true <- Bonfire.Federate.ActivityPub.Utils.validate_url(val),
     %{} = nested_object <- maybe_create_nested_object(nil, val, parent_key)
@@ -467,7 +475,7 @@ defmodule ValueFlows.Util.Federation do
     do
       nested_object
     else _ ->
-      nil
+      nil # should we just return the original?
     end
   end
 

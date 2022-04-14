@@ -127,10 +127,12 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
            resource <- preload_all(%{resource | creator: creator}),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs) do
 
-            # {:ok, activity} = ValueFlows.Util.publish(creator, resource.state_id, resource) # no need to publish since the related event will already appear in feeds
+          # {:ok, activity} = ValueFlows.Util.publish(creator, resource.state_id, resource) # no need to publish since the related event will already appear in feeds
+          ValueFlows.Util.set_boundaries(creator, resource)
 
-        indexing_object_format(resource) |> ValueFlows.Util.index_for_search()
-        {:ok, resource}
+          indexing_object_format(resource) |> ValueFlows.Util.index_for_search()
+
+          {:ok, resource}
       end
     end)
   end
@@ -142,8 +144,8 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
       attrs = prepare_attrs(attrs, e(resource, :creator, nil))
 
       with {:ok, resource} <- repo().update(EconomicResource.update_changeset(resource, attrs)),
-           {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
-           {:ok, _} <- ValueFlows.Util.publish(resource, :update) do
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs) do
+          #  {:ok, _} <- ValueFlows.Util.publish(resource, :update) # Do not publish resource update since that's done via Economic Events
         {:ok, preload_all(resource)}
       end
     end)

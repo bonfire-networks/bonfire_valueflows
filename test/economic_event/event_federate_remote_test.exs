@@ -28,7 +28,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
 
   describe "outgoing economic event" do
 
-    @tag :skip
+    @tag :test_instance
     test "transfer an existing economic resource to a remote agent/actor by AP URI" do
       Cachex.clear(:ap_actor_cache)
       Cachex.clear(:ap_object_cache)

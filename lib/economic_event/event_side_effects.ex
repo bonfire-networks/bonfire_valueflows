@@ -99,7 +99,7 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
       )
       when onhand_unit != event_unit do
     {:error,
-     "The units used on the existing resource's onhand quantity do not match the event's unit"}
+     "The units used on the existing resource's onhand quantity (#{onhand_unit}) do not match the event's unit (#{event_unit})"}
   end
 
   def quantity_effect(
@@ -112,7 +112,7 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
       )
       when accounting_unit != event_unit do
     {:error,
-     "The units used on the existing the resource's accounting quantity do not match the event's unit"}
+     "The units used on the existing the resource's accounting quantity (#{accounting_unit}) do not match the event's unit (#{event_unit})"}
   end
 
   def quantity_effect(

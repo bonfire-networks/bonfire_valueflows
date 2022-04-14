@@ -24,7 +24,7 @@ defmodule ValueFlows.Util do
 
   def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
 
-    opts = recipients_and_boundaries(creator, thing) # this sets permissions & returns recipients in opts to be used for publishing
+    opts = set_boundaries(creator, thing) # this sets permissions & returns recipients in opts to be used for publishing
 
     # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - AP publishing is triggered by FeedActivities.publish instead
 
@@ -43,12 +43,12 @@ defmodule ValueFlows.Util do
     debug("VF - No creator for object so we can't publish it")
 
     # make visible
-    recipients_and_boundaries(e(thing, :creator, e(thing, :provider, nil)), thing)
+    set_boundaries(e(thing, :creator, e(thing, :provider, nil)), thing)
 
     {:ok, nil}
   end
 
-  defp recipients_and_boundaries(creator, thing) do
+  def set_boundaries(creator, thing) do
     # TODO: make default audience configurable & per object audience selectable by user in API and UI (note: also in `Federation.ap_prepare_activity`)
     preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")
 
