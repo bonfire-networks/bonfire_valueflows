@@ -8,13 +8,17 @@ defmodule ValueFlows.Util.Federation do
 
   @schema Bonfire.Common.Config.get!(:graphql_schema_module)
 
+  @actor_types ["Actor", "Person", "Organization", "Application", "Service"]
+
   @types_to_AP %{
     "Unit" => "om2:Unit", # using http://www.ontology-of-units-of-measure.org/resource/om-2/
     "Measure" => "om2:Measure",
     "SpatialThing" => "Place", # using https://www.w3.org/TR/activitystreams-vocabulary/#places
   }
   @types_to_translate Map.keys(@types_to_AP)
-  @non_VF_types ["Person", "Organization"] ++ @types_to_translate
+  @non_VF_types @actor_types ++ @types_to_translate
+
+  @non_nested_objects ["id", "url", "href", "@context", "om2", "type", "und", "name", "summary", "content", "ValueFlows", "und"]
 
   @fields_to_AP %{
     "__typename" => "type",
@@ -430,11 +434,11 @@ defmodule ValueFlows.Util.Federation do
   end
 
   # then create agents
-  defp from_AP_remap(%{"type" => type, "id"=>_} = object, parent_key) when type in ["Actor", "Person", "Organization", "Application", "Service"] do
-    maybe_create_nested_object(object, object, parent_key)
+  defp from_AP_remap(%{"type" => type, "id"=>_} = object, parent_key) when type in @actor_types do
+    maybe_create_nested_object(nil, object, parent_key)
   end
   defp from_AP_remap(%{"agentType" => _, "id"=>_} = object, parent_key) do
-    maybe_create_nested_object(object, object, parent_key)
+    maybe_create_nested_object(nil, object, parent_key)
   end
 
   # then try to handle objects without known authorship (maybe we should be re-fetching these?)
@@ -443,17 +447,20 @@ defmodule ValueFlows.Util.Federation do
   end
 
   # then handle any non-embeded objects
-  defp from_AP_remap(val, parent_key) when is_binary(val) and parent_key not in ["id", "url", "href", "@context", "om2", "type", "und", "name", "summary", "content"] do
-    info({val, parent_key}, "handle nested?")
+  defp from_AP_remap(val, parent_key) when is_binary(val) and parent_key not in @non_nested_objects do
 
     with true <- Bonfire.Federate.ActivityPub.Utils.validate_url(val),
     %{} = nested_object <- maybe_create_nested_object(nil, val, parent_key)
-    |> info("created nested object")
     do
       nested_object
-    else e ->
-      info(e, "Did not create nested object")
-      from_AP_deep_remap(val, parent_key)
+      |> info("created nested object from URI")
+    else
+      false ->
+        debug({val, parent_key}, "do not create nested object")
+        from_AP_deep_remap(val, parent_key)
+      e ->
+        error(e, "Failed to create nested object for #{parent_key} : #{inspect val}")
+        from_AP_deep_remap(val, parent_key)
     end
   end
 
@@ -469,11 +476,29 @@ defmodule ValueFlows.Util.Federation do
     end
   end
 
-  def maybe_create_nested_object(creator, val, _parent_key) do # loop through nested objects
-    with {:ok, nested_object} <- Bonfire.Federate.ActivityPub.Receiver.receive_object(creator, val)
-    |> debug("created nested object")
+  def maybe_create_nested_object(creator, object_or_id, _parent_key) do # loop through nested objects
+
+    id = e(object_or_id, "id", object_or_id)
+    already_processed = if id do
+      case Process.get("nested:#{id}", false) do
+        false -> nil
+        nested_object ->
+          info(nested_object, "retrieved from Process dict")
+          {:ok, nested_object}
+      end
+    end
+
+    with {:ok, created_object} <- already_processed || Bonfire.Federate.ActivityPub.Receiver.receive_object(creator, object_or_id)
     do
-      nested_object
+
+      if !already_processed && id do
+        Process.put("nested:#{id}", created_object)
+        info(id, "stored in Process dict")
+      end
+
+      created_object
+      |> info("created nested object")
+
     else _ ->
       nil # should we just return the original?
     end
