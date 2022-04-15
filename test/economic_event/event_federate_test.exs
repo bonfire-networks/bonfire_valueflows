@@ -309,7 +309,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, event} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
-      # IO.inspect(event, label: "event created based on incoming AP")
+      # info(event, "event created based on incoming AP")
       # event = event.economic_event
 
       assert object["summary"] =~ event.note
@@ -322,7 +322,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert object["toResourceInventoriedAs"]["id"] == Bonfire.Common.URIs.canonical_url(event.to_resource_inventoried_as.id)
       assert object["outputOf"]["id"] == Bonfire.Common.URIs.canonical_url(event.output_of.id)
 
-      assert object["resourceQuantity"]["hasNumericalValue"] == event.resource_quantity.has_numerical_value
+      assert object["resourceQuantity"]["hasNumericalValue"] == Utils.e(event, :resource_quantity, :has_numerical_value, nil)
       # assert object["resourceQuantity"]["hasUnit"]["symbol"] == event.resource_quantity.unit.symbol
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
