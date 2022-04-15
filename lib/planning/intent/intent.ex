@@ -1,6 +1,6 @@
 defmodule ValueFlows.Planning.Intent do
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_valueflows,
     source: "vf_intent",
     table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
 

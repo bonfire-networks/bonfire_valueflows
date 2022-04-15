@@ -2,7 +2,7 @@ defmodule ValueFlows.Proposal.ProposedTo do
 
   # use Bonfire.Repo.Schema
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_valueflows,
     source: "vf_proposed_to",
     table_id: "6R0P0SA1HASBEENADDRESSEDT0"
 

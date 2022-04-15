@@ -1,6 +1,6 @@
 defmodule ValueFlows.Process do
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_valueflows,
     source: "vf_process",
     table_id: "4AYF0R1NPVTST0BEC0ME0VTPVT"
 

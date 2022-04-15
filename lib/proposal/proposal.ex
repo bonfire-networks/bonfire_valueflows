@@ -3,7 +3,7 @@ defmodule ValueFlows.Proposal do
   Schema for proposal, using `Pointers.Pointable`
   """
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_valueflows,
     source: "vf_proposal",
     table_id: "6R0P0SA11SMADE0FTW01NTENTS"
 

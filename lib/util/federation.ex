@@ -480,7 +480,7 @@ defmodule ValueFlows.Util.Federation do
 
     id = e(object_or_id, "id", object_or_id)
     already_processed = if id do
-      case Process.get("nested:#{id}", false) do
+      case Process.get("uri_object:#{id}", false) do
         false -> nil
         nested_object ->
           info(nested_object, "retrieved from Process dict")
@@ -492,7 +492,7 @@ defmodule ValueFlows.Util.Federation do
     do
 
       if !already_processed && id do
-        Process.put("nested:#{id}", created_object)
+        Process.put("uri_object:#{id}", created_object)
         info(id, "stored in Process dict")
       end
 

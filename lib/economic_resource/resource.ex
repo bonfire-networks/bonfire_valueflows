@@ -1,6 +1,6 @@
 defmodule ValueFlows.EconomicResource do
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_valueflows,
     source: "vf_resource",
     table_id: "2N0BSERVEDANDVSEFV1RES0VRC"
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.ValueCalculation do
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_valueflows,
     source: "vf_value_calculation",
     table_id: "3A1VEF10WSVA1VECA1CV1AT10N"
 

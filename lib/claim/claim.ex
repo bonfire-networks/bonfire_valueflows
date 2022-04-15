@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Claim do
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_valueflows,
     source: "vf_claim",
     table_id: "40MM0NSPVBVA1VEF10WSC1A1MS"
 
