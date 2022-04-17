@@ -44,7 +44,7 @@ defmodule ValueFlows.Agent.Agents do
     |> maybe_put(:note, Utils.e(a, :profile, :summary))
     # |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
-    # |> dump()
+    # |> info()
   end
 
   def agent_location(%{profile_id: profile_id} = a) when not is_nil(profile_id) do
