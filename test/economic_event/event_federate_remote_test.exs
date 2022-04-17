@@ -81,7 +81,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
       assert Bonfire.Common.URIs.canonical_url(event["receiver"]) == @remote_actor
 
       assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
-      #IO.inspect(published: activity)
+      info(activity)
 
       assert ap.object.pointer_id == local_event.id
       assert ap.local == true
@@ -99,8 +99,8 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
       assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
                to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
 
-      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing) |> dump("OBAN")
-      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing) |> dump("OBAN")
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing)
     end
 
   #   test "transfer an existing economic resource to a remote agent/actor by username" do
@@ -164,8 +164,8 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
   #     {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
   #     assert ap.object.data["receiver"]["id"] == @remote_actor
 
-  #     assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing) |> dump("OBAN")
-  #     assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing) |> dump("OBAN")
+  #     assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing)
+  #     assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing)
   #   end
 
   end

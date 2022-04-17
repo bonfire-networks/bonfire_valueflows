@@ -58,10 +58,10 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
           unit
         )
 
-      dump(event, "event ready to federate")
+      info(event, "event ready to federate")
 
       assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", event)
-      #IO.inspect(published: activity)
+      info(activity)
 
       assert ap.object.pointer_id == event.id
       assert ap.local == true
@@ -121,7 +121,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert Bonfire.Common.URIs.canonical_url(event["receiver"]) == @remote_actor
 
       assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
-      #IO.inspect(published: activity)
+      info(activity)
 
       assert ap.object.pointer_id == local_event.id
       assert ap.local == true
@@ -303,7 +303,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       }
 
 
-      {:ok, activity} = ActivityPub.create(params) #|> IO.inspect(label: "AP activity")
+      {:ok, activity} = ActivityPub.create(params) #|> info("AP activity")
 
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
