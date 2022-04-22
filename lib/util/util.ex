@@ -142,7 +142,7 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_creator(%{id: id} = creator) when not is_nil(id) do
-    Bonfire.Me.Integration.indexing_format(maybe_get(creator, :profile), maybe_get(creator, :character))
+    Bonfire.Me.Integration.indexing_format_creator(maybe_get(creator, :profile), maybe_get(creator, :character))
   end
 
   def indexing_format_creator(_) do
