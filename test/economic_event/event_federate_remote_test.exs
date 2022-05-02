@@ -88,7 +88,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
 
       assert ap.object.data["summary"] =~ local_event.note
 
-      # assert activity.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
+      # assert ap.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
 
       {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
       assert ap.object.data["receiver"]["id"] == @remote_actor
