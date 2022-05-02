@@ -29,13 +29,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    many_to_many(:tags, Pointers.Pointer,
-      join_through: Bonfire.Tag.Tagged,
-      unique: true,
-      join_keys: [id: :id, tag_id: :id],
-      on_replace: :delete
-    )
-
     timestamps(inserted_at: false)
   end
 
