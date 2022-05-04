@@ -23,7 +23,7 @@ defmodule Bonfire.ValueFlows.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import Phoenix.LiveViewTest
-      import Bonfire.ValueFlows.ConnCase
+      # import Bonfire.ValueFlows.ConnCase
       import Bonfire.ValueFlows.Test.ConnHelpers
       # import Bonfire.ValueFlows.Test.FakeHelpers
       alias Bonfire.ValueFlows.Fake
