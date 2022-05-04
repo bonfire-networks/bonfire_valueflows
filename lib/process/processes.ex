@@ -144,7 +144,7 @@ defmodule ValueFlows.Process.Processes do
 
   def soft_delete(%Process{} = process) do
     repo().transact_with(fn ->
-      with {:ok, process} <- Bonfire.Repo.Delete.soft_delete(process),
+      with {:ok, process} <- Bonfire.Common.Repo.Delete.soft_delete(process),
            {:ok, _} <- ValueFlows.Util.publish(process, :deleted) do
         {:ok, process}
       end

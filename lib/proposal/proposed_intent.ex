@@ -1,6 +1,6 @@
 defmodule ValueFlows.Proposal.ProposedIntent do
 
-  # use Bonfire.Repo.Schema
+  # use Bonfire.Common.Repo.Schema
   use Pointers.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_proposed_intent",

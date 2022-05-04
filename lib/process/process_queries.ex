@@ -3,7 +3,7 @@ defmodule ValueFlows.Process.Queries do
   alias ValueFlows.Process
   # alias ValueFlows.Processes
 
-  import Bonfire.Repo.Common, only: [match_admin: 0]
+  import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
   import Where

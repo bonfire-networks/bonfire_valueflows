@@ -49,7 +49,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   def soft_delete(%ValueCalculation{} = calculation) do
-    Bonfire.Repo.Delete.soft_delete(calculation)
+    Bonfire.Common.Repo.Delete.soft_delete(calculation)
   end
 
   defp formula_context(:event),

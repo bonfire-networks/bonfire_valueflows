@@ -3,7 +3,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   alias ValueFlows.Knowledge.ResourceSpecification
   # alias ValueFlows.Knowledge.ResourceSpecifications
 
-  import Bonfire.Repo.Common, only: [match_admin: 0]
+  import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS
   import Where

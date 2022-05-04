@@ -90,7 +90,7 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
           {:ok, Commitment.t()} | {:error, Chageset.t()}
   defp do_soft_delete(comm) do
     repo().transact_with(fn ->
-      with {:ok, comm} <- Bonfire.Repo.Delete.soft_delete(comm) do
+      with {:ok, comm} <- Bonfire.Common.Repo.Delete.soft_delete(comm) do
         {:ok, comm}
       end
     end)

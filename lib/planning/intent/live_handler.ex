@@ -1,5 +1,5 @@
 defmodule ValueFlows.Planning.Intent.LiveHandler do
-  use Bonfire.Web, :live_handler
+  use Bonfire.UI.Common.Web, :live_handler
 
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents

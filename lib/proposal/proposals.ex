@@ -133,7 +133,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
   def soft_delete(%Proposal{} = proposal) do
     repo().transact_with(fn ->
-      with {:ok, proposal} <- Bonfire.Repo.Delete.soft_delete(proposal),
+      with {:ok, proposal} <- Bonfire.Common.Repo.Delete.soft_delete(proposal),
            {:ok, _} <- ValueFlows.Util.publish(proposal, :deleted) do
         {:ok, proposal}
       end

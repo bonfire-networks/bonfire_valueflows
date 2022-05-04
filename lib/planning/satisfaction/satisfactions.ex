@@ -86,7 +86,7 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
           {:ok, Satisfaction.t()} | {:error, Chageset.t()}
   defp do_soft_delete(satis) do
     repo().transact_with(fn ->
-      with {:ok, satis} <- Bonfire.Repo.Delete.soft_delete(satis) do
+      with {:ok, satis} <- Bonfire.Common.Repo.Delete.soft_delete(satis) do
         {:ok, satis}
       end
     end)

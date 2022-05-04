@@ -1,5 +1,5 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
-  use Bonfire.Web, :live_handler
+  use Bonfire.UI.Common.Web, :live_handler
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications

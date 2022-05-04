@@ -48,7 +48,7 @@ defmodule ValueFlows.Proposal.ProposedIntents do
 
   @spec delete(ProposedIntent.t()) :: {:ok, ProposedIntent.t()} | {:error, term}
   def delete(%ProposedIntent{} = proposed_intent) do
-    Bonfire.Repo.Delete.soft_delete(proposed_intent)
+    Bonfire.Common.Repo.Delete.soft_delete(proposed_intent)
   end
 
 

@@ -5,7 +5,7 @@ defmodule ValueFlows.Claim do
     source: "vf_claim",
     table_id: "40MM0NSPVBVA1VEF10WSC1A1MS"
 
-  import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
 

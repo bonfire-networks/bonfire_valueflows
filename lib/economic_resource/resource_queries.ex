@@ -3,7 +3,7 @@ defmodule ValueFlows.EconomicResource.Queries do
   alias ValueFlows.{EconomicResource, EconomicEvent}
   # alias ValueFlows.EconomicResources
 
-  import Bonfire.Repo.Common, only: [match_admin: 0]
+  import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
   import Where

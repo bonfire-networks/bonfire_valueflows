@@ -39,7 +39,7 @@ defmodule ValueFlows.Proposal.ProposedTos do
   end
 
   @spec delete(ProposedTo.t()) :: {:ok, ProposedTo.t()} | {:error, term}
-  def delete(proposed_to), do: Bonfire.Repo.Delete.soft_delete(proposed_to)
+  def delete(proposed_to), do: Bonfire.Common.Repo.Delete.soft_delete(proposed_to)
 
 
   def ap_publish_activity(activity_name, thing) do

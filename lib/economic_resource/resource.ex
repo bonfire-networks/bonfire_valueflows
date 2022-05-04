@@ -4,7 +4,7 @@ defmodule ValueFlows.EconomicResource do
     source: "vf_resource",
     table_id: "2N0BSERVEDANDVSEFV1RES0VRC"
 
-  import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
 
   alias Bonfire.Quantify.Measure

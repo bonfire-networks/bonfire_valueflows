@@ -3,7 +3,7 @@ defmodule ValueFlows.Proposal.Queries do
   alias ValueFlows.Proposal
   # alias ValueFlows.Proposal.Proposals
 
-  import Bonfire.Repo.Common, only: [match_admin: 0]
+  import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
   import Where

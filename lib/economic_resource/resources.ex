@@ -153,7 +153,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
   def soft_delete(%EconomicResource{} = resource) do
     repo().transact_with(fn ->
-      with {:ok, resource} <- Bonfire.Repo.Delete.soft_delete(resource),
+      with {:ok, resource} <- Bonfire.Common.Repo.Delete.soft_delete(resource),
            {:ok, _} <- ValueFlows.Util.publish(resource, :deleted) do
         {:ok, resource}
       end

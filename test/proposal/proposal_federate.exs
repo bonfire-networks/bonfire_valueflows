@@ -87,7 +87,7 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       assert object["name"] =~ proposal.name
       assert object["summary"] =~ proposal.note
-      assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+      assert actor.data["id"] == proposal |> Bonfire.Common.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end
@@ -290,7 +290,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert proposal_object["name"] =~ proposal.name
       assert proposal_object["summary"] =~ proposal.note
 
-      assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+      assert actor.data["id"] == proposal |> Bonfire.Common.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
       assert intent_object["name"] =~ intent.name
       assert intent_object["action"] == intent.action_id
@@ -391,7 +391,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert proposal_object["name"] =~ proposal.name
       assert proposal_object["summary"] =~ proposal.note
 
-      assert actor.data["id"] == proposal |> Bonfire.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+      assert actor.data["id"] == proposal |> Bonfire.Common.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
       assert object["name"] =~ intent.name
       assert object["action"] == intent.action_id

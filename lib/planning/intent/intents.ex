@@ -184,7 +184,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   # TODO: turn into private function
   def soft_delete(%Intent{} = intent) do
     repo().transact_with(fn ->
-      with {:ok, intent} <- Bonfire.Repo.Delete.soft_delete(intent),
+      with {:ok, intent} <- Bonfire.Common.Repo.Delete.soft_delete(intent),
            {:ok, _} <- ValueFlows.Util.publish(intent, :deleted) do
         {:ok, intent}
       end
