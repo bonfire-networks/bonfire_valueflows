@@ -64,7 +64,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
         _ -> nil
       end
 
-      {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/intent/")<>intent.id)}
+      {:noreply, socket |> redirect_to(e(attrs, "redirect_after", "/intent/")<>intent.id)}
     end
   end
 
@@ -88,7 +88,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
           current_url(socket, "#")
          end
 
-      {:noreply, socket |> push_redirect(to: redir) }
+      {:noreply, socket |> redirect_to(redir) }
     end
   end
 
@@ -123,7 +123,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     with {:ok, intent} <- Intents.one(id: intent_id),
          {:ok, intent} <- Intents.update(intent, %{provider: assign_to_id}) do
       # debug(intent)
-      {:noreply, socket |> push_redirect(to: redirect_path || current_url("#"))}
+      {:noreply, socket |> redirect_to(redirect_path || current_url("#"))}
     end
   end
 
@@ -156,7 +156,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
           current_url(socket, "/")
          end
 
-      {:noreply, socket |> push_redirect(to: redir) }
+      {:noreply, socket |> redirect_to(redir) }
     end
   end
 

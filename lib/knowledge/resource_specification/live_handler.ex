@@ -19,7 +19,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
     %{valid?: true} = cs <- changeset(obj_attrs),
     {:ok, resource_spec} <- ResourceSpecifications.create(current_user(socket), obj_attrs) do
       # debug(resource_spec)
-      {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/resource_spec/")<>resource_spec.id)}
+      {:noreply, socket |> redirect_to(e(attrs, "redirect_after", "/resource_spec/")<>resource_spec.id)}
     end
   end
 

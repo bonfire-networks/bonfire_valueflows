@@ -17,7 +17,7 @@ defmodule ValueFlows.Process.LiveHandler do
     %{valid?: true} = cs <- changeset(obj_attrs),
     {:ok, process} <- Processes.create(current_user(socket), obj_attrs) do
       debug(process)
-      {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/process/")<>process.id)}
+      {:noreply, socket |> redirect_to(e(attrs, "redirect_after", "/process/")<>process.id)}
     end
   end
 
@@ -48,7 +48,7 @@ defmodule ValueFlows.Process.LiveHandler do
           path(process)
          end
 
-      {:noreply, socket |> push_redirect(to: redir) }
+      {:noreply, socket |> redirect_to(redir) }
     end
   end
 
