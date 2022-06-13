@@ -112,9 +112,9 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     |> maybe_put(:value_resource_conforms_to_id, attr_get_id(attrs, :value_resource_conforms_to))
   end
 
-  if Bonfire.Common.Config.get(:env) == :test do
-  defp formula2_options, do: [max_runs: 100]
+  if Application.compile_env!(:bonfire, :env) == :test do
+    defp formula2_options, do: [max_runs: 100]
   else
-  defp formula2_options, do: [max_runs: 1_000]
+    defp formula2_options, do: [max_runs: 1_000]
   end
 end

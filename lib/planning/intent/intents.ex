@@ -133,8 +133,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent) do
 
-        Absinthe.Subscription.publish(Bonfire.Common.Config.get!(:endpoint_module), intent, intent_created: :all)
-        if intent.context_id, do: Absinthe.Subscription.publish(Bonfire.Common.Config.get!(:endpoint_module), intent, intent_created: intent.context_id)
+        Absinthe.Subscription.publish(Application.compile_env!(:bonfire, :endpoint_module), intent, intent_created: :all)
+        if intent.context_id, do: Absinthe.Subscription.publish(Application.compile_env!(:bonfire, :endpoint_module), intent, intent_created: intent.context_id)
 
         indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
 

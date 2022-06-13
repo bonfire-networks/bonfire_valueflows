@@ -5,7 +5,7 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   alias Plug.{Conn, Session}
   import ExUnit.Assertions
 
-  @endpoint Bonfire.Common.Config.get!(:endpoint_module)
+  @endpoint Application.compile_env!(:bonfire, :endpoint_module)
 
   def conn(), do: ConnTest.build_conn()
 

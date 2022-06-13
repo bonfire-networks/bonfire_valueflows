@@ -6,9 +6,7 @@ defmodule ValueFlows.Util.Federation do
 
   @log_graphql true
 
-  @schema Bonfire.Common.Config.get!(:graphql_schema_module)
-
-  @actor_types ["Actor", "Person", "Organization", "Application", "Service"]
+  @actor_types Application.compile_env(:bonfire, :actor_AP_types, ["Person", "Group", "Application", "Service", "Organization"])
 
   @types_to_AP %{
     "Unit" => "om2:Unit", # using http://www.ontology-of-units-of-measure.org/resource/om-2/
@@ -157,7 +155,7 @@ defmodule ValueFlows.Util.Federation do
 
     Bonfire.API.GraphQL.QueryHelper.run_query_id(
       id,
-      @schema,
+      Bonfire.Common.Config.get!(:graphql_schema_module),
       schema_type,
       query_depth,
       &ap_graphql_fields(&1, field_filters),
