@@ -1,3 +1,4 @@
+bonfire_valueflows_api_schema = "https://github.com/bonfire-networks/bonfire_valueflows_api_schema#main"
 bonfire_common = "https://github.com/bonfire-networks/bonfire_common#main"
 bonfire_fail = "https://github.com/bonfire-networks/bonfire_fail#main"
 # bonfire_web_phoenix = "https://github.com/bonfire-networks/bonfire_web_phoenix#main"
