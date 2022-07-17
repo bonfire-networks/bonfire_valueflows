@@ -102,7 +102,7 @@ defmodule ValueFlows.Planning.Commitment.GraphQL do
   def delete_commitment(%{id: id}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, _} <- Commitments.soft_delete(user, id) do
+           {:ok, _} <- Commitments.soft_delete(id, user) do
         {:ok, true}
       end
     end)

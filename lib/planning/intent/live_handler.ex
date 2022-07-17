@@ -147,7 +147,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
   def handle_event("delete", %{"id" => id} = attrs, socket) do
 
-    with {:ok, intent} <- Intents.soft_delete(current_user(socket), id) do
+    with {:ok, intent} <- Intents.soft_delete(id, current_user(socket)) do
       # debug(intent)
 
       redir = if e(attrs, "redirect_after", nil) do

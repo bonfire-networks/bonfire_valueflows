@@ -411,7 +411,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   def delete_intent(%{id: id}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, _} <- Intents.soft_delete(user, id) do
+           {:ok, _} <- Intents.soft_delete(id, user) do
         {:ok, true}
       end
     end)

@@ -73,7 +73,7 @@ defmodule ValueFlows.Planning.Satisfaction.GraphQL do
 
   def delete(%{id: id}, info) do
     with {:ok, user} <- current_user_or_not_logged_in(info),
-         {:ok, _} <- Satisfactions.soft_delete(user, id) do
+         {:ok, _} <- Satisfactions.soft_delete(id, user) do
       {:ok, true}
     end
   end

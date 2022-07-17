@@ -66,7 +66,7 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
 
   @spec soft_delete(struct(), String.t()) ::
           {:ok, Satisfaction.t()} | {:error, Changeset.t()}
-  def soft_delete(user, id) when is_binary(id) do
+  def soft_delete(id, user) when is_binary(id) do
     with {:ok, satis} <- by_id(id, user) do
       do_soft_delete(satis)
     end
@@ -74,7 +74,7 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
 
   @spec soft_delete(struct(), Satisfaction.t()) ::
           {:ok, Satisfaction.t()} | {:error, Changeset.t()}
-  def soft_delete(user, satis) do
+  def soft_delete(satis, user) do
     import ValueFlows.Util, only: [ensure_edit_permission: 2]
 
     with :ok <- ensure_edit_permission(user, satis) do

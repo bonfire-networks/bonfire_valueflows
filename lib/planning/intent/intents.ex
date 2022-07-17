@@ -171,13 +171,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  def soft_delete(%{} = current_user, id) when is_binary(id) do
+  def soft_delete(id, current_user) when is_binary(id) do
       with {:ok, intent} <- by_id(id, current_user) do
-        soft_delete(current_user, intent)
+        soft_delete(intent, current_user)
       end
   end
 
-  def soft_delete(%{} = current_user, %Intent{} = intent) do
+  def soft_delete(%Intent{} = intent, current_user) do
       with :ok <- ValueFlows.Util.ensure_edit_permission(current_user, intent) do
         soft_delete(intent)
       end

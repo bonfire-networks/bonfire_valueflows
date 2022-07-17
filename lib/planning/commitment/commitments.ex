@@ -70,7 +70,7 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
 
   @spec soft_delete(struct(), String.t()) ::
           {:ok, Commitment.t()} | {:error, Changeset.t()}
-  def soft_delete(user, id) when is_binary(id) do
+  def soft_delete(id) when is_binary(id) do
     with {:ok, comm} <- by_id(id, user) do
       do_soft_delete(comm)
     end
@@ -78,7 +78,7 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
 
   @spec soft_delete(struct(), Commitment.t()) ::
           {:ok, Commitment.t()} | {:error, Changeset.t()}
-  def soft_delete(user, comm) do
+  def soft_delete(comm, user) do
     import ValueFlows.Util, only: [ensure_edit_permission: 2]
 
     with :ok <- ensure_edit_permission(user, comm) do
