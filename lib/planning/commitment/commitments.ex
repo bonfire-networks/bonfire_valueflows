@@ -71,7 +71,7 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
   @spec soft_delete(struct(), String.t()) ::
           {:ok, Commitment.t()} | {:error, Changeset.t()}
   def soft_delete(id) when is_binary(id) do
-    with {:ok, comm} <- by_id(id, user) do
+    with {:ok, comm} <- by_id(id) do
       do_soft_delete(comm)
     end
   end
