@@ -5,7 +5,7 @@ defmodule ValueFlows.Agent.People do
 
   def people(signed_in_user) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
-         Bonfire.Me.Users.list() |> format()
+         Bonfire.Me.Users.list(signed_in_user) |> format()
     else
       if Bonfire.Common.Extend.module_enabled?(CommonsPub.Users) do
         {:ok, users} = CommonsPub.Users.many([:default, user: signed_in_user])

@@ -10,7 +10,7 @@ defmodule ValueFlows.Agent.Organizations do
       end
     else
       if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
-         Bonfire.Me.Users.list() |> format()
+         Bonfire.Me.Users.list(signed_in_user) |> format()
       else
         error("organizations feature not implemented")
         []
