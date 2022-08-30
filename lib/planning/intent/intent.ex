@@ -5,10 +5,9 @@ defmodule ValueFlows.Planning.Intent do
     table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
 
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
+  import Where
 
   alias Ecto.Changeset
-
-
   alias Bonfire.Quantify.Measure
 
   alias ValueFlows.Knowledge.Action
@@ -81,6 +80,7 @@ defmodule ValueFlows.Planning.Intent do
   def validate_changeset(attrs \\ %{}) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
+    |> debug()
     |> Changeset.change(
       is_public: true
     )

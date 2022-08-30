@@ -44,6 +44,9 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     nil
   end
 
+  def input_date(date) when is_binary(date) and byte_size(date)<=10, do: "#{date} 00:00"
+  def input_date(date), do: date
+
   def handle_event("create", attrs, socket) do
     # debug(attrs)
     current_user = current_user(socket)
@@ -51,9 +54,9 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
                       # |> debug()
                       |> Map.merge(e(attrs, "intent", %{}))
                       |> input_to_atoms()
-                      |> debug(),
-    {:ok, intent} <- Intents.create(current_user, obj_attrs) do
-      debug(intent)
+                      |> debug("input"),
+    {:ok, intent} <- Intents.create(current_user, obj_attrs |> Map.put(:due, input_date(e(obj_attrs, :due, nil)))) do
+      debug(intent, "created")
 
       case Bonfire.Common.Text.list_checkboxes(intent.note) do
         sub_intents when length(sub_intents) > 0 ->
