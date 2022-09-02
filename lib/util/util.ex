@@ -3,7 +3,7 @@ defmodule ValueFlows.Util do
   use Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
 
-  import Where
+  import Untangle
 
   def common_filters(q, unknown_filter) do
     # TODO: implement boundary checking here

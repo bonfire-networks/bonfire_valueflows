@@ -6,7 +6,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS
-  import Where
+  import Untangle
 
   def query(ResourceSpecification) do
     from(c in ResourceSpecification, as: :resource_spec)

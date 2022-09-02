@@ -6,7 +6,7 @@ defmodule ValueFlows.Process.Queries do
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
-  import Where
+  import Untangle
 
   def query(Process) do
     from(c in Process, as: :process)

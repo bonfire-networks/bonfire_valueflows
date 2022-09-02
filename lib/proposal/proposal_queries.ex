@@ -6,7 +6,7 @@ defmodule ValueFlows.Proposal.Queries do
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
-  import Where
+  import Untangle
 
   def query(Proposal) do
     from(c in Proposal, as: :proposal)

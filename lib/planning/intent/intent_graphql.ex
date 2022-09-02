@@ -4,7 +4,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   # default to 100 km radius
   @radius_default_distance 100_000
 
-  import Where
+  import Untangle
 
   alias Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]

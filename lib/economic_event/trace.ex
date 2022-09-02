@@ -1,6 +1,6 @@
 defmodule ValueFlows.EconomicEvent.Trace do
   use Bonfire.Common.Utils
-  import Where
+  import Untangle
 
   alias ValueFlows.Util
 

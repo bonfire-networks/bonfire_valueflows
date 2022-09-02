@@ -1,6 +1,6 @@
 defmodule ValueFlows.Proposal.ProposedIntentQueries do
   import Ecto.Query
-  import Where
+  import Untangle
 
   alias ValueFlows.Proposal.ProposedIntent
 

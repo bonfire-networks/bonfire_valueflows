@@ -4,7 +4,7 @@ defmodule ValueFlows.Planning.Commitment.Queries do
 
   import Ecto.Query
   import Geo.PostGIS
-  import Where
+  import Untangle
 
   def query(Commitment),
     do: from(c in Commitment, as: :commitment)

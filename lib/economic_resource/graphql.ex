@@ -4,7 +4,7 @@ defmodule ValueFlows.EconomicResource.GraphQL do
   # default to 100 km radius
   @radius_default_distance 100_000
 
-  import Where
+  import Untangle
 
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util

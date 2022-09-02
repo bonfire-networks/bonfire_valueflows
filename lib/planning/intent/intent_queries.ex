@@ -7,7 +7,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   alias Bonfire.Common.Utils
   import Ecto.Query
   import Geo.PostGIS
-  import Where
+  import Untangle
 
   def query(Intent) do
     from(c in Intent, as: :intent,

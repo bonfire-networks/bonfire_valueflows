@@ -1,6 +1,6 @@
 defmodule ValueFlows.Planning.Satisfaction.Queries do
   import Ecto.Query
-  import Where
+  import Untangle
 
   alias ValueFlows.Planning.Satisfaction
 

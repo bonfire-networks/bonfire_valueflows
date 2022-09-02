@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Agent.Organizations do
   # alias ValueFlows.Simulate
-  import Where
+  import Untangle
 
   def organizations(signed_in_user) do
     if Bonfire.Common.Extend.module_enabled?(Organisation.Organisations) do

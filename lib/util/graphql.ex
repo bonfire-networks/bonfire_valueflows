@@ -5,7 +5,7 @@ defmodule ValueFlows.Util.GraphQL do
   alias Bonfire.API.GraphQL
   use Bonfire.Common.Utils
 
-  import Where
+  import Untangle
 
   # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/util.gql"

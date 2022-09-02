@@ -2,7 +2,7 @@ defmodule ValueFlows.Util.Federation do
   use Bonfire.Common.Utils
   alias Bonfire.Common.URIs
   import Bonfire.Common.Config, only: [repo: 0]
-  import Where
+  import Untangle
 
   @log_graphql true
 

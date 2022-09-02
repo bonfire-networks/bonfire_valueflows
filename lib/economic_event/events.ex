@@ -20,7 +20,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   import Bonfire.Fail
 
-  import Where
+  import Untangle
 
   def federation_module, do: ["ValueFlows:EconomicEvent", "EconomicEvent"]
 

@@ -5,7 +5,7 @@ defmodule ValueFlows.Planning.Intent do
     table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
 
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
-  import Where
+  import Untangle
 
   alias Ecto.Changeset
   alias Bonfire.Quantify.Measure
