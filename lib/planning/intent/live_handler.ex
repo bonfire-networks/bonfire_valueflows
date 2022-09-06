@@ -4,6 +4,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
 
+  @default_path "/?no_redirect_set"
 
   @doc """
   Create intents from a markdown-formatted list of checkboxes
@@ -67,7 +68,13 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
         _ -> nil
       end
 
-      {:noreply, socket |> redirect_to(e(attrs, "redirect_after", "/intent/")<>intent.id)}
+      redir = if e(attrs, "redirect_after", nil) do
+        e(attrs, "redirect_after", "/intent/")<>ulid!(intent)
+      else
+        current_url(socket, @default_path)
+      end
+
+      {:noreply, socket |> redirect_to(redir)}
     end
   end
 
@@ -85,10 +92,10 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
          {:ok, intent} <- Intents.update(intent, input_to_atoms(attrs)) do
       # debug(intent)
 
-      redir = if e(attrs, "redirect_after", nil) do
+      redir = if e(attrs, "redirect_after", nil) and is_binary(id) do
           e(attrs, "redirect_after", "/intent/")<>id
          else
-          current_url(socket, "#")
+          current_url(socket, @default_path)
          end
 
       {:noreply, socket |> redirect_to(redir) }
@@ -126,7 +133,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     with {:ok, intent} <- Intents.one(id: intent_id),
          {:ok, intent} <- Intents.update(intent, %{provider: assign_to_id}) do
       # debug(intent)
-      {:noreply, socket |> redirect_to(redirect_path || current_url("#"))}
+      {:noreply, socket |> redirect_to(redirect_path || current_url(socket, @default_path))}
     end
   end
 
@@ -156,7 +163,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
       redir = if e(attrs, "redirect_after", nil) do
           e(attrs, "redirect_after", "/")
          else
-          current_url(socket, "/")
+          current_url(socket, @default_path)
          end
 
       {:noreply, socket |> redirect_to(redir) }
