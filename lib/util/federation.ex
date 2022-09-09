@@ -313,7 +313,7 @@ defmodule ValueFlows.Util.Federation do
 
   defp to_AP_deep_remap(map = %{}, parent_key) when not is_struct(map) do
     map
-    |> Enum.reject(fn {_, v} -> is_empty(v) end)
+    |> Enum.reject(fn {_, v} -> empty?(v) end)
     |> Enum.reject(fn {k, _} -> Enum.member?(@graphql_ignore_fields, maybe_to_snake_atom(k)) end) # FIXME: this shouldn't be necessary if ap_graphql_fields_filter correctly filters them all from the query
     |> Enum.map(fn {k, v} -> to_AP_remap(v, k, map) end)
     |> Enum.into(%{})
@@ -321,7 +321,7 @@ defmodule ValueFlows.Util.Federation do
 
   defp to_AP_deep_remap(list, parent_key) when is_list(list) do
     list
-    |> Enum.reject(fn v -> is_empty(v) end)
+    |> Enum.reject(fn v -> empty?(v) end)
     |> Enum.map(fn v -> to_AP_deep_remap(v, parent_key) end)
   end
 
@@ -393,14 +393,14 @@ defmodule ValueFlows.Util.Federation do
 
   defp from_AP_deep_remap(map = %{}, _parent_key) when not is_struct(map) do
     map
-    |> Enum.reject(fn {_, v} -> is_empty(v) end)
+    |> Enum.reject(fn {_, v} -> empty?(v) end)
     |> Enum.map(fn {k, v} -> {from_AP_field_rename(k), from_AP_remap(v, k)} end)
     |> Enum.into(%{})
   end
 
   defp from_AP_deep_remap(list, parent_key) when is_list(list) do
     list
-    |> Enum.reject(fn v -> is_empty(v) end)
+    |> Enum.reject(fn v -> empty?(v) end)
     |> Enum.map(fn v -> from_AP_remap(v, parent_key) end)
   end
 
@@ -500,11 +500,6 @@ defmodule ValueFlows.Util.Federation do
     else _ ->
       nil # should we just return the original?
     end
-  end
-
-
-  def is_empty(v) do
-    is_nil(v) or v == %{} or v == [] or v == ""
   end
 
   def struct_to_json(struct) do
