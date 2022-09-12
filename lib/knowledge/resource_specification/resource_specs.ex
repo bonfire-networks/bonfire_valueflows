@@ -9,7 +9,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   @search_type "ValueFlows.ResourceSpecification"
 
-  def federation_module, do: ["ValueFlows:ResourceSpecification", "ResourceSpecification"]
+  def federation_module,
+    do: ["ValueFlows:ResourceSpecification", "ResourceSpecification"]
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -21,7 +22,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: repo().single(Queries.query(ResourceSpecification, filters))
+  def one(filters),
+    do: repo().single(Queries.query(ResourceSpecification, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
@@ -29,40 +31,45 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   * Various parts of the codebase that need to query for this (inc. tests)
   """
   def many(filters \\ []), do: {:ok, many!(filters)}
-  def many!(filters \\ []), do: repo().many(Queries.query(ResourceSpecification, filters))
+
+  def many!(filters \\ []),
+    do: repo().many(Queries.query(ResourceSpecification, filters))
 
   def search(search) do
-   ValueFlows.Util.maybe_search(search, @search_type) || many!(autocomplete: search)
+    ValueFlows.Util.maybe_search(search, @search_type) ||
+      many!(autocomplete: search)
   end
 
   def maybe_get(%{resource_conforms_to_id: id}) when is_binary(id) do
     with {:ok, fetched} <- one(id: id) do
       fetched
-    else _ ->
-      nil
+    else
+      _ ->
+        nil
     end
   end
+
   def maybe_get(_), do: nil
 
   ## mutations
 
-  @spec create(any(), attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
+  @spec create(any(), attrs :: map) ::
+          {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
   def create(creator, attrs) when is_map(attrs) do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, item} <- repo().insert(ResourceSpecification.create_changeset(creator, attrs)),
+      with {:ok, item} <-
+             repo().insert(ResourceSpecification.create_changeset(creator, attrs)),
            item <- %{item | creator: creator},
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :define, item) do
-
         indexing_object_format(item) |> ValueFlows.Util.index_for_search()
 
         {:ok, item}
       end
     end)
   end
-
 
   # TODO: take the user who is performing the update
   # @spec update(%ResourceSpecification{}, attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
@@ -74,9 +81,11 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
         ])
 
       attrs = prepare_attrs(attrs)
-      with {:ok, resource_spec} <- repo().update(ResourceSpecification.update_changeset(resource_spec, attrs)),
-           {:ok, resource_spec} <- ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs) do
 
+      with {:ok, resource_spec} <-
+             repo().update(ResourceSpecification.update_changeset(resource_spec, attrs)),
+           {:ok, resource_spec} <-
+             ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs) do
         ValueFlows.Util.publish(resource_spec, :update)
 
         {:ok, resource_spec}
@@ -86,7 +95,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   def soft_delete(%ResourceSpecification{} = resource_spec) do
     repo().transact_with(fn ->
-      with {:ok, resource_spec} <- Bonfire.Common.Repo.Delete.soft_delete(resource_spec),
+      with {:ok, resource_spec} <-
+             Bonfire.Common.Repo.Delete.soft_delete(resource_spec),
            {:ok, _} <- ValueFlows.Util.publish(resource_spec, :deleted) do
         {:ok, resource_spec}
       end
@@ -94,7 +104,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   end
 
   def indexing_object_format(obj) do
-
     image = ValueFlows.Util.image_url(obj)
 
     %{
@@ -107,23 +116,36 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => ValueFlows.Util.indexing_format_creator(obj)
+
       # "index_instance" => URI.parse(obj.character.canonical_url).host, # home instance of object
     }
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :resource_specification, thing, 3, [
-      :published_in
-    ])
+    ValueFlows.Util.Federation.ap_publish_activity(
+      activity_name,
+      :resource_specification,
+      thing,
+      3,
+      [
+        :published_in
+      ]
+    )
   end
 
   def ap_receive_activity(creator, activity, object) do
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+    ValueFlows.Util.Federation.ap_receive_activity(
+      creator,
+      activity,
+      object,
+      &create/2
+    )
   end
 
   defp prepare_attrs(attrs) do
-    attrs
-    |> maybe_put(:context_id,
+    maybe_put(
+      attrs,
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
   end

@@ -10,13 +10,10 @@ import Config
 # include all used Bonfire extensions
 import_config "bonfire_valueflows.exs"
 
-
 #### Basic configuration
 
 # You probably won't want to touch these. You might override some in
 # other config files.
-
-
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

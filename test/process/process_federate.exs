@@ -15,10 +15,11 @@ defmodule ValueFlows.Process.FederateTest do
 
       process = fake_process!(user)
 
-      #IO.inspect(pre_fed: proposal)
+      # IO.inspect(pre_fed: proposal)
 
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", process)
-      #IO.inspect(published: activity) ########
+
+      # IO.inspect(published: activity) ########
 
       assert activity.object.pointer_id == process.id
       assert activity.local == true

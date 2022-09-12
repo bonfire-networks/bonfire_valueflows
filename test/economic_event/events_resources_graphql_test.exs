@@ -19,7 +19,10 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
     test "produce a new economic resource via an economic event, with specific user input about the resource" do
       user = fake_agent!()
 
-      q = create_economic_event_mutation([fields: [provider: [:id]]], fields: [:id])
+      q =
+        create_economic_event_mutation([fields: [provider: [:id]]],
+          fields: [:id]
+        )
 
       conn = user_conn(user)
 
@@ -31,7 +34,16 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         newInventoriedResource: economic_resource_input()
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", false)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 false
+               )
+
       assert event = response["economicEvent"]
       assert resource = response["economicResource"]
       assert_economic_event(event)
@@ -41,7 +53,11 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
     test "produce a new economic resource via an economic event, without specific user input about the resource" do
       user = fake_agent!()
 
-      q = create_economic_event_mutation_without_new_inventoried_resource([fields: [provider: [:id]]], fields: [:id] )
+      q =
+        create_economic_event_mutation_without_new_inventoried_resource(
+          [fields: [provider: [:id]]],
+          fields: [:id]
+        )
 
       conn = user_conn(user)
 
@@ -53,7 +69,16 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", false)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 false
+               )
+
       assert event = response["economicEvent"]
       assert resource = response["economicResource"]
       assert_economic_event(event)
@@ -64,9 +89,16 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
 
     test "produce a new economic resource via an economic event, with a resource specification, but without specific user input about the resource" do
       user = fake_agent!()
-      resource_conforms_to = fake_resource_specification!(user, %{name: "resource specified"}) |> IO.inspect
 
-      q = create_economic_event_mutation_without_new_inventoried_resource([fields: [resource_conforms_to: [:id], provider: [:id]]], fields: [:id, conforms_to: [:id]] )
+      resource_conforms_to =
+        fake_resource_specification!(user, %{name: "resource specified"})
+        |> IO.inspect()
+
+      q =
+        create_economic_event_mutation_without_new_inventoried_resource(
+          [fields: [resource_conforms_to: [:id], provider: [:id]]],
+          fields: [:id, conforms_to: [:id]]
+        )
 
       conn = user_conn(user)
 
@@ -79,7 +111,16 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", false)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 false
+               )
+
       assert event = response["economicEvent"]
       assert resource = response["economicResource"]
       assert_economic_event(event)
@@ -115,17 +156,32 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "raise",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 @debug
+               )
+
       assert event = response["economicEvent"]
       assert_economic_event(event)
 
-      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+      assert event["resourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value +
+                 42
     end
 
     test "decrement an existing resource" do
@@ -153,17 +209,32 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "lower",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 @debug
+               )
+
       assert event = response["economicEvent"]
       assert_economic_event(event)
 
-      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+      assert event["resourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value -
+                 42
     end
 
     test "fails if trying to increment a resource with a different unit" do
@@ -173,6 +244,7 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
       resource_inventoried_as = fake_economic_resource!(user)
 
       q = create_economic_event_mutation(fields: [resource_inventoried_as: [:id]])
+
       conn = user_conn(user)
 
       vars = %{
@@ -186,7 +258,14 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
 
       assert {:additional_errors, _} =
                catch_throw(
-                 grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+                 grumble_post_key(
+                   q,
+                   conn,
+                   :create_economic_event,
+                   vars,
+                   "test",
+                   @debug
+                 )
                )
     end
 
@@ -220,7 +299,10 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "transfer",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id,
             "toResourceInventoriedAs" => to_resource_inventoried_as.id
             # "provider" => user.id,
@@ -228,15 +310,30 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 @debug
+               )
+
       assert event = response["economicEvent"]
       assert_economic_event(event)
 
-      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+      assert event["resourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value -
+                 42
 
-      assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+      assert event["toResourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               to_resource_inventoried_as.accounting_quantity.has_numerical_value +
+                 42
     end
 
     test "create an economic resource produced by an economic event, and then transfer part of it" do
@@ -263,8 +360,9 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
             onhand_quantity: [:id, :has_numerical_value],
             accounting_quantity: [:id, :has_numerical_value]
           ]
-        ],
+        ]
       ]
+
       resource_fields = [
         fields: [
           :id,
@@ -284,13 +382,23 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
             "action" => "produce",
             "provider" => alice.id,
             "receiver" => alice.id,
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 10})
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 10
+              })
           }),
         new_inventoried_resource: economic_resource_input(%{"name" => "resource A"})
       }
 
       assert response_a =
-               grumble_post_key(q_a, conn_a, :create_economic_event, vars_a, "test", false)
+               grumble_post_key(
+                 q_a,
+                 conn_a,
+                 :create_economic_event,
+                 vars_a,
+                 "test",
+                 false
+               )
 
       assert event_a = response_a["economicEvent"]
       assert_economic_event(event_a)
@@ -313,7 +421,10 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "transfer",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 2}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 2
+              }),
             "resourceInventoriedAs" => from_resource_id,
             "provider" => alice.id,
             "receiver" => bob.id
@@ -322,7 +433,14 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
       }
 
       assert response_b =
-               grumble_post_key(q_b, conn_b, :create_economic_event, vars_b, "test", @debug)
+               grumble_post_key(
+                 q_b,
+                 conn_b,
+                 :create_economic_event,
+                 vars_b,
+                 "test",
+                 @debug
+               )
 
       assert event_b = response_b["economicEvent"]
       assert resource_a_updated = event_b["resourceInventoriedAs"]
@@ -331,11 +449,13 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
 
       assert resource_a_updated["onhandQuantity"]["hasNumericalValue"] ==
                8
+
       assert resource_a_updated["accountingQuantity"]["hasNumericalValue"] ==
                8
 
       assert resource_b["onhandQuantity"]["hasNumericalValue"] ==
                2
+
       assert resource_b["accountingQuantity"]["hasNumericalValue"] ==
                2
     end
@@ -365,17 +485,32 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "consume",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 @debug
+               )
+
       assert event = response["economicEvent"]
       assert_economic_event(event)
 
-      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+      assert event["resourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value -
+                 42
     end
 
     test "fails if the economic event consumes an economic resource that does not exist" do
@@ -401,13 +536,15 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "consume",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => ulid()
           })
       }
 
-      assert [%{"status" => 404}] =
-               grumble_post_errors(q, conn, vars)
+      assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
     end
 
     test "create an economic event that transfers an existing resource from a provider to a receiver" do
@@ -446,7 +583,10 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "transfer",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id,
             "toResourceInventoriedAs" => to_resource_inventoried_as.id,
             "provider" => alice.id,
@@ -454,17 +594,33 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 @debug
+               )
+
       assert event = response["economicEvent"]
       assert_economic_event(event)
 
-      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+      assert event["resourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value -
+                 42
 
-      assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+      assert event["toResourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               to_resource_inventoried_as.accounting_quantity.has_numerical_value +
+                 42
 
-      assert event["toResourceInventoriedAs"]["primaryAccountable"]["id"] == bob.id
+      assert event["toResourceInventoriedAs"]["primaryAccountable"]["id"] ==
+               bob.id
     end
 
     test "fails to transfer an economic resource if the provider does not have rights to transfer it" do
@@ -502,7 +658,10 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "transfer",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id,
             "toResourceInventoriedAs" => to_resource_inventoried_as.id,
             "provider" => alice.id,
@@ -521,10 +680,18 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
       unit = maybe_fake_unit(user_provider)
 
       resource_inventoried_as =
-        fake_economic_resource!(user_provider, %{primary_accountable: user_provider.id}, unit)
+        fake_economic_resource!(
+          user_provider,
+          %{primary_accountable: user_provider.id},
+          unit
+        )
 
       to_resource_inventoried_as =
-        fake_economic_resource!(user_provider, %{primary_accountable: user_resource_to.id}, unit)
+        fake_economic_resource!(
+          user_provider,
+          %{primary_accountable: user_resource_to.id},
+          unit
+        )
 
       q =
         create_economic_event_mutation(
@@ -551,7 +718,10 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
         event:
           economic_event_input(%{
             "action" => "transfer-custody",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id,
             "toResourceInventoriedAs" => to_resource_inventoried_as.id,
             "provider" => user_provider.id,
@@ -559,7 +729,8 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      catch_throw grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      catch_throw(grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug))
+
       # assert event = response["economicEvent"]
       # assert_economic_event(event)
 

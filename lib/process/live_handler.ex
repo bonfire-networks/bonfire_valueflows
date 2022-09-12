@@ -9,21 +9,36 @@ defmodule ValueFlows.Process.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    with obj_attrs <- attrs
-                      # |> debug()
-                      |> input_to_atoms()
-                      |> Map.get(:process)
-                      |> Processes.prepare_attrs(),
-    %{valid?: true} = cs <- changeset(obj_attrs),
-    {:ok, process} <- Processes.create(current_user(socket), obj_attrs) do
+    with obj_attrs <-
+           attrs
+           # |> debug()
+           |> input_to_atoms()
+           |> Map.get(:process)
+           |> Processes.prepare_attrs(),
+         %{valid?: true} = cs <- changeset(obj_attrs),
+         {:ok, process} <- Processes.create(current_user(socket), obj_attrs) do
       debug(process)
-      {:noreply, socket |> redirect_to(e(attrs, "redirect_after", "/process/")<>process.id)}
+
+      {:noreply,
+       redirect_to(
+         socket,
+         e(attrs, "redirect_after", "/process/") <> process.id
+       )}
     end
   end
 
-  def handle_event("update", attrs, %{assigns: %{process: %{id: process_id}}} = socket) do
+  def handle_event(
+        "update",
+        attrs,
+        %{assigns: %{process: %{id: process_id}}} = socket
+      ) do
     debug(process: attrs)
-    do_update(process_id, attrs |> Map.get("process") |> input_to_atoms(), socket)
+
+    do_update(
+      process_id,
+      attrs |> Map.get("process") |> input_to_atoms(),
+      socket
+    )
   end
 
   def handle_event("status:finished", %{"id" => id} = attrs, socket) do
@@ -42,14 +57,14 @@ defmodule ValueFlows.Process.LiveHandler do
          {:ok, process} <- Processes.update(process, attrs) do
       # debug(intent)
 
-      redir = if e(attrs, "redirect_after", "") !="" do
-          attrs["redirect_after"]<>process.id
-         else
+      redir =
+        if e(attrs, "redirect_after", "") != "" do
+          attrs["redirect_after"] <> process.id
+        else
           path(process)
-         end
+        end
 
-      {:noreply, socket |> redirect_to(redir) }
+      {:noreply, redirect_to(socket, redir)}
     end
   end
-
 end

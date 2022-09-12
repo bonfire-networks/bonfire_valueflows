@@ -9,7 +9,6 @@ defmodule ValueFlows.Claim do
 
   alias Ecto.Changeset
 
-
   alias Bonfire.Quantify.Measure
 
   alias ValueFlows.Knowledge.Action
@@ -51,10 +50,15 @@ defmodule ValueFlows.Claim do
 
   @required ~w(action_id)a
   @cast @required ++
-    ~w(note finished agreed_in created due resource_classified_as is_disabled)a ++
-    ~w(context_id resource_conforms_to_id triggered_by_id)a
+          ~w(note finished agreed_in created due resource_classified_as is_disabled)a ++
+          ~w(context_id resource_conforms_to_id triggered_by_id)a
 
-  def create_changeset(%{} = creator, %{id: _} = provider, %{id: _} = receiver, attrs) do
+  def create_changeset(
+        %{} = creator,
+        %{id: _} = provider,
+        %{id: _} = receiver,
+        attrs
+      ) do
     create_changeset(creator, attrs)
     |> Changeset.change(
       provider_id: provider.id,

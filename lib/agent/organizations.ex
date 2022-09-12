@@ -10,7 +10,7 @@ defmodule ValueFlows.Agent.Organizations do
       end
     else
       if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
-         Bonfire.Me.Users.list(signed_in_user) |> format()
+        Bonfire.Me.Users.list(signed_in_user) |> format()
       else
         error("organizations feature not implemented")
         []
@@ -18,27 +18,36 @@ defmodule ValueFlows.Agent.Organizations do
     end
   end
 
-  defp format(orgs) when is_list(orgs), do: Enum.map(orgs, &format/1) |> Enum.reject(fn
-      %{agent_type: :person} -> true
-      _ -> false
-    end)
+  defp format(orgs) when is_list(orgs),
+    do:
+      Enum.map(orgs, &format/1)
+      |> Enum.reject(fn
+        %{agent_type: :person} -> true
+        _ -> false
+      end)
 
   defp format(org) do
-    org
-    |> ValueFlows.Agent.Agents.character_to_agent()
+    ValueFlows.Agent.Agents.character_to_agent(org)
   end
 
   def organization(id, current_user) do
     if Bonfire.Common.Extend.module_enabled?(Organisation.Organisations) do
-      with {:ok, org} = Organisation.Organisations.one([:default, id: id, user: current_user]) do
+      with {:ok, org} =
+             Organisation.Organisations.one([
+               :default,
+               id: id,
+               user: current_user
+             ]) do
         format(org)
       end
     else
       if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Users) do
-         with {:ok, org} <- Bonfire.Me.Users.by_id(id, current_user: current_user) do
+        with {:ok, org} <-
+               Bonfire.Me.Users.by_id(id, current_user: current_user) do
           format(org)
-         else _ ->
-          nil
+        else
+          _ ->
+            nil
         end
       else
         error("organizations feature not implemented")

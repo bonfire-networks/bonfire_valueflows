@@ -19,9 +19,13 @@ defmodule ValueFlows.Claim.Migrations do
 
       add(:provider_id, weak_pointer(), null: true)
       add(:receiver_id, weak_pointer(), null: true)
+
       add(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
+
       add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
+
       add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+
       add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
 
       add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)

@@ -1,9 +1,7 @@
 defmodule ValueFlows.Proposal.GraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
-
   import Bonfire.Common.Simulation
-
 
   import Bonfire.Geolocate.Simulate
 
@@ -19,12 +17,19 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       proposal = fake_proposal!(user)
 
       q = proposal_query()
-      #IO.inspect(q)
+      # IO.inspect(q)
 
       conn = user_conn(user)
 
       assert proposal_queried =
-               grumble_post_key(q, conn, :proposal, %{id: proposal.id}, "test", false)
+               grumble_post_key(
+                 q,
+                 conn,
+                 :proposal,
+                 %{id: proposal.id},
+                 "test",
+                 false
+               )
 
       assert_proposal_full(proposal_queried)
     end
@@ -154,7 +159,9 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = proposals_pages_query()
       conn = user_conn(user)
       vars = %{after: after_proposal.id, limit: 2}
+
       assert %{"edges" => fetched} = grumble_post_key(q, conn, :proposalsPages, vars)
+
       assert Enum.count(fetched) == 2
       assert List.first(fetched)["id"] == after_proposal.id
     end
@@ -178,10 +185,12 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
       after_cursor = List.first(end_cursor)
       vars = %{after: after_cursor, limit: 4}
+
       assert %{"edges" => page2} = grumble_post_key(q, conn, :proposalsPages, vars)
+
       assert Enum.count(page2) == 4
       # assert List.first(fetched)["id"] == after_cursor
-   end
+    end
   end
 
   describe "createProposal" do
@@ -190,7 +199,9 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = create_proposal_mutation()
       conn = user_conn(user)
       vars = %{proposal: proposal_input()}
+
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
+
       assert_proposal_full(proposal)
     end
 
@@ -201,7 +212,9 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = create_proposal_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       vars = %{proposal: proposal_input(%{"inScopeOf" => [parent.id]})}
+
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
+
       assert_proposal_full(proposal)
       assert hd(proposal["inScopeOf"])["__typename"] == "Person"
     end
@@ -213,7 +226,9 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = create_proposal_mutation(fields: [eligible_location: [:id]])
       conn = user_conn(user)
       vars = %{proposal: proposal_input(%{"eligibleLocation" => location.id})}
+
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
+
       assert proposal["eligibleLocation"]["id"] == location.id
     end
   end
@@ -226,7 +241,9 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = update_proposal_mutation()
       conn = user_conn(user)
       vars = %{proposal: update_proposal_input(%{"id" => proposal.id})}
+
       assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
+
       assert_proposal_full(proposal)
     end
 
@@ -240,10 +257,15 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       conn = user_conn(user)
 
       vars = %{
-        proposal: update_proposal_input(%{"id" => proposal.id, "inScopeOf" => [new_scope.id]})
+        proposal:
+          update_proposal_input(%{
+            "id" => proposal.id,
+            "inScopeOf" => [new_scope.id]
+          })
       }
 
       assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
+
       assert_proposal_full(proposal)
     end
   end

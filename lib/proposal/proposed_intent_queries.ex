@@ -84,5 +84,6 @@ defmodule ValueFlows.Proposal.ProposedIntentQueries do
     select(q, [proposed_intent: c], {field(c, ^key), count(c.id)})
   end
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

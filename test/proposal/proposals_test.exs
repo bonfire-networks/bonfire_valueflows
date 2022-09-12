@@ -39,6 +39,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       parent = fake_agent!()
 
       assert {:ok, proposal} = Proposals.create(user, proposal(%{in_scope_of: [parent.id]}))
+
       assert_proposal_full(proposal)
       assert proposal.context.id == parent.id
     end
@@ -71,7 +72,13 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposal = fake_proposal!(user, %{in_scope_of: [context.id]})
 
       new_context = fake_agent!()
-      assert {:ok, updated} = Proposals.update(proposal, proposal(%{in_scope_of: [new_context.id]}))
+
+      assert {:ok, updated} =
+               Proposals.update(
+                 proposal,
+                 proposal(%{in_scope_of: [new_context.id]})
+               )
+
       assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
       assert updated.context_id == new_context.id
@@ -85,14 +92,19 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       intent = fake_intent!(user)
 
       proposed_intent = fake_proposed_intent!(proposal, intent)
+
       assert {:ok, fetched} = ValueFlows.Proposal.ProposedIntents.one(id: proposed_intent.id)
+
       assert_proposed_intent(fetched)
       assert fetched.id == proposed_intent.id
 
       assert {:ok, fetched} = ValueFlows.Proposal.ProposedIntents.one(publishes_id: intent.id)
+
       assert fetched.publishes_id == intent.id
 
-      assert {:ok, fetched} = ValueFlows.Proposal.ProposedIntents.one(published_in_id: proposal.id)
+      assert {:ok, fetched} =
+               ValueFlows.Proposal.ProposedIntents.one(published_in_id: proposal.id)
+
       assert fetched.published_in_id == proposal.id
     end
 
@@ -108,7 +120,10 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       assert {:ok, proposed_intent} = ValueFlows.Proposal.ProposedIntents.delete(proposed_intent)
 
       assert {:error, :not_found} =
-               ValueFlows.Proposal.ProposedIntents.one([:default, id: proposed_intent.id])
+               ValueFlows.Proposal.ProposedIntents.one([
+                 :default,
+                 id: proposed_intent.id
+               ])
     end
   end
 
@@ -125,7 +140,10 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
       assert {:ok, fetched} = ValueFlows.Proposal.ProposedIntents.many()
       assert Enum.count(fetched) == 5
-      assert {:ok, fetched} = ValueFlows.Proposal.ProposedIntents.many(id: hd(proposed_intents).id)
+
+      assert {:ok, fetched} =
+               ValueFlows.Proposal.ProposedIntents.many(id: hd(proposed_intents).id)
+
       assert Enum.count(fetched) == 1
     end
   end
@@ -137,7 +155,11 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposal = fake_proposal!(user)
 
       assert {:ok, proposed_intent} =
-               ValueFlows.Proposal.ProposedIntents.propose_intent(proposal, intent, proposed_intent())
+               ValueFlows.Proposal.ProposedIntents.propose_intent(
+                 proposal,
+                 intent,
+                 proposed_intent()
+               )
 
       assert_proposed_intent(proposed_intent)
     end
@@ -149,7 +171,9 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       intent = fake_intent!(user)
       proposal = fake_proposal!(user)
       proposed_intent = fake_proposed_intent!(proposal, intent)
+
       assert {:ok, proposed_intent} = ValueFlows.Proposal.ProposedIntents.delete(proposed_intent)
+
       assert proposed_intent.deleted_at
     end
   end
@@ -162,14 +186,17 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposed_to = fake_proposed_to!(agent, proposal)
 
       assert {:ok, fetched} = ValueFlows.Proposal.ProposedTos.one(id: proposed_to.id)
+
       assert_proposed_to(fetched)
       assert fetched.id == proposed_to.id
 
       assert {:ok, fetched} = ValueFlows.Proposal.ProposedTos.one(proposed_to_id: agent.id)
+
       assert_proposed_to(fetched)
       assert fetched.proposed_to_id == agent.id
 
       assert {:ok, fetched} = ValueFlows.Proposal.ProposedTos.one(proposed_id: proposal.id)
+
       assert_proposed_to(fetched)
       assert fetched.proposed_id == proposal.id
     end
@@ -177,10 +204,14 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     test "ignores deleted items when using :deleted filter" do
       user = fake_agent!()
       proposed_to = fake_proposed_to!(fake_agent!(), fake_proposal!(user))
+
       assert {:ok, proposed_to} = ValueFlows.Proposal.ProposedTos.delete(proposed_to)
 
       assert {:error, :not_found} =
-               ValueFlows.Proposal.ProposedTos.one([:deleted, id: proposed_to.id])
+               ValueFlows.Proposal.ProposedTos.one([
+                 :deleted,
+                 id: proposed_to.id
+               ])
     end
   end
 
@@ -189,7 +220,9 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       user = fake_agent!()
       proposal = fake_proposal!(user)
       agent = fake_agent!()
+
       assert {:ok, proposed_to} = ValueFlows.Proposal.ProposedTos.propose_to(agent, proposal)
+
       assert_proposed_to(proposed_to)
     end
   end
@@ -200,7 +233,9 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposed_to = fake_proposed_to!(fake_agent!(), fake_proposal!(user))
 
       refute proposed_to.deleted_at
+
       assert {:ok, proposed_to} = ValueFlows.Proposal.ProposedTos.delete(proposed_to)
+
       assert proposed_to.deleted_at
     end
   end

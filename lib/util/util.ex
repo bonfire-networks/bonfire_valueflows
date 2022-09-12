@@ -14,36 +14,39 @@ defmodule ValueFlows.Util do
   def ensure_edit_permission(%{} = user, %{} = object) do
     # TODO refactor to also use Boundaries (when extension active)
     # TODO check also based on the parent / context? and user's organisation? etc
-    if ValueFlows.Util.is_admin?(user) or Map.get(object, :creator_id) == user.id or Map.get(object, :provider_id) == user.id do
+    if ValueFlows.Util.is_admin?(user) or
+         Map.get(object, :creator_id) == user.id or
+         Map.get(object, :provider_id) == user.id do
       :ok
     else
       {:error, :not_permitted}
     end
   end
 
-
-  def publish(%{id: creator_id} = creator, verb, %{id: thing_id} =thing) do
-
-    opts = prepare_opt_and_set_boundaries(creator, thing) # this sets permissions & returns recipients in opts to be used for publishing
+  def publish(%{id: creator_id} = creator, verb, %{id: thing_id} = thing) do
+    # this sets permissions & returns recipients in opts to be used for publishing
+    opts = prepare_opt_and_set_boundaries(creator, thing)
 
     # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - AP publishing is triggered by FeedActivities.publish instead
 
-    if module_enabled?(Bonfire.Social.FeedActivities) and Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
-
+    if module_enabled?(Bonfire.Social.FeedActivities) and
+         Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
       # add to activity feed + maybe federate
       Bonfire.Social.FeedActivities.publish(creator, verb, thing, opts)
-
     else
       warn("VF - No integration available to publish activity")
       {:ok, nil}
     end
   end
 
-  def publish(_creator, verb, %{id: thing_id} =thing) do
+  def publish(_creator, verb, %{id: thing_id} = thing) do
     warn("VF - No creator for object so we can't publish it")
 
     # make visible
-    prepare_opt_and_set_boundaries(e(thing, :creator, e(thing, :provider, nil)), thing)
+    prepare_opt_and_set_boundaries(
+      e(thing, :creator, e(thing, :provider, nil)),
+      thing
+    )
 
     {:ok, nil}
   end
@@ -53,21 +56,35 @@ defmodule ValueFlows.Util do
     preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")
 
     debug(thing)
+
     to = [
-        e(thing, :context, nil) || e(thing, :context_id, nil),
-        e(thing, :provider, nil) || e(thing, :provider_id, nil),
-        e(thing, :receiver, nil) || e(thing, :receiver_id, nil),
-        e(thing, :parent_category, nil) || e(thing, :parent_category_id, nil)
-      ]
+      e(thing, :context, nil) || e(thing, :context_id, nil),
+      e(thing, :provider, nil) || e(thing, :provider_id, nil),
+      e(thing, :receiver, nil) || e(thing, :receiver_id, nil),
+      e(thing, :parent_category, nil) || e(thing, :parent_category_id, nil)
+    ]
 
-    to_circles = Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, []) ++ to
+    to_circles =
+      Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, []) ++
+        to
 
-    to_feeds = if module_enabled?(Bonfire.Social.Feeds), do: Bonfire.Social.Feeds.feed_ids(:notifications, to)
+    to_feeds =
+      if module_enabled?(Bonfire.Social.Feeds),
+        do: Bonfire.Social.Feeds.feed_ids(:notifications, to)
 
-    opts = [boundary: preset_boundary, to_circles: to_circles, to_feeds: to_feeds]
-    debug(opts, "boundaries to set & recipients to include (should include scope, provider, and receiver if any)")
+    opts = [
+      boundary: preset_boundary,
+      to_circles: to_circles,
+      to_feeds: to_feeds
+    ]
 
-    if module_enabled?(Bonfire.Boundaries), do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
+    debug(
+      opts,
+      "boundaries to set & recipients to include (should include scope, provider, and receiver if any)"
+    )
+
+    if module_enabled?(Bonfire.Boundaries),
+      do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
 
     opts
   end
@@ -77,7 +94,8 @@ defmodule ValueFlows.Util do
     ValueFlows.Util.Federation.ap_publish("update", thing_id, creator_id)
   end
 
-  def publish(%{creator_id: creator_id, id: thing_id}, :updated) do # deprecate
+  # deprecate
+  def publish(%{creator_id: creator_id, id: thing_id}, :updated) do
     publish(%{creator_id: creator_id, id: thing_id}, :update)
   end
 
@@ -86,7 +104,8 @@ defmodule ValueFlows.Util do
     ValueFlows.Util.Federation.ap_publish("delete", thing_id, creator_id)
   end
 
-  def publish(%{creator_id: creator_id, id: thing_id}, :deleted) do # deprecate
+  # deprecate
+  def publish(%{creator_id: creator_id, id: thing_id}, :deleted) do
     publish(%{creator_id: creator_id, id: thing_id}, :delete)
   end
 
@@ -97,19 +116,31 @@ defmodule ValueFlows.Util do
 
   def attr_get_agent(attrs, field, creator) do
     case Map.get(attrs, field) do
-      "me" -> ulid(creator)
-      id_or_uri_or_username when is_binary(id_or_uri_or_username) -> ulid(id_or_uri_or_username) || Bonfire.Federate.ActivityPub.Utils.get_by_url_ap_id_or_username(id_or_uri_or_username) |> ulid()
-      other -> ulid(other)
+      "me" ->
+        ulid(creator)
+
+      id_or_uri_or_username when is_binary(id_or_uri_or_username) ->
+        ulid(id_or_uri_or_username) ||
+          Bonfire.Federate.ActivityPub.Utils.get_by_url_ap_id_or_username(id_or_uri_or_username)
+          |> ulid()
+
+      other ->
+        ulid(other)
     end
   end
 
   def search_for_matches(%{name: name, note: note, is_offer: true}) do
     facets = %{index_type: "ValueFlows.Planning.Need"}
-    Bonfire.Search.Fuzzy.search_filtered(name, facets) || Bonfire.Search.Fuzzy.search_filtered(note, facets)
+
+    Bonfire.Search.Fuzzy.search_filtered(name, facets) ||
+      Bonfire.Search.Fuzzy.search_filtered(note, facets)
   end
+
   def search_for_matches(%{name: name, note: note, is_need: true}) do
     facets = %{index_type: "ValueFlows.Planning.Offer"}
-    Bonfire.Search.Fuzzy.search_filtered(name, facets) || Bonfire.Search.Fuzzy.search_filtered(note, facets)
+
+    Bonfire.Search.Fuzzy.search_filtered(name, facets) ||
+      Bonfire.Search.Fuzzy.search_filtered(note, facets)
   end
 
   def search_for_matches(%{name: name, note: note}) do
@@ -126,10 +157,10 @@ defmodule ValueFlows.Util do
 
   def indexing_format_creator(%{creator_id: id} = obj) when not is_nil(id) do
     Bonfire.Common.Repo.maybe_preload(obj,
-      [creator: [
+      creator: [
         :character,
-        profile: [:icon],
-      ]]
+        profile: [:icon]
+      ]
     )
     |> Map.get(:creator)
     |> indexing_format_creator()
@@ -140,7 +171,10 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_creator(%{id: id} = creator) when not is_nil(id) do
-    Bonfire.Me.Integration.indexing_format_creator(maybe_get(creator, :profile), maybe_get(creator, :character))
+    Bonfire.Me.Integration.indexing_format_creator(
+      maybe_get(creator, :profile),
+      maybe_get(creator, :character)
+    )
   end
 
   def indexing_format_creator(_) do
@@ -158,8 +192,8 @@ defmodule ValueFlows.Util do
   def maybe_search(search, facets) do
     maybe_apply(Bonfire.Search, :search_by_type, [search, facets], &none/2)
   end
-  defp none(_, _), do: nil
 
+  defp none(_, _), do: nil
 
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
     # debug(thing)
@@ -223,7 +257,8 @@ defmodule ValueFlows.Util do
     if Map.get(user, :instance_admin) do
       Map.get(user.instance_admin, :is_instance_admin, false)
     else
-      false # FIXME
+      # FIXME
+      false
     end
   end
 
@@ -242,7 +277,9 @@ defmodule ValueFlows.Util do
   end
 
   def image_schema() do
-    Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:files_media_schema, Bonfire.Files.Media))
+    Bonfire.Common.Extend.maybe_schema_or_pointer(
+      Bonfire.Common.Config.get(:files_media_schema, Bonfire.Files.Media)
+    )
   end
 
   def change_measures(changeset, %{} = attrs, measure_fields) do
@@ -258,25 +295,23 @@ defmodule ValueFlows.Util do
   defp put_measure(c, field_name, measure) when is_struct(measure) do
     Ecto.Changeset.put_assoc(c, field_name, measure)
   end
+
   defp put_measure(c, field_name, measure) do
     Ecto.Changeset.cast_assoc(c, field_name, with: &Bonfire.Quantify.Measure.validate_changeset/2)
   end
 
   def parse_measurement_attrs(attrs, user \\ nil) do
     Enum.reduce(attrs, %{}, fn
-
       {k, %{has_unit: unit} = v}, acc ->
-
-        Map.put(acc, k,
+        Map.put(
+          acc,
+          k,
           with false <- is_ulid?(unit),
-          {:error, e} <- Bonfire.Quantify.Units.get_or_create(unit, user) do
-
+               {:error, e} <- Bonfire.Quantify.Units.get_or_create(unit, user) do
             error(e)
             raise {:error, "Invalid unit used for quantity"}
-
           else
             {:ok, %{id: id} = found_or_created_unit} ->
-
               v
               |> Map.put(:unit, found_or_created_unit)
               |> Map.put(:unit_id, id)
@@ -289,7 +324,6 @@ defmodule ValueFlows.Util do
 
       {k, v}, acc ->
         Map.put(acc, k, v)
-
     end)
   end
 
@@ -306,10 +340,12 @@ defmodule ValueFlows.Util do
   #   end
   # end
 
-  def default_recurse_limit(), do: 2 # TODO: configurable
-  def max_recurse_limit(), do: 1000 # TODO: configurable
+  # TODO: configurable
+  def default_recurse_limit(), do: 2
+  # TODO: configurable
+  def max_recurse_limit(), do: 1000
 
-    @doc """
+  @doc """
   lookup tag from URL(s), to support vf-graphql mode
   """
 
@@ -319,8 +355,12 @@ defmodule ValueFlows.Util do
   #   {:ok, thing}
   # end
 
-  def maybe_classification(user, tags) when is_list(tags), do: Enum.map(tags, &maybe_classification(user, &1))
-  def maybe_classification(user, %{value: tag}), do: maybe_classification(user, tag)
+  def maybe_classification(user, tags) when is_list(tags),
+    do: Enum.map(tags, &maybe_classification(user, &1))
+
+  def maybe_classification(user, %{value: tag}),
+    do: maybe_classification(user, tag)
+
   def maybe_classification(user, tag) do
     with {:ok, c} <- Bonfire.Tag.Tags.maybe_find_tag(user, tag) do
       c
@@ -330,14 +370,17 @@ defmodule ValueFlows.Util do
   def maybe_classification_id(user, tags) when is_list(tags) do
     Enum.map(tags, &maybe_classification_id(user, &1))
   end
+
   def maybe_classification_id(user, tag) do
     maybe_classification(user, tag) |> e(:id, nil)
   end
 
   def try_tag_thing(user, thing, %{} = attrs) do
     if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags) do
-
-      input_tags = Map.get(attrs, :tags, []) ++ Map.get(attrs, :resource_classified_as, []) ++ Map.get(attrs, :classified_as, [])
+      input_tags =
+        Map.get(attrs, :tags, []) ++
+          Map.get(attrs, :resource_classified_as, []) ++
+          Map.get(attrs, :classified_as, [])
 
       try_tag_thing(user, thing, input_tags)
     else
@@ -354,10 +397,7 @@ defmodule ValueFlows.Util do
     end
   end
 
-
   def map_values(%{} = map, func) do
     for {k, v} <- map, into: %{}, do: {k, func.(v)}
   end
-
-
 end

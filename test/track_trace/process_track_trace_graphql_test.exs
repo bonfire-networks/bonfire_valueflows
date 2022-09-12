@@ -1,7 +1,6 @@
 defmodule ValueFlows.Process.TrackTraceGraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
-
   import Bonfire.Common.Simulation
 
   # alias Grumble.PP
@@ -13,7 +12,6 @@ defmodule ValueFlows.Process.TrackTraceGraphQLTest do
 
   @debug false
   @schema Bonfire.API.GraphQL.Schema
-
 
   describe "Process.track" do
     test "Returns a list of economic events that are outputs" do
@@ -101,7 +99,10 @@ defmodule ValueFlows.Process.TrackTraceGraphQLTest do
       conn = user_conn(user)
 
       assert process =
-               grumble_post_key(q, conn, :process, %{id: process.id, action_id: "consume"})
+               grumble_post_key(q, conn, :process, %{
+                 id: process.id,
+                 action_id: "consume"
+               })
 
       assert Enum.count(process["inputs"]) == 5
     end
@@ -151,10 +152,12 @@ defmodule ValueFlows.Process.TrackTraceGraphQLTest do
       conn = user_conn(user)
 
       assert process =
-               grumble_post_key(q, conn, :process, %{id: process.id, action_id: "produce"})
+               grumble_post_key(q, conn, :process, %{
+                 id: process.id,
+                 action_id: "produce"
+               })
 
       assert Enum.count(process["outputs"]) == 5
     end
   end
-
 end

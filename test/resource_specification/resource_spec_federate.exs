@@ -14,9 +14,14 @@ defmodule ValueFlows.ResourceSpecification.FederateTest do
 
       resource_spec = fake_resource_specification!(user)
 
-      #IO.inspect(pre_fed: proposal)
+      # IO.inspect(pre_fed: proposal)
 
-      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", resource_spec)
+      assert {:ok, activity} =
+               Bonfire.Federate.ActivityPub.Publisher.publish(
+                 "create",
+                 resource_spec
+               )
+
       info(activity)
 
       assert activity.object.pointer_id == resource_spec.id

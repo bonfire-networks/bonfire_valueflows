@@ -23,6 +23,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       user = fake_agent!()
       spec = fake_process_specification!(user)
       assert {:ok, spec} = ProcessSpecifications.soft_delete(spec)
+
       assert {:error, :not_found} = ProcessSpecifications.one([:deleted, id: spec.id])
     end
   end
@@ -32,6 +33,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       user = fake_agent!()
 
       assert {:ok, spec} = ProcessSpecifications.create(user, process_specification())
+
       assert_process_specification(spec)
     end
 
@@ -41,16 +43,19 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       attrs = %{in_scope_of: [fake_agent!().id]}
 
       assert {:ok, spec} = ProcessSpecifications.create(user, process_specification(attrs))
+
       assert_process_specification(spec)
       assert spec.context_id == hd(attrs.in_scope_of)
     end
 
     test "can create a process_specification with tags" do
       user = fake_agent!()
-tags = some_fake_categories(user)
+      tags = some_fake_categories(user)
 
       attrs = process_specification(%{tags: tags})
+
       assert {:ok, process_specification} = ProcessSpecifications.create(user, attrs)
+
       assert_process_specification(process_specification)
 
       process_specification = repo().preload(process_specification, :tags)
@@ -64,6 +69,7 @@ tags = some_fake_categories(user)
       spec = fake_process_specification!(user)
 
       assert {:ok, updated} = ProcessSpecifications.update(spec, process_specification())
+
       assert_process_specification(updated)
       assert updated.updated_at != spec.updated_at
     end

@@ -10,9 +10,10 @@ defmodule ValueFlows.Proposal do
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
 
-
   alias ValueFlows.Proposal
-  alias ValueFlows.Proposal.{ProposedIntent, ProposedTo}
+  alias ValueFlows.Proposal.ProposedIntent
+  alias ValueFlows.Proposal.ProposedTo
+
   alias ValueFlows.Planning.Intent
 
   @type t :: %__MODULE__{}
@@ -53,7 +54,7 @@ defmodule ValueFlows.Proposal do
 
   @required ~w(name is_public)a
   @cast @required ++
-    ~w(note has_beginning has_end unit_based eligible_location_id context_id)a
+          ~w(note has_beginning has_end unit_based eligible_location_id context_id)a
 
   def create_changeset(
         %{} = creator,

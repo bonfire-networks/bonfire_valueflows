@@ -8,7 +8,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
 
   alias Ecto.Changeset
 
-
   alias ValueFlows.Knowledge.ProcessSpecification
 
   @type t :: %__MODULE__{}
@@ -61,7 +60,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
     |> change_disabled()
   end
 
-  def context_module, do: ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
+  def context_module,
+    do: ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
 
   def queries_module, do: ValueFlows.Knowledge.ProcessSpecification.Queries
 

@@ -1,11 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_list: 2, map_key_replace: 3, e: 3, e: 4]
+  use Bonfire.Common.Utils,
+    only: [
+      maybe_put: 3,
+      attr_get_id: 2,
+      maybe: 2,
+      maybe_list: 2,
+      map_key_replace: 3,
+      e: 3,
+      e: 4
+    ]
 
   import Bonfire.Common.Config, only: [repo: 0]
-
   # alias Bonfire.API.GraphQL
-  alias Bonfire.API.GraphQL.{Fields, Page}
+  alias Bonfire.API.GraphQL.Fields
+  alias Bonfire.API.GraphQL.Page
+
   alias ValueFlows.Util
 
   alias ValueFlows.Knowledge.Action.Actions
@@ -14,7 +24,15 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   @endpoint_module Application.compile_env!(:bonfire, :endpoint_module)
 
-  def federation_module, do: ["ValueFlows:Intent", "ValueFlows:Need", "ValueFlows:Offer", "Intent", "Need", "Offer"]
+  def federation_module,
+    do: [
+      "ValueFlows:Intent",
+      "ValueFlows:Need",
+      "ValueFlows:Offer",
+      "Intent",
+      "Need",
+      "Offer"
+    ]
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -33,6 +51,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       :default,
       user: current_user,
       id: id
+
       # preload: :tags
     ])
   end
@@ -42,7 +61,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().many(Queries.query(Intent, filters))}
+  def many(filters \\ []),
+    do: {:ok, repo().many(Queries.query(Intent, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -56,14 +76,27 @@ defmodule ValueFlows.Planning.Intent.Intents do
   Used by:
   * GraphQL resolver single-parent resolution
   """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(
+        cursor_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
 
-  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
+  def page(
+        cursor_fn,
+        %{} = page_opts,
+        base_filters,
+        data_filters,
+        count_filters
+      ) do
     base_q = Queries.query(Intent, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <-
+           repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -83,7 +116,14 @@ defmodule ValueFlows.Planning.Intent.Intents do
         count_filters \\ []
       )
 
-  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters,
+        data_filters,
+        count_filters
+      ) do
     Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       Intent,
@@ -124,19 +164,24 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   ## mutations
 
-  @spec create(any(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  @spec create(any(), attrs :: map) ::
+          {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%{} = creator, attrs) when is_map(attrs) do
-
     attrs = prepare_attrs(attrs, creator)
 
     repo().transact_with(fn ->
-      with {:ok, intent} <- repo().insert(Intent.create_changeset(creator, attrs)),
+      with {:ok, intent} <-
+             repo().insert(Intent.create_changeset(creator, attrs)),
            intent <- preload_all(%{intent | creator: creator}),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent) do
-
         Absinthe.Subscription.publish(@endpoint_module, intent, intent_created: :all)
-        if intent.context_id, do: Absinthe.Subscription.publish(@endpoint_module, intent, intent_created: intent.context_id)
+
+        if intent.context_id,
+          do:
+            Absinthe.Subscription.publish(@endpoint_module, intent,
+              intent_created: intent.context_id
+            )
 
         indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
 
@@ -162,7 +207,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
     attrs = prepare_attrs(attrs, e(intent, :creator, nil))
 
     repo().transact_with(fn ->
-      with {:ok, intent} <- repo().update(Intent.update_changeset(intent, attrs)),
+      with {:ok, intent} <-
+             repo().update(Intent.update_changeset(intent, attrs)),
            intent <- preload_all(intent),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            {:ok, _} <- ValueFlows.Util.publish(intent, :update) do
@@ -172,15 +218,15 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def soft_delete(id, current_user) when is_binary(id) do
-      with {:ok, intent} <- by_id(id, current_user) do
-        soft_delete(intent, current_user)
-      end
+    with {:ok, intent} <- by_id(id, current_user) do
+      soft_delete(intent, current_user)
+    end
   end
 
   def soft_delete(%Intent{} = intent, current_user) do
-      with :ok <- ValueFlows.Util.ensure_edit_permission(current_user, intent) do
-        soft_delete(intent)
-      end
+    with :ok <- ValueFlows.Util.ensure_edit_permission(current_user, intent) do
+      soft_delete(intent)
+    end
   end
 
   # TODO: turn into private function
@@ -194,16 +240,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def indexing_object_format(obj) do
-
-    type = if obj.is_need do
-      "ValueFlows.Planning.Need"
-    else
-      if obj.is_offer do
-        "ValueFlows.Planning.Offer"
+    type =
+      if obj.is_need do
+        "ValueFlows.Planning.Need"
       else
-        "ValueFlows.Planning.Intent"
+        if obj.is_offer do
+          "ValueFlows.Planning.Offer"
+        else
+          "ValueFlows.Planning.Intent"
+        end
       end
-    end
 
     image = ValueFlows.Util.image_url(obj)
 
@@ -217,45 +263,85 @@ defmodule ValueFlows.Planning.Intent.Intents do
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => ValueFlows.Util.indexing_format_creator(obj)
+
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
     }
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :intent, thing, 3, [
-
-    ])
+    ValueFlows.Util.Federation.ap_publish_activity(
+      activity_name,
+      :intent,
+      thing,
+      3,
+      []
+    )
   end
 
-  def ap_receive_activity(creator, activity, %{data: %{"publishedIn" => proposed_intents_attrs}} = object) when is_list(proposed_intents_attrs) and length(proposed_intents_attrs)>0 do
-    debug(object, "handle Intent with nested ProposedIntent (and usually Proposal too)")
+  def ap_receive_activity(
+        creator,
+        activity,
+        %{data: %{"publishedIn" => proposed_intents_attrs}} = object
+      )
+      when is_list(proposed_intents_attrs) and
+             length(proposed_intents_attrs) > 0 do
+    debug(
+      object,
+      "handle Intent with nested ProposedIntent (and usually Proposal too)"
+    )
 
-    intent_attrs = object |> Utils.maybe_to_map() |> pop_in([:data, "publishedIn"]) |> elem(1) # remove nested objects to avoid double-creations
+    # remove nested objects to avoid double-creations
+    intent_attrs =
+      object
+      |> Utils.maybe_to_map()
+      |> pop_in([:data, "publishedIn"])
+      |> elem(1)
 
-    with {:ok, intent} <- ValueFlows.Util.Federation.ap_receive_activity(creator, activity, intent_attrs, &create/2) do
+    with {:ok, intent} <-
+           ValueFlows.Util.Federation.ap_receive_activity(
+             creator,
+             activity,
+             intent_attrs,
+             &create/2
+           ) do
+      proposed_intents =
+        for a_proposed_intent_attrs <- proposed_intents_attrs do
+          a_proposed_intent_attrs = Map.put(a_proposed_intent_attrs, :publishes, intent)
 
-      proposed_intents = for a_proposed_intent_attrs <- proposed_intents_attrs do
+          debug(a_proposed_intent_attrs, "attrs for a_proposed_intent_attrs")
 
-        a_proposed_intent_attrs = a_proposed_intent_attrs |> Map.put(:publishes, intent)
-        debug(a_proposed_intent_attrs, "attrs for a_proposed_intent_attrs")
-
-        with {:ok, proposed_intent} <- ValueFlows.Util.Federation.maybe_create_nested_object(creator, a_proposed_intent_attrs, intent) do
-          proposed_intent
+          with {:ok, proposed_intent} <-
+                 ValueFlows.Util.Federation.maybe_create_nested_object(
+                   creator,
+                   a_proposed_intent_attrs,
+                   intent
+                 ) do
+            proposed_intent
+          end
         end
-      end
 
-      {:ok, intent |> Map.put(:published_in, proposed_intents)}
+      {:ok, Map.put(intent, :published_in, proposed_intents)}
     end
   end
 
   def ap_receive_activity(creator, activity, object) do
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+    ValueFlows.Util.Federation.ap_receive_activity(
+      creator,
+      activity,
+      object,
+      &create/2
+    )
   end
 
   def prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(:action_id, e(attrs, :action, :id, e(attrs, :action, nil) ) |> ValueFlows.Knowledge.Action.Actions.id())
-    |> maybe_put(:context_id,
+    |> maybe_put(
+      :action_id,
+      e(attrs, :action, :id, e(attrs, :action, nil))
+      |> ValueFlows.Knowledge.Action.Actions.id()
+    )
+    |> maybe_put(
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe_list(&List.first/1)
     )
     |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
@@ -263,10 +349,14 @@ defmodule ValueFlows.Planning.Intent.Intents do
     |> maybe_put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
     |> maybe_put(:input_of_id, attr_get_id(attrs, :input_of))
     |> maybe_put(:output_of_id, attr_get_id(attrs, :output_of))
-    |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
-    |> maybe_put(:resource_inventoried_as_id, attr_get_id(attrs, :resource_inventoried_as))
+    |> maybe_put(
+      :resource_conforms_to_id,
+      attr_get_id(attrs, :resource_conforms_to)
+    )
+    |> maybe_put(
+      :resource_inventoried_as_id,
+      attr_get_id(attrs, :resource_inventoried_as)
+    )
     |> Util.parse_measurement_attrs(creator)
   end
-
-
 end

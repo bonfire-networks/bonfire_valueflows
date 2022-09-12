@@ -3,9 +3,6 @@ defmodule ValueFlows.Process.ProcessesTest do
 
   import Bonfire.Common.Simulation
 
-
-
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -26,8 +23,7 @@ defmodule ValueFlows.Process.ProcessesTest do
       user = fake_agent!()
       spec = fake_process!(user)
       assert {:ok, spec} = Processes.soft_delete(spec)
-      assert {:error, :not_found} =
-              Processes.one([:deleted, id: spec.id])
+      assert {:error, :not_found} = Processes.one([:deleted, id: spec.id])
     end
   end
 
@@ -82,7 +78,5 @@ defmodule ValueFlows.Process.ProcessesTest do
       assert {:ok, spec} = Processes.soft_delete(spec)
       assert spec.deleted_at
     end
-
   end
-
 end

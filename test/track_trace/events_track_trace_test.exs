@@ -11,7 +11,6 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTrackTraceTest do
 
   alias ValueFlows.EconomicEvent.EconomicEvents
 
-
   describe "track" do
     test "Return the process to which it is an input" do
       user = fake_agent!()

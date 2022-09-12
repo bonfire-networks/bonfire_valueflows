@@ -21,7 +21,9 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
 
       q = economic_resource_query()
       conn = user_conn(user)
+
       assert fetched = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+
       assert_economic_resource(fetched)
     end
 
@@ -44,9 +46,10 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
       }
 
       assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
+
       assert_economic_resource(resource)
 
-      #IO.inspect(created: resource)
+      # IO.inspect(created: resource)
 
       assert queried =
                Bonfire.API.GraphQL.QueryHelper.run_query_id(
@@ -70,8 +73,13 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
 
       assert {:ok, _spec} = EconomicResources.soft_delete(resource)
 
-      assert [%{"code" => "not_found", "path" => ["economicResource"], "status" => 404}] =
-               grumble_post_errors(q, conn, %{id: resource.id})
+      assert [
+               %{
+                 "code" => "not_found",
+                 "path" => ["economicResource"],
+                 "status" => 404
+               }
+             ] = grumble_post_errors(q, conn, %{id: resource.id})
     end
   end
 
@@ -90,6 +98,7 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
       conn = user_conn(user)
 
       assert fetched_economic_resources = grumble_post_key(q, conn, :economic_resources, %{})
+
       assert Enum.count(resources) == Enum.count(fetched_economic_resources)
     end
   end
@@ -104,6 +113,7 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
         {:ok, resource} = EconomicResources.soft_delete(resource)
         resource
       end)
+
       after_resource = List.first(resources)
 
       q = economic_resources_pages_query()
@@ -113,8 +123,6 @@ defmodule ValueFlows.EconomicResource.GraphQLTest do
       assert page = grumble_post_key(q, conn, :economic_resources_pages, vars)
       assert Enum.count(resources) == page["totalCount"]
       assert List.first(page["edges"])["id"] == after_resource.id
-
     end
   end
-
 end

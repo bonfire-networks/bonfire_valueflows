@@ -17,8 +17,15 @@ defmodule ValueFlows.ValueCalculation.Migrations do
       add(:action_id, :string, null: false)
       add(:value_action_id, :string, null: false)
 
-      add(:resource_conforms_to_id, weak_pointer(ValueFlows.Knowledge.ResourceSpecification))
-      add(:value_resource_conforms_to_id, weak_pointer(ValueFlows.Knowledge.ResourceSpecification))
+      add(
+        :resource_conforms_to_id,
+        weak_pointer(ValueFlows.Knowledge.ResourceSpecification)
+      )
+
+      add(
+        :value_resource_conforms_to_id,
+        weak_pointer(ValueFlows.Knowledge.ResourceSpecification)
+      )
 
       add(:deleted_at, :timestamptz)
 

@@ -25,7 +25,6 @@ defmodule ValueFlows.Planning.Commitment.Queries do
     {data_q, count_q}
   end
 
-
   def join_to(q, spec, join_qualifier \\ :left)
 
   def join_to(q, specs, jq) when is_list(specs),
@@ -45,7 +44,6 @@ defmodule ValueFlows.Planning.Commitment.Queries do
 
   def join_to(q, :resource_quantity, jq),
     do: join(q, jq, [commitment: c], q in assoc(c, :resource_quantity), as: :resource_quantity)
-
 
   # filter
   def filter(q, filters) when is_list(filters),
@@ -72,11 +70,9 @@ defmodule ValueFlows.Planning.Commitment.Queries do
   def filter(q, {:status, :closed}),
     do: where(q, [commitment: c], c.finished == true)
 
-
   # search
   def filter(q, {:search, text}) when is_binary(text),
     do: where(q, [commitment: c], ilike(c.note, ^"%#{text}%"))
-
 
   # join
   def filter(q, {:join, {join, qual}}),
@@ -85,14 +81,15 @@ defmodule ValueFlows.Planning.Commitment.Queries do
   def filter(q, {:join, join}),
     do: join_to(q, join)
 
-
   # user
   def filter(q, {:user, %{id: user_id}}) do
     q
-    |> where([commitment: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
+    |> where(
+      [commitment: c],
+      not is_nil(c.published_at) or c.creator_id == ^user_id
+    )
     |> filter(~w(disabled)a)
   end
-
 
   # field
   def filter(q, {:id, id}) when is_binary(id),
@@ -142,7 +139,10 @@ defmodule ValueFlows.Planning.Commitment.Queries do
     q
     |> join_to(:geolocation)
     |> preload(:at_location)
-    |> where([commitment: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+    |> where(
+      [commitment: c, geolocation: g],
+      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
+    )
   end
 
   def filter(q, {:location_within, geom_point}) do
@@ -175,7 +175,6 @@ defmodule ValueFlows.Planning.Commitment.Queries do
   def filter(q, {:input_of_id, id}) when is_binary(id),
     do: where(q, [commitment: c], c.input_of_id == ^id)
 
-
   # order
   def filter(q, {:order, [desc: key]}) when is_atom(key),
     do: order_by(q, [commitment: c], desc: field(c, ^key))
@@ -184,7 +183,15 @@ defmodule ValueFlows.Planning.Commitment.Queries do
     do: order_by(q, [commitment: c], asc: field(c, ^key))
 
   def filter(q, {:order, :default}),
-    do: order_by(q, [commitment: c], [desc: c.has_beginning, desc: c.has_point_in_time, desc: c.has_end, desc: c.due, desc: c.updated_at, asc: c.id])
+    do:
+      order_by(q, [commitment: c],
+        desc: c.has_beginning,
+        desc: c.has_point_in_time,
+        desc: c.has_end,
+        desc: c.due,
+        desc: c.updated_at,
+        asc: c.id
+      )
 
   def filter(q, {:order, :voted}),
     do: filter(q, order: [desc: :voted])
@@ -198,7 +205,6 @@ defmodule ValueFlows.Planning.Commitment.Queries do
 
   def filter(q, {:order, key}),
     do: filter(q, order: [desc: key])
-
 
   # group and count
   def filter(q, {:group_count, key}) when is_atom(key),
@@ -221,7 +227,7 @@ defmodule ValueFlows.Planning.Commitment.Queries do
       :context,
       :at_location,
       :resource_inventoried_as,
-      :resource_conforms_to,
+      :resource_conforms_to
     ])
     |> filter({:preload, :quantities})
   end
@@ -231,7 +237,6 @@ defmodule ValueFlows.Planning.Commitment.Queries do
     |> join_to([:effort_quantity, :resource_quantity])
     |> preload([:effort_quantity, :resource_quantity])
   end
-
 
   # pagination
   def filter(q, {:offset, offset}),
@@ -257,6 +262,6 @@ defmodule ValueFlows.Planning.Commitment.Queries do
   def filter(q, {:paginate_id, %{limit: limit}}),
     do: filter(q, limit: limit + 1)
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
-
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

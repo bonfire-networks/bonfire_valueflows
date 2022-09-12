@@ -7,7 +7,6 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
 
   import Bonfire.Geolocate.Test.Faking
 
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -20,6 +19,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
 
       q = person_query()
       conn = user_conn(user)
+
       assert_agent(grumble_post_key(q, conn, :person, %{id: user.id}, "test", @debug))
     end
 
@@ -37,7 +37,11 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       rspec = fake_resource_specification!(user)
 
       from_resource =
-        fake_economic_resource!(user2, %{name: "Previous Resource", conforms_to: rspec.id}, unit)
+        fake_economic_resource!(
+          user2,
+          %{name: "Previous Resource", conforms_to: rspec.id},
+          unit
+        )
 
       resource =
         fake_economic_resource!(
@@ -69,9 +73,9 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
           unit
         )
 
-      #IO.inspect(intent: intent)
-      #IO.inspect(resource: resource)
-      #IO.inspect(event: event)
+      # IO.inspect(intent: intent)
+      # IO.inspect(resource: resource)
+      # IO.inspect(event: event)
 
       assert queried =
                Bonfire.API.GraphQL.QueryHelper.run_query_id(
@@ -88,7 +92,9 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       assert_intent(List.first(queried["intents"]))
       assert_process(List.first(queried["processes"]))
       assert_economic_event(List.first(queried["economicEvents"]))
+
       assert_economic_resource(List.first(queried["inventoriedEconomicResources"]))
+
       assert_geolocation(queried["primaryLocation"])
     end
   end

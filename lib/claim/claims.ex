@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Claim.Claims do
-  use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_ok_error: 2]
+  use Bonfire.Common.Utils,
+    only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_ok_error: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
-
 
   alias ValueFlows.Claim
   alias ValueFlows.Claim.Queries
@@ -22,12 +22,19 @@ defmodule ValueFlows.Claim.Claims do
     claim
   end
 
-  def create(%{} = creator, %{id: _} = provider, %{id: _} = receiver, %{} = attrs) do
+  def create(
+        %{} = creator,
+        %{id: _} = provider,
+        %{id: _} = receiver,
+        %{} = attrs
+      ) do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, provider_ptr} <- Pointers.one(id: provider.id, skip_boundary_check: true),
-           {:ok, receiver_ptr} <- Pointers.one(id: receiver.id, skip_boundary_check: true) do
+      with {:ok, provider_ptr} <-
+             Pointers.one(id: provider.id, skip_boundary_check: true),
+           {:ok, receiver_ptr} <-
+             Pointers.one(id: receiver.id, skip_boundary_check: true) do
         Claim.create_changeset(creator, provider_ptr, receiver_ptr, attrs)
         |> Claim.validate_required()
         |> repo().insert()
@@ -36,14 +43,14 @@ defmodule ValueFlows.Claim.Claims do
     end)
   end
 
-    def create(%{} = creator, %{} = attrs) do
+  def create(%{} = creator, %{} = attrs) do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, claim} <- Claim.create_changeset(creator, attrs)
-        |> Claim.validate_required()
-        |> repo().insert() do
-
+      with {:ok, claim} <-
+             Claim.create_changeset(creator, attrs)
+             |> Claim.validate_required()
+             |> repo().insert() do
         preload_all(claim)
       end
     end)
@@ -66,21 +73,37 @@ defmodule ValueFlows.Claim.Claims do
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(:action_id, attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id())
-    |> maybe_put(:context_id,
+    |> maybe_put(
+      :action_id,
+      attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id()
+    )
+    |> maybe_put(
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
-    |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
+    |> maybe_put(
+      :resource_conforms_to_id,
+      attr_get_id(attrs, :resource_conforms_to)
+    )
     |> maybe_put(:triggered_by_id, attr_get_id(attrs, :triggered_by))
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :claim, thing, 3, [
-    ])
+    ValueFlows.Util.Federation.ap_publish_activity(
+      activity_name,
+      :claim,
+      thing,
+      3,
+      []
+    )
   end
 
   def ap_receive_activity(creator, activity, object) do
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+    ValueFlows.Util.Federation.ap_receive_activity(
+      creator,
+      activity,
+      object,
+      &create/2
+    )
   end
-
 end

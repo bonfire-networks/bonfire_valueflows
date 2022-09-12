@@ -1,5 +1,4 @@
 defmodule ValueFlows.Proposal.ProposedTo do
-
   # use Bonfire.Common.Repo.Schema
   use Pointers.Pointable,
     otp_app: :bonfire_valueflows,

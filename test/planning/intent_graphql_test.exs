@@ -3,14 +3,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   import Bonfire.Common.Simulation
 
-
-
-
   import Bonfire.Geolocate.Simulate
   import Bonfire.Geolocate.Test.Faking
-
-
-
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -39,16 +33,17 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       parent = fake_agent!()
 
-      intent = fake_intent!(user, %{
-        provider: user.id,
-        at_location: location,
-        resource_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
-        effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
-        available_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
-        in_scope_of: [parent.id]
-      })
+      intent =
+        fake_intent!(user, %{
+          provider: user.id,
+          at_location: location,
+          resource_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
+          effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
+          available_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
+          in_scope_of: [parent.id]
+        })
 
-      #IO.inspect(intent: intent)
+      # IO.inspect(intent: intent)
 
       proposal = fake_proposal!(user)
 
@@ -68,9 +63,13 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert_proposal(hd(intent_queried["publishedIn"])["publishedIn"])
       assert_geolocation(intent_queried["atLocation"])
       assert_agent(intent_queried["provider"])
+
       Bonfire.Quantify.Test.Faking.assert_measure(intent_queried["resourceQuantity"])
+
       Bonfire.Quantify.Test.Faking.assert_measure(intent_queried["availableQuantity"])
+
       Bonfire.Quantify.Test.Faking.assert_measure(intent_queried["effortQuantity"])
+
       assert hd(intent_queried["inScopeOf"])["__typename"] == "Person"
     end
 
@@ -81,6 +80,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = intent_query()
       conn = user_conn(user)
+
       assert [%{"status" => 404}] = grumble_post_errors(q, conn, %{id: intent.id})
     end
   end
@@ -183,9 +183,14 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
         )
 
       conn = user_conn(user)
-      vars = %{intent: intent_input(%{
-        "availableQuantity" => Bonfire.Quantify.Simulate.measure_input(unit),
-      })}
+
+      vars = %{
+        intent:
+          intent_input(%{
+            "availableQuantity" => Bonfire.Quantify.Simulate.measure_input(unit)
+          })
+      }
+
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
 
@@ -299,8 +304,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       conn = user_conn(user)
 
       vars = %{
-        intent:
-          intent_input(%{"image" => "https://via.placeholder.com/150.png"})
+        intent: intent_input(%{"image" => "https://via.placeholder.com/150.png"})
       }
 
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
@@ -308,7 +312,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert intent["image"] |> String.split_at(-4) |> elem(1) == ".png"
     end
 
-    @tag :skip # FIXME
+    # FIXME
+    @tag :skip
     test "create an intent with URIs as classification" do
       user = fake_agent!()
 
@@ -370,10 +375,15 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = update_intent_mutation()
       conn = user_conn(user)
-      vars = %{intent: intent_input(%{
-        "id" => intent.id,
-        "availableQuantity" => Bonfire.Quantify.Simulate.measure_input(unit),
-      })}
+
+      vars = %{
+        intent:
+          intent_input(%{
+            "id" => intent.id,
+            "availableQuantity" => Bonfire.Quantify.Simulate.measure_input(unit)
+          })
+      }
+
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert_intent(resp)
 
@@ -440,7 +450,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert resp["image"] |> String.split_at(-4) |> elem(1) == ".png"
-   end
+    end
 
     test "updates an existing intent with an action" do
       user = fake_agent!()
@@ -450,6 +460,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       conn = user_conn(user)
 
       action = action()
+
       vars = %{
         intent:
           intent_input(%{

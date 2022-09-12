@@ -3,7 +3,6 @@ defmodule ValueFlows.Claim.ClaimsTest do
 
   # import Bonfire.Common.Simulation
 
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -81,7 +80,6 @@ defmodule ValueFlows.Claim.ClaimsTest do
   end
 
   describe "many" do
-
   end
 
   describe "create" do
@@ -107,6 +105,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
       }
 
       assert {:ok, claim} = Claims.create(user, provider, receiver, claim(attrs))
+
       assert_claim(claim)
       assert claim.context.id == hd(attrs.in_scope_of)
     end
@@ -117,12 +116,14 @@ defmodule ValueFlows.Claim.ClaimsTest do
       receiver = fake_agent!()
 
       unit = maybe_fake_unit(user)
+
       attrs = %{
         resource_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
-        effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
+        effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id})
       }
 
       assert {:ok, claim} = Claims.create(user, provider, receiver, claim(attrs))
+
       assert_claim(claim)
       assert claim.resource_quantity.id
       assert claim.effort_quantity.id
@@ -138,6 +139,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
       }
 
       assert {:ok, claim} = Claims.create(user, provider, receiver, claim(attrs))
+
       assert_claim(claim)
       assert claim.resource_conforms_to.id == attrs.resource_conforms_to
     end
@@ -152,6 +154,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
       }
 
       assert {:ok, claim} = Claims.create(user, provider, receiver, claim(attrs))
+
       assert_claim(claim)
       assert claim.triggered_by.id == attrs.triggered_by
     end
@@ -183,9 +186,10 @@ defmodule ValueFlows.Claim.ClaimsTest do
       claim = fake_claim!(user)
 
       unit = maybe_fake_unit(user)
+
       attrs = %{
         resource_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
-        effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
+        effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id})
       }
 
       assert {:ok, updated} = Claims.update(claim, attrs)

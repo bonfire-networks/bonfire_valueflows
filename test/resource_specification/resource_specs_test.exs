@@ -3,9 +3,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
 
   # import Bonfire.Common.Simulation
 
-
-
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -26,8 +23,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       user = fake_agent!()
       spec = fake_resource_specification!(user)
       assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
-      assert {:error, :not_found} =
-              ResourceSpecifications.one([:deleted, id: spec.id])
+
+      assert {:error, :not_found} = ResourceSpecifications.one([:deleted, id: spec.id])
     end
   end
 
@@ -36,6 +33,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       user = fake_agent!()
 
       assert {:ok, spec} = ResourceSpecifications.create(user, resource_specification())
+
       assert_resource_specification(spec)
     end
 
@@ -45,7 +43,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
 
       attrs = %{in_scope_of: [parent.id]}
 
-      assert {:ok, spec} = ResourceSpecifications.create(user, resource_specification(attrs))
+      assert {:ok, spec} =
+               ResourceSpecifications.create(
+                 user,
+                 resource_specification(attrs)
+               )
+
       assert_resource_specification(spec)
       assert spec.context_id == parent.id
     end
@@ -55,7 +58,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       tags = some_fake_categories(user)
 
       attrs = resource_specification(%{tags: tags})
+
       assert {:ok, resource_specification} = ResourceSpecifications.create(user, attrs)
+
       assert_resource_specification(resource_specification)
 
       resource_specification = repo().preload(resource_specification, :tags)
@@ -69,6 +74,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       spec = fake_resource_specification!(user)
 
       assert {:ok, updated} = ResourceSpecifications.update(spec, resource_specification())
+
       assert_resource_specification(updated)
       assert updated.updated_at != spec.updated_at
     end
@@ -83,7 +89,5 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
       assert spec.deleted_at
     end
-
   end
-
 end

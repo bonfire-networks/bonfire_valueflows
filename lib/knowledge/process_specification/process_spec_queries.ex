@@ -71,7 +71,10 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
 
   def filter(q, {:user, %{id: user_id}}) do
     q
-    |> where([process_spec: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
+    |> where(
+      [process_spec: c],
+      not is_nil(c.published_at) or c.creator_id == ^user_id
+    )
     |> filter(~w(disabled)a)
   end
 
@@ -197,5 +200,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

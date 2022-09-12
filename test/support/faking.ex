@@ -17,20 +17,17 @@ defmodule ValueFlows.Test.Faking do
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ResourceSpecification
 
-  alias ValueFlows.{
-    EconomicEvent,
-    EconomicResource,
-    Process
-  }
+  alias ValueFlows.EconomicEvent
+  alias ValueFlows.EconomicResource
+  alias ValueFlows.Process
 
-  alias ValueFlows.{
-    Claim,
-    Proposal,
-    ValueCalculation,
-    # Proposals
-  }
+  alias ValueFlows.Claim
+  alias ValueFlows.Proposal
+  alias ValueFlows.ValueCalculation
 
-  alias ValueFlows.Proposal.{ProposedTo, ProposedIntent}
+  # Proposals
+  alias ValueFlows.Proposal.ProposedTo
+  alias ValueFlows.Proposal.ProposedIntent
 
   # def assert_agent(%{} = a) do
   #   assert_agent(Map.from_struct(a))
@@ -44,7 +41,6 @@ defmodule ValueFlows.Test.Faking do
       canonical_url: assert_optional(&assert_binary/1)
     )
   end
-
 
   def assert_action(%Action{} = action) do
     assert_action(Map.from_struct(action))
@@ -95,6 +91,7 @@ defmodule ValueFlows.Test.Faking do
     assert_object(spec, :assert_resource_specification,
       name: &assert_binary/1,
       note: assert_optional(&assert_binary/1)
+
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
@@ -107,6 +104,7 @@ defmodule ValueFlows.Test.Faking do
     assert_object(spec, :assert_process_specification,
       name: &assert_binary/1,
       note: assert_optional(&assert_binary/1)
+
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
@@ -119,6 +117,7 @@ defmodule ValueFlows.Test.Faking do
     assert_object(spec, :assert_process,
       name: &assert_binary/1,
       note: assert_optional(&assert_binary/1)
+
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
@@ -238,6 +237,7 @@ defmodule ValueFlows.Test.Faking do
   def assert_economic_event(event) do
     assert_object(event, :assert_economic_event,
       note: assert_optional(&assert_binary/1)
+
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
@@ -251,6 +251,7 @@ defmodule ValueFlows.Test.Faking do
       note: assert_optional(&assert_binary/1),
       name: assert_optional(&assert_binary/1),
       tracking_identifier: assert_optional(&assert_binary/1)
+
       # state_id: assert_optional(&assert_binary/1),
       # state: assert_optional(&assert_action/1),
     )
@@ -286,28 +287,23 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def create_claim_mutation(options \\ []) do
-    [claim: type!(:claim_create_params)]
-    |> gen_mutation(&create_claim_submutation/1, options)
+    gen_mutation([claim: type!(:claim_create_params)], &create_claim_submutation/1, options)
   end
 
   def create_claim_submutation(options \\ []) do
-    [claim: var(:claim)]
-    |> gen_submutation(:create_claim, &claim_response_fields/1, options)
+    gen_submutation([claim: var(:claim)], :create_claim, &claim_response_fields/1, options)
   end
 
   def update_claim_mutation(options \\ []) do
-    [claim: type!(:claim_update_params)]
-    |> gen_mutation(&update_claim_submutation/1, options)
+    gen_mutation([claim: type!(:claim_update_params)], &update_claim_submutation/1, options)
   end
 
   def update_claim_submutation(options \\ []) do
-    [claim: var(:claim)]
-    |> gen_submutation(:update_claim, &claim_response_fields/1, options)
+    gen_submutation([claim: var(:claim)], :update_claim, &claim_response_fields/1, options)
   end
 
   def delete_claim_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_claim_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_claim_submutation/1, options)
   end
 
   def delete_claim_submutation(_options \\ []) do
@@ -339,7 +335,9 @@ defmodule ValueFlows.Test.Faking do
         value_calculations_limit: :int
       ] ++ Keyword.get(options, :params, [])
 
-    gen_query(&value_calculations_pages_subquery/1, [{:params, params} | options])
+    gen_query(&value_calculations_pages_subquery/1, [
+      {:params, params} | options
+    ])
   end
 
   def value_calculations_pages_subquery(options \\ []) do
@@ -356,30 +354,42 @@ defmodule ValueFlows.Test.Faking do
     )
   end
 
-
   def create_value_calculation_mutation(options \\ []) do
-    [value_calculation: type!(:value_calculation_create_params)]
-    |> gen_mutation(&create_value_calculation_submutation/1, options)
+    gen_mutation(
+      [value_calculation: type!(:value_calculation_create_params)],
+      &create_value_calculation_submutation/1,
+      options
+    )
   end
 
   def create_value_calculation_submutation(options \\ []) do
-    [value_calculation: var(:value_calculation)]
-    |> gen_submutation(:create_value_calculation, &value_calculation_response_fields/1, options)
+    gen_submutation(
+      [value_calculation: var(:value_calculation)],
+      :create_value_calculation,
+      &value_calculation_response_fields/1,
+      options
+    )
   end
 
   def update_value_calculation_mutation(options \\ []) do
-    [value_calculation: type!(:value_calculation_update_params)]
-    |> gen_mutation(&update_value_calculation_submutation/1, options)
+    gen_mutation(
+      [value_calculation: type!(:value_calculation_update_params)],
+      &update_value_calculation_submutation/1,
+      options
+    )
   end
 
   def update_value_calculation_submutation(options \\ []) do
-    [value_calculation: var(:value_calculation)]
-    |> gen_submutation(:update_value_calculation, &value_calculation_response_fields/1, options)
+    gen_submutation(
+      [value_calculation: var(:value_calculation)],
+      :update_value_calculation,
+      &value_calculation_response_fields/1,
+      options
+    )
   end
 
   def delete_value_calculation_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_value_calculation_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_value_calculation_submutation/1, options)
   end
 
   def delete_value_calculation_submutation(_options \\ []) do
@@ -489,48 +499,39 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def create_offer_mutation(options \\ []) do
-    [intent: type!(:intent_create_params)]
-    |> gen_mutation(&create_offer_submutation/1, options)
+    gen_mutation([intent: type!(:intent_create_params)], &create_offer_submutation/1, options)
   end
 
   def create_offer_submutation(options \\ []) do
-    [intent: var(:intent)]
-    |> gen_submutation(:create_offer, &intent_response_fields/1, options)
+    gen_submutation([intent: var(:intent)], :create_offer, &intent_response_fields/1, options)
   end
 
   def create_need_mutation(options \\ []) do
-    [intent: type!(:intent_create_params)]
-    |> gen_mutation(&create_need_submutation/1, options)
+    gen_mutation([intent: type!(:intent_create_params)], &create_need_submutation/1, options)
   end
 
   def create_need_submutation(options \\ []) do
-    [intent: var(:intent)]
-    |> gen_submutation(:create_need, &intent_response_fields/1, options)
+    gen_submutation([intent: var(:intent)], :create_need, &intent_response_fields/1, options)
   end
 
   def create_intent_mutation(options \\ []) do
-    [intent: type!(:intent_create_params)]
-    |> gen_mutation(&create_intent_submutation/1, options)
+    gen_mutation([intent: type!(:intent_create_params)], &create_intent_submutation/1, options)
   end
 
   def create_intent_submutation(options \\ []) do
-    [intent: var(:intent)]
-    |> gen_submutation(:create_intent, &intent_response_fields/1, options)
+    gen_submutation([intent: var(:intent)], :create_intent, &intent_response_fields/1, options)
   end
 
   def update_intent_mutation(options \\ []) do
-    [intent: type!(:intent_update_params)]
-    |> gen_mutation(&update_intent_submutation/1, options)
+    gen_mutation([intent: type!(:intent_update_params)], &update_intent_submutation/1, options)
   end
 
   def update_intent_submutation(options \\ []) do
-    [intent: var(:intent)]
-    |> gen_submutation(:update_intent, &intent_response_fields/1, options)
+    gen_submutation([intent: var(:intent)], :update_intent, &intent_response_fields/1, options)
   end
 
   def delete_intent_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_intent_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_intent_submutation/1, options)
   end
 
   def delete_intent_submutation(_options \\ []) do
@@ -575,30 +576,42 @@ defmodule ValueFlows.Test.Faking do
     gen_query(&proposals_pages_subquery/1, [{:params, params} | options])
   end
 
-
   def create_proposal_mutation(options \\ []) do
-    [proposal: type!(:proposal_create_params)]
-    |> gen_mutation(&create_proposal_submutation/1, options)
+    gen_mutation(
+      [proposal: type!(:proposal_create_params)],
+      &create_proposal_submutation/1,
+      options
+    )
   end
 
   def create_proposal_submutation(options \\ []) do
-    [proposal: var(:proposal)]
-    |> gen_submutation(:create_proposal, &proposal_response_fields/1, options)
+    gen_submutation(
+      [proposal: var(:proposal)],
+      :create_proposal,
+      &proposal_response_fields/1,
+      options
+    )
   end
 
   def update_proposal_mutation(options \\ []) do
-    [proposal: type!(:proposal_update_params)]
-    |> gen_mutation(&update_proposal_submutation/1, options)
+    gen_mutation(
+      [proposal: type!(:proposal_update_params)],
+      &update_proposal_submutation/1,
+      options
+    )
   end
 
   def update_proposal_submutation(options \\ []) do
-    [proposal: var(:proposal)]
-    |> gen_submutation(:update_proposal, &proposal_response_fields/1, options)
+    gen_submutation(
+      [proposal: var(:proposal)],
+      :update_proposal,
+      &proposal_response_fields/1,
+      options
+    )
   end
 
   def delete_proposal_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_proposal_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_proposal_submutation/1, options)
   end
 
   def delete_proposal_submutation(_options \\ []) do
@@ -614,26 +627,32 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def propose_intent_mutation(options \\ []) do
-    [
-      published_in: type!(:id),
-      publishes: type!(:id),
-      reciprocal: type(:boolean)
-    ]
-    |> gen_mutation(&propose_intent_submutation/1, options)
+    gen_mutation(
+      [
+        published_in: type!(:id),
+        publishes: type!(:id),
+        reciprocal: type(:boolean)
+      ],
+      &propose_intent_submutation/1,
+      options
+    )
   end
 
   def propose_intent_submutation(options \\ []) do
-    [
-      published_in: var(:published_in),
-      publishes: var(:publishes),
-      reciprocal: var(:reciprocal)
-    ]
-    |> gen_submutation(:propose_intent, &proposed_intent_response_fields/1, options)
+    gen_submutation(
+      [
+        published_in: var(:published_in),
+        publishes: var(:publishes),
+        reciprocal: var(:reciprocal)
+      ],
+      :propose_intent,
+      &proposed_intent_response_fields/1,
+      options
+    )
   end
 
   def delete_proposed_intent_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_proposed_intent_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_proposed_intent_submutation/1, options)
   end
 
   def delete_proposed_intent_submutation(_options \\ []) do
@@ -649,24 +668,30 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def propose_to_mutation(options \\ []) do
-    [
-      proposed: type!(:id),
-      proposed_to: type!(:id)
-    ]
-    |> gen_mutation(&propose_to_submutation/1, options)
+    gen_mutation(
+      [
+        proposed: type!(:id),
+        proposed_to: type!(:id)
+      ],
+      &propose_to_submutation/1,
+      options
+    )
   end
 
   def propose_to_submutation(options \\ []) do
-    [
-      proposed: var(:proposed),
-      proposed_to: var(:proposed_to)
-    ]
-    |> gen_submutation(:propose_to, &proposed_to_response_fields/1, options)
+    gen_submutation(
+      [
+        proposed: var(:proposed),
+        proposed_to: var(:proposed_to)
+      ],
+      :propose_to,
+      &proposed_to_response_fields/1,
+      options
+    )
   end
 
   def delete_proposed_to_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_proposed_to_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_proposed_to_submutation/1, options)
   end
 
   def delete_proposed_to_submutation(_options \\ []) do
@@ -687,17 +712,25 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def resource_specification_subquery(options \\ []) do
-    gen_subquery(:id, :resource_specification, &resource_specification_fields/1, options)
+    gen_subquery(
+      :id,
+      :resource_specification,
+      &resource_specification_fields/1,
+      options
+    )
   end
 
   def create_resource_specification_mutation(options \\ []) do
-    [resource_specification: type!(:resource_specification_create_params)]
-    |> gen_mutation(&create_resource_specification_submutation/1, options)
+    gen_mutation(
+      [resource_specification: type!(:resource_specification_create_params)],
+      &create_resource_specification_submutation/1,
+      options
+    )
   end
 
   def create_resource_specification_submutation(options \\ []) do
-    [resource_specification: var(:resource_specification)]
-    |> gen_submutation(
+    gen_submutation(
+      [resource_specification: var(:resource_specification)],
       :create_resource_specification,
       &resource_specification_response_fields/1,
       options
@@ -705,13 +738,16 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def update_resource_specification_mutation(options \\ []) do
-    [resource_specification: type!(:resource_specification_update_params)]
-    |> gen_mutation(&update_resource_specification_submutation/1, options)
+    gen_mutation(
+      [resource_specification: type!(:resource_specification_update_params)],
+      &update_resource_specification_submutation/1,
+      options
+    )
   end
 
   def update_resource_specification_submutation(options \\ []) do
-    [resource_specification: var(:resource_specification)]
-    |> gen_submutation(
+    gen_submutation(
+      [resource_specification: var(:resource_specification)],
       :update_resource_specification,
       &resource_specification_response_fields/1,
       options
@@ -719,8 +755,7 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def delete_resource_specification_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_resource_specification_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_resource_specification_submutation/1, options)
   end
 
   def delete_resource_specification_submutation(_options \\ []) do
@@ -741,17 +776,25 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def process_specification_subquery(options \\ []) do
-    gen_subquery(:id, :process_specification, &process_specification_fields/1, options)
+    gen_subquery(
+      :id,
+      :process_specification,
+      &process_specification_fields/1,
+      options
+    )
   end
 
   def create_process_specification_mutation(options \\ []) do
-    [process_specification: type!(:process_specification_create_params)]
-    |> gen_mutation(&create_process_specification_submutation/1, options)
+    gen_mutation(
+      [process_specification: type!(:process_specification_create_params)],
+      &create_process_specification_submutation/1,
+      options
+    )
   end
 
   def create_process_specification_submutation(options \\ []) do
-    [process_specification: var(:process_specification)]
-    |> gen_submutation(
+    gen_submutation(
+      [process_specification: var(:process_specification)],
       :create_process_specification,
       &process_specification_response_fields/1,
       options
@@ -759,13 +802,16 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def update_process_specification_mutation(options \\ []) do
-    [process_specification: type!(:process_specification_update_params)]
-    |> gen_mutation(&update_process_specification_submutation/1, options)
+    gen_mutation(
+      [process_specification: type!(:process_specification_update_params)],
+      &update_process_specification_submutation/1,
+      options
+    )
   end
 
   def update_process_specification_submutation(options \\ []) do
-    [process_specification: var(:process_specification)]
-    |> gen_submutation(
+    gen_submutation(
+      [process_specification: var(:process_specification)],
       :update_process_specification,
       &process_specification_response_fields/1,
       options
@@ -773,8 +819,7 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def delete_process_specification_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_process_specification_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_process_specification_submutation/1, options)
   end
 
   def delete_process_specification_submutation(_options \\ []) do
@@ -876,28 +921,33 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def create_process_mutation(options \\ []) do
-    [process: type!(:process_create_params)]
-    |> gen_mutation(&create_process_submutation/1, options)
+    gen_mutation([process: type!(:process_create_params)], &create_process_submutation/1, options)
   end
 
   def create_process_submutation(options \\ []) do
-    [process: var(:process)]
-    |> gen_submutation(:create_process, &process_response_fields/1, options)
+    gen_submutation(
+      [process: var(:process)],
+      :create_process,
+      &process_response_fields/1,
+      options
+    )
   end
 
   def update_process_mutation(options \\ []) do
-    [process: type!(:process_update_params)]
-    |> gen_mutation(&update_process_submutation/1, options)
+    gen_mutation([process: type!(:process_update_params)], &update_process_submutation/1, options)
   end
 
   def update_process_submutation(options \\ []) do
-    [process: var(:process)]
-    |> gen_submutation(:update_process, &process_response_fields/1, options)
+    gen_submutation(
+      [process: var(:process)],
+      :update_process,
+      &process_response_fields/1,
+      options
+    )
   end
 
   def delete_process_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_process_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_process_submutation/1, options)
   end
 
   def delete_process_submutation(_options \\ []) do
@@ -965,26 +1015,43 @@ defmodule ValueFlows.Test.Faking do
 
   def create_economic_event_mutation(options \\ []) do
     # event without any new resource
-    [event: type!(:economic_event_create_params)]
-    |> gen_mutation(&create_economic_event_submutation/1, options)
+    gen_mutation(
+      [event: type!(:economic_event_create_params)],
+      &create_economic_event_submutation/1,
+      options
+    )
   end
 
   def create_economic_event_submutation(options \\ []) do
-    [event: var(:event)]
-    |> gen_submutation(:create_economic_event, &economic_event_response_fields/1, options)
+    gen_submutation(
+      [event: var(:event)],
+      :create_economic_event,
+      &economic_event_response_fields/1,
+      options
+    )
   end
 
-  def create_economic_event_mutation_without_new_inventoried_resource(event_options, resource_options) do
+  def create_economic_event_mutation_without_new_inventoried_resource(
+        event_options,
+        resource_options
+      ) do
     # event with a resource
-    [
-      event: type!(:economic_event_create_params)
-    ]
-    |> gen_mutation(&create_economic_event_submutation_without_new_inventoried_resource/2, event_options, resource_options)
+    gen_mutation(
+      [
+        event: type!(:economic_event_create_params)
+      ],
+      &create_economic_event_submutation_without_new_inventoried_resource/2,
+      event_options,
+      resource_options
+    )
   end
 
-  def create_economic_event_submutation_without_new_inventoried_resource(event_options, resource_options) do
-    [event: var(:event)]
-    |> gen_submutation(
+  def create_economic_event_submutation_without_new_inventoried_resource(
+        event_options,
+        resource_options
+      ) do
+    gen_submutation(
+      [event: var(:event)],
       :create_economic_event,
       &economic_event_response_fields/2,
       event_options,
@@ -994,16 +1061,23 @@ defmodule ValueFlows.Test.Faking do
 
   def create_economic_event_mutation(event_options, resource_options) do
     # event with a resource
-    [
-      event: type!(:economic_event_create_params),
-      new_inventoried_resource: type!(:economic_resource_create_params)
-    ]
-    |> gen_mutation(&create_economic_event_submutation/2, event_options, resource_options)
+    gen_mutation(
+      [
+        event: type!(:economic_event_create_params),
+        new_inventoried_resource: type!(:economic_resource_create_params)
+      ],
+      &create_economic_event_submutation/2,
+      event_options,
+      resource_options
+    )
   end
 
   def create_economic_event_submutation(event_options, resource_options) do
-    [event: var(:event), new_inventoried_resource: var(:new_inventoried_resource)]
-    |> gen_submutation(
+    gen_submutation(
+      [
+        event: var(:event),
+        new_inventoried_resource: var(:new_inventoried_resource)
+      ],
       :create_economic_event,
       &economic_event_response_fields/2,
       event_options,
@@ -1012,18 +1086,24 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def update_economic_event_mutation(options \\ []) do
-    [economic_event: type!(:economic_event_update_params)]
-    |> gen_mutation(&update_economic_event_submutation/1, options)
+    gen_mutation(
+      [economic_event: type!(:economic_event_update_params)],
+      &update_economic_event_submutation/1,
+      options
+    )
   end
 
   def update_economic_event_submutation(options \\ []) do
-    [economic_event: var(:economic_event)]
-    |> gen_submutation(:update_economic_event, &economic_event_response_fields/1, options)
+    gen_submutation(
+      [economic_event: var(:economic_event)],
+      :update_economic_event,
+      &economic_event_response_fields/1,
+      options
+    )
   end
 
   def delete_economic_event_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_economic_event_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_economic_event_submutation/1, options)
   end
 
   def delete_economic_event_submutation(_options \\ []) do
@@ -1079,6 +1159,8 @@ defmodule ValueFlows.Test.Faking do
         economic_resources_limit: :int
       ] ++ Keyword.get(options, :params, [])
 
-    gen_query(&economic_resources_pages_subquery/1, [{:params, params} | options])
+    gen_query(&economic_resources_pages_subquery/1, [
+      {:params, params} | options
+    ])
   end
 end

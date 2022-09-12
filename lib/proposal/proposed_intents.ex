@@ -4,18 +4,17 @@ defmodule ValueFlows.Proposal.ProposedIntents do
 
   import Bonfire.Common.Config, only: [repo: 0]
   # alias Bonfire.API.GraphQL
-  alias Bonfire.API.GraphQL.{Fields, Page}
+  alias Bonfire.API.GraphQL.Fields
+  alias Bonfire.API.GraphQL.Page
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 
-  alias ValueFlows.Proposal.{
-    ProposedTo,
-    ProposedToQueries,
-    ProposedIntentQueries,
-    ProposedIntent,
-    Queries
-  }
+  alias ValueFlows.Proposal.ProposedTo
+  alias ValueFlows.Proposal.ProposedToQueries
+  alias ValueFlows.Proposal.ProposedIntentQueries
+  alias ValueFlows.Proposal.ProposedIntent
+  alias ValueFlows.Proposal.Queries
 
   alias ValueFlows.Planning.Intent
 
@@ -25,20 +24,19 @@ defmodule ValueFlows.Proposal.ProposedIntents do
   def one(filters),
     do: repo().single(ProposedIntentQueries.query(ProposedIntent, filters))
 
-
   @spec many(filters :: [any]) :: {:ok, [ProposedIntent.t()]} | {:error, term}
   def many(filters \\ []),
     do: {:ok, repo().many(ProposedIntentQueries.query(ProposedIntent, filters))}
 
-
   @spec propose_intent(Proposal.t(), Intent.t(), map) ::
           {:ok, ProposedIntent.t()} | {:error, term}
   def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
-    with {:ok, proposed_intent} <- repo().insert(ProposedIntent.changeset(proposal, intent, attrs)) do
-      {:ok, proposed_intent
-            |> Map.put(:publishes, intent)
-            |> Map.put(:published_in, proposal)
-      }
+    with {:ok, proposed_intent} <-
+           repo().insert(ProposedIntent.changeset(proposal, intent, attrs)) do
+      {:ok,
+       proposed_intent
+       |> Map.put(:publishes, intent)
+       |> Map.put(:published_in, proposal)}
     end
   end
 
@@ -51,17 +49,26 @@ defmodule ValueFlows.Proposal.ProposedIntents do
     Bonfire.Common.Repo.Delete.soft_delete(proposed_intent)
   end
 
-
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, thing, 4, [
-      :published_in
-    ])
+    ValueFlows.Util.Federation.ap_publish_activity(
+      activity_name,
+      :proposal,
+      thing,
+      4,
+      [
+        :published_in
+      ]
+    )
   end
 
   def ap_receive_activity(creator, activity, object) do
     IO.inspect(object, label: "ap_receive_activity - handle ProposedIntent")
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+
+    ValueFlows.Util.Federation.ap_receive_activity(
+      creator,
+      activity,
+      object,
+      &create/2
+    )
   end
-
-
 end

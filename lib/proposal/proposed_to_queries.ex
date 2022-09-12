@@ -76,5 +76,6 @@ defmodule ValueFlows.Proposal.ProposedToQueries do
     select(q, [proposed_to: pt], {field(pt, ^key), count(pt.id)})
   end
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

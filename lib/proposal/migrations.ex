@@ -31,7 +31,9 @@ defmodule ValueFlows.Proposal.Migrations do
       # Note: null allowed
       add(:reciprocal, :boolean, null: true)
       add(:deleted_at, :timestamptz)
+
       add(:publishes_id, strong_pointer(ValueFlows.Planning.Intent), null: false)
+
       add(:published_in_id, strong_pointer(ValueFlows.Proposal), null: false)
     end
 

@@ -123,10 +123,10 @@ defmodule ValueFlows.Claim.Queries do
       :resource_quantity,
       :effort_quantity,
       :context,
-      :triggered_by,
+      :triggered_by
     ])
   end
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
-
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

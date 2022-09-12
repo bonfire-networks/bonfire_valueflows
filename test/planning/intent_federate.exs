@@ -26,28 +26,28 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       intent = fake_intent!(user, %{}, unit)
 
       assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", intent)
-      #IO.inspect(published: activity) ########
+
+      # IO.inspect(published: activity) ########
 
       assert activity.object.pointer_id == intent.id
       assert activity.local == true
 
       assert activity.object.data["name"] =~ intent.name
       # assert object["type"] == "ValueFlows:Offer"
-
     end
 
     test "creates an intent for a basic incoming need" do
-
       {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
 
       action = "produce"
+
       to = [
         "https://testing.kawen.dance/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
       object = %{
-        "id" => "https://kawen.space/"<>Pointers.ULID.generate(),
+        "id" => "https://kawen.space/" <> Pointers.ULID.generate(),
         "name" => "title",
         "summary" => "content",
         "type" => "ValueFlows:Intent",
@@ -62,26 +62,32 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         context: nil
       }
 
-      {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
+      # |> IO.inspect
+      {:ok, activity} = ActivityPub.create(params)
 
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+
       # IO.inspect(intent: intent)
       assert object["name"] =~ intent.name
       assert object["summary"] =~ intent.note
       assert object["action"] == intent.action_id
-      assert actor.data["id"] == intent |> Bonfire.Common.Repo.maybe_preload(creator: [character: [:peered]]) |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+
+      assert actor.data["id"] ==
+               intent
+               |> Bonfire.Common.Repo.maybe_preload(creator: [character: [:peered]])
+               |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end
 
     test "creates an intent for an incoming need/offer with nested objects" do
-
       {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
 
       action = "work"
+
       to = [
         "https://testing.kawen.dance/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
@@ -121,7 +127,6 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         "type" => "ValueFlows:Intent"
       }
 
-
       params = %{
         actor: actor,
         object: object,
@@ -129,12 +134,14 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         context: nil
       }
 
-      {:ok, activity} = ActivityPub.create(params) #|> IO.inspect
+      # |> IO.inspect
+      {:ok, activity} = ActivityPub.create(params)
 
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+
       IO.inspect(intent, label: "intent created based on incoming AP")
 
       assert object["name"] =~ intent.name
@@ -142,15 +149,20 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert object["action"] == intent.action_id
 
       assert object["id"] == Bonfire.Common.URIs.canonical_url(intent)
-      assert actor.data["id"] == Bonfire.Common.URIs.canonical_url(intent.creator)
 
-      assert object["availableQuantity"]["hasNumericalValue"] == intent.available_quantity.has_numerical_value
-      assert object["availableQuantity"]["hasUnit"]["symbol"] == intent.available_quantity.unit.symbol
-      assert object["availableQuantity"]["hasUnit"]["id"] == Bonfire.Common.URIs.canonical_url(intent.available_quantity.unit)
+      assert actor.data["id"] ==
+               Bonfire.Common.URIs.canonical_url(intent.creator)
+
+      assert object["availableQuantity"]["hasNumericalValue"] ==
+               intent.available_quantity.has_numerical_value
+
+      assert object["availableQuantity"]["hasUnit"]["symbol"] ==
+               intent.available_quantity.unit.symbol
+
+      assert object["availableQuantity"]["hasUnit"]["id"] ==
+               Bonfire.Common.URIs.canonical_url(intent.available_quantity.unit)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end
-
   end
-
 end

@@ -28,7 +28,9 @@ defmodule ValueFlows.Planning.Intent.Migrations do
       add(:at_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
 
       add(:available_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+
       add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+
       add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
 
       add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
@@ -63,8 +65,18 @@ defmodule ValueFlows.Planning.Intent.Migrations do
     alter table(intent_table()) do
       add_if_not_exists(:input_of_id, weak_pointer(Process), null: true)
       add_if_not_exists(:output_of_id, weak_pointer(Process), null: true)
-      add_if_not_exists(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
-      add_if_not_exists(:resource_inventoried_as_id, weak_pointer(EconomicResource), null: true)
+
+      add_if_not_exists(
+        :resource_conforms_to_id,
+        weak_pointer(ResourceSpecification),
+        null: true
+      )
+
+      add_if_not_exists(
+        :resource_inventoried_as_id,
+        weak_pointer(EconomicResource),
+        null: true
+      )
     end
   end
 

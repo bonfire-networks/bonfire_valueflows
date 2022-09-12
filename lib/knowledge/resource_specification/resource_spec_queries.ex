@@ -42,7 +42,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   end
 
   def join_to(q, :default_unit_of_effort, jq) do
-    join(q, jq, [resource_spec: c], u in assoc(c, :default_unit_of_effort), as: :default_unit_of_effort)
+    join(q, jq, [resource_spec: c], u in assoc(c, :default_unit_of_effort),
+      as: :default_unit_of_effort
+    )
   end
 
   ### filter/2
@@ -78,7 +80,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   def filter(q, {:user, %{id: user_id}}) do
     q
-    |> where([resource_spec: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
+    |> where(
+      [resource_spec: c],
+      not is_nil(c.published_at) or c.creator_id == ^user_id
+    )
     |> filter(~w(disabled)a)
   end
 
@@ -107,22 +112,26 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   end
 
   def filter(q, {:search, text}) when is_binary(text) do
-    where(q, [resource_spec: c],
-    ilike(c.name, ^"%#{text}%")
-    or ilike(c.note, ^"%#{text}%")
+    where(
+      q,
+      [resource_spec: c],
+      ilike(c.name, ^"%#{text}%") or
+        ilike(c.note, ^"%#{text}%")
     )
   end
 
   def filter(q, {:autocomplete, text}) when is_binary(text) do
     q
-    |> select([resource_spec: c],
+    |> select(
+      [resource_spec: c],
       struct(c, [:id, :name])
     )
-    |> where([resource_spec: c],
-      ilike(c.name, ^"#{text}%")
-      or ilike(c.name, ^"% #{text}%")
-      or ilike(c.note, ^"#{text}%")
-      or ilike(c.note, ^"% #{text}%")
+    |> where(
+      [resource_spec: c],
+      ilike(c.name, ^"#{text}%") or
+        ilike(c.name, ^"% #{text}%") or
+        ilike(c.note, ^"#{text}%") or
+        ilike(c.note, ^"% #{text}%")
     )
   end
 
@@ -222,15 +231,16 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     filter(q, limit: limit + 1)
   end
 
-  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)
   end
 
-  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  defp page(q, %{before: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:gte, cursor}], limit: limit + 2)
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

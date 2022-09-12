@@ -1,8 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   require Phoenix.ConnTest
-  alias Phoenix.{ConnTest, Controller}
-  alias Plug.{Conn, Session}
+  alias Phoenix.ConnTest
+  alias Phoenix.Controller
+
+  alias Plug.Conn
+  alias Plug.Session
+
   import ExUnit.Assertions
 
   @endpoint Application.compile_env!(:bonfire, :endpoint_module)
@@ -35,7 +39,8 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
 
   def user_conn(conn \\ json_conn(), user), do: with_user(conn, user)
 
-  def token_conn(conn \\ json_conn(), token), do: with_authorization(conn, token)
+  def token_conn(conn \\ json_conn(), token),
+    do: with_authorization(conn, token)
 
   @default_opts [
     store: :cookie,
@@ -59,14 +64,13 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   end
 
   def gql_post(conn, query, code, show_output \\ false) do
-    #IO.inspect(graphql_query: query)
+    # IO.inspect(graphql_query: query)
     with %{status: status} = go <- ConnTest.post(conn, "/api/graphql", query) do
       if status != code || show_output ||
            Bonfire.Common.Config.get([:logging, :tests_output_graphql]),
          do: IO.inspect(graphql_query: query)
 
-      go
-      |> ConnTest.json_response(code)
+      ConnTest.json_response(go, code)
     else
       e ->
         IO.inspect(graphql_failed: e)
@@ -80,33 +84,42 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   def gql_post_data(conn, query, show_output \\ false) do
     case gql_post_200(conn, query, show_output) do
       %{"data" => data, "errors" => errors} ->
-        #IO.inspect(graphql_query: query)
+        # IO.inspect(graphql_query: query)
         IO.inspect(graphql_response: data)
         throw({:additional_errors, errors})
 
       %{"errors" => errors} ->
-        #IO.inspect(graphql_query: query)
+        # IO.inspect(graphql_query: query)
         throw({:unexpected_errors, errors})
 
       %{"data" => data} ->
-        if(show_output || Bonfire.Common.Config.get([:logging, :tests_output_graphql])) do
-          #IO.inspect(graphql_query: query)
+        if(
+          show_output ||
+            Bonfire.Common.Config.get([:logging, :tests_output_graphql])
+        ) do
+          # IO.inspect(graphql_query: query)
           IO.inspect(graphql_response: data)
         end
 
         data
 
       other ->
-        #IO.inspect(graphql_query: query)
+        # IO.inspect(graphql_query: query)
         throw({:horribly_wrong, other})
     end
   end
 
-  def grumble_post_data(query, conn, vars \\ %{}, name \\ "test", show_output \\ false) do
+  def grumble_post_data(
+        query,
+        conn,
+        vars \\ %{},
+        name \\ "test",
+        show_output \\ false
+      ) do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
     # IO.puts("query: " <> query)
-    #IO.inspect(vars: vars)
+    # IO.inspect(vars: vars)
     query =
       extract_files(%{
         query: query,
@@ -117,9 +130,18 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
     gql_post_data(conn, query, show_output)
   end
 
-  def grumble_post_key(query, conn, key, vars \\ %{}, name \\ "test", show_output \\ false) do
+  def grumble_post_key(
+        query,
+        conn,
+        key,
+        vars \\ %{},
+        name \\ "test",
+        show_output \\ false
+      ) do
     key = camel(key)
+
     assert %{^key => val} = grumble_post_data(query, conn, vars, name, show_output)
+
     val
   end
 
@@ -129,8 +151,8 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   def grumble_post_errors(query, conn, vars \\ %{}, name \\ "test") do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
-    #IO.inspect(query: query)
-    #IO.inspect(vars: vars)
+    # IO.inspect(query: query)
+    # IO.inspect(vars: vars)
     query =
       extract_files(%{
         query: query,
@@ -158,7 +180,9 @@ defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   @doc false
   def uncamel(atom) when is_atom(atom), do: atom
   def uncamel("__typeName"), do: :typename
-  def uncamel(bin) when is_binary(bin), do: String.to_existing_atom(Recase.to_snake(bin))
+
+  def uncamel(bin) when is_binary(bin),
+    do: String.to_existing_atom(Recase.to_snake(bin))
 
   def extract_files(%{variables: vars} = query) do
     case extract_file_vars(vars) do

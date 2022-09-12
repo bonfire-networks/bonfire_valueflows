@@ -3,9 +3,9 @@ defmodule ValueFlows.Process.Processes do
   use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
-
   # alias Bonfire.API.GraphQL
-  alias Bonfire.API.GraphQL.{Fields, Page}
+  alias Bonfire.API.GraphQL.Fields
+  alias Bonfire.API.GraphQL.Page
 
   alias ValueFlows.Util
 
@@ -33,7 +33,8 @@ defmodule ValueFlows.Process.Processes do
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().many(Queries.query(Process, filters))}
+  def many(filters \\ []),
+    do: {:ok, repo().many(Queries.query(Process, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -47,14 +48,27 @@ defmodule ValueFlows.Process.Processes do
   Used by:
   * GraphQL resolver single-parent resolution
   """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(
+        cursor_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
 
-  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
+  def page(
+        cursor_fn,
+        %{} = page_opts,
+        base_filters,
+        data_filters,
+        count_filters
+      ) do
     base_q = Queries.query(Process, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <-
+           repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -74,7 +88,14 @@ defmodule ValueFlows.Process.Processes do
         count_filters \\ []
       )
 
-  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters,
+        data_filters,
+        count_filters
+      ) do
     Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       Process,
@@ -87,7 +108,6 @@ defmodule ValueFlows.Process.Processes do
     )
   end
 
-
   def intended_inputs(%{id: id}, filters \\ []) do
     Intents.many([:default, input_of_id: id] ++ filters)
   end
@@ -96,13 +116,29 @@ defmodule ValueFlows.Process.Processes do
     Intents.many([:default, output_of_id: id] ++ filters)
   end
 
-  defdelegate trace(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Trace, as: :process
-  defdelegate track(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Track, as: :process
+  defdelegate trace(
+                event,
+                recurse_limit \\ Util.default_recurse_limit(),
+                recurse_counter \\ 0
+              ),
+              to: ValueFlows.EconomicEvent.Trace,
+              as: :process
 
+  defdelegate track(
+                event,
+                recurse_limit \\ Util.default_recurse_limit(),
+                recurse_counter \\ 0
+              ),
+              to: ValueFlows.EconomicEvent.Track,
+              as: :process
 
-  defdelegate inputs(attrs, action_id \\ nil), to: ValueFlows.EconomicEvent.EconomicEvents, as: :inputs_of
-  defdelegate outputs(attrs, action_id \\ nil), to: ValueFlows.EconomicEvent.EconomicEvents, as: :outputs_of
+  defdelegate inputs(attrs, action_id \\ nil),
+    to: ValueFlows.EconomicEvent.EconomicEvents,
+    as: :inputs_of
 
+  defdelegate outputs(attrs, action_id \\ nil),
+    to: ValueFlows.EconomicEvent.EconomicEvents,
+    as: :outputs_of
 
   def preload_all(%Process{} = process) do
     # shouldn't fail
@@ -117,9 +153,11 @@ defmodule ValueFlows.Process.Processes do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, process} <- repo().insert(Process.create_changeset(creator, attrs)),
+      with {:ok, process} <-
+             repo().insert(Process.create_changeset(creator, attrs)),
            process <- preload_all(process),
-           {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
+           {:ok, process} <-
+             ValueFlows.Util.try_tag_thing(creator, process, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process) do
         indexing_object_format(process) |> ValueFlows.Util.index_for_search()
         {:ok, process}
@@ -133,7 +171,8 @@ defmodule ValueFlows.Process.Processes do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, process} <- repo().update(Process.update_changeset(process, attrs)),
+      with {:ok, process} <-
+             repo().update(Process.update_changeset(process, attrs)),
            process <- preload_all(process),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
            {:ok, _} <- ValueFlows.Util.publish(process, :update) do
@@ -152,7 +191,6 @@ defmodule ValueFlows.Process.Processes do
   end
 
   def indexing_object_format(obj) do
-
     %{
       "index_type" => "ValueFlows.Process",
       "id" => obj.id,
@@ -162,24 +200,37 @@ defmodule ValueFlows.Process.Processes do
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => ValueFlows.Util.indexing_format_creator(obj)
+
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
     }
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :process, thing, 3, [
-      :published_in
-    ])
+    ValueFlows.Util.Federation.ap_publish_activity(
+      activity_name,
+      :process,
+      thing,
+      3,
+      [
+        :published_in
+      ]
+    )
   end
 
   def ap_receive_activity(creator, activity, object) do
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+    ValueFlows.Util.Federation.ap_receive_activity(
+      creator,
+      activity,
+      object,
+      &create/2
+    )
   end
 
   def prepare_attrs(attrs) do
     attrs
     |> maybe_put(:based_on_id, attr_get_id(attrs, :based_on))
-    |> maybe_put(:context_id,
+    |> maybe_put(
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
   end

@@ -3,7 +3,6 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
 
   # import Bonfire.Common.Simulation
 
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 

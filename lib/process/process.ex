@@ -21,6 +21,7 @@ defmodule ValueFlows.Process do
   pointable_schema do
     field(:name, :string)
     field(:note, :string)
+
     # belongs_to(:image, Bonfire.Files.Media)
 
     field(:has_beginning, :utc_datetime_usec)
@@ -34,18 +35,28 @@ defmodule ValueFlows.Process do
 
     belongs_to(:context, Pointers.Pointer)
 
-    has_many(:intended_inputs, Intent, foreign_key: :input_of_id, references: :id)
-    has_many(:intended_outputs, Intent, foreign_key: :output_of_id, references: :id)
+    has_many(:intended_inputs, Intent,
+      foreign_key: :input_of_id,
+      references: :id
+    )
+
+    has_many(:intended_outputs, Intent,
+      foreign_key: :output_of_id,
+      references: :id
+    )
 
     has_many(:trace, EconomicEvent, foreign_key: :input_of_id, references: :id)
     has_many(:inputs, EconomicEvent, foreign_key: :input_of_id, references: :id)
 
     has_many(:track, EconomicEvent, foreign_key: :output_of_id, references: :id)
-    has_many(:outputs, EconomicEvent, foreign_key: :output_of_id, references: :id)
+
+    has_many(:outputs, EconomicEvent,
+      foreign_key: :output_of_id,
+      references: :id
+    )
 
     # TODO
     # workingAgents: [Agent!]
-
     # unplannedEconomicEvents(action: ID): [EconomicEvent!]
 
     # nextProcesses: [Process!]
@@ -56,7 +67,6 @@ defmodule ValueFlows.Process do
 
     # plannedWithin: Plan
     # nestedIn: Scenario
-
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
     belongs_to(:creator, ValueFlows.Util.user_schema())
@@ -71,16 +81,13 @@ defmodule ValueFlows.Process do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note has_beginning has_end finished is_disabled context_id based_on_id)a
+  @cast @required ++
+          ~w(note has_beginning has_end finished is_disabled context_id based_on_id)a
 
-  def validate_changeset(
-        attrs \\ %{}
-      ) do
+  def validate_changeset(attrs \\ %{}) do
     %Process{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(
-      is_public: true
-    )
+    |> Changeset.change(is_public: true)
     |> Changeset.validate_required(@required)
     |> common_changeset()
   end
@@ -91,17 +98,14 @@ defmodule ValueFlows.Process do
       ) do
     attrs
     |> validate_changeset()
-    |> Changeset.change(
-      creator_id: creator.id,
-    )
+    |> Changeset.change(creator_id: creator.id)
   end
 
   def create_changeset(
         _,
         attrs
       ) do
-    attrs
-    |> validate_changeset()
+    validate_changeset(attrs)
   end
 
   def update_changeset(%Process{} = process, attrs) do

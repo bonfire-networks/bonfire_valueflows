@@ -17,21 +17,29 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
   # mocks used for fetch
   @remote_instance "https://kawen.space"
   @actor_name "karen@kawen.space"
-  @remote_actor @remote_instance<>"/users/karen"
-  @remote_actor_url @remote_instance<>"/@karen"
-  @webfinger @remote_instance<>"/.well-known/webfinger?resource=acct:"<>@actor_name
+  @remote_actor @remote_instance <> "/users/karen"
+  @remote_actor_url @remote_instance <> "/@karen"
+  @webfinger @remote_instance <>
+               "/.well-known/webfinger?resource=acct:" <> @actor_name
 
   # TODO: move this into fixtures
   setup do
     mock(fn
       %{method: :get, url: @remote_actor} ->
         json(Simulate.actor_json(@remote_actor))
+
       %{method: :get, url: @remote_actor_url} ->
         json(Simulate.actor_json(@remote_actor))
+
       %{method: :get, url: @webfinger} ->
         json(Simulate.webfingered())
-      %{method: :get, url: "http://kawen.space/.well-known/webfinger?resource=acct:karen@kawen.space"} ->
+
+      %{
+        method: :get,
+        url: "http://kawen.space/.well-known/webfinger?resource=acct:karen@kawen.space"
+      } ->
         json(Simulate.webfingered())
+
       other ->
         warn(other, "mock not configured")
         nil
@@ -61,6 +69,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       info(event, "event ready to federate")
 
       assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", event)
+
       info(ap)
 
       assert ap.object.pointer_id == event.id
@@ -104,7 +113,10 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         event:
           economic_event_input(%{
             "action" => "transfer",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id,
             "toResourceInventoriedAs" => to_resource_inventoried_as.id,
             # "provider" => user.id,
@@ -112,15 +124,30 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 @debug
+               )
+
       assert event = response["economicEvent"]
       assert_economic_event(event)
 
       assert {:ok, local_event} = EconomicEvents.one(id: event["id"])
 
-      assert Bonfire.Common.URIs.canonical_url(event["receiver"]) == @remote_actor
+      assert Bonfire.Common.URIs.canonical_url(event["receiver"]) ==
+               @remote_actor
 
-      assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
+      assert {:ok, ap} =
+               Bonfire.Federate.ActivityPub.Publisher.publish(
+                 "create",
+                 local_event
+               )
+
       info(ap)
 
       assert ap.object.pointer_id == local_event.id
@@ -131,13 +158,20 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       # assert activity.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
 
       {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+
       assert ap.object.data["receiver"]["id"] == @remote_actor
 
-      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+      assert event["resourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               resource_inventoried_as.accounting_quantity.has_numerical_value -
+                 42
 
-      assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
-               to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+      assert event["toResourceInventoriedAs"]["accountingQuantity"][
+               "hasNumericalValue"
+             ] ==
+               to_resource_inventoried_as.accounting_quantity.has_numerical_value +
+                 42
     end
 
     test "transfer an existing economic resource to a mock remote agent/actor by username" do
@@ -175,7 +209,10 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         event:
           economic_event_input(%{
             "action" => "transfer",
-            "resourceQuantity" => Bonfire.Quantify.Simulate.measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceQuantity" =>
+              Bonfire.Quantify.Simulate.measure_input(unit, %{
+                "hasNumericalValue" => 42
+              }),
             "resourceInventoriedAs" => resource_inventoried_as.id,
             "toResourceInventoriedAs" => to_resource_inventoried_as.id,
             # "provider" => user.id,
@@ -183,15 +220,29 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
           })
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+      assert response =
+               grumble_post_key(
+                 q,
+                 conn,
+                 :create_economic_event,
+                 vars,
+                 "test",
+                 @debug
+               )
+
       assert event = response["economicEvent"]
       assert_economic_event(event)
 
       assert {:ok, local_event} = EconomicEvents.one(id: event["id"])
 
-      assert Bonfire.Common.URIs.canonical_url(event["receiver"]) == @remote_actor
+      assert Bonfire.Common.URIs.canonical_url(event["receiver"]) ==
+               @remote_actor
 
-      assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
+      assert {:ok, ap} =
+               Bonfire.Federate.ActivityPub.Publisher.publish(
+                 "create",
+                 local_event
+               )
 
       assert ap.object.pointer_id == local_event.id
       assert ap.local == true
@@ -199,13 +250,12 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert ap.object.data["summary"] =~ local_event.note
 
       {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
-      assert ap.object.data["receiver"]["id"] == @remote_actor
 
+      assert ap.object.data["receiver"]["id"] == @remote_actor
     end
   end
 
   describe "incoming economic event" do
-
     test "creates an economic event from an incoming federated activity " do
       Cachex.clear(:ap_actor_cache)
       Cachex.clear(:ap_object_cache)
@@ -302,27 +352,42 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         context: nil
       }
 
-
-      {:ok, activity} = ActivityPub.create(params) #|> info("AP activity")
+      # |> info("AP activity")
+      {:ok, activity} = ActivityPub.create(params)
 
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
       assert {:ok, event} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+
       # info(event, "event created based on incoming AP")
       # event = event.economic_event
 
       assert object["summary"] =~ event.note
 
       assert object["id"] == Bonfire.Common.URIs.canonical_url(event)
-      assert actor.data["id"] == Bonfire.Common.URIs.canonical_url(event.creator)
-      assert object["receiver"]["id"] == Bonfire.Common.URIs.canonical_url(event.receiver.id)
-      assert object["resourceConformsTo"]["id"] == Bonfire.Common.URIs.canonical_url(event.resource_conforms_to.id)
-      assert object["resourceInventoriedAs"]["id"] == Bonfire.Common.URIs.canonical_url(event.resource_inventoried_as.id)
-      assert object["toResourceInventoriedAs"]["id"] == Bonfire.Common.URIs.canonical_url(event.to_resource_inventoried_as.id)
-      assert object["outputOf"]["id"] == Bonfire.Common.URIs.canonical_url(event.output_of.id)
 
-      assert object["resourceQuantity"]["hasNumericalValue"] == Utils.e(event, :resource_quantity, :has_numerical_value, nil)
+      assert actor.data["id"] ==
+               Bonfire.Common.URIs.canonical_url(event.creator)
+
+      assert object["receiver"]["id"] ==
+               Bonfire.Common.URIs.canonical_url(event.receiver.id)
+
+      assert object["resourceConformsTo"]["id"] ==
+               Bonfire.Common.URIs.canonical_url(event.resource_conforms_to.id)
+
+      assert object["resourceInventoriedAs"]["id"] ==
+               Bonfire.Common.URIs.canonical_url(event.resource_inventoried_as.id)
+
+      assert object["toResourceInventoriedAs"]["id"] ==
+               Bonfire.Common.URIs.canonical_url(event.to_resource_inventoried_as.id)
+
+      assert object["outputOf"]["id"] ==
+               Bonfire.Common.URIs.canonical_url(event.output_of.id)
+
+      assert object["resourceQuantity"]["hasNumericalValue"] ==
+               Utils.e(event, :resource_quantity, :has_numerical_value, nil)
+
       # assert object["resourceQuantity"]["hasUnit"]["symbol"] == event.resource_quantity.unit.symbol
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)

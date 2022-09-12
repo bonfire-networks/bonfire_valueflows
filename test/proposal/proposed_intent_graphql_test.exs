@@ -3,7 +3,6 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQLTest do
 
   # import Bonfire.Common.Simulation
 
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -23,7 +22,11 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQLTest do
           "publishedIn" => proposal.id
         })
 
-      assert proposed_intent = grumble_post_key(q, conn, :propose_intent, vars)["proposedIntent"]
+      assert proposed_intent =
+               grumble_post_key(q, conn, :propose_intent, vars)[
+                 "proposedIntent"
+               ]
+
       assert_proposed_intent(proposed_intent)
       assert proposed_intent["publishedIn"]["id"] == proposal.id
       assert proposed_intent["publishes"]["id"] == intent.id

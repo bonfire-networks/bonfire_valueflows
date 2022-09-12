@@ -23,7 +23,6 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
     {data_q, count_q}
   end
 
-
   def join_to(q, spec, join_qualifier \\ :left)
 
   def join_to(q, specs, jq) when is_list(specs),
@@ -60,19 +59,19 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
   def filter(q, {:status, :closed}),
     do: where(q, [satisfaction: s], s.finished == true)
 
-
   # search
   def filter(q, {:search, text}),
     do: where(q, [satisfaction: s], ilike(s.note, ^"%#{text}%"))
 
-
   # user
   def filter(q, {:user, %{id: user_id}}) do
     q
-    |> where([satisfaction: s], not is_nil(s.published_at) or s.creator_id == ^user_id)
+    |> where(
+      [satisfaction: s],
+      not is_nil(s.published_at) or s.creator_id == ^user_id
+    )
     |> filter([:disabled])
   end
-
 
   # field
   def filter(q, {:id, id}) when is_binary(id),
@@ -87,10 +86,9 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
   def filter(q, {:satisfied_by_id, id}),
     do: where(q, [satisfaction: s], s.satisfied_by_id == ^id)
 
-
   # order
   def filter(q, {:order, :default}),
-    do: order_by(q, [satisfaction: s], [desc: s.updated_at, asc: s.id])
+    do: order_by(q, [satisfaction: s], desc: s.updated_at, asc: s.id)
 
   def filter(q, {:order, [desc: key]}),
     do: order_by(q, [satisfaction: s], desc: field(s, ^key))
@@ -100,7 +98,6 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
 
   def filter(q, {:order, key}),
     do: filter(q, order: [desc: key])
-
 
   # group and count
   def filter(q, {:group_count, key}),
@@ -123,7 +120,6 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
     |> join_to([:effort_quantity, :resource_quantity])
     |> preload([:effort_quantity, :resource_quantity])
   end
-
 
   # pagination
   def filter(q, {:offset, offset}),
@@ -149,5 +145,6 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
   def filter(q, {:paginate_id, %{limit: limit}}),
     do: filter(q, limit: limit + 1)
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

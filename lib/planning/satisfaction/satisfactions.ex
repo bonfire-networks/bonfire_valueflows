@@ -2,9 +2,10 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
   import Bonfire.Common.Config, only: [repo: 0]
 
   alias Ecto.Changeset
-  alias ValueFlows.Planning.{Satisfaction, Satisfaction.Queries}
+  alias ValueFlows.Planning.Satisfaction
+  alias ValueFlows.Planning.Satisfaction.Queries
 
-  @typep attrs :: Satisfaction.attrs
+  @typep attrs :: Satisfaction.attrs()
 
   def one(filters),
     do: repo().single(Queries.query(filters))
@@ -26,7 +27,8 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
     attrs = prep_attrs(attrs, creator)
 
     repo().transact_with(fn ->
-      with {:ok, satis} <- Satisfaction.create_changeset(creator, attrs) |> repo().insert(),
+      with {:ok, satis} <-
+             Satisfaction.create_changeset(creator, attrs) |> repo().insert(),
            satis = preload_all(%{satis | creator: creator}) do
         {:ok, satis}
       end
@@ -57,7 +59,8 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
     attrs = prep_attrs(attrs, Map.get(satis, :creator))
 
     repo().transact_with(fn ->
-      with {:ok, satis} <- repo().update(Satisfaction.update_changeset(satis, attrs)) do
+      with {:ok, satis} <-
+             repo().update(Satisfaction.update_changeset(satis, attrs)) do
         satis = preload_all(satis)
         {:ok, satis}
       end

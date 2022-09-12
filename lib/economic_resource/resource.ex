@@ -62,8 +62,9 @@ defmodule ValueFlows.EconomicResource do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note tracking_identifier current_location_id is_disabled image_id)a ++
-    ~w(primary_accountable_id state_id contained_in_id unit_of_effort_id conforms_to_id current_location_id)a
+  @cast @required ++
+          ~w(note tracking_identifier current_location_id is_disabled image_id)a ++
+          ~w(primary_accountable_id state_id contained_in_id unit_of_effort_id conforms_to_id current_location_id)a
 
   def create_changeset(
         creator,
@@ -78,7 +79,6 @@ defmodule ValueFlows.EconomicResource do
     |> Changeset.validate_required(@required)
     |> common_changeset(attrs)
   end
-
 
   def update_changeset(%EconomicResource{} = resource, attrs) do
     resource

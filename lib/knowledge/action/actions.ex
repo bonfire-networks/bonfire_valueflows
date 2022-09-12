@@ -161,10 +161,9 @@ defmodule ValueFlows.Knowledge.Action.Actions do
     end
   end
 
-
   def action(%{id: label}), do: action(label)
   def action(%{label: label}), do: action(label)
-  def action("https://w3id.org/valueflows#"<>label), do: action(label)
+  def action("https://w3id.org/valueflows#" <> label), do: action(label)
 
   def action(label) when is_atom(label) do
     action(Atom.to_string(label))

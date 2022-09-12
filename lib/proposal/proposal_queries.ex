@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.Queries do
   alias ValueFlows.Proposal
+
   # alias ValueFlows.Proposal.Proposals
 
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
@@ -42,7 +43,6 @@ defmodule ValueFlows.Proposal.Queries do
   end
 
   ### filter/2
-
   ## by many
 
   def filter(q, filters) when is_list(filters) do
@@ -53,6 +53,7 @@ defmodule ValueFlows.Proposal.Queries do
 
   def filter(q, :default) do
     filter(q, [:deleted])
+
     # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
   end
 
@@ -71,7 +72,10 @@ defmodule ValueFlows.Proposal.Queries do
 
   def filter(q, {:user, %{id: user_id}}) do
     q
-    |> where([proposal: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
+    |> where(
+      [proposal: c],
+      not is_nil(c.published_at) or c.creator_id == ^user_id
+    )
     |> filter(~w(disabled)a)
   end
 
@@ -117,20 +121,21 @@ defmodule ValueFlows.Proposal.Queries do
 
   def filter(q, {:eligible_location_id, eligible_location_id})
       when is_binary(eligible_location_id) do
-    q
-    |> where([proposal: c], c.eligible_location_id == ^eligible_location_id)
+    where(q, [proposal: c], c.eligible_location_id == ^eligible_location_id)
   end
 
   def filter(q, {:eligible_location_id, eligible_location_id})
       when is_list(eligible_location_id) do
-    q
-    |> where([proposal: c], c.eligible_location_id in ^eligible_location_id)
+    where(q, [proposal: c], c.eligible_location_id in ^eligible_location_id)
   end
 
   def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
     q
     |> join_to(:geolocation)
-    |> where([proposal: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+    |> where(
+      [proposal: c, geolocation: g],
+      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
+    )
   end
 
   ## by ordering
@@ -160,5 +165,6 @@ defmodule ValueFlows.Proposal.Queries do
     select(q, [proposal: c], {field(c, ^key), count(c.id)})
   end
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

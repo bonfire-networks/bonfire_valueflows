@@ -7,7 +7,6 @@ defmodule ValueFlows.ValueCalculation do
 
   alias Ecto.Changeset
 
-
   @type t :: %__MODULE__{}
 
   pointable_schema do
@@ -21,8 +20,16 @@ defmodule ValueFlows.ValueCalculation do
     belongs_to(:value_unit, Bonfire.Quantify.Unit)
     belongs_to(:action, ValueFlows.Actions.Action, type: :string)
     belongs_to(:value_action, ValueFlows.Actions.Action, type: :string)
-    belongs_to(:resource_conforms_to, ValueFlows.Knowledge.ResourceSpecification)
-    belongs_to(:value_resource_conforms_to, ValueFlows.Knowledge.ResourceSpecification)
+
+    belongs_to(
+      :resource_conforms_to,
+      ValueFlows.Knowledge.ResourceSpecification
+    )
+
+    belongs_to(
+      :value_resource_conforms_to,
+      ValueFlows.Knowledge.ResourceSpecification
+    )
 
     field(:deleted_at, :utc_datetime_usec)
 
@@ -30,7 +37,8 @@ defmodule ValueFlows.ValueCalculation do
   end
 
   @required ~w(formula action_id value_action_id value_unit_id)a
-  @cast @required ++ ~w(name note context_id resource_conforms_to_id value_resource_conforms_to_id)a
+  @cast @required ++
+          ~w(name note context_id resource_conforms_to_id value_resource_conforms_to_id)a
 
   def create_changeset(%{} = creator, %{} = attrs) do
     %__MODULE__{}

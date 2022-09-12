@@ -197,7 +197,6 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
                event.resource_quantity.has_numerical_value ==
                new_event.resource_inventoried_as.onhand_quantity.has_numerical_value
     end
-
   end
 
   describe "DecrementIncrement with transfer/move" do
@@ -216,7 +215,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
 
       assert {:ok, new_event} = EventSideEffects.event_side_effects(event)
       assert event.resource_inventoried_as == new_event.resource_inventoried_as
-      assert event.to_resource_inventoried_as == new_event.to_resource_inventoried_as
+
+      assert event.to_resource_inventoried_as ==
+               new_event.to_resource_inventoried_as
     end
 
     test "if to_resource_inventoried_as is not set, resource inventoried as decrement as expected" do
@@ -324,7 +325,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
 
       assert {:ok, new_event} = EventSideEffects.event_side_effects(event)
       assert event.resource_inventoried_as == new_event.resource_inventoried_as
-      assert event.to_resource_inventoried_as == new_event.to_resource_inventoried_as
+
+      assert event.to_resource_inventoried_as ==
+               new_event.to_resource_inventoried_as
     end
 
     test "if to_resource_inventoried_as is not set, resource inventoried as decrement as expected" do
@@ -443,7 +446,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
       unit = maybe_fake_unit(alice)
 
       resource_inventoried_as = fake_economic_resource!(alice, %{}, unit)
-      #IO.inspect(resource_inventoried_as: resource_inventoried_as)
+      # IO.inspect(resource_inventoried_as: resource_inventoried_as)
       to_resource_inventoried_as = fake_economic_resource!(bob, %{}, unit)
 
       assert {:error, _e} =
@@ -520,7 +523,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsResourcesTest do
 
       assert {:ok, new_event} = EventSideEffects.event_side_effects(event)
       assert event.resource_inventoried_as == new_event.resource_inventoried_as
-      assert event.to_resource_inventoried_as == new_event.to_resource_inventoried_as
+
+      assert event.to_resource_inventoried_as ==
+               new_event.to_resource_inventoried_as
     end
 
     test "if to_resource_inventoried_as is not set, resource inventoried as decrement as expected" do

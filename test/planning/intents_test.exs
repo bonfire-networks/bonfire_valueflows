@@ -129,8 +129,8 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       user = fake_agent!()
       intent = fake_intent!(user)
 
-      assert {:ok, %{action: action}} =
-               Intents.update(intent, intent(%{action: "sleeping"}))
+      assert {:ok, %{action: action}} = Intents.update(intent, intent(%{action: "sleeping"}))
+
       assert action == intent.action
     end
   end

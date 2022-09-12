@@ -7,9 +7,9 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
 
   def default_env do
     %{
-      "+" => fn [x | xs] -> Enum.reduce(xs, x, &(Decimal.add(&1, &2))) end,
-      "-" => fn [x | xs] -> Enum.reduce(xs, x, &(Decimal.sub(&2, &1))) end,
-      "*" => fn [x | xs] -> Enum.reduce(xs, x, &(Decimal.mult(&1, &2))) end,
+      "+" => fn [x | xs] -> Enum.reduce(xs, x, &Decimal.add(&1, &2)) end,
+      "-" => fn [x | xs] -> Enum.reduce(xs, x, &Decimal.sub(&2, &1)) end,
+      "*" => fn [x | xs] -> Enum.reduce(xs, x, &Decimal.mult(&1, &2)) end,
       # TODO: division is disabled until an if condition is added that works on numbers only (false on 0 only)
       # TODO: so you can do (if var-a (/ 1 var-a) 1), avoiding division by 0 if var-a = 0
       # "/" => fn [a, b] -> a / b end,
@@ -17,7 +17,7 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
       "min" => fn [a, b] -> Decimal.min(a, b) end,
       "round" => fn [x] -> Decimal.round(x) end,
       "abs" => fn [x] -> Decimal.abs(x) end,
-      "negate" => fn [x] -> Decimal.negate(x) end,
+      "negate" => fn [x] -> Decimal.negate(x) end
     }
   end
 
@@ -34,22 +34,25 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   Run property tests against the given
   """
   @spec validate(ast(), env(), [var_ref()]) :: :ok | {:error, term()}
-  def validate(ast, %{} = env, var_names, options \\ []) when is_list(var_names) do
-    value_gen = [StreamData.float(), StreamData.integer()]
-    |> StreamData.one_of()
-    |> StreamData.map(&float_to_decimal/1)
+  def validate(ast, %{} = env, var_names, options \\ [])
+      when is_list(var_names) do
+    value_gen =
+      [StreamData.float(), StreamData.integer()]
+      |> StreamData.one_of()
+      |> StreamData.map(&float_to_decimal/1)
+
     env_gen = StreamData.fixed_map(for v <- var_names, do: {v, value_gen})
 
     options = Keyword.merge([initial_seed: :os.timestamp()], options)
-    StreamData.check_all(env_gen, options,
-      fn new_env ->
-        try do
-          eval(ast, Map.merge(env, new_env))
-        rescue e ->
+
+    StreamData.check_all(env_gen, options, fn new_env ->
+      try do
+        eval(ast, Map.merge(env, new_env))
+      rescue
+        e ->
           {:error, %{reason: e, env: new_env}}
-        end
       end
-    )
+    end)
   end
 
   def decimal_to_float(x), do: Decimal.to_float(x)
@@ -82,16 +85,16 @@ defmodule ValueFlows.ValueCalculation.Formula2 do
   end
 
   defp eval_parameters(args, env) do
-     Enum.reduce_while(args, [], fn arg, acc ->
+    Enum.reduce_while(args, [], fn arg, acc ->
       case eval(arg, env) do
         {:ok, val} -> {:cont, [val | acc]}
         {:error, reason} -> {:halt, {:error, reason}}
       end
-     end)
-     |> case do
+    end)
+    |> case do
       {:error, _} = e -> e
       val -> {:ok, Enum.reverse(val)}
-     end
+    end
   end
 
   defp lookup_variable_value(var_name, env) do

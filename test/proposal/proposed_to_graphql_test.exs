@@ -3,7 +3,6 @@ defmodule ValueFlows.Proposal.ProposedToGraphQLTest do
 
   # import Bonfire.Common.Simulation
 
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -23,6 +22,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQLTest do
       }
 
       assert proposed_to = grumble_post_key(q, conn, :propose_to, vars)["proposedTo"]
+
       assert_proposed_to(proposed_to)
       assert proposed_to["proposed"]["id"] == proposal.id
       assert proposed_to["proposedTo"]["id"] == agent.id
@@ -37,7 +37,9 @@ defmodule ValueFlows.Proposal.ProposedToGraphQLTest do
       q = delete_proposed_to_mutation()
       conn = user_conn(user)
 
-      assert grumble_post_key(q, conn, :delete_proposed_to, %{id: proposed_to.id})
+      assert grumble_post_key(q, conn, :delete_proposed_to, %{
+               id: proposed_to.id
+             })
     end
   end
 end

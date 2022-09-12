@@ -6,55 +6,58 @@ defmodule ValueFlows.Planning.Satisfaction do
 
   alias Ecto.Changeset
   alias ValueFlows.EconomicEvent
-  alias ValueFlows.Planning.{Intent, Commitment}
+  alias ValueFlows.Planning.Intent
+  alias ValueFlows.Planning.Commitment
+
   alias Bonfire.Quantify.Measure
   alias Pointers.Pointer
 
   @type t :: %__MODULE__{
-    id: String.t(),
-    satisfies: Intent.t(),
-    satisfies_id: String.t(),
-    satisfied_by: EconomicEvent.t() | Commitment.t(),
-    satisfied_by_id: String.t(),
-    resource_quantity: Measure.t(),
-    resource_quantity_id: String.t(),
-    effort_quantity: Measure.t(),
-    effort_quantity: String.t(),
-    note: String.t(),
-    creator: struct(),
-    creator_id: String.t(),
-    is_public: boolean(),
-    is_disabled: boolean(),
-    published_at: DateTime.t(),
-    deleted_at: DateTime.t(),
-    disabled_at: DateTime.t(),
-    updated_at: DateTime.t()
-  }
+          id: String.t(),
+          satisfies: Intent.t(),
+          satisfies_id: String.t(),
+          satisfied_by: EconomicEvent.t() | Commitment.t(),
+          satisfied_by_id: String.t(),
+          resource_quantity: Measure.t(),
+          resource_quantity_id: String.t(),
+          effort_quantity: Measure.t(),
+          effort_quantity: String.t(),
+          note: String.t(),
+          creator: struct(),
+          creator_id: String.t(),
+          is_public: boolean(),
+          is_disabled: boolean(),
+          published_at: DateTime.t(),
+          deleted_at: DateTime.t(),
+          disabled_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
 
   pointable_schema do
-    belongs_to :satisfies, Intent
-    belongs_to :satisfied_by, Pointer # Commitment or EconomicEvent
-    belongs_to :resource_quantity, Measure, on_replace: :nilify
-    belongs_to :effort_quantity, Measure, on_replace: :nilify
+    belongs_to(:satisfies, Intent)
+    # Commitment or EconomicEvent
+    belongs_to(:satisfied_by, Pointer)
+    belongs_to(:resource_quantity, Measure, on_replace: :nilify)
+    belongs_to(:effort_quantity, Measure, on_replace: :nilify)
 
-    field :note, :string
+    field(:note, :string)
 
-    belongs_to :creator, ValueFlows.Util.user_schema()
+    belongs_to(:creator, ValueFlows.Util.user_schema())
 
-    field :is_public, :boolean, virtual: true
-    field :is_disabled, :boolean, virtual: true, default: false
-    field :published_at, :utc_datetime_usec
-    field :deleted_at, :utc_datetime_usec
-    field :disabled_at, :utc_datetime_usec
+    field(:is_public, :boolean, virtual: true)
+    field(:is_disabled, :boolean, virtual: true, default: false)
+    field(:published_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
+    field(:disabled_at, :utc_datetime_usec)
 
-    timestamps inserted_at: false
+    timestamps(inserted_at: false)
   end
 
   @type attrs :: %{required(binary()) => term()} | %{required(atom()) => term()}
 
   @reqr ~w[satisfies_id satisfied_by_id]a
   @cast @reqr ++
-    ~w[
+          ~w[
       resource_quantity_id effort_quantity_id note
       disabled_at
     ]a
@@ -77,7 +80,8 @@ defmodule ValueFlows.Planning.Satisfaction do
 
   @spec common_changeset(Chageset.t(), attrs()) :: Changeset.t()
   defp common_changeset(cset, attrs) do
-    import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
+    import Bonfire.Common.Repo.Utils,
+      only: [change_public: 1, change_disabled: 1]
 
     cset
     |> ValueFlows.Util.change_measures(attrs, measure_fields())

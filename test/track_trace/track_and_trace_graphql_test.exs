@@ -24,17 +24,27 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
 
       process = fake_process!(user)
 
-      output_event = fake_economic_event!(user, %{
-        output_of: process.id,
-        resource_inventoried_as: resource.id,
-        action: "produce"
-      }, unit)
+      output_event =
+        fake_economic_event!(
+          user,
+          %{
+            output_of: process.id,
+            resource_inventoried_as: resource.id,
+            action: "produce"
+          },
+          unit
+        )
 
-      input_event = fake_economic_event!(user, %{
-        input_of: process.id,
-        resource_inventoried_as: other_resource.id,
-        action: "use"
-      }, unit)
+      input_event =
+        fake_economic_event!(
+          user,
+          %{
+            input_of: process.id,
+            resource_inventoried_as: other_resource.id,
+            action: "use"
+          },
+          unit
+        )
 
       query = """
         query ($id: ID) {
@@ -83,9 +93,19 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
       assert {:ok, %{data: result}} = q
       assert result["economicResource"]["id"] == resource.id
       assert hd(result["economicResource"]["trace"])["id"] == output_event.id
-      assert hd(hd(result["economicResource"]["trace"])["trace"])["id"] == process.id
-      assert hd(hd(hd(result["economicResource"]["trace"])["trace"])["trace"])["id"] == input_event.id
-      assert hd(hd(hd(hd(result["economicResource"]["trace"])["trace"])["trace"])["trace"])["__typename"] == "EconomicResource"
+
+      assert hd(hd(result["economicResource"]["trace"])["trace"])["id"] ==
+               process.id
+
+      assert hd(hd(hd(result["economicResource"]["trace"])["trace"])["trace"])[
+               "id"
+             ] == input_event.id
+
+      assert hd(
+               hd(hd(hd(result["economicResource"]["trace"])["trace"])["trace"])[
+                 "trace"
+               ]
+             )["__typename"] == "EconomicResource"
     end
   end
 
@@ -99,17 +119,27 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
 
       process = fake_process!(user)
 
-      output_event = fake_economic_event!(user, %{
-        output_of: process.id,
-        resource_inventoried_as: resource.id,
-        action: "produce"
-      }, unit)
+      output_event =
+        fake_economic_event!(
+          user,
+          %{
+            output_of: process.id,
+            resource_inventoried_as: resource.id,
+            action: "produce"
+          },
+          unit
+        )
 
-      input_event = fake_economic_event!(user, %{
-        input_of: process.id,
-        resource_inventoried_as: other_resource.id,
-        action: "use"
-      }, unit)
+      input_event =
+        fake_economic_event!(
+          user,
+          %{
+            input_of: process.id,
+            resource_inventoried_as: other_resource.id,
+            action: "use"
+          },
+          unit
+        )
 
       query = """
         query ($id: ID) {
@@ -162,10 +192,19 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
 
       assert result["economicResource"]["id"] == other_resource.id
       assert hd(result["economicResource"]["track"])["id"] == input_event.id
-      assert hd(hd(result["economicResource"]["track"])["track"])["id"] == process.id
-      assert hd(hd(hd(result["economicResource"]["track"])["track"])["track"])["id"] == output_event.id
-      assert hd(hd(hd(hd(result["economicResource"]["track"])["track"])["track"])["track"])["__typename"] == "EconomicResource"
+
+      assert hd(hd(result["economicResource"]["track"])["track"])["id"] ==
+               process.id
+
+      assert hd(hd(hd(result["economicResource"]["track"])["track"])["track"])[
+               "id"
+             ] == output_event.id
+
+      assert hd(
+               hd(hd(hd(result["economicResource"]["track"])["track"])["track"])[
+                 "track"
+               ]
+             )["__typename"] == "EconomicResource"
     end
   end
-
 end

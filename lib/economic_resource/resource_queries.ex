@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.EconomicResource.Queries do
-  alias ValueFlows.{EconomicResource, EconomicEvent}
+  alias ValueFlows.EconomicResource
+  alias ValueFlows.EconomicEvent
+
   # alias ValueFlows.EconomicResources
 
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
@@ -38,16 +40,14 @@ defmodule ValueFlows.EconomicResource.Queries do
   end
 
   def join_to(q, {:event_output, output_of_id}, _jq) do
-    join(q, :inner, [resource: r],
-      e in EconomicEvent,
+    join(q, :inner, [resource: r], e in EconomicEvent,
       as: :event,
       on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id
     )
   end
 
   def join_to(q, {:event_input, input_of_id}, _jq) do
-    join(q, :inner, [resource: r],
-      e in EconomicEvent,
+    join(q, :inner, [resource: r], e in EconomicEvent,
       as: :event,
       on: e.resource_inventoried_as_id == r.id and e.input_of_id == ^input_of_id
     )
@@ -82,9 +82,7 @@ defmodule ValueFlows.EconomicResource.Queries do
   #     f in FollowerCount, on: c.id == f.context_id,
   #     as: :follower_count
   # end
-
   ### filter/2
-
   ## by many
 
   def filter(q, filters) when is_list(filters) do
@@ -94,21 +92,23 @@ defmodule ValueFlows.EconomicResource.Queries do
   ## by preset
 
   def filter(q, :default) do
-    #filter(q, [:deleted])
-    filter q, [
-      :deleted,
+    # filter(q, [:deleted])
+    filter(q, [
+      :deleted
+
       # FIXME: use hydration
       # preload: :primary_accountable,
       # preload: :unit_of_effort,
-    ]
+    ])
   end
 
   def filter(q, :preload_primary_accountable) do
-    filter q, [
+    filter(q, [
       :deleted,
-      preload: :primary_accountable,
+      preload: :primary_accountable
+
       # preload: :unit_of_effort,
-    ]
+    ])
   end
 
   def filter(q, :offer) do
@@ -121,10 +121,9 @@ defmodule ValueFlows.EconomicResource.Queries do
 
   ## by join
 
+  ## by user
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
   def filter(q, {:join, join}), do: join_to(q, join)
-
-  ## by user
 
   def filter(q, {:user, match_admin()}), do: q
 
@@ -134,7 +133,10 @@ defmodule ValueFlows.EconomicResource.Queries do
 
   def filter(q, {:user, %{id: user_id}}) do
     q
-    |> where([resource: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
+    |> where(
+      [resource: c],
+      not is_nil(c.published_at) or c.creator_id == ^user_id
+    )
     |> filter(~w(disabled)a)
   end
 
@@ -192,7 +194,6 @@ defmodule ValueFlows.EconomicResource.Queries do
     filter(q, {:primary_accountable_id, id})
   end
 
-
   def filter(q, {:primary_accountable_id, id}) when is_binary(id) do
     where(q, [resource: c], c.primary_accountable_id == ^id)
   end
@@ -225,15 +226,16 @@ defmodule ValueFlows.EconomicResource.Queries do
     where(q, [resource: c], c.tracking_identifier in ^ids)
   end
 
-
-  def filter(q, {:current_location_id, current_location_ids}) when is_list(current_location_ids) do
+  def filter(q, {:current_location_id, current_location_ids})
+      when is_list(current_location_ids) do
     q
     |> join_to(:geolocation)
     |> preload(:current_location)
     |> where([resource: c], c.current_location_id in ^current_location_ids)
   end
 
-  def filter(q, {:current_location_id, current_location_id}) when is_binary(current_location_id) do
+  def filter(q, {:current_location_id, current_location_id})
+      when is_binary(current_location_id) do
     q
     |> join_to(:geolocation)
     |> preload(:current_location)
@@ -244,7 +246,10 @@ defmodule ValueFlows.EconomicResource.Queries do
     q
     |> join_to(:geolocation)
     |> preload(:current_location)
-    |> where([resource: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+    |> where(
+      [resource: c, geolocation: g],
+      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
+    )
   end
 
   def filter(q, {:location_within, geom_point}) do
@@ -274,22 +279,26 @@ defmodule ValueFlows.EconomicResource.Queries do
   end
 
   def filter(q, {:search, text}) when is_binary(text) do
-    where(q, [resource: c],
-    ilike(c.name, ^"%#{text}%")
-    or ilike(c.note, ^"%#{text}%")
+    where(
+      q,
+      [resource: c],
+      ilike(c.name, ^"%#{text}%") or
+        ilike(c.note, ^"%#{text}%")
     )
   end
 
   def filter(q, {:autocomplete, text}) when is_binary(text) do
     q
-    |> select([resource: c],
+    |> select(
+      [resource: c],
       struct(c, [:id, :name])
     )
-    |> where([resource: c],
-      ilike(c.name, ^"#{text}%")
-      or ilike(c.name, ^"% #{text}%")
-      or ilike(c.note, ^"#{text}%")
-      or ilike(c.note, ^"% #{text}%")
+    |> where(
+      [resource: c],
+      ilike(c.name, ^"#{text}%") or
+        ilike(c.name, ^"% #{text}%") or
+        ilike(c.note, ^"#{text}%") or
+        ilike(c.note, ^"% #{text}%")
     )
   end
 
@@ -334,7 +343,7 @@ defmodule ValueFlows.EconomicResource.Queries do
   end
 
   def filter(q, {:preload, :primary_accountable}) do
-    preload(q, [primary_accountable: [:profile, :character]])
+    preload(q, primary_accountable: [:profile, :character])
   end
 
   def filter(q, {:preload, :receiver}) do
@@ -402,8 +411,8 @@ defmodule ValueFlows.EconomicResource.Queries do
   # defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
   #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   # end
-
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

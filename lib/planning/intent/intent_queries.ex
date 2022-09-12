@@ -10,9 +10,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
   import Untangle
 
   def query(Intent) do
-    from(c in Intent, as: :intent,
-      select_merge: %{is_offer: not is_nil(c.provider_id) and is_nil(c.receiver_id)},
-      select_merge: %{is_need: not is_nil(c.receiver_id) and is_nil(c.provider_id)},
+    from(c in Intent,
+      as: :intent,
+      select_merge: %{
+        is_offer: not is_nil(c.provider_id) and is_nil(c.receiver_id)
+      },
+      select_merge: %{
+        is_need: not is_nil(c.receiver_id) and is_nil(c.provider_id)
+      }
     )
   end
 
@@ -86,9 +91,11 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## search
 
   def filter(q, {:search, text}) when is_binary(text) do
-    where(q, [intent: c],
-      ilike(c.name, ^"%#{text}%")
-      or ilike(c.note, ^"%#{text}%")
+    where(
+      q,
+      [intent: c],
+      ilike(c.name, ^"%#{text}%") or
+        ilike(c.note, ^"%#{text}%")
     )
   end
 
@@ -107,7 +114,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:user, %{id: user_id}}) do
     q
-    |> where([intent: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
+    |> where(
+      [intent: c],
+      not is_nil(c.published_at) or c.creator_id == ^user_id
+    )
     |> filter(~w(disabled)a)
   end
 
@@ -170,11 +180,19 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [intent: c], c.provider_id == ^id or c.receiver_id == ^id or c.creator_id == ^id)
+    where(
+      q,
+      [intent: c],
+      c.provider_id == ^id or c.receiver_id == ^id or c.creator_id == ^id
+    )
   end
 
   def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [intent: c], c.provider_id in ^ids or c.receiver_id in ^ids or c.creator_id in ^ids)
+    where(
+      q,
+      [intent: c],
+      c.provider_id in ^ids or c.receiver_id in ^ids or c.creator_id in ^ids
+    )
   end
 
   def filter(q, {:provider_id, id}) when is_binary(id) do
@@ -212,7 +230,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
     q
     |> join_to(:geolocation)
     |> preload(:at_location)
-    |> where([intent: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+    |> where(
+      [intent: c, geolocation: g],
+      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
+    )
   end
 
   def filter(q, {:location_within, geom_point}) do
@@ -250,16 +271,22 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:start_date, start_date}) do
-    where(q, [intent: c], c.has_point_in_time >= ^start_date or c.has_beginning >= ^start_date)
+    where(
+      q,
+      [intent: c],
+      c.has_point_in_time >= ^start_date or c.has_beginning >= ^start_date
+    )
   end
 
   def filter(q, {:end_date, end_date}) do
-    where(q, [intent: c], c.has_point_in_time < ^end_date or c.has_end < ^end_date)
+    where(
+      q,
+      [intent: c],
+      c.has_point_in_time < ^end_date or c.has_end < ^end_date
+    )
   end
 
   ## by ordering
-
-
 
   def filter(q, {:order, [desc: key]}) when is_atom(key) do
     order_by(q, [intent: c], desc: field(c, ^key))
@@ -270,7 +297,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:order, :default}) do
-    order_by(q, [intent: c], [desc: c.has_beginning, desc: c.has_point_in_time, desc: c.has_end, desc: c.due, desc: c.updated_at, asc: c.id])
+    order_by(q, [intent: c],
+      desc: c.has_beginning,
+      desc: c.has_point_in_time,
+      desc: c.has_end,
+      desc: c.due,
+      desc: c.updated_at,
+      asc: c.id
+    )
   end
 
   def filter(q, {:order, :voted}) do
@@ -313,7 +347,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
       :context,
       :at_location,
       :resource_inventoried_as,
-      :resource_conforms_to,
+      :resource_conforms_to
     ])
     |> filter({:preload, :quantities})
   end
@@ -372,5 +406,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

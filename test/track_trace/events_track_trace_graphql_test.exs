@@ -1,7 +1,6 @@
 defmodule ValueFlows.EconomicEvent.EventsTrackTraceGraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
-
   import Bonfire.Common.Simulation
 
   import ValueFlows.Simulate
@@ -15,7 +14,6 @@ defmodule ValueFlows.EconomicEvent.EventsTrackTraceGraphQLTest do
 
   @debug false
   @schema Bonfire.API.GraphQL.Schema
-
 
   describe "EconomicEvent.track" do
     test "Returns a list of EconomicResources or Processes" do
@@ -80,5 +78,4 @@ defmodule ValueFlows.EconomicEvent.EventsTrackTraceGraphQLTest do
       assert Enum.count(event["trace"]) >= 2
     end
   end
-
 end

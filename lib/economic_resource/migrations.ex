@@ -33,7 +33,9 @@ defmodule ValueFlows.EconomicResource.Migrations do
       add(:primary_accountable_id, weak_pointer(), null: true)
 
       add(:accounting_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+
       add(:onhand_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+
       add(:unit_of_effort_id, weak_pointer(Bonfire.Quantify.Unit), null: true)
 
       add(:stage_id, weak_pointer(ProcessSpecification), null: true)

@@ -8,7 +8,6 @@ defmodule ValueFlows.EconomicEvent do
 
   alias Ecto.Changeset
 
-
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.EconomicEvent
@@ -88,9 +87,7 @@ defmodule ValueFlows.EconomicEvent do
         attrs
       ) do
     validate_changeset(attrs)
-    |> Changeset.change(
-      creator_id: creator.id
-    )
+    |> Changeset.change(creator_id: creator.id)
   end
 
   def validate_changeset(attrs \\ %{}) do
@@ -102,9 +99,7 @@ defmodule ValueFlows.EconomicEvent do
 
   def validate_create_changeset(cs) do
     cs
-    |> Changeset.change(
-      is_public: true
-    )
+    |> Changeset.change(is_public: true)
     |> Changeset.validate_required(@required)
     |> common_changeset()
   end
@@ -122,9 +117,7 @@ defmodule ValueFlows.EconomicEvent do
 
   defp common_changeset(changeset) do
     changeset
-    |> Changeset.change(
-      is_public: true
-    )
+    |> Changeset.change(is_public: true)
     |> change_public()
     |> change_disabled()
     |> Changeset.foreign_key_constraint(

@@ -10,7 +10,11 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
 
   def event_side_effects(
         %EconomicEvent{
-          action: %{label: action, onhand_effect: onhand_effect, resource_effect: resource_effect},
+          action: %{
+            label: action,
+            onhand_effect: onhand_effect,
+            resource_effect: resource_effect
+          },
           resource_quantity: quantity
         } = event
       ) do
@@ -22,13 +26,21 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
 
     resource = event.resource_inventoried_as
     to_resource = event.to_resource_inventoried_as
+
     # REFERENCE ISSUE:  https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4
     cond do
       #     If action.resourceEffect is "+" or "-"
       resource_effect == "increment" or
-          (resource_effect == "decrement" and event.resource_inventoried_as_id != nil) ->
+          (resource_effect == "decrement" and
+             event.resource_inventoried_as_id != nil) ->
         #         Add event resourceQuantity to accountingQuantity
-        resource = quantity_effect(:accounting_quantity, resource, quantity, resource_effect)
+        resource =
+          quantity_effect(
+            :accounting_quantity,
+            resource,
+            quantity,
+            resource_effect
+          )
 
         #         Add event resourceQuantity to onhandQuantity
         resource = quantity_effect(:onhand_quantity, resource, quantity, resource_effect)
@@ -36,7 +48,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
         return_updated_event(event, resource)
 
       # ElseIf action.resourceEffect is "-+"
-      resource_effect == "decrementIncrement" or onhand_effect == "decrementIncrement" ->
+      resource_effect == "decrementIncrement" or
+          onhand_effect == "decrementIncrement" ->
         # # (two resources can be affected)
         # If action is "transfer-custody" or "transfer-complete" or "move"
         cond do
@@ -44,14 +57,32 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.onhandQuantity and accountingQuantity
             resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
-            resource = quantity_effect(:accounting_quantity, resource, quantity, "decrement")
+
+            resource =
+              quantity_effect(
+                :accounting_quantity,
+                resource,
+                quantity,
+                "decrement"
+              )
 
             #     If the to-resource exists
             #         Add event resourceQuantity to to_resource.onhandQuantity and accountingQuantity
-            to_resource = quantity_effect(:onhand_quantity, to_resource, quantity, "increment")
+            to_resource =
+              quantity_effect(
+                :onhand_quantity,
+                to_resource,
+                quantity,
+                "increment"
+              )
 
             to_resource =
-              quantity_effect(:accounting_quantity, to_resource, quantity, "increment")
+              quantity_effect(
+                :accounting_quantity,
+                to_resource,
+                quantity,
+                "increment"
+              )
 
             return_updated_event(event, resource, to_resource)
 
@@ -59,9 +90,16 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.onhandQuantity
             resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
+
             #     If the to-resource exists
             #         Add event resourceQuantity to to_resource.onhandQuantity
-            to_resource = quantity_effect(:onhand_quantity, to_resource, quantity, "increment")
+            to_resource =
+              quantity_effect(
+                :onhand_quantity,
+                to_resource,
+                quantity,
+                "increment"
+              )
 
             return_updated_event(event, resource, to_resource)
 
@@ -69,12 +107,23 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           action == "transfer-all-rights" ->
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.accountingQuantity
-            resource = quantity_effect(:accounting_quantity, resource, quantity, "decrement")
+            resource =
+              quantity_effect(
+                :accounting_quantity,
+                resource,
+                quantity,
+                "decrement"
+              )
 
             #     If the to-resource exists
             #         Add event resourceQuantity to to_resource.accountingQuantity
             to_resource =
-              quantity_effect(:accounting_quantity, to_resource, quantity, "increment")
+              quantity_effect(
+                :accounting_quantity,
+                to_resource,
+                quantity,
+                "increment"
+              )
 
             return_updated_event(event, resource, to_resource)
 
@@ -172,7 +221,9 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
     new_quantity = Bonfire.Quantify.Measure.copy(by_quantity)
     # Set accountingQuantity on a resource with no previous accountingQuantity
     with {:ok, resource} <-
-           EconomicResources.update(resource, %{accounting_quantity: new_quantity}) do
+           EconomicResources.update(resource, %{
+             accounting_quantity: new_quantity
+           }) do
       resource
     end
   end
@@ -210,6 +261,11 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
   end
 
   def return_updated_event(event, resource, to_resource) do
-    {:ok, %{event | resource_inventoried_as: resource, to_resource_inventoried_as: to_resource}}
+    {:ok,
+     %{
+       event
+       | resource_inventoried_as: resource,
+         to_resource_inventoried_as: to_resource
+     }}
   end
 end

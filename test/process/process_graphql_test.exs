@@ -1,7 +1,6 @@
 defmodule ValueFlows.Process.GraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
-
   import Bonfire.Common.Simulation
 
   # alias Grumble.PP
@@ -85,6 +84,7 @@ defmodule ValueFlows.Process.GraphQLTest do
         {:ok, process} = Processes.soft_delete(process)
         process
       end)
+
       vars = %{after: after_process.id, limit: 2}
       q = processes_pages_query()
       conn = user_conn(user)
@@ -93,7 +93,6 @@ defmodule ValueFlows.Process.GraphQLTest do
       assert List.first(page["edges"])["id"] == after_process.id
     end
   end
-
 
   describe "createProcess" do
     test "create a new process" do
@@ -138,8 +137,13 @@ defmodule ValueFlows.Process.GraphQLTest do
       vars = %{process: process_input(%{"id" => spec.id})}
       assert {:ok, _spec} = Processes.soft_delete(spec)
 
-      assert [%{"code" => "not_found", "path" => ["updateProcess"], "status" => 404}] =
-               grumble_post_errors(q, conn, vars)
+      assert [
+               %{
+                 "code" => "not_found",
+                 "path" => ["updateProcess"],
+                 "status" => 404
+               }
+             ] = grumble_post_errors(q, conn, vars)
     end
   end
 

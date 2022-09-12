@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.EconomicEvent.Queries do
   alias ValueFlows.EconomicEvent
+
   # alias ValueFlows.EconomicEvents
 
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
@@ -58,9 +59,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
   #     f in FollowerCount, on: c.id == f.context_id,
   #     as: :follower_count
   # end
-
   ### filter/2
-
   ## by many
 
   def filter(q, filters) when is_list(filters) do
@@ -83,10 +82,9 @@ defmodule ValueFlows.EconomicEvent.Queries do
 
   ## by join
 
+  ## by user
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
   def filter(q, {:join, join}), do: join_to(q, join)
-
-  ## by user
 
   def filter(q, {:user, match_admin()}), do: q
 
@@ -94,12 +92,12 @@ defmodule ValueFlows.EconomicEvent.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-
   def filter(q, {:user, %{id: user_id}}) do
     q
     |> where([event: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)
   end
+
   ## by status
 
   def filter(q, :deleted) do
@@ -201,7 +199,10 @@ defmodule ValueFlows.EconomicEvent.Queries do
     q
     |> join_to(:geolocation)
     |> preload(:at_location)
-    |> where([event: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+    |> where(
+      [event: c, geolocation: g],
+      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
+    )
   end
 
   def filter(q, {:location_within, geom_point}) do
@@ -246,25 +247,25 @@ defmodule ValueFlows.EconomicEvent.Queries do
     where(q, [event: c], c.to_resource_inventoried_as_id == ^id)
   end
 
-
   def filter(q, {:trace_resource, id}) when is_binary(id) do
-    q
-    |> where([event: c],
-      (not is_nil(c.output_of_id) or c.action_id in ["transfer", "move"])
-      and (
-        c.to_resource_inventoried_as_id == ^id
-        or
-        (is_nil(c.to_resource_inventoried_as_id) and c.resource_inventoried_as_id == ^id)
-      )
+    where(
+      q,
+      [event: c],
+      (not is_nil(c.output_of_id) or c.action_id in ["transfer", "move"]) and
+        (c.to_resource_inventoried_as_id == ^id or
+           (is_nil(c.to_resource_inventoried_as_id) and
+              c.resource_inventoried_as_id == ^id))
     )
   end
 
   def filter(q, {:track_resource, id}) when is_binary(id) do
     q
     |> filter({:resource_inventoried_as_id, id})
-    |> where([event: c], not is_nil(c.input_of_id) or c.action_id in ["transfer", "move"])
+    |> where(
+      [event: c],
+      not is_nil(c.input_of_id) or c.action_id in ["transfer", "move"]
+    )
   end
-
 
   def filter(q, {:output_of_id, id}) when is_binary(id) do
     where(q, [event: c], c.output_of_id == ^id)
@@ -281,7 +282,6 @@ defmodule ValueFlows.EconomicEvent.Queries do
   # def filter(q, {:calculated_using_id, ids}) when is_list(ids) do
   #   where(q, [event: c], c.calculated_using_id in ^ids)
   # end
-
   ## by ordering
 
   def filter(q, {:order, :id}) do
@@ -324,7 +324,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
       :triggered_by,
       :calculated_using,
       effort_quantity: [:unit],
-      resource_quantity: [:unit],
+      resource_quantity: [:unit]
     ])
   end
 
@@ -332,13 +332,14 @@ defmodule ValueFlows.EconomicEvent.Queries do
     preload(q, [
       :at_location,
       resource_inventoried_as: [:current_location],
-      to_resource_inventoried_as: [:current_location],
+      to_resource_inventoried_as: [:current_location]
     ])
   end
 
   def filter(q, {:preload, fields}) when is_list(fields) do
     preload(q, ^fields)
   end
+
   def filter(q, {:preload, field}) do
     preload(q, [^field])
   end
@@ -384,9 +385,8 @@ defmodule ValueFlows.EconomicEvent.Queries do
   # defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
   #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   # end
-
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
-
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

@@ -4,7 +4,6 @@ defmodule ValueFlows.Claim.GraphQLTest do
 
   # import Bonfire.Common.Simulation
 
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -26,21 +25,23 @@ defmodule ValueFlows.Claim.GraphQLTest do
     test "fetched a full nested claim by ID (via Absinthe.run)" do
       user = fake_agent!()
       unit = maybe_fake_unit(user)
-      claim = fake_claim!(user, %{
-        in_scope_of: [fake_agent!().id],
-        resource_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
-        effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
-        resource_conforms_to: fake_resource_specification!(user).id,
-        triggered_by: fake_economic_event!(user).id,
-      })
+
+      claim =
+        fake_claim!(user, %{
+          in_scope_of: [fake_agent!().id],
+          resource_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
+          effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id}),
+          resource_conforms_to: fake_resource_specification!(user).id,
+          triggered_by: fake_economic_event!(user).id
+        })
 
       assert queried =
-        Bonfire.API.GraphQL.QueryHelper.run_query_id(
-          claim.id,
-          @schema,
-          :claim,
-          3
-        )
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
+                 claim.id,
+                 @schema,
+                 :claim,
+                 3
+               )
 
       assert_claim(queried)
     end
@@ -53,10 +54,13 @@ defmodule ValueFlows.Claim.GraphQLTest do
       q = create_claim_mutation()
       conn = user_conn(user)
 
-      vars = %{claim: claim_input(%{
-        "provider" => fake_agent!().id,
-        "receiver" => fake_agent!().id,
-      })}
+      vars = %{
+        claim:
+          claim_input(%{
+            "provider" => fake_agent!().id,
+            "receiver" => fake_agent!().id
+          })
+      }
 
       assert claim = grumble_post_key(q, conn, :create_claim, vars)["claim"]
       assert_claim(claim)
@@ -64,10 +68,15 @@ defmodule ValueFlows.Claim.GraphQLTest do
 
     test "fails for a guest user" do
       q = create_claim_mutation()
-      vars = %{claim: claim_input(%{
-        "provider" => fake_agent!().id,
-        "receiver" => fake_agent!().id,
-      })}
+
+      vars = %{
+        claim:
+          claim_input(%{
+            "provider" => fake_agent!().id,
+            "receiver" => fake_agent!().id
+          })
+      }
+
       assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), vars)
     end
   end
@@ -91,6 +100,7 @@ defmodule ValueFlows.Claim.GraphQLTest do
       claim = fake_claim!(fake_agent!())
       q = update_claim_mutation()
       vars = %{claim: claim_input(%{"id" => claim.id})}
+
       assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), vars)
     end
   end
@@ -112,6 +122,7 @@ defmodule ValueFlows.Claim.GraphQLTest do
       claim = fake_claim!(fake_agent!())
       q = delete_claim_mutation()
       vars = %{id: claim.id}
+
       assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), vars)
     end
   end

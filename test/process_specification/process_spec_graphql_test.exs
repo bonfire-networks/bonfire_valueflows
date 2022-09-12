@@ -3,7 +3,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
   # import Bonfire.Common.Simulation
 
-
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -19,7 +18,9 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
       q = process_specification_query()
       conn = user_conn(user)
+
       assert fetched = grumble_post_key(q, conn, :process_specification, %{id: spec.id})
+
       assert_process_specification(fetched)
     end
 
@@ -48,8 +49,13 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
       conn = user_conn(user)
       assert {:ok, spec} = ProcessSpecifications.soft_delete(spec)
 
-      assert [%{"code" => "not_found", "path" => ["processSpecification"], "status" => 404}] =
-               grumble_post_errors(q, conn, %{id: spec.id})
+      assert [
+               %{
+                 "code" => "not_found",
+                 "path" => ["processSpecification"],
+                 "status" => 404
+               }
+             ] = grumble_post_errors(q, conn, %{id: spec.id})
     end
   end
 
@@ -109,7 +115,10 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
       q = update_process_specification_mutation()
       conn = user_conn(user)
-      vars = %{process_specification: process_specification_input(%{"id" => spec.id})}
+
+      vars = %{
+        process_specification: process_specification_input(%{"id" => spec.id})
+      }
 
       assert spec =
                grumble_post_key(q, conn, :update_process_specification, vars)[
@@ -125,11 +134,20 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
       q = update_process_specification_mutation()
       conn = user_conn(user)
-      vars = %{process_specification: process_specification_input(%{"id" => spec.id})}
+
+      vars = %{
+        process_specification: process_specification_input(%{"id" => spec.id})
+      }
+
       assert {:ok, _spec} = ProcessSpecifications.soft_delete(spec)
 
-      assert [%{"code" => "not_found", "path" => ["updateProcessSpecification"], "status" => 404}] =
-               grumble_post_errors(q, conn, vars)
+      assert [
+               %{
+                 "code" => "not_found",
+                 "path" => ["updateProcessSpecification"],
+                 "status" => 404
+               }
+             ] = grumble_post_errors(q, conn, vars)
     end
   end
 
@@ -140,7 +158,10 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
       q = delete_process_specification_mutation()
       conn = user_conn(user)
-      assert grumble_post_key(q, conn, :delete_process_specification, %{"id" => spec.id})
+
+      assert grumble_post_key(q, conn, :delete_process_specification, %{
+               "id" => spec.id
+             })
     end
   end
 end

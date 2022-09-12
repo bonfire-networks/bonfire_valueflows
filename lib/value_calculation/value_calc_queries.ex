@@ -43,8 +43,10 @@ defmodule ValueFlows.ValueCalculation.Queries do
   def filter(q, {:creator, match_admin()}), do: q
 
   def filter(q, {:creator, nil}) do
-    q
-    |> filter(~w(deleted)a)
+    filter(
+      q,
+      ~w(deleted)a
+    )
   end
 
   def filter(q, {:creator, %{id: user_id}}) do
@@ -98,7 +100,14 @@ defmodule ValueFlows.ValueCalculation.Queries do
 
   ## context-based searches
 
-  def filter(q, {:event, %{action_id: action_id, resource_conforms_to_id: resource_conforms_to_id}}) do
+  def filter(
+        q,
+        {:event,
+         %{
+           action_id: action_id,
+           resource_conforms_to_id: resource_conforms_to_id
+         }}
+      ) do
     q = filter(q, action_id: action_id)
 
     if resource_conforms_to_id do
@@ -171,9 +180,10 @@ defmodule ValueFlows.ValueCalculation.Queries do
       :context,
       :value_unit,
       :resource_conforms_to,
-      :value_resource_conforms_to,
+      :value_resource_conforms_to
     ])
   end
 
-  def filter(q, other_filter), do: ValueFlows.Util.common_filters(q, other_filter)
+  def filter(q, other_filter),
+    do: ValueFlows.Util.common_filters(q, other_filter)
 end

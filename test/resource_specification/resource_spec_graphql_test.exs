@@ -1,9 +1,7 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
   use Bonfire.ValueFlows.ConnCase, async: true
 
-
   # import Bonfire.Common.Simulation
-
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -20,7 +18,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
 
       q = resource_specification_query()
       conn = user_conn(user)
+
       assert fetched = grumble_post_key(q, conn, :resource_specification, %{id: spec.id})
+
       assert_resource_specification(fetched)
     end
 
@@ -50,8 +50,13 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       conn = user_conn(user)
       assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
 
-      assert [%{"code" => "not_found", "path" => ["resourceSpecification"], "status" => 404}] =
-               grumble_post_errors(q, conn, %{id: spec.id})
+      assert [
+               %{
+                 "code" => "not_found",
+                 "path" => ["resourceSpecification"],
+                 "status" => 404
+               }
+             ] = grumble_post_errors(q, conn, %{id: spec.id})
     end
   end
 
@@ -134,7 +139,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
 
       q = update_resource_specification_mutation()
       conn = user_conn(user)
-      vars = %{resource_specification: resource_specification_input(%{"id" => spec.id})}
+
+      vars = %{
+        resource_specification: resource_specification_input(%{"id" => spec.id})
+      }
 
       assert spec =
                grumble_post_key(q, conn, :update_resource_specification, vars)[
@@ -150,7 +158,11 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
 
       q = update_resource_specification_mutation()
       conn = user_conn(user)
-      vars = %{resource_specification: resource_specification_input(%{"id" => spec.id})}
+
+      vars = %{
+        resource_specification: resource_specification_input(%{"id" => spec.id})
+      }
+
       assert {:ok, _spec} = ResourceSpecifications.soft_delete(spec)
 
       assert [
@@ -170,7 +182,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
 
       q = delete_resource_specification_mutation()
       conn = user_conn(user)
-      assert grumble_post_key(q, conn, :delete_resource_specification, %{"id" => spec.id})
+
+      assert grumble_post_key(q, conn, :delete_resource_specification, %{
+               "id" => spec.id
+             })
     end
   end
 end

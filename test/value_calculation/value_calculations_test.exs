@@ -33,6 +33,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       calc = fake_value_calculation!(user, %{in_scope_of: [context.id]})
 
       assert {:ok, fetched} = ValueCalculations.one(context_id: context.id, limit: 1)
+
       assert_value_calculation(fetched)
       assert calc.context_id == context.id
     end
@@ -40,6 +41,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     test "default filter handles deleted items" do
       calc = fake_value_calculation!(fake_agent!())
       assert {:ok, calc} = ValueCalculations.soft_delete(calc)
+
       assert {:error, :not_found} = ValueCalculations.one([:default, id: calc.id])
     end
   end
@@ -51,9 +53,9 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
 
       assert {:ok, fetched} = ValueCalculations.many()
       assert Enum.count(fetched) == 5
-      assert {:ok, fetched} = ValueCalculations.many([creator: user])
+      assert {:ok, fetched} = ValueCalculations.many(creator: user)
       assert Enum.count(fetched) == 5
-      assert {:ok, fetched} = ValueCalculations.many([id: hd(calcs).id])
+      assert {:ok, fetched} = ValueCalculations.many(id: hd(calcs).id)
       assert Enum.count(fetched) == 1
     end
   end
@@ -73,10 +75,11 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
 
       attrs = %{
         formula: "(* 2 (+ effortQuantity 1.5) (max resourceQuantity 2))",
-        value_unit: fake_unit!(user),
+        value_unit: fake_unit!(user)
       }
 
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
+
       assert_value_calculation(calc)
     end
 
@@ -84,8 +87,9 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       user = fake_agent!()
 
       attrs = %{formula: "(* 2 missing)", value_unit: fake_unit!(user)}
+
       assert {:error, %{original_failure: "Undefined variable: \"missing\""}} =
-        ValueCalculations.create(user, value_calculation(attrs))
+               ValueCalculations.create(user, value_calculation(attrs))
     end
 
     test "with a context" do
@@ -93,7 +97,9 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       context = fake_agent!()
 
       attrs = %{in_scope_of: [context.id], value_unit: fake_unit!(user)}
+
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
+
       assert_value_calculation(calc)
       assert calc.context.id == context.id
     end
@@ -103,7 +109,9 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       resource = fake_resource_specification!(user)
 
       attrs = %{resource_conforms_to: resource, value_unit: fake_unit!(user)}
+
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
+
       assert_value_calculation(calc)
       assert calc.resource_conforms_to.id == resource.id
     end
@@ -112,8 +120,13 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       user = fake_agent!()
       resource = fake_resource_specification!(user)
 
-      attrs = %{value_resource_conforms_to: resource, value_unit: fake_unit!(user)}
+      attrs = %{
+        value_resource_conforms_to: resource,
+        value_unit: fake_unit!(user)
+      }
+
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
+
       assert_value_calculation(calc)
       assert calc.value_resource_conforms_to.id == resource.id
     end

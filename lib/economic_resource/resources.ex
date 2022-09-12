@@ -1,12 +1,20 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.EconomicResource.EconomicResources do
-  use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, ulid: 1, maybe: 2, map_key_replace: 3, e: 3]
+  use Bonfire.Common.Utils,
+    only: [
+      maybe_put: 3,
+      attr_get_id: 2,
+      ulid: 1,
+      maybe: 2,
+      map_key_replace: 3,
+      e: 3
+    ]
 
   import Bonfire.Common.Config, only: [repo: 0]
   alias ValueFlows.Util
-
   # alias Bonfire.API.GraphQL
-  alias Bonfire.API.GraphQL.{Fields, Page}
+  alias Bonfire.API.GraphQL.Fields
+  alias Bonfire.API.GraphQL.Page
 
   alias ValueFlows.EconomicResource
   alias ValueFlows.EconomicResource.Queries
@@ -34,12 +42,14 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   * Various parts of the codebase that need to query for this (inc. tests)
   """
   def many(filters \\ []), do: {:ok, many!(filters)}
-  def many!(filters \\ []), do: repo().many(Queries.query(EconomicResource, filters))
+
+  def many!(filters \\ []),
+    do: repo().many(Queries.query(EconomicResource, filters))
 
   def search(search) do
-   ValueFlows.Util.maybe_search(search, @search_type) || many!(autocomplete: search)
+    ValueFlows.Util.maybe_search(search, @search_type) ||
+      many!(autocomplete: search)
   end
-
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -53,14 +63,27 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   Used by:
   * GraphQL resolver single-parent resolution
   """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(
+        cursor_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
 
-  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
+  def page(
+        cursor_fn,
+        %{} = page_opts,
+        base_filters,
+        data_filters,
+        count_filters
+      ) do
     base_q = Queries.query(EconomicResource, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <-
+           repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -80,7 +103,14 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
         count_filters \\ []
       )
 
-  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters,
+        data_filters,
+        count_filters
+      ) do
     Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       EconomicResource,
@@ -93,7 +123,6 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     )
   end
 
-
   def inputs_of(process) when not is_nil(process) do
     many([:default, [join: [event_input: ulid(process)]]])
   end
@@ -102,10 +131,21 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     many([:default, join: [event_output: ulid(process)]])
   end
 
+  defdelegate trace(
+                event,
+                recurse_limit \\ Util.default_recurse_limit(),
+                recurse_counter \\ 0
+              ),
+              to: ValueFlows.EconomicEvent.Trace,
+              as: :resource
 
-  defdelegate trace(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Trace, as: :resource
-  defdelegate track(event, recurse_limit \\ Util.default_recurse_limit(), recurse_counter \\ 0), to: ValueFlows.EconomicEvent.Track, as: :resource
-
+  defdelegate track(
+                event,
+                recurse_limit \\ Util.default_recurse_limit(),
+                recurse_counter \\ 0
+              ),
+              to: ValueFlows.EconomicEvent.Track,
+              as: :resource
 
   def preload_all(resource) do
     {:ok, resource} = one(id: resource.id, preload: :all)
@@ -113,7 +153,11 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   end
 
   def preload_state(resource) do
-    resource |> Map.put(:state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id))
+    Map.put(
+      resource,
+      :state,
+      ValueFlows.Knowledge.Action.Actions.action!(resource.state_id)
+    )
   end
 
   ## mutations
@@ -123,16 +167,17 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs, creator)
 
-      with {:ok, resource} <- repo().insert(EconomicResource.create_changeset(creator, attrs)),
+      with {:ok, resource} <-
+             repo().insert(EconomicResource.create_changeset(creator, attrs)),
            resource <- preload_all(%{resource | creator: creator}),
-           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs) do
+           {:ok, resource} <-
+             ValueFlows.Util.try_tag_thing(creator, resource, attrs) do
+        # {:ok, activity} = ValueFlows.Util.publish(creator, resource.state_id, resource) # no need to publish since the related event will already appear in feeds
+        ValueFlows.Util.set_boundaries(creator, resource)
 
-          # {:ok, activity} = ValueFlows.Util.publish(creator, resource.state_id, resource) # no need to publish since the related event will already appear in feeds
-          ValueFlows.Util.set_boundaries(creator, resource)
+        indexing_object_format(resource) |> ValueFlows.Util.index_for_search()
 
-          indexing_object_format(resource) |> ValueFlows.Util.index_for_search()
-
-          {:ok, resource}
+        {:ok, resource}
       end
     end)
   end
@@ -143,9 +188,11 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs, e(resource, :creator, nil))
 
-      with {:ok, resource} <- repo().update(EconomicResource.update_changeset(resource, attrs)),
-           {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs) do
-          #  {:ok, _} <- ValueFlows.Util.publish(resource, :update) # Do not publish resource update since that's done via Economic Events
+      with {:ok, resource} <-
+             repo().update(EconomicResource.update_changeset(resource, attrs)),
+           {:ok, resource} <-
+             ValueFlows.Util.try_tag_thing(nil, resource, attrs) do
+        #  {:ok, _} <- ValueFlows.Util.publish(resource, :update) # Do not publish resource update since that's done via Economic Events
         {:ok, preload_all(resource)}
       end
     end)
@@ -161,7 +208,6 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   end
 
   def indexing_object_format(obj) do
-
     image = ValueFlows.Util.image_url(obj)
 
     %{
@@ -175,23 +221,40 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
       "published_at" => obj.published_at,
       "creator" => ValueFlows.Util.indexing_format_creator(obj),
       "tags" => ValueFlows.Util.indexing_format_tags(obj)
+
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
-    } #|> IO.inspect
+    }
+
+    # |> IO.inspect
   end
 
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :economic_resource, thing, 3, [
-    ])
+    ValueFlows.Util.Federation.ap_publish_activity(
+      activity_name,
+      :economic_resource,
+      thing,
+      3,
+      []
+    )
   end
 
   def ap_receive_activity(creator, activity, object) do
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+    ValueFlows.Util.Federation.ap_receive_activity(
+      creator,
+      activity,
+      object,
+      &create/2
+    )
   end
 
   defp prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(:primary_accountable_id, attr_get_id(attrs, :primary_accountable) || ulid(creator))
-    |> maybe_put(:context_id,
+    |> maybe_put(
+      :primary_accountable_id,
+      attr_get_id(attrs, :primary_accountable) || ulid(creator)
+    )
+    |> maybe_put(
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
     |> maybe_put(:current_location_id, attr_get_id(attrs, :current_location))
@@ -201,7 +264,4 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     |> maybe_put(:state_id, attr_get_id(attrs, :state))
     |> Util.parse_measurement_attrs(creator)
   end
-
-
-
 end

@@ -42,6 +42,7 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
       conn = user_conn(user)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+
       assert Enum.count(resource["track"]) >= 3
     end
 
@@ -53,24 +54,33 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
 
       _input_events =
         some(3, fn ->
-          fake_economic_event!(user, %{
-            resource_inventoried_as: resource.id,
-            action: "transfer"
-          }, unit)
+          fake_economic_event!(
+            user,
+            %{
+              resource_inventoried_as: resource.id,
+              action: "transfer"
+            },
+            unit
+          )
         end)
 
       _other_events =
         some(5, fn ->
-          fake_economic_event!(user, %{
-            resource_inventoried_as: resource.id,
-            action: "use"
-          }, unit)
+          fake_economic_event!(
+            user,
+            %{
+              resource_inventoried_as: resource.id,
+              action: "use"
+            },
+            unit
+          )
         end)
 
       q = economic_resource_query(fields: [track: [:__typename]])
       conn = user_conn(user)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+
       assert Enum.count(resource["track"]) >= 3
     end
   end
@@ -86,26 +96,35 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
 
       _input_events =
         some(3, fn ->
-          fake_economic_event!(user, %{
-            input_of: process.id,
-            resource_inventoried_as: resource.id,
-            action: "use"
-          }, unit)
+          fake_economic_event!(
+            user,
+            %{
+              input_of: process.id,
+              resource_inventoried_as: resource.id,
+              action: "use"
+            },
+            unit
+          )
         end)
 
       _output_events =
         some(5, fn ->
-          fake_economic_event!(user, %{
-            output_of: process.id,
-            resource_inventoried_as: resource.id,
-            action: "produce"
-          }, unit)
+          fake_economic_event!(
+            user,
+            %{
+              output_of: process.id,
+              resource_inventoried_as: resource.id,
+              action: "produce"
+            },
+            unit
+          )
         end)
 
       q = economic_resource_query(fields: [trace: [:__typename]])
       conn = user_conn(user)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+
       assert Enum.count(resource["trace"]) >= 5
     end
 
@@ -120,22 +139,30 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
 
       _input_events =
         some(3, fn ->
-          fake_economic_event!(alice, %{
-            provider: alice.id,
-            receiver: bob.id,
-            to_resource_inventoried_as: resource.id,
-            action: "transfer"
-          }, unit)
+          fake_economic_event!(
+            alice,
+            %{
+              provider: alice.id,
+              receiver: bob.id,
+              to_resource_inventoried_as: resource.id,
+              action: "transfer"
+            },
+            unit
+          )
         end)
 
       _other_events =
         some(5, fn ->
-          fake_economic_event!(alice, %{
-            provider: alice.id,
-            receiver: bob.id,
-            to_resource_inventoried_as: resource.id,
-            action: "use"
-          }, unit)
+          fake_economic_event!(
+            alice,
+            %{
+              provider: alice.id,
+              receiver: bob.id,
+              to_resource_inventoried_as: resource.id,
+              action: "use"
+            },
+            unit
+          )
         end)
 
       q = economic_resource_query(fields: [trace: [:__typename]])
@@ -143,6 +170,7 @@ defmodule ValueFlows.EconomicResource.TrackTraceGraphQLTest do
       conn = user_conn(alice)
 
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+
       assert Enum.count(resource["trace"]) >= 3
     end
   end

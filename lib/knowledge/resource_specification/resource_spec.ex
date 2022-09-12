@@ -53,12 +53,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
         attrs
       ) do
     create_changeset(
-        creator,
-        attrs
-      )
-    |> Changeset.change(
-      context_id: context.id,
+      creator,
+      attrs
     )
+    |> Changeset.change(context_id: context.id)
   end
 
   def create_changeset(
@@ -66,12 +64,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
         attrs
       ) do
     create_changeset(
-        nil,
-        attrs
-      )
-    |> Changeset.change(
-      creator_id: creator.id,
+      nil,
+      attrs
     )
+    |> Changeset.change(creator_id: creator.id)
   end
 
   def create_changeset(
@@ -115,7 +111,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     |> change_disabled()
   end
 
-  def context_module, do: ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
+  def context_module,
+    do: ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
   def queries_module, do: ValueFlows.Knowledge.ResourceSpecification.Queries
 

@@ -18,7 +18,9 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
 
       q = value_calculation_query()
       conn = user_conn(user)
+
       assert fetched = grumble_post_key(q, conn, :value_calculation, %{id: calc.id})
+
       assert_value_calculation(fetched)
       assert fetched["id"] == calc.id
     end
@@ -26,22 +28,24 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
     @tag :skip
     test "fetches with full nesting by ID (via Absinthe.run)" do
       user = fake_agent!()
-      calc = fake_value_calculation!(user, %{
-        in_scope_of: [fake_agent!().id],
-        value_unit: fake_unit!(user).id,
-        action: action_id(),
-        value_action: action_id(),
-        resource_conforms_to: fake_resource_specification!(user),
-        value_resource_conforms_to: fake_resource_specification!(user),
-      })
+
+      calc =
+        fake_value_calculation!(user, %{
+          in_scope_of: [fake_agent!().id],
+          value_unit: fake_unit!(user).id,
+          action: action_id(),
+          value_action: action_id(),
+          resource_conforms_to: fake_resource_specification!(user),
+          value_resource_conforms_to: fake_resource_specification!(user)
+        })
 
       assert queried =
-        Bonfire.API.GraphQL.QueryHelper.run_query_id(
-          calc.id,
-          @schema,
-          :value_calculation,
-          3
-        )
+               Bonfire.API.GraphQL.QueryHelper.run_query_id(
+                 calc.id,
+                 @schema,
+                 :value_calculation,
+                 3
+               )
 
       assert_value_calculation(queried)
     end
@@ -76,8 +80,10 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
       q = create_value_calculation_mutation()
       conn = user_conn(user)
       vars = %{value_calculation: value_calculation(%{value_unit: unit.id})}
+
       assert %{"valueCalculation" => calc} =
-        grumble_post_key(q, conn, :create_value_calculation, vars)
+               grumble_post_key(q, conn, :create_value_calculation, vars)
+
       assert_value_calculation(calc)
     end
 
@@ -86,6 +92,7 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
 
       q = create_value_calculation_mutation()
       vars = %{value_calculation: value_calculation(%{value_unit: unit.id})}
+
       assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), vars)
     end
   end
@@ -98,8 +105,10 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
       q = update_value_calculation_mutation()
       conn = user_conn(user)
       vars = %{value_calculation: value_calculation(%{id: calc.id})}
+
       assert %{"valueCalculation" => updated} =
-        grumble_post_key(q, conn, :update_value_calculation, vars)
+               grumble_post_key(q, conn, :update_value_calculation, vars)
+
       assert_value_calculation(calc)
       assert calc.id == updated["id"]
     end
@@ -109,6 +118,7 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
 
       q = update_value_calculation_mutation()
       vars = %{value_calculation: value_calculation(%{id: calc.id})}
+
       assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), vars)
     end
   end
@@ -120,13 +130,18 @@ defmodule ValueFlows.ValueCalculation.GraphQLTest do
 
       q = delete_value_calculation_mutation()
       conn = user_conn(user)
-      assert true = grumble_post_key(q, conn, :delete_value_calculation, %{id: calc.id})
+
+      assert true =
+               grumble_post_key(q, conn, :delete_value_calculation, %{
+                 id: calc.id
+               })
     end
 
     test "fails for a guest user" do
       calc = fake_value_calculation!(fake_agent!())
 
       q = delete_value_calculation_mutation()
+
       assert [%{"code" => "needs_login"}] = grumble_post_errors(q, json_conn(), %{id: calc.id})
     end
   end

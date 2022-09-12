@@ -34,6 +34,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:created, &past_datetime/0)
     |> Map.put_new_lazy(:due, &future_datetime/0)
     |> Map.put_new_lazy(:action, &action_id/0)
+
     # |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
   end
 
@@ -46,6 +47,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("created", &past_datetime_iso/0)
     |> Map.put_new_lazy("due", &future_datetime_iso/0)
     |> Map.put_new_lazy("action", &action_id/0)
+
     # |> Map.put_new_lazy("resourceClassifiedAs", fn -> some(1..5, &url/0) end)
   end
 
@@ -73,12 +75,15 @@ defmodule ValueFlows.Simulate do
 
   def maybe_fake_user(overrides) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Me.Fake) do
-        Bonfire.Me.Fake.fake_user!(overrides)
-      else
-        if Bonfire.Common.Extend.module_enabled?(CommonsPub.Utils.Simulate), do: CommonsPub.Utils.Simulate.fake_user!(overrides)
-      end
+      Bonfire.Me.Fake.fake_user!(overrides)
+    else
+      if Bonfire.Common.Extend.module_enabled?(CommonsPub.Utils.Simulate),
+        do: CommonsPub.Utils.Simulate.fake_user!(overrides)
+    end
   end
-  def fake_agent!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+
+  def fake_agent!(overrides \\ %{}, opts \\ [])
+      when is_map(overrides) and is_list(opts) do
     ValueFlows.Agent.Agents.agent_to_character(agent(overrides))
     |> maybe_fake_user()
     |> fake_agent_from_user!()
@@ -107,7 +112,7 @@ defmodule ValueFlows.Simulate do
 
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
-  def action, do: actions() |> Faker.Util.pick()
+  def action, do: Faker.Util.pick(actions())
   def actions, do: Actions.actions_list()
 
   def action_id, do: action().id
@@ -137,6 +142,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("hasBeginning", &past_datetime_iso/0)
     |> Map.put_new_lazy("hasEnd", &future_datetime_iso/0)
     |> Map.put_new_lazy("hasPointInTime", &future_datetime_iso/0)
+
     # |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &url/0) end)
   end
 
@@ -225,13 +231,11 @@ defmodule ValueFlows.Simulate do
   end
 
   def proposed_intent(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:reciprocal, &maybe_bool/0)
+    Map.put_new_lazy(base, :reciprocal, &maybe_bool/0)
   end
 
   def proposed_intent_input(base \\ %{}) do
-    base
-    |> Map.put_new_lazy("reciprocal", &maybe_bool/0)
+    Map.put_new_lazy(base, "reciprocal", &maybe_bool/0)
   end
 
   def intent(base \\ %{}) do
@@ -293,14 +297,17 @@ defmodule ValueFlows.Simulate do
   def fake_intent!(user, overrides, unit) do
     measure_attrs = %{unit_id: unit.id}
 
-    overrides = Map.merge(%{
-        provider: Enum.random([user, nil]),
-        receiver: Enum.random([user, nil]),
-        available_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
-        resource_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
-        effort_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
-      },
-      overrides)
+    overrides =
+      Map.merge(
+        %{
+          provider: Enum.random([user, nil]),
+          receiver: Enum.random([user, nil]),
+          available_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+          resource_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs),
+          effort_quantity: Bonfire.Quantify.Simulate.measure(measure_attrs)
+        },
+        overrides
+      )
 
     {:ok, intent} = Intents.create(user, intent(overrides))
     intent
@@ -313,13 +320,18 @@ defmodule ValueFlows.Simulate do
 
   def fake_proposed_intent!(proposal, intent, overrides \\ %{}) do
     {:ok, proposed_intent} =
-      ValueFlows.Proposal.ProposedIntents.propose_intent(proposal, intent, proposed_intent(overrides))
+      ValueFlows.Proposal.ProposedIntents.propose_intent(
+        proposal,
+        intent,
+        proposed_intent(overrides)
+      )
 
     proposed_intent
   end
 
   def fake_proposed_to!(proposed_to, proposed) do
     {:ok, proposed_to} = ValueFlows.Proposal.ProposedTos.propose_to(proposed_to, proposed)
+
     proposed_to
   end
 
@@ -329,6 +341,7 @@ defmodule ValueFlows.Simulate do
 
   def fake_process_specification!(user, overrides \\ %{}) do
     {:ok, spec} = ProcessSpecifications.create(user, process_specification(overrides))
+
     spec
   end
 
@@ -370,6 +383,7 @@ defmodule ValueFlows.Simulate do
 
   def fake_resource_specification!(user, overrides \\ %{}) do
     {:ok, spec} = ResourceSpecifications.create(user, resource_specification(overrides))
+
     spec
   end
 
@@ -396,15 +410,13 @@ defmodule ValueFlows.Simulate do
 
   def some_fake_categories(user, num \\ 5) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Classify.Simulate),
-    do: some(num, fn -> Bonfire.Classify.Simulate.fake_category!(user).id end),
-    else: []
+      do: some(num, fn -> Bonfire.Classify.Simulate.fake_category!(user).id end),
+      else: []
   end
 
   def maybe_fake_unit(user) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Quantify.Simulate),
-    do: Bonfire.Quantify.Simulate.fake_unit!(user),
-    else: %{id: nil}
+      do: Bonfire.Quantify.Simulate.fake_unit!(user),
+      else: %{id: nil}
   end
-
-
 end

@@ -5,7 +5,6 @@ defmodule ValueFlows.Agent.Agents do
   use Bonfire.Common.Utils, only: [maybe_put: 3, merge_structs_as_map: 2]
   import Bonfire.Common.Config, only: [repo: 0]
 
-
   # TODO - change approach to allow pagination
   def agents(signed_in_user) do
     orgs = ValueFlows.Agent.Organizations.organizations(signed_in_user)
@@ -37,23 +36,30 @@ defmodule ValueFlows.Agent.Agents do
     a
     |> repo().maybe_preload(:shared_user)
     # |> IO.inspect()
-    |> merge_structs_as_map(Utils.e(a, :profile, %{name: Utils.e(a, :character, :username, "anonymous")}))
+    |> merge_structs_as_map(
+      Utils.e(a, :profile, %{
+        name: Utils.e(a, :character, :username, "anonymous")
+      })
+    )
     |> merge_structs_as_map(Utils.e(a, :character, %{}))
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> maybe_put(:primary_location, agent_location(a))
     |> maybe_put(:note, Utils.e(a, :profile, :summary))
     # |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
+
     # |> info()
   end
 
-  def agent_location(%{profile_id: profile_id} = a) when not is_nil(profile_id) do
+  def agent_location(%{profile_id: profile_id} = a)
+      when not is_nil(profile_id) do
     Bonfire.Common.Repo.maybe_preload(a, profile: [:geolocation])
     |> Map.get(:profile)
     |> agent_location()
   end
 
-  def agent_location(%{geolocation_id: geolocation_id} = a) when not is_nil(geolocation_id) do
+  def agent_location(%{geolocation_id: geolocation_id} = a)
+      when not is_nil(geolocation_id) do
     Bonfire.Common.Repo.maybe_preload(a, :geolocation)
     |> Map.get(:geolocation)
   end
@@ -77,26 +83,25 @@ defmodule ValueFlows.Agent.Agents do
     org_type = ValueFlows.Util.org_schema()
 
     case a do
-      %{shared_user: %{id: _}} -> # for SharedUser within a User
-        a
-        |> Map.put(:agent_type, :organization)
+      # for SharedUser within a User
+      %{shared_user: %{id: _}} ->
+        Map.put(a, :agent_type, :organization)
+
       %{__struct__: user_type} ->
-        a
-        |> Map.put(:agent_type, :person)
+        Map.put(a, :agent_type, :person)
+
       %{__typename: user_type} ->
-        a
-        |> Map.put(:agent_type, :person)
+        Map.put(a, :agent_type, :person)
+
       %{__struct__: org_type} ->
-        a
-        |> Map.put(:agent_type, :organization)
+        Map.put(a, :agent_type, :organization)
+
       _ ->
-        a
-        |> Map.put(:agent_type, :person)
+        Map.put(a, :agent_type, :person)
     end
   end
 
   def add_type(a) do
-     a
-        |> Map.put(:agent_type, :person)
+    Map.put(a, :agent_type, :person)
   end
 end

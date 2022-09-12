@@ -26,6 +26,7 @@ defmodule ValueFlows.EconomicEvent.Migrations do
       add(:receiver_id, weak_pointer(), null: true)
 
       add(:resource_inventoried_as_id, weak_pointer(EconomicResource), null: true)
+
       add(:to_resource_inventoried_as_id, weak_pointer(EconomicResource), null: true)
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
@@ -33,6 +34,7 @@ defmodule ValueFlows.EconomicEvent.Migrations do
       add(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
 
       add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+
       add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
 
       add(:has_beginning, :timestamptz)
@@ -49,6 +51,7 @@ defmodule ValueFlows.EconomicEvent.Migrations do
       add(:at_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
 
       add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
+
       add(:calculated_using_id, weak_pointer(ValueFlows.ValueCalculation), null: true)
 
       add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)

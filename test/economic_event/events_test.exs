@@ -36,7 +36,6 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
     end
   end
 
-
   describe "create" do
     test "can create an economic event" do
       user = fake_agent!()
@@ -68,15 +67,14 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
       action = action()
 
       assert {:error, _e} =
-        EconomicEvents.create(
-          user,
-          economic_event(%{
-            provider: provider.id,
-            receiver: receiver.id,
-            action: action.id
-          })
-        )
-
+               EconomicEvents.create(
+                 user,
+                 economic_event(%{
+                   provider: provider.id,
+                   receiver: receiver.id,
+                   action: action.id
+                 })
+               )
     end
 
     test "can create an economic event with context" do
@@ -144,7 +142,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
       assert {:ok, %{economic_event: event}} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
-      assert event.to_resource_inventoried_as.id == attrs.to_resource_inventoried_as
+
+      assert event.to_resource_inventoried_as.id ==
+               attrs.to_resource_inventoried_as
     end
 
     test "can create an economic event with resource_inventoried_as and to_resource_inventoried_as" do
@@ -159,7 +159,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
 
       assert_economic_event(event)
       assert event.resource_inventoried_as.id == attrs.resource_inventoried_as
-      assert event.to_resource_inventoried_as.id == attrs.to_resource_inventoried_as
+
+      assert event.to_resource_inventoried_as.id ==
+               attrs.to_resource_inventoried_as
     end
 
     test "can create an economic event with resource_conforms_to" do
@@ -199,7 +201,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
         effort_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, %{economic_event: event}} = EconomicEvents.create(user, economic_event(measures))
+      assert {:ok, %{economic_event: event}} =
+               EconomicEvents.create(user, economic_event(measures))
 
       assert_economic_event(event)
       assert event.resource_quantity.id
@@ -216,7 +219,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
         effort_quantity: Bonfire.Quantify.Simulate.measure(%{has_unit: "kilo_joules"})
       }
 
-      assert {:ok, %{economic_event: event}} = EconomicEvents.create(user, economic_event(measures))
+      assert {:ok, %{economic_event: event}} =
+               EconomicEvents.create(user, economic_event(measures))
 
       assert_economic_event(event)
       assert event.resource_quantity.id
@@ -260,7 +264,11 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
       economic_event = fake_economic_event!(user)
 
       assert {:ok, updated} =
-               EconomicEvents.update(user, economic_event, economic_event(%{note: "test"}))
+               EconomicEvents.update(
+                 user,
+                 economic_event,
+                 economic_event(%{note: "test"})
+               )
 
       assert_economic_event(updated)
       assert economic_event != updated
@@ -272,7 +280,11 @@ defmodule ValueFlows.EconomicEvent.EconomicEventsTest do
       economic_event = fake_economic_event!(alice)
 
       assert {:error, _e} =
-               EconomicEvents.update(bob, economic_event, economic_event(%{note: "test"}))
+               EconomicEvents.update(
+                 bob,
+                 economic_event,
+                 economic_event(%{note: "test"})
+               )
     end
   end
 
