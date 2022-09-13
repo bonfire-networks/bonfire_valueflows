@@ -190,20 +190,21 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  def update(current_user, id, changes) when is_binary(id) do
-    with {:ok, intent} <- by_id(id, current_user) do
-      update(intent, changes)
+  def update(current_user, id, changes, verb \\ :update)
+
+  def update(current_user, %Intent{} = intent, changes, verb) do
+    with :ok <- ValueFlows.Util.can?(current_user, verb, intent) do
+      do_update(intent, changes, verb)
     end
   end
 
-  def update(current_user, %Intent{} = intent, changes) do
-    with :ok <- ValueFlows.Util.ensure_edit_permission(current_user, intent) do
-      update(intent, changes)
+  def update(current_user, id, changes, verb) when is_binary(id) or is_map(id) do
+    with {:ok, intent} <- by_id(Utils.ulid(id), current_user) do
+      update(current_user, intent, changes, verb)
     end
   end
 
-  # TODO: turn into private function
-  def update(%Intent{} = intent, attrs) do
+  defp do_update(%Intent{} = intent, attrs, verb \\ :update) do
     attrs = prepare_attrs(attrs, e(intent, :creator, nil))
 
     repo().transact_with(fn ->
@@ -211,7 +212,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
              repo().update(Intent.update_changeset(intent, attrs)),
            intent <- preload_all(intent),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
-           {:ok, _} <- ValueFlows.Util.publish(intent, :update) do
+           {:ok, _} <- ValueFlows.Util.publish(intent, verb) do
         {:ok, intent}
       end
     end)
@@ -224,7 +225,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def soft_delete(%Intent{} = intent, current_user) do
-    with :ok <- ValueFlows.Util.ensure_edit_permission(current_user, intent) do
+    with :ok <- ValueFlows.Util.can?(current_user, :delete, intent) do
       soft_delete(intent)
     end
   end

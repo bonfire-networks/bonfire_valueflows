@@ -108,7 +108,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
         available_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, updated} = Intents.update(intent, intent(measures))
+      assert {:ok, updated} = Intents.update(user, intent, intent(measures))
       assert_intent(updated)
       assert intent != updated
       assert intent.effort_quantity_id == updated.effort_quantity_id

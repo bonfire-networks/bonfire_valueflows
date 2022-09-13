@@ -258,7 +258,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     def update_proposal(%{proposal: %{id: id} = changes}, info) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, proposal} <- proposal(%{id: id}, info),
-           :ok <- ValueFlows.Util.ensure_edit_permission(user, proposal),
+           :ok <- ValueFlows.Util.can?(user, proposal),
            {:ok, proposal} <- Proposals.update(proposal, changes) do
         {:ok, %{proposal: proposal}}
       end
@@ -268,7 +268,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, proposal} <- proposal(%{id: id}, info),
-             :ok <- ValueFlows.Util.ensure_edit_permission(user, proposal),
+             :ok <- ValueFlows.Util.can?(user, :delete, proposal),
              {:ok, _} <- Proposals.soft_delete(proposal) do
           {:ok, true}
         end

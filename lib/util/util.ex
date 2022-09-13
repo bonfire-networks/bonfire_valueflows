@@ -11,47 +11,58 @@ defmodule ValueFlows.Util do
     q
   end
 
-  def ensure_edit_permission(%{} = user, %{} = object) do
-    # TODO refactor to also use Boundaries (when extension active)
-    # TODO check also based on the parent / context? and user's organisation? etc
-    if ValueFlows.Util.is_admin?(user) or
-         Map.get(object, :creator_id) == user.id or
-         Map.get(object, :provider_id) == user.id do
+  def can?(current_user, verb \\ :update, object) do
+    # TODO check also based on the scope / context / user's organisation etc?
+    user_id = ulid(current_user)
+
+    if not is_nil(user_id) and
+         (ValueFlows.Util.is_admin?(current_user) or
+            e(object, :creator_id, nil) == user_id or
+            e(object, :provider_id, nil) == user_id or
+            Bonfire.Boundaries.can?(current_user, verb, object)) do
       :ok
     else
       {:error, :not_permitted}
     end
   end
 
-  def publish(%{id: creator_id} = creator, verb, %{id: thing_id} = thing) do
-    # this sets permissions & returns recipients in opts to be used for publishing
-    opts = prepare_opt_and_set_boundaries(creator, thing)
+  def publish(creator, verb, thing, opts \\ [])
 
-    # ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id) # deprecate - AP publishing is triggered by FeedActivities.publish instead
+  def publish(creator, verb, thing, opts) do
+    # this sets permissions & returns recipients in opts to be used for publishing
+    opts = prepare_opts_and_maybe_set_boundaries(creator, verb, thing, opts)
+
+    # ValueFlows.Util.Federation.ap_publish("create", ulid(thing), ulid(creator)) #  AP publishing is now triggered by FeedActivities.publish instead
 
     if module_enabled?(Bonfire.Social.FeedActivities) and
          Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
       # add to activity feed + maybe federate
+      # dump([creator, verb, thing, opts])
       Bonfire.Social.FeedActivities.publish(creator, verb, thing, opts)
     else
-      warn("VF - No integration available to publish activity")
+      warn("VF - No integration available to publish activity to feeds")
+
+      ValueFlows.Util.Federation.ap_publish("create", ulid(thing), ulid(creator))
+
       {:ok, nil}
     end
   end
 
-  def publish(_creator, verb, %{id: thing_id} = thing) do
+  def publish(_creator, verb, thing, opts) do
     warn("VF - No creator for object so we can't publish it")
 
     # make visible
-    prepare_opt_and_set_boundaries(
-      e(thing, :creator, e(thing, :provider, nil)),
-      thing
+    prepare_opts_and_maybe_set_boundaries(
+      creator_or_provider(thing),
+      verb,
+      thing,
+      opts
     )
 
     {:ok, nil}
   end
 
-  def prepare_opt_and_set_boundaries(creator, thing) do
+  def prepare_opts_and_maybe_set_boundaries(creator, verb, thing, opts) do
     # TODO: make default audience configurable & per object audience selectable by user in API and UI (note: also in `Federation.ap_prepare_activity`)
     preset_boundary = Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")
 
@@ -72,18 +83,21 @@ defmodule ValueFlows.Util do
       if module_enabled?(Bonfire.Social.Feeds),
         do: Bonfire.Social.Feeds.feed_ids(:notifications, to)
 
-    opts = [
-      boundary: preset_boundary,
-      to_circles: to_circles,
-      to_feeds: to_feeds
-    ]
+    opts =
+      opts ++
+        [
+          boundary: preset_boundary,
+          to_circles: to_circles,
+          to_feeds: to_feeds,
+          activity_json: if(e(opts, :editing, nil), do: true)
+        ]
 
     debug(
       opts,
       "boundaries to set & recipients to include (should include scope, provider, and receiver if any)"
     )
 
-    if module_enabled?(Bonfire.Boundaries),
+    if !e(opts, :editing, nil) and module_enabled?(Bonfire.Boundaries),
       do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
 
     opts
@@ -109,9 +123,18 @@ defmodule ValueFlows.Util do
     publish(%{creator_id: creator_id, id: thing_id}, :delete)
   end
 
-  def publish(_, verb) do
+  def publish(thing, verb) do
+    publish(creator_or_provider(thing), verb, thing, editing: true)
+  end
+
+  def publish(%{creator_id: creator_id}, verb) do
     warn("Could not publish (#{verb})")
     {:ok, nil}
+  end
+
+  defp creator_or_provider(thing) do
+    e(thing, :creator, nil) || e(thing, :provider, nil) || e(thing, :creator_id, nil) ||
+      e(thing, :provider_id, nil)
   end
 
   def attr_get_agent(attrs, field, creator) do

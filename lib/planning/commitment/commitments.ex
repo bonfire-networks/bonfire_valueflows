@@ -50,9 +50,9 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
   @spec update(struct(), Commitment.t(), attrs()) ::
           {:ok, Commitment.t()} | {:error, any()}
   def update(user, comm, changes) do
-    import ValueFlows.Util, only: [ensure_edit_permission: 2]
+    import ValueFlows.Util, only: [can?: 2]
 
-    with :ok <- ensure_edit_permission(user, comm) do
+    with :ok <- can?(user, comm) do
       do_update(comm, changes)
     end
   end
@@ -83,9 +83,9 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
   @spec soft_delete(struct(), Commitment.t()) ::
           {:ok, Commitment.t()} | {:error, Changeset.t()}
   def soft_delete(comm, user) do
-    import ValueFlows.Util, only: [ensure_edit_permission: 2]
+    import ValueFlows.Util, only: [can?: 3]
 
-    with :ok <- ensure_edit_permission(user, comm) do
+    with :ok <- can?(user, :delete, comm) do
       do_soft_delete(comm)
     end
   end

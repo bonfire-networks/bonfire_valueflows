@@ -9,6 +9,8 @@ defmodule ValueFlows.Planning.Intent.Queries do
   import Geo.PostGIS
   import Untangle
 
+  def query(schema \\ Intent)
+
   def query(Intent) do
     from(c in Intent,
       as: :intent,

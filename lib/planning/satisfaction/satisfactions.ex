@@ -46,9 +46,9 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
   @spec update(struct(), Satisfaction.t(), attrs()) ::
           {:ok, Satisfaction.t()} | {:error, any()}
   def update(user, satis, changes) do
-    import ValueFlows.Util, only: [ensure_edit_permission: 2]
+    import ValueFlows.Util, only: [can?: 2]
 
-    with :ok <- ensure_edit_permission(user, satis) do
+    with :ok <- can?(user, satis) do
       do_update(satis, changes)
     end
   end
@@ -78,9 +78,9 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
   @spec soft_delete(struct(), Satisfaction.t()) ::
           {:ok, Satisfaction.t()} | {:error, Changeset.t()}
   def soft_delete(satis, user) do
-    import ValueFlows.Util, only: [ensure_edit_permission: 2]
+    import ValueFlows.Util, only: [can?: 3]
 
-    with :ok <- ensure_edit_permission(user, satis) do
+    with :ok <- can?(user, :delete, satis) do
       do_soft_delete(satis)
     end
   end

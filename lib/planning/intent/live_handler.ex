@@ -112,59 +112,30 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
   def handle_event("status:" <> status, %{"id" => id} = attrs, socket) do
     finished? = status == "finished"
-
-    handle_event(
-      "update:status",
-      Map.merge(attrs, %{finished: finished?}),
-      socket
-    )
+    update(:label, id, Map.merge(attrs, %{finished: finished?}), socket)
   end
 
   def handle_event("update:" <> what, %{"id" => id} = attrs, socket) do
-    with {:ok, intent} <- Intents.one(id: id),
-         # TODO: switch to permissioned update
-         {:ok, intent} <- Intents.update(intent, input_to_atoms(attrs)) do
-      # debug(intent)
-
-      redir =
-        if e(attrs, "redirect_after", nil) and is_binary(id) do
-          e(attrs, "redirect_after", "/intent/") <> id
-        else
-          current_url(socket, @default_path)
-        end
-
-      {:noreply, redirect_to(socket, redir)}
-    end
+    update(what, id, attrs, socket)
   end
 
   def handle_event(
         "update:" <> what,
         attrs,
-        %{assigns: %{intent: %{id: intent_id}}} = socket
-      )
-      when is_binary(intent_id) do
-    # debug(socket)
-
-    handle_event(
-      "update:" <> what,
-      Map.merge(%{"id" => intent_id}, attrs),
-      socket
-    )
+        %{assigns: %{intent: %{id: _} = intent}} = socket
+      ) do
+    update(what, intent, attrs, socket)
   end
 
   def handle_event(
         "assign:select",
         %{"id" => assign_to, "name" => name} = attrs,
-        %{assigns: %{intent: %{id: intent_id}}} = socket
+        %{assigns: %{intent: %{id: _} = intent}} = socket
       )
       when is_binary(assign_to) do
-    # debug(socket)
-
     assign_to(
       assign_to,
-      intent_id,
-      path(socket.view, intent_id),
-      current_user(socket),
+      intent,
       socket
     )
   end
@@ -180,8 +151,6 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     assign_to(
       assign_to,
       intent_id,
-      path(socket.view, process_id),
-      current_user(socket),
       socket
     )
   end
@@ -194,22 +163,37 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
       when is_binary(assign_to) do
     # debug(socket)
 
-    assign_to(assign_to, intent_id, nil, current_user(socket), socket)
+    assign_to(assign_to, intent_id, socket)
   end
 
-  def assign_to(assign_to, intent_id, redirect_path, current_user_id, socket) do
-    assign_to_id = if assign_to == "me", do: current_user_id, else: assign_to
-
-    with {:ok, intent} <- Intents.one(id: intent_id),
-         {:ok, intent} <- Intents.update(intent, %{provider: assign_to_id}) do
+  defp update(what, intent, attrs, socket) do
+    with {:ok, intent} <-
+           Intents.update(current_user(socket), intent, input_to_atoms(attrs), update_verb(what)) do
       # debug(intent)
-      {:noreply,
-       redirect_to(
-         socket,
-         redirect_path || current_url(socket, @default_path)
-       )}
+      id = ulid(intent)
+
+      redir =
+        if e(attrs, "redirect_after", nil) && is_binary(id) do
+          e(attrs, "redirect_after", "/intent/") <> id
+        else
+          current_url(socket, @default_path)
+        end
+
+      {:noreply, redirect_to(socket, redir)}
     end
   end
+
+  def assign_to(assign_to, intent, socket) do
+    assign_to_id = if assign_to == "me", do: current_user(socket), else: assign_to
+
+    update(:assign, intent, %{provider: assign_to_id}, socket)
+  end
+
+  def update_verb("due"), do: :schedule
+  def update_verb("assign"), do: :assign
+  def update_verb("provider"), do: :assign
+  def update_verb("status"), do: :label
+  def update_verb(verb) when is_atom(verb), do: verb
 
   def handle_param("search", %{"term" => term} = attrs, socket) do
     with {:ok, intents} <- Intents.many([:default, search: term]) do

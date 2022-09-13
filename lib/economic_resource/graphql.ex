@@ -478,7 +478,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     defp do_update(%{id: id} = changes, info, update_fn) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, resource} <- resource(%{id: id}, info),
-           :ok <- ValueFlows.Util.ensure_edit_permission(user, resource),
+           :ok <- ValueFlows.Util.can?(user, resource),
            {:ok, uploads} <-
              ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
            changes = Map.merge(changes, uploads),
@@ -491,7 +491,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, resource} <- resource(%{id: id}, info),
-             :ok <- ValueFlows.Util.ensure_edit_permission(user, resource),
+             :ok <- ValueFlows.Util.can?(user, :delete, resource),
              {:ok, _} <- EconomicResources.soft_delete(resource) do
           {:ok, true}
         end
