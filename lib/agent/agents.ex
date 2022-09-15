@@ -34,7 +34,7 @@ defmodule ValueFlows.Agent.Agents do
     # a = Bonfire.Common.Repo.maybe_preload(a, [icon: [:content], image: [:content]])
 
     a
-    |> repo().maybe_preload(:shared_user)
+    |> repo().maybe_preload(:shared_user, label: __MODULE__)
     # |> IO.inspect()
     |> merge_structs_as_map(
       Utils.e(a, :profile, %{

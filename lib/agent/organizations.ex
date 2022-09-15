@@ -2,6 +2,7 @@
 defmodule ValueFlows.Agent.Organizations do
   # alias ValueFlows.Simulate
   import Untangle
+  import Bonfire.Common.Config, only: [repo: 0]
 
   def organizations(signed_in_user) do
     if Bonfire.Common.Extend.module_enabled?(Organisation.Organisations) do
@@ -20,7 +21,9 @@ defmodule ValueFlows.Agent.Organizations do
 
   defp format(orgs) when is_list(orgs),
     do:
-      Enum.map(orgs, &format/1)
+      orgs
+      |> repo().maybe_preload(:shared_user, label: __MODULE__)
+      |> Enum.map(&format/1)
       |> Enum.reject(fn
         %{agent_type: :person} -> true
         _ -> false
