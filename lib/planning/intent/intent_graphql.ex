@@ -318,6 +318,17 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       )
     end
 
+    defp intents_filter(%{search_string: text} = page_opts, filters_acc, current_user)
+         when is_binary(text),
+         do:
+           intents_filter_next(
+             :search_string,
+             [search: text],
+             page_opts,
+             filters_acc,
+             current_user
+           )
+
     defp intents_filter(
            _,
            filters_acc,
