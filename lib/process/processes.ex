@@ -159,7 +159,11 @@ defmodule ValueFlows.Process.Processes do
            {:ok, process} <-
              ValueFlows.Util.try_tag_thing(creator, process, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process) do
+        # add my own to favourites by default
+        Utils.maybe_apply(Bonfire.Social.Likes, :like, [creator, process])
+
         indexing_object_format(process) |> ValueFlows.Util.index_for_search()
+
         {:ok, process}
       end
     end)

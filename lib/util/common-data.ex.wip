@@ -1,0 +1,546 @@
+defmodule ValueFlows.CommonData
+  # WIP for fetching/importing remote actions and units
+
+  def lookup(key) do
+    :ets.lookup(current_release_from_table() |> table_name_for_release_name, key) |> hd |> elem(1)
+  end
+
+  defp current_release_from_table do
+    :ets.lookup(:valueFlows_common_data_current_release, :release_version) |> hd |> elem(1)
+  end
+
+  defp table_name_for_release_name(release_name) do
+    "valueFlows_common_data_rel_#{release_name}" |> String.to_atom()
+  end
+
+  def data_dir do
+    case Application.fetch_env(:bonfire_valueflows, :data_dir) do
+      {:ok, nil} -> Application.app_dir(:bonfire_valueflows, "priv")
+      {:ok, dir} -> dir
+      _ -> Application.app_dir(:bonfire_valueflows, "priv")
+    end
+  end
+
+  defmodule EtsHolder do
+    @moduledoc false
+
+    require Logger
+    use GenServer
+    alias ValueFlows.CommonData.DataBuilder
+
+    @file_version 2
+
+    def start_link([]) do
+      GenServer.start_link(__MODULE__, [], name: __MODULE__)
+    end
+
+    def init([]) do
+      make_sure_a_release_is_on_file()
+      create_current_release_ets_table()
+      {:ok, release_name} = load_release()
+      {:ok, release_name}
+    end
+
+    def new_release_has_been_downloaded do
+      GenServer.cast(__MODULE__, :new_release_has_been_downloaded)
+    end
+
+    def handle_cast(:new_release_has_been_downloaded, state) do
+      {:ok, new_release_name} = load_release()
+
+      if state != new_release_name do
+        Logger.info("ValueFlows.CommonData has updated the release from #{state} to #{new_release_name}")
+        delete_ets_table_for_version(state)
+        delete_ets_file_for_version(state)
+      end
+
+      {:noreply, new_release_name}
+    end
+
+    defp delete_ets_table_for_version(release_version) do
+      Logger.debug("ValueFlows.CommonData deleting ETS table for version #{release_version}")
+
+      release_version
+      |> DataBuilder.ets_table_name_for_release_version()
+      |> :ets.delete()
+    end
+
+    defp delete_ets_file_for_version(release_version) do
+      Logger.debug("ValueFlows.CommonData deleting ETS table file for version #{release_version}")
+
+      release_version
+      |> DataBuilder.ets_file_name_for_release_version()
+      |> File.rm()
+    end
+
+    defp load_release do
+      release_name = newest_release_on_file()
+      load_ets_table(release_name)
+      set_current_release(release_name)
+      {:ok, release_name}
+    end
+
+    defp load_ets_table(release_name) do
+      file_name = "#{release_dir()}/#{release_name}.v#{@file_version}.ets"
+      {:ok, _table} = :ets.file2tab(:erlang.binary_to_list(file_name))
+    end
+
+    defp create_current_release_ets_table do
+      table = :ets.new(:tzdata_current_release, [:set, :named_table])
+      {:ok, table}
+    end
+
+    defp set_current_release(release_version) do
+      # Logger.debug "ValueFlows.CommonData setting current release version to #{release_version}"
+      :ets.insert(:tzdata_current_release, {:release_version, release_version})
+    end
+
+    defp make_sure_a_release_is_on_file do
+      make_sure_a_release_dir_exists()
+
+      cond do
+        release_files() == [] and Util.custom_data_dir_configured? ->
+          Logger.info("No tzdata release files found in custom data dir. Copying release file from tzdata priv dir.")
+          copy_release_dir_from_priv()
+        release_files() == [] and not Util.custom_data_dir_configured? ->
+          Logger.error("No tzdata release files found!")
+        true ->
+          nil
+      end
+    end
+
+    defp copy_release_dir_from_priv() do
+      custom_destination_dir = ValueFlows.CommonData.data_dir() <> "/release_ets"
+      priv_release_ets_dir = Application.app_dir(:tzdata, "priv") <> "/release_ets"
+      priv_release_ets_dir
+      |> release_files_for_dir
+      |> Enum.each(fn file ->
+        File.copy!(priv_release_ets_dir <> "/" <> file, custom_destination_dir <> "/" <> file)
+      end)
+    end
+
+    defp make_sure_a_release_dir_exists do
+      File.mkdir_p(release_dir())
+    end
+
+    defp newest_release_on_file do
+      release_files()
+      |> List.last()
+      |> String.replace(".v#{@file_version}.ets", "")
+    end
+
+    defp release_files do
+      release_dir()
+      |> release_files_for_dir()
+    end
+
+    defp release_files_for_dir(dir) do
+      dir
+      |> File.ls!()
+      |> Enum.filter(&Regex.match?(~r/^2\d{3}[a-z]\.v#{@file_version}\.ets/, &1))
+      |> Enum.sort()
+    end
+
+    defp release_dir do
+      ValueFlows.CommonData.data_dir() <> "/release_ets"
+    end
+
+    @doc """
+    Returns the file version number used by the current version of ValueFlows.CommonData for the ETS files.
+    """
+    @spec file_version() :: non_neg_integer()
+    def file_version do
+      @file_version
+    end
+  end
+
+  defmodule ReleaseUpdater do
+    @moduledoc false
+
+    require Logger
+    use GenServer
+    alias ValueFlows.CommonData.DataLoader
+
+    def start_link([]) do
+      GenServer.start_link(__MODULE__, [], name: :tzdata_release_updater)
+    end
+
+    def init([]) do
+      Process.send_after(self(), :check_if_time_to_update, 3000)
+      {:ok, []}
+    end
+
+    @msecs_between_checking_date 18_000_000
+    def handle_info(:check_if_time_to_update, state) do
+      check_if_time_to_update()
+      Process.send_after(self(), :check_if_time_to_update, @msecs_between_checking_date)
+      {:noreply, state}
+    end
+
+    @days_between_remote_poll 1
+    def check_if_time_to_update do
+      {tag, days} = DataLoader.days_since_last_remote_poll()
+
+      case tag do
+        :ok ->
+          if days >= @days_between_remote_poll do
+            poll_for_update()
+          end
+
+        _ ->
+          poll_for_update()
+      end
+    end
+
+    def poll_for_update do
+      Logger.debug("ValueFlows.CommonData polling for update.")
+
+      case loaded_tzdata_matches_newest_one?() do
+        {:ok, true} ->
+          Logger.debug("ValueFlows.CommonData polling shows the loaded tz database is up to date.")
+          :do_nothing
+
+        {:ok, false} ->
+          case ValueFlows.CommonData.DataBuilder.load_and_save_table() do
+            {:ok, _, _} ->
+              ValueFlows.CommonData.EtsHolder.new_release_has_been_downloaded()
+
+            {:error, error} ->
+              {:error, error}
+          end
+
+        _ ->
+          :do_nothing
+      end
+    end
+
+    defp loaded_tzdata_matches_newest_one? do
+      case ValueFlows.CommonData.ReleaseReader.has_modified_at?() do
+        true -> loaded_tzdata_matches_remote_last_modified?()
+        false -> loaded_tzdata_matches_iana_file_size?()
+      end
+    end
+
+    defp loaded_tzdata_matches_iana_file_size? do
+      {tag, filesize} = ValueFlows.CommonData.DataLoader.latest_file_size()
+
+      case tag do
+        :ok ->
+          {:ok, filesize == ValueFlows.CommonData.ReleaseReader.archive_content_length()}
+
+        _ ->
+          {tag, nil}
+      end
+    end
+
+    defp loaded_tzdata_matches_remote_last_modified? do
+      {tag, candidate_last_modified} = ValueFlows.CommonData.DataLoader.last_modified_of_latest_available()
+
+      case tag do
+        :ok ->
+          current_last_modified = ValueFlows.CommonData.ReleaseReader.modified_at()
+
+          if candidate_last_modified != current_last_modified do
+            ("tzdata release in place is from a file last modified #{current_last_modified}. " <>
+              "Release file on server was last modified #{candidate_last_modified}.")
+            |> Logger.info()
+          end
+
+          {:ok, candidate_last_modified == current_last_modified}
+
+        _ ->
+          {tag, nil}
+      end
+    end
+  end
+
+  defmodule DataBuilder do
+    @moduledoc false
+    alias ValueFlows.CommonData.DataLoader
+    require Logger
+
+    # download new data releases, then parse them, build
+    # periods and save the data in an ETS table
+    def load_and_save_table(url) do
+      {:ok, content_length, release_version, downloaded_filename, modified_at} = DataLoader.download_new(url)
+      current_version = ValueFlows.CommonData.ReleaseReader.release_version()
+
+      if release_version == current_version do
+        # remove temporary ValueFlows.CommonData dir
+        File.rm_rf(downloaded_filename)
+
+        Logger.info(
+          "Downloaded ValueFlows.CommonData release from IANA is the same version as the version currently in use (#{
+            current_version
+          })."
+        )
+
+        {:error, :downloaded_version_same_as_current_version}
+      else
+        do_load_and_save_table(content_length, release_version, downloaded_filename, modified_at)
+      end
+    end
+
+    defp do_load_and_save_table(content_length, release_version, downloaded_filename, modified_at) do
+      ets_table_name = ets_table_name_for_release_version(release_version)
+      table = :ets.new(ets_table_name, [:bag, :named_table])
+      {:ok, data} = ValueFlows.CommonData.Parse.from_csv(downloaded_filename)
+      :ets.insert(table, {:release_version, release_version})
+      :ets.insert(table, {:archive_content_length, content_length})
+      :ets.insert(table, {:data, data})
+      :ets.insert(table, {:modified_at, modified_at})
+
+      # remove temporary ValueFlows.CommonData dir
+      File.rm_rf(downloaded_filename)
+      ets_tmp_file_name = "#{release_dir()}/#{release_version}.tmp"
+      ets_file_name = ets_file_name_for_release_version(release_version)
+      File.mkdir_p(release_dir())
+      # Create file using a .tmp line ending to avoid it being
+      # recognized as a complete file before writing to it is complete.
+      :ets.tab2file(table, :erlang.binary_to_list(ets_tmp_file_name))
+      :ets.delete(table)
+      # Then rename it, which should be an atomic operation.
+      :file.rename(ets_tmp_file_name, ets_file_name)
+      {:ok, content_length, release_version}
+    end
+
+    def ets_file_name_for_release_version(release_version) do
+      "#{release_dir()}/#{release_version}.v#{ValueFlows.CommonData.EtsHolder.file_version}.ets"
+    end
+
+    def ets_table_name_for_release_version(release_version) do
+      String.to_atom("valueFlows_common_data_rel_#{release_version}")
+    end
+
+    defp release_dir do
+      ValueFlows.CommonData.data_dir() <> "/release_ets"
+    end
+  end
+
+  defmodule DataLoader do
+    @moduledoc false
+
+    require Logger
+    # Can poll for newest version of tz data and can download
+    # and extract it.
+    def download_new(url) do
+      Logger.debug("ValueFlows.CommonData downloading new data from #{url}")
+      set_latest_remote_poll_date()
+      {:ok, {200, headers, body}} = http_client().get(url, [], follow_redirect: true)
+      content_length = byte_size(body)
+      {:ok, last_modified} = last_modified_from_headers(headers)
+
+      new_dir_name =
+        "#{data_dir()}/tmp_downloads/#{content_length}_#{:rand.uniform(100_000_000)}/"
+
+      File.mkdir_p!(new_dir_name)
+      downloaded_filename = "#{new_dir_name}latest.csv"
+      File.write!(downloaded_filename, body)
+      release_version = release_version_for_dir(downloaded_filename)
+      Logger.debug("ValueFlows.CommonData data downloaded. Release version #{release_version}.")
+      {:ok, content_length, release_version, downloaded_filename, last_modified}
+    end
+
+    def release_version_for_dir(dir_name) do
+      # TODO: parse CSV and get the version from a cell
+    end
+
+    def last_modified_of_latest_available(url \\ @download_url) do
+      set_latest_remote_poll_date()
+
+      case http_client().head(url, [], []) do
+        {:ok, {200, headers}} ->
+          last_modified_from_headers(headers)
+
+        _ ->
+          {:error, :did_not_get_ok_response}
+      end
+    end
+
+    def latest_file_size(url \\ @download_url) do
+      set_latest_remote_poll_date()
+
+      case latest_file_size_by_head(url) do
+        {:ok, size} ->
+          {:ok, size}
+
+        _ ->
+          Logger.debug("Could not get latest ValueFlows.CommonData file size by HEAD request. Trying GET request.")
+          latest_file_size_by_get(url)
+      end
+    end
+
+    defp latest_file_size_by_get(url) do
+      case http_client().get(url, [], []) do
+        {:ok, {200, _headers, body}} ->
+          {:ok, byte_size(body)}
+
+        _ ->
+          {:error, :did_not_get_ok_response}
+      end
+    end
+
+    defp latest_file_size_by_head(url) do
+      http_client().head(url, [], [])
+      |> do_latest_file_size_by_head
+    end
+
+    defp do_latest_file_size_by_head({:error, error}), do: {:error, error}
+
+    defp do_latest_file_size_by_head({_tag, resp_code, _headers}) when resp_code != 200,
+      do: {:error, :did_not_get_ok_response}
+
+    defp do_latest_file_size_by_head({_tag, _resp_code, headers}) do
+      headers
+      |> content_length_from_headers
+    end
+
+    defp content_length_from_headers(headers) do
+      case value_from_headers(headers, "Content-Length") do
+        {:ok, content_length} -> {:ok, content_length |> String.to_integer()}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+
+    defp last_modified_from_headers(headers) do
+      value_from_headers(headers, "Last-Modified")
+    end
+
+    defp value_from_headers(headers, key) do
+      header =
+        headers
+        |> Enum.filter(fn {k, _v} -> String.downcase(k) == String.downcase(key) end)
+        |> List.first()
+
+      case header do
+        nil -> {:error, :not_found}
+        {_, value} -> {:ok, value}
+        _ -> {:error, :unexpected_headers}
+      end
+    end
+
+    def set_latest_remote_poll_date do
+      {y, m, d} = current_date_utc()
+      File.write!(remote_poll_file_name(), "#{y}-#{m}-#{d}")
+    end
+
+    def latest_remote_poll_date do
+      latest_remote_poll_file_exists?() |> do_latest_remote_poll_date
+    end
+
+    defp do_latest_remote_poll_date(_file_exists = true) do
+      File.stream!(remote_poll_file_name())
+      |> Enum.to_list()
+      |> return_value_for_file_list
+    end
+
+    defp do_latest_remote_poll_date(_file_exists = false), do: {:unknown, nil}
+
+    defp return_value_for_file_list([]), do: {:unknown, nil}
+
+    defp return_value_for_file_list([one_line]) do
+      date =
+        one_line
+        |> String.split("-")
+        |> Enum.map(&(Integer.parse(&1) |> elem(0)))
+        |> List.to_tuple()
+
+      {:ok, date}
+    end
+
+    defp return_value_for_file_list(_) do
+      raise "latest_remote_poll.txt contains more than 1 line. It should contain exactly 1 line. Remove the file latest_remote_poll.txt in order to resolve the problem."
+    end
+
+    defp latest_remote_poll_file_exists?, do: File.exists?(remote_poll_file_name())
+
+    defp current_date_utc, do: :calendar.universal_time() |> elem(0)
+
+    def days_since_last_remote_poll do
+      {tag, date} = latest_remote_poll_date()
+
+      case tag do
+        :ok ->
+          days_today = :calendar.date_to_gregorian_days(current_date_utc())
+          days_latest = :calendar.date_to_gregorian_days(date)
+          {:ok, days_today - days_latest}
+
+        _ ->
+          {tag, date}
+      end
+    end
+
+    def remote_poll_file_name do
+      data_dir() <> "/latest_remote_poll.txt"
+    end
+
+    defp data_dir, do: ValueFlows.CommonData.data_dir()
+
+    defp http_client() do
+      Application.get_env(:bonfire_valueflows, :http_client, ValueFlows.CommonData.HTTPClient.Hackney)
+    end
+  end
+
+  defmodule HTTPClient do
+    @moduledoc """
+    Behaviour for HTTP client used by ValueFlows.CommonData.
+    See "HTTP Client" section in README.md for more information.
+    """
+
+    @type status() :: non_neg_integer()
+
+    @type headers() :: [{header_name :: String.t(), header_value :: String.t()}]
+
+    @type body() :: binary()
+
+    @type option() :: {:follow_redirect, boolean}
+
+    @callback get(url :: String.t(), headers(), options :: [option]) ::
+                {:ok, {status(), headers(), body()}} | {:error, term()}
+
+    @callback head(url :: String.t(), headers(), options :: [option]) ::
+                {:ok, {status(), headers()}} | {:error, term()}
+  end
+
+  defmodule HTTPClient.Hackney do
+    @moduledoc false
+
+    @behaviour ValueFlows.CommonData.HTTPClient
+
+    if Code.ensure_loaded?(:hackney) do
+      @impl true
+      def get(url, headers, options) do
+        with {:ok, status, headers, client_ref} <- :hackney.get(url, headers, "", options),
+            {:ok, body} <- :hackney.body(client_ref) do
+          {:ok, {status, headers, body}}
+        end
+      end
+
+      @impl true
+      def head(url, headers, options) do
+        with {:ok, status, headers} <- :hackney.head(url, headers, "", options) do
+          {:ok, {status, headers}}
+        end
+      end
+    else
+      @message """
+      missing :hackney dependency
+      ValueFlows.CommonData requires a HTTP client in order to automatically update data.
+      In order to use the built-in adapter based on Hackney HTTP client, add the
+      following to your mix.exs dependencies list:
+          {:hackney, "~> 1.0"}
+      See README for more information.
+      """
+
+      @impl true
+      def get(_url, _headers, _options) do
+        raise @message
+      end
+
+      @impl true
+      def head(_url, _headers, _options) do
+        raise @message
+      end
+    end
+  end
+end

@@ -81,19 +81,21 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
            # |> debug()
            |> Map.merge(e(attrs, "intent", %{}))
            |> input_to_atoms()
-           |> debug("input"),
-         {:ok, intent} <-
+           |> debug("intent input"),
+         {:ok, %{id: id} = intent} <-
            Intents.create(
              current_user,
-             Map.put(obj_attrs, :due, input_date(e(obj_attrs, :due, nil)))
+             obj_attrs
+             |> Map.put(:due, input_date(e(obj_attrs, :due, nil)))
+             |> Map.put_new(:receiver, current_user)
            ) do
-      debug(intent, "created")
+      debug(intent, "intent created")
 
       case Bonfire.Common.Text.list_checkboxes(intent.note) do
         sub_intents when length(sub_intents) > 0 ->
           # debug(sub_intents)
 
-          create_from_list(current_user, obj_attrs, sub_intents, [intent.id])
+          create_from_list(current_user, obj_attrs, sub_intents, [id])
 
         _ ->
           nil
@@ -101,7 +103,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
       redir =
         if e(attrs, "redirect_after", nil) do
-          e(attrs, "redirect_after", "/intent/") <> ulid!(intent)
+          e(attrs, "redirect_after", "/intent/") <> id
         else
           current_url(socket, @default_path)
         end
@@ -111,8 +113,15 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   end
 
   def handle_event("status:" <> status, %{"id" => id} = attrs, socket) do
-    finished? = status == "finished"
-    update(:label, id, Map.merge(attrs, %{finished: finished?}), socket)
+    update(:label, id, Map.merge(attrs, %{finished: status == "finished"}), socket)
+  end
+
+  def handle_event(
+        "update:" <> what,
+        %{"field" => field, "id" => value, "context_id" => intent_id} = attrs,
+        socket
+      ) do
+    update(what, intent_id, Map.put(%{}, field, value), socket)
   end
 
   def handle_event("update:" <> what, %{"id" => id} = attrs, socket) do
@@ -131,8 +140,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
         "assign:select",
         %{"id" => assign_to, "name" => name} = attrs,
         %{assigns: %{intent: %{id: _} = intent}} = socket
-      )
-      when is_binary(assign_to) do
+      ) do
     assign_to(
       assign_to,
       intent,
@@ -143,9 +151,8 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   def handle_event(
         "assign:select",
         %{"id" => assign_to, "name" => name, "context_id" => intent_id} = attrs,
-        %{assigns: %{process: %{id: process_id}}} = socket
-      )
-      when is_binary(assign_to) do
+        socket
+      ) do
     # debug(socket)
 
     assign_to(
@@ -158,35 +165,66 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   def handle_event(
         "assign:select",
         %{"id" => assign_to, "name" => name, "context_id" => intent_id} = attrs,
-        socket
-      )
-      when is_binary(assign_to) do
+        %{assigns: %{intent: %{id: intent_id}}} = socket
+      ) do
     # debug(socket)
 
     assign_to(assign_to, intent_id, socket)
   end
 
+  def handle_event(
+        "assign:select",
+        %{"id" => assign_to, "field" => field, "context_id" => intent_id} = attrs,
+        socket
+      ) do
+    # debug(socket)
+
+    assign_to(assign_to, intent_id, socket, maybe_to_atom(field))
+  end
+
+  def handle_event(
+        "assign:unset",
+        %{"field" => field, "context_id" => intent_id} = attrs,
+        socket
+      ) do
+    # debug(socket)
+
+    assign_to(nil, intent_id, socket, maybe_to_atom(field))
+  end
+
   defp update(what, intent, attrs, socket) do
+    attrs =
+      input_to_atoms(attrs)
+      |> debug("attrs")
+
     with {:ok, intent} <-
-           Intents.update(current_user(socket), intent, input_to_atoms(attrs), update_verb(what)) do
-      # debug(intent)
+           Intents.update(current_user(socket), intent, attrs, update_verb(what)) do
+      debug(intent, "updated")
+
+      {:noreply,
+       socket
+       |> assign(intent: intent)}
+
       id = ulid(intent)
 
-      redir =
-        if e(attrs, "redirect_after", nil) && is_binary(id) do
-          e(attrs, "redirect_after", "/intent/") <> id
-        else
-          current_url(socket, @default_path)
-        end
+      if e(attrs, "redirect_after", nil) && is_binary(id) do
+        redir = e(attrs, "redirect_after", "/intent/") <> id
+        {:noreply, redirect_to(socket, redir)}
+      else
+        # current_url(socket, @default_path)
+        {:noreply,
+         socket
+         |> assign(intent: intent)}
 
-      {:noreply, redirect_to(socket, redir)}
+        # send_self(socket, intent: intent)
+      end
     end
   end
 
-  def assign_to(assign_to, intent, socket) do
+  def assign_to(assign_to, intent, socket, field \\ :provider) do
     assign_to_id = if assign_to == "me", do: current_user(socket), else: assign_to
 
-    update(:assign, intent, %{provider: assign_to_id}, socket)
+    update(:assign, intent, Map.put(%{}, field || :provider, assign_to_id), socket)
   end
 
   def update_verb("due"), do: :schedule
@@ -194,6 +232,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   def update_verb("provider"), do: :assign
   def update_verb("status"), do: :label
   def update_verb(verb) when is_atom(verb), do: verb
+  def update_verb(_), do: :edit
 
   def handle_param("search", %{"term" => term} = attrs, socket) do
     with {:ok, intents} <- Intents.many([:default, search: term]) do
