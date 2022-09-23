@@ -103,7 +103,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
 
       redir =
         if e(attrs, "redirect_after", nil) do
-          e(attrs, "redirect_after", "/intent/") <> id
+          e(attrs, "redirect_after", "/intent") <> "/" <> id
         else
           current_url(socket, @default_path)
         end
@@ -221,7 +221,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
       id = ulid(intent)
 
       if e(attrs, "redirect_after", nil) && is_binary(id) do
-        redir = e(attrs, "redirect_after", "/intent/") <> id
+        redir = e(attrs, "redirect_after", "/intent") <> "/" <> id
         {:noreply, redirect_to(socket, redir)}
       else
         # current_url(socket, @default_path)

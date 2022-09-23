@@ -22,7 +22,7 @@ defmodule ValueFlows.Process.LiveHandler do
       {:noreply,
        redirect_to(
          socket,
-         e(attrs, "redirect_after", "/process/") <> process.id
+         e(attrs, "redirect_after", "/process") <> "/" <> process.id
        )}
     end
   end

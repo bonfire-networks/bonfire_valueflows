@@ -24,7 +24,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
       {:noreply,
        redirect_to(
          socket,
-         e(attrs, "redirect_after", "/resource_spec/") <> resource_spec.id
+         e(attrs, "redirect_after", "/resource_spec") <> "/" <> resource_spec.id
        )}
     end
   end

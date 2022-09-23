@@ -31,7 +31,8 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
         {:noreply,
          redirect_to(
            socket,
-           e(attrs, "redirect_after", "/resource/") <>
+           e(attrs, "redirect_after", "/resource") <>
+             "/" <>
              e(event, :economic_resource, :id, "")
          )}
       else
