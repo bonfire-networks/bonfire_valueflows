@@ -158,7 +158,7 @@ defmodule ValueFlows.Process.Processes do
            process <- preload_all(process),
            {:ok, process} <-
              ValueFlows.Util.try_tag_thing(creator, process, attrs),
-           {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process, attrs: attrs) do
         # add my own to favourites by default
         Utils.maybe_apply(Bonfire.Social.Likes, :like, [creator, process])
 

@@ -133,7 +133,7 @@ defmodule ValueFlows.Proposal.Proposals do
              repo().insert(Proposal.create_changeset(creator, attrs)),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <-
-             ValueFlows.Util.publish(creator, :propose, proposal) do
+             ValueFlows.Util.publish(creator, :propose, proposal, attrs: attrs) do
         indexing_object_format(proposal) |> ValueFlows.Util.index_for_search()
         {:ok, preload_all(proposal)}
       end

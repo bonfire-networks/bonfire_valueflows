@@ -34,11 +34,15 @@ defmodule ValueFlows.Util do
 
     # ValueFlows.Util.Federation.ap_publish("create", ulid(thing), ulid(creator)) #  AP publishing is now triggered by FeedActivities.publish instead
 
-    if module_enabled?(Bonfire.Social.FeedActivities) and
-         Kernel.function_exported?(Bonfire.Social.FeedActivities, :publish, 4) do
+    # maybe in reply to
+    case opts[:attrs] do
+      %{} = attrs -> maybe_apply(Bonfire.Social.Threads, :cast, [thing, attrs, creator, opts])
+      _ -> nil
+    end
+
+    if module_enabled?(Bonfire.Social.FeedActivities) do
       # add to activity feed + maybe federate
-      # dump([creator, verb, thing, opts])
-      Bonfire.Social.FeedActivities.publish(creator, verb, thing, opts)
+      maybe_apply(Bonfire.Social.FeedActivities, :publish, [creator, verb, thing, opts])
     else
       warn("VF - No integration available to publish activity to feeds")
 

@@ -128,12 +128,24 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     update(what, id, attrs, socket)
   end
 
+  def handle_event("update", %{"id" => id} = attrs, socket) do
+    update(:edit, id, attrs, socket)
+  end
+
   def handle_event(
         "update:" <> what,
         attrs,
         %{assigns: %{intent: %{id: _} = intent}} = socket
       ) do
     update(what, intent, attrs, socket)
+  end
+
+  def handle_event(
+        "update",
+        attrs,
+        %{assigns: %{intent: %{id: _} = intent}} = socket
+      ) do
+    update(:edit, intent, attrs, socket)
   end
 
   def handle_event(
@@ -195,6 +207,7 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   defp update(what, intent, attrs, socket) do
     attrs =
       input_to_atoms(attrs)
+      |> maybe_put(:due, input_date(e(attrs, :due, nil)))
       |> debug("attrs")
 
     with {:ok, intent} <-
@@ -253,18 +266,18 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     end
   end
 
-  def handle_event("delete", %{"id" => id} = attrs, socket) do
-    with {:ok, intent} <- Intents.soft_delete(id, current_user(socket)) do
-      # debug(intent)
+  # def handle_event("delete", %{"id" => id} = attrs, socket) do
+  #   with {:ok, intent} <- Intents.soft_delete(id, current_user(socket)) do
+  #     # debug(intent)
 
-      redir =
-        if e(attrs, "redirect_after", nil) do
-          e(attrs, "redirect_after", "/")
-        else
-          current_url(socket, @default_path)
-        end
+  #     redir =
+  #       if e(attrs, "redirect_after", nil) do
+  #         e(attrs, "redirect_after", "/")
+  #       else
+  #         current_url(socket, @default_path)
+  #       end
 
-      {:noreply, redirect_to(socket, redir)}
-    end
-  end
+  #     {:noreply, redirect_to(socket, redir)}
+  #   end
+  # end
 end

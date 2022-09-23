@@ -172,7 +172,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
            resource <- preload_all(%{resource | creator: creator}),
            {:ok, resource} <-
              ValueFlows.Util.try_tag_thing(creator, resource, attrs) do
-        # {:ok, activity} = ValueFlows.Util.publish(creator, resource.state_id, resource) # no need to publish since the related event will already appear in feeds
+        # {:ok, activity} = ValueFlows.Util.publish(creator, resource.state_id, resource, attrs: attrs) # no need to publish since the related event will already appear in feeds
         ValueFlows.Util.set_boundaries(creator, resource)
 
         indexing_object_format(resource) |> ValueFlows.Util.index_for_search()

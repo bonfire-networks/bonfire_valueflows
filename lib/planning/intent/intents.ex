@@ -174,7 +174,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
              repo().insert(Intent.create_changeset(creator, attrs)),
            intent <- preload_all(%{intent | creator: creator}),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
-           {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent, attrs: attrs) do
         Absinthe.Subscription.publish(@endpoint_module, intent, intent_created: :all)
 
         if intent.context_id,
