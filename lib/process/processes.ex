@@ -149,16 +149,16 @@ defmodule ValueFlows.Process.Processes do
   ## mutations
 
   # @spec create(any(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
-  def create(creator, attrs) when is_map(attrs) do
+  def create(creator, inputs) when is_map(inputs) do
     repo().transact_with(fn ->
-      attrs = prepare_attrs(attrs)
+      attrs = prepare_attrs(inputs)
 
       with {:ok, process} <-
              repo().insert(Process.create_changeset(creator, attrs)),
            process <- preload_all(process),
            {:ok, process} <-
              ValueFlows.Util.try_tag_thing(creator, process, attrs),
-           {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process, attrs: attrs) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :create, process, attrs: inputs) do
         # add my own to favourites by default
         Utils.maybe_apply(Bonfire.Social.Likes, :like, [creator, process])
 

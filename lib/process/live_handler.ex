@@ -11,9 +11,8 @@ defmodule ValueFlows.Process.LiveHandler do
   def handle_event("create", attrs, socket) do
     with obj_attrs <-
            attrs
-           # |> debug()
+           |> Map.merge(e(attrs, "process", %{}))
            |> input_to_atoms()
-           |> Map.get(:process)
            |> Processes.prepare_attrs(),
          %{valid?: true} = cs <- changeset(obj_attrs),
          {:ok, process} <- Processes.create(current_user(socket), obj_attrs) do

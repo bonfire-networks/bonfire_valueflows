@@ -166,15 +166,15 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   @spec create(any(), attrs :: map) ::
           {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%{} = creator, attrs) when is_map(attrs) do
-    attrs = prepare_attrs(attrs, creator)
+  def create(%{} = creator, inputs) when is_map(inputs) do
+    attrs = prepare_attrs(inputs, creator)
 
     repo().transact_with(fn ->
       with {:ok, intent} <-
              repo().insert(Intent.create_changeset(creator, attrs)),
            intent <- preload_all(%{intent | creator: creator}),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
-           {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent, attrs: attrs) do
+           {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent, attrs: inputs) do
         Absinthe.Subscription.publish(@endpoint_module, intent, intent_created: :all)
 
         if intent.context_id,
