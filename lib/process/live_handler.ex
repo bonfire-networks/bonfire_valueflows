@@ -15,7 +15,7 @@ defmodule ValueFlows.Process.LiveHandler do
            |> input_to_atoms()
            |> Processes.prepare_attrs(),
          %{valid?: true} = cs <- changeset(obj_attrs),
-         {:ok, process} <- Processes.create(current_user(socket), obj_attrs) do
+         {:ok, process} <- Processes.create(current_user_required(socket), obj_attrs) do
       debug(process)
 
       {:noreply,

@@ -19,7 +19,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
            |> debug(),
          %{valid?: true} = cs <- changeset(obj_attrs),
          {:ok, resource_spec} <-
-           ResourceSpecifications.create(current_user(socket), obj_attrs) do
+           ResourceSpecifications.create(current_user_required(socket), obj_attrs) do
       # debug(resource_spec)
       {:noreply,
        redirect_to(

@@ -11,7 +11,7 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
 
   def handle_event("create", attrs, socket) do
     # |> debug("creator")
-    creator = current_user(socket)
+    creator = current_user_required(socket)
     # debug(socket: socket)
 
     with obj_attrs <-
