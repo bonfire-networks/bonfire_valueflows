@@ -388,9 +388,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     defp id_or_me(["me"], current_user),
-      do:
-        Utils.maybe_get(current_user, :id) ||
-          raise("You need to be logged in for this")
+      do: Utils.ulid(current_user) || raise(Bonfire.Fail.Auth, :needs_login)
 
     defp id_or_me(id, _), do: id
 
