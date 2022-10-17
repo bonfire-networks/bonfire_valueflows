@@ -30,7 +30,7 @@ defmodule ValueFlows.Util do
 
   def publish(creator, verb, thing, opts) do
     # this sets permissions & returns recipients in opts to be used for publishing
-    opts = prepare_opts_and_maybe_set_boundaries(creator, verb, thing, opts)
+    opts = prepare_opts_and_maybe_set_boundaries(creator, thing, opts)
 
     # ValueFlows.Util.Federation.ap_publish("create", ulid(thing), ulid(creator)) #  AP publishing is now triggered by FeedActivities.publish instead
 
@@ -58,7 +58,6 @@ defmodule ValueFlows.Util do
     # make visible
     prepare_opts_and_maybe_set_boundaries(
       creator_or_provider(thing),
-      verb,
       thing,
       opts
     )
@@ -66,7 +65,7 @@ defmodule ValueFlows.Util do
     {:ok, nil}
   end
 
-  def prepare_opts_and_maybe_set_boundaries(creator, verb, thing, opts) do
+  def prepare_opts_and_maybe_set_boundaries(creator, thing, opts \\ []) do
     # TODO: make default audience configurable & per object audience selectable by user in API and UI (note: also in `Federation.ap_prepare_activity`)
     preset_boundary =
       e(opts, :attrs, :to_boundaries, nil) ||
