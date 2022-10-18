@@ -9,17 +9,26 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.LiveHandler do
   end
 
   def handle_event("create", attrs, socket) do
-    with obj_attrs <-
+    creator = current_user_required(socket)
+
+    with uploaded_media <-
+           live_upload_files(
+             creator,
+             attrs["upload_metadata"],
+             socket
+           ),
+         obj_attrs <-
            attrs
-           |> debug()
+           #  |> debug()
            |> Map.merge(attrs["resource_spec"])
            |> input_to_atoms()
            # |> Map.get(:resource_spec)
            |> ResourceSpecifications.prepare_attrs()
+           |> maybe_put(:image_id, ulid(List.first(uploaded_media)))
            |> debug(),
          %{valid?: true} = cs <- changeset(obj_attrs),
          {:ok, resource_spec} <-
-           ResourceSpecifications.create(current_user_required(socket), obj_attrs) do
+           ResourceSpecifications.create(creator, obj_attrs) do
       # debug(resource_spec)
       {:noreply,
        redirect_to(

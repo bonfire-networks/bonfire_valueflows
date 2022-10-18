@@ -363,7 +363,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       "Events.create_with_action: incrementing (eg. producing or raising a new resource), using info from the event and/or resource_conforms_to"
     )
 
-    IO.inspect(create_with_action: event_attrs)
+    # IO.inspect(create_with_action: event_attrs)
 
     resource_conforms_to = ResourceSpecifications.maybe_get(event_attrs)
 
@@ -371,16 +371,23 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       name: Map.get(event_attrs, :note, "Unknown Resource"),
       current_location: Map.get(event_attrs, :at_location),
       conforms_to: resource_conforms_to
-
       # note: Map.get(event_attrs, :resource_note, "")
     }
 
-    IO.inspect(attrs)
+    # IO.inspect(attrs)
 
     create_somethings(creator, event_attrs, %{
       new_inventoried_resource:
-        Bonfire.Common.Utils.maybe_to_map(Map.merge(attrs, resource_conforms_to || %{}))
-        |> Map.merge(%{note: Map.get(event_attrs, :resource_note, "")})
+        maybe_to_map(Map.merge(attrs, resource_conforms_to || %{}))
+        |> Map.merge(%{
+          note: Map.get(event_attrs, :resource_note, nil),
+          name: Map.get(event_attrs, :resource_name, nil),
+          image_id:
+            ulid(
+              Map.get(event_attrs, :resource_image_id, nil) ||
+                Map.get(event_attrs, :resource_image, nil)
+            )
+        })
     })
   end
 
@@ -413,7 +420,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
             " creating the target resource based on info from resource_inventoried_as and the event"
         )
 
-        Bonfire.Common.Utils.maybe_to_map(Map.merge(attrs, fetched || %{}))
+        maybe_to_map(Map.merge(attrs, fetched || %{}))
       else
         _ ->
           debug(
@@ -458,7 +465,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
             " creating the target resource based on info from resource_inventoried_as and the event"
         )
 
-        Bonfire.Common.Utils.maybe_to_map(Map.merge(attrs, fetched || %{}))
+        maybe_to_map(Map.merge(attrs, fetched || %{}))
       else
         _ ->
           debug(
@@ -479,7 +486,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     create_event(creator, event_attrs)
   end
 
-  @doc "Create resource + event. Use create/3 instead."
+  @doc "Create resource + event. Call create/3 instead."
   defp create_resource_and_event(
          creator,
          event_attrs,

@@ -5,16 +5,18 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
   alias ValueFlows.EconomicEvent
   alias ValueFlows.EconomicEvent.EconomicEvents
 
-  def changeset(attrs \\ %{}) do
-    EconomicEvent.validate_changeset(attrs)
-  end
-
   def handle_event("create", attrs, socket) do
     # |> debug("creator")
     creator = current_user_required(socket)
     # debug(socket: socket)
 
-    with obj_attrs <-
+    with uploaded_media <-
+           live_upload_files(
+             creator,
+             attrs["upload_metadata"],
+             socket
+           ),
+         obj_attrs <-
            attrs
            # |> debug()
            |> Map.merge(attrs["economic_event"])
@@ -22,6 +24,7 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
            |> input_to_atoms()
            # |> Map.get(:event)
            |> prepare_attrs(creator)
+           |> maybe_put(:resource_image_id, List.first(uploaded_media))
            |> debug("create_event_attrs"),
          %{valid?: true} = cs <- changeset(obj_attrs),
          {:ok, event} <- EconomicEvents.create(creator, obj_attrs) do
@@ -61,15 +64,19 @@ defmodule ValueFlows.EconomicEvent.LiveHandler do
     |> maybe_put(:has_end, maybe_date(e(attrs, :has_end, nil)))
   end
 
-  def maybe_date(d) when is_binary(d) and d != "" do
+  defp maybe_date(d) when is_binary(d) and d != "" do
     Date.from_iso8601(d)
     ~> NaiveDateTime.new(~T[00:00:00])
     ~> Ecto.Type.cast(:utc_datetime_usec, ...)
-    |> debug()
+    # |> debug()
     |> ok_or()
   end
 
-  def maybe_date(_d) do
+  defp maybe_date(_d) do
     nil
+  end
+
+  defp changeset(attrs \\ %{}) do
+    EconomicEvent.validate_changeset(attrs)
   end
 end

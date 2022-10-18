@@ -76,11 +76,18 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
     # debug(attrs)
     current_user = current_user_required(socket)
 
-    with obj_attrs <-
+    with uploaded_media <-
+           live_upload_files(
+             current_user,
+             attrs["upload_metadata"],
+             socket
+           ),
+         obj_attrs <-
            attrs
            # |> debug()
            |> Map.merge(e(attrs, "intent", %{}))
            |> input_to_atoms()
+           |> maybe_put(:image_id, ulid(List.first(uploaded_media)))
            |> debug("intent input"),
          {:ok, %{id: id} = intent} <-
            Intents.create(
