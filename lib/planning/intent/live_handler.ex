@@ -75,6 +75,8 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
   def handle_event("create", attrs, socket) do
     # debug(attrs)
     current_user = current_user_required(socket)
+    attrs = Map.merge(attrs, e(attrs, "intent", %{}))
+    type = e(attrs, "type", %{}) || e(attrs, "intent_type", %{})
 
     with uploaded_media <-
            live_upload_files(
@@ -85,16 +87,16 @@ defmodule ValueFlows.Planning.Intent.LiveHandler do
          obj_attrs <-
            attrs
            # |> debug()
-           |> Map.merge(e(attrs, "intent", %{}))
            |> input_to_atoms()
            |> maybe_put(:image_id, ulid(List.first(uploaded_media)))
+           |> Map.put_new(:provider, if(type == "offer", do: current_user))
+           |> Map.put_new(:receiver, if(type == "need", do: current_user))
+           |> Map.put(:due, input_date(e(attrs, "due", nil)))
            |> debug("intent input"),
          {:ok, %{id: id} = intent} <-
            Intents.create(
              current_user,
              obj_attrs
-             |> Map.put(:due, input_date(e(obj_attrs, :due, nil)))
-             |> Map.put_new(:receiver, current_user)
            ) do
       debug(intent, "intent created")
 
