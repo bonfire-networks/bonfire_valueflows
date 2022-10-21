@@ -130,9 +130,9 @@ defmodule ValueFlows.EconomicEvent do
     )
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module, do: ValueFlows.EconomicEvent.EconomicEvents
-
-  def queries_module, do: ValueFlows.EconomicEvent.Queries
+  def query_module, do: ValueFlows.EconomicEvent.Queries
 
   def follow_filters, do: [:default]
 end

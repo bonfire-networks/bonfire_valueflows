@@ -97,9 +97,9 @@ defmodule ValueFlows.EconomicResource do
     |> change_disabled()
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module, do: ValueFlows.EconomicResource.EconomicResources
-
-  def queries_module, do: ValueFlows.EconomicResource.Queries
+  def query_module, do: ValueFlows.EconomicResource.Queries
 
   def follow_filters, do: [:default]
 end

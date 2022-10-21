@@ -146,9 +146,9 @@ defmodule ValueFlows.Planning.Intent do
     cset
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module, do: ValueFlows.Planning.Intent.Intents
-
-  def queries_module, do: ValueFlows.Planning.Intent.Queries
+  def query_module, do: ValueFlows.Planning.Intent.Queries
 
   def follow_filters, do: [:default]
 end

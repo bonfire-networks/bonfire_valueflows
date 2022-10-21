@@ -114,10 +114,11 @@ defmodule ValueFlows.Planning.Commitment do
   def measure_fields(),
     do: [:resource_quantity, :effort_quantity]
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module(),
     do: ValueFlows.Planning.Commitment.Commitments
 
-  def queries_module(),
+  def query_module(),
     do: ValueFlows.Planning.Commitment.Queries
 
   def follow_filters(),

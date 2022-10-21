@@ -111,10 +111,11 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     |> change_disabled()
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module,
     do: ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
-  def queries_module, do: ValueFlows.Knowledge.ResourceSpecification.Queries
+  def query_module, do: ValueFlows.Knowledge.ResourceSpecification.Queries
 
   def follow_filters, do: [:default]
 end

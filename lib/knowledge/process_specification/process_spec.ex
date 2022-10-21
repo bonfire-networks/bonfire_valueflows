@@ -60,10 +60,11 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
     |> change_disabled()
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module,
     do: ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
 
-  def queries_module, do: ValueFlows.Knowledge.ProcessSpecification.Queries
+  def query_module, do: ValueFlows.Knowledge.ProcessSpecification.Queries
 
   def follow_filters, do: [:default]
 end

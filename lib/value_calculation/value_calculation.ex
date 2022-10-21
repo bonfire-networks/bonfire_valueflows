@@ -51,6 +51,8 @@ defmodule ValueFlows.ValueCalculation do
     Changeset.cast(calculation, attrs, @cast)
   end
 
-  def queries_module, do: ValueFlows.ValueCalculation.Queries
+  @behaviour Bonfire.Common.SchemaModule
+  def query_module, do: ValueFlows.ValueCalculation.Queries
+
   def follow_filters, do: [:default]
 end

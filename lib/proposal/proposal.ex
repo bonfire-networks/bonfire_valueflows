@@ -86,9 +86,9 @@ defmodule ValueFlows.Proposal do
     )
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module, do: ValueFlows.Proposal.Proposals
-
-  def queries_module, do: ValueFlows.Proposal.Queries
+  def query_module, do: ValueFlows.Proposal.Queries
 
   def follow_filters, do: [:default]
 end

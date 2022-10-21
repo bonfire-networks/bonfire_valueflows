@@ -120,9 +120,9 @@ defmodule ValueFlows.Process do
     |> change_disabled()
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module, do: ValueFlows.Process.Processes
-
-  def queries_module, do: ValueFlows.Process.Queries
+  def query_module, do: ValueFlows.Process.Queries
 
   def follow_filters, do: [:default]
 end

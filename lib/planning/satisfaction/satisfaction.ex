@@ -92,10 +92,11 @@ defmodule ValueFlows.Planning.Satisfaction do
   def measure_fields(),
     do: [:resource_quantity, :effort_quantity]
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module(),
     do: ValueFlows.Planning.Satisfaction.Satisfactions
 
-  def queries_module(),
+  def query_module(),
     do: ValueFlows.Planning.Satisfaction.Queries
 
   def follow_filters(),
