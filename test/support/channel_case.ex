@@ -23,6 +23,7 @@ defmodule Bonfire.ValueFlows.ChannelCase do
       import Phoenix.ChannelTest
       import Bonfire.ValueFlows.ChannelCase
       import Untangle
+      import Bonfire.Common.Config, only: [repo: 0]
 
       # The default endpoint for testing
       @endpoint Application.compile_env!(:bonfire, :endpoint_module)

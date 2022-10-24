@@ -23,6 +23,7 @@ defmodule Bonfire.ValueFlows.DataCase do
       import Ecto.Query
       # import Bonfire.ValueFlows.DataCase
       import Untangle
+      import Bonfire.Common.Config, only: [repo: 0]
     end
   end
 

@@ -53,14 +53,14 @@ defmodule ValueFlows.Agent.Agents do
 
   def agent_location(%{profile_id: profile_id} = a)
       when not is_nil(profile_id) do
-    Bonfire.Common.Repo.maybe_preload(a, profile: [:geolocation])
+    repo().maybe_preload(a, profile: [:geolocation])
     |> Map.get(:profile)
     |> agent_location()
   end
 
   def agent_location(%{geolocation_id: geolocation_id} = a)
       when not is_nil(geolocation_id) do
-    Bonfire.Common.Repo.maybe_preload(a, :geolocation)
+    repo().maybe_preload(a, :geolocation)
     |> Map.get(:geolocation)
   end
 

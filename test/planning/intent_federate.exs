@@ -77,7 +77,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
 
       assert actor.data["id"] ==
                intent
-               |> Bonfire.Common.Repo.maybe_preload(creator: [character: [:peered]])
+               |> repo().maybe_preload(creator: [character: [:peered]])
                |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)

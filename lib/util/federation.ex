@@ -138,7 +138,7 @@ defmodule ValueFlows.Util.Federation do
 
       # if is_map_key(thing, :canonical_url) do
       #   Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
-      #   |> Bonfire.Common.Repo.update()
+      #   |> repo().update()
       # end
 
       {:ok, activity}

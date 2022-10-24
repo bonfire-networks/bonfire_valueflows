@@ -184,7 +184,7 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_creator(%{creator_id: id} = obj) when not is_nil(id) do
-    Bonfire.Common.Repo.maybe_preload(obj,
+    repo().maybe_preload(obj,
       creator: [
         :character,
         profile: [:icon]
