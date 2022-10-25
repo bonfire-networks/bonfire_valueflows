@@ -14,8 +14,8 @@ defmodule ValueFlows.Proposal.FederateTest do
 
   setup do
     mock(fn
-      %{method: :get, url: "https://kawen.space/users/karen"} ->
-        json(Bonfire.Federate.ActivityPub.Simulate.actor_json("https://kawen.space/users/karen"))
+      %{method: :get, url: "https://mocked.local/users/karen"} ->
+        json(Bonfire.Federate.ActivityPub.Simulate.actor_json("https://mocked.local/users/karen"))
     end)
 
     :ok
@@ -54,22 +54,22 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates a basic proposal from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
 
       action = "work"
 
       to = [
-        "https://testing.kawen.dance/users/karen",
+        "https://testing.local/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
       object = %{
-        "actor" => "https://kawen.space/users/karen",
-        "attributedTo" => "https://kawen.space/users/karen",
+        "actor" => "https://mocked.local/users/karen",
+        "attributedTo" => "https://mocked.local/users/karen",
         "context" => [],
         "hasBeginning" => "2021-09-20T16:30:10.676375Z",
         "hasEnd" => "2022-08-02T20:28:38.097004Z",
-        "id" => "https://kawen.space/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
+        "id" => "https://mocked.local/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
         "name" => "McGlynn-King",
         "published" => "2021-10-23T21:29:51.217969Z",
         "summary" => "Sunt consequatur quia modi vero corrupti animi ut natus voluptate!",
@@ -105,22 +105,22 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates a proposal with nested proposed_intent + intent from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
 
       action = "work"
 
       to = [
-        "https://testing.kawen.dance/users/karen",
+        "https://testing.local/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
       object = %{
-        "actor" => "https://kawen.space/users/karen",
-        "attributedTo" => "https://kawen.space/users/karen",
+        "actor" => "https://mocked.local/users/karen",
+        "attributedTo" => "https://mocked.local/users/karen",
         "context" => [],
         "eligibleLocation" => %{
-          "id" => "https://kawen.space/pub/objects/01FJQGYPB6N7XRWPBHDWGJC11N",
-          "attributedTo" => "https://kawen.space/users/karen",
+          "id" => "https://mocked.local/pub/objects/01FJQGYPB6N7XRWPBHDWGJC11N",
+          "attributedTo" => "https://mocked.local/users/karen",
           "latitude" => -62.7021413680051,
           "longitude" => 49.090646966696994,
           "name" => "Graham, Padberg and Hahn",
@@ -129,35 +129,35 @@ defmodule ValueFlows.Proposal.FederateTest do
         },
         "hasBeginning" => "2021-09-20T16:30:10.676375Z",
         "hasEnd" => "2022-08-02T20:28:38.097004Z",
-        "id" => "https://kawen.space/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
+        "id" => "https://mocked.local/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
         "name" => "McGlynn-King",
         "published" => "2021-10-23T21:29:51.217969Z",
         "publishes" => [
           %{
-            "id" => "https://kawen.space/pub/objects/01FJQGYPG9Q3HWG1BW2TS0FN86",
-            "attributedTo" => "https://kawen.space/users/karen",
+            "id" => "https://mocked.local/pub/objects/01FJQGYPG9Q3HWG1BW2TS0FN86",
+            "attributedTo" => "https://mocked.local/users/karen",
             "publishes" => %{
               "action" => "work",
-              "provider" => "https://kawen.space/users/karen",
+              "provider" => "https://mocked.local/users/karen",
               # "availableQuantity" => %{
               #   "hasNumericalValue" => 0.6819459786798888,
-              #   "id" => "https://kawen.space/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
+              #   "id" => "https://mocked.local/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
               #   "type" => "om2:Measure"
               # },
               "context" => [],
               "due" => "2021-10-29T19:14:58.018729Z",
               # "effortQuantity" => %{
               #   "hasNumericalValue" => 0.6733462698502527,
-              #   "id" => "https://kawen.space/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
+              #   "id" => "https://mocked.local/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
               #   "type" => "om2:Measure"
               # },
               "finished" => true,
-              "id" => "https://kawen.space/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
+              "id" => "https://mocked.local/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
               "name" => "Leannon Group",
               "resourceClassifiedAs" => [],
               # "resourceQuantity" => %{
               #   "hasNumericalValue" => 0.9790977026822164,
-              #   "id" => "https://kawen.space/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
+              #   "id" => "https://mocked.local/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
               #   "type" => "om2:Measure"
               # },
               "summary" => "Et eligendi at maxime voluptate.",
@@ -221,42 +221,42 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates a proposed_intent with nested proposal + intent from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
 
       action = "work"
 
       to = [
-        "https://testing.kawen.dance/users/karen",
+        "https://testing.local/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
       object = %{
-        "id" => "https://kawen.space/pub/objects/01FJQGYPG9Q3HWG1BW2TS0FN86",
+        "id" => "https://mocked.local/pub/objects/01FJQGYPG9Q3HWG1BW2TS0FN86",
         "type" => "ValueFlows:ProposedIntent",
         "reciprocal" => true,
-        "attributedTo" => "https://kawen.space/users/karen",
+        "attributedTo" => "https://mocked.local/users/karen",
         "publishes" => %{
           "action" => "work",
-          "provider" => "https://kawen.space/users/karen",
+          "provider" => "https://mocked.local/users/karen",
           # "availableQuantity" => %{
           #   "hasNumericalValue" => 0.6819459786798888,
-          #   "id" => "https://kawen.space/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
+          #   "id" => "https://mocked.local/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
           #   "type" => "om2:Measure"
           # },
           "context" => [],
           "due" => "2021-10-29T19:14:58.018729Z",
           # "effortQuantity" => %{
           #   "hasNumericalValue" => 0.6733462698502527,
-          #   "id" => "https://kawen.space/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
+          #   "id" => "https://mocked.local/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
           #   "type" => "om2:Measure"
           # },
           "finished" => true,
-          "id" => "https://kawen.space/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
+          "id" => "https://mocked.local/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
           "name" => "Leannon Group",
           "resourceClassifiedAs" => [],
           # "resourceQuantity" => %{
           #   "hasNumericalValue" => 0.9790977026822164,
-          #   "id" => "https://kawen.space/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
+          #   "id" => "https://mocked.local/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
           #   "type" => "om2:Measure"
           # },
           "summary" => "Et eligendi at maxime voluptate.",
@@ -264,12 +264,12 @@ defmodule ValueFlows.Proposal.FederateTest do
           "type" => "ValueFlows:Intent"
         },
         "publishedIn" => %{
-          "actor" => "https://kawen.space/users/karen",
-          "attributedTo" => "https://kawen.space/users/karen",
+          "actor" => "https://mocked.local/users/karen",
+          "attributedTo" => "https://mocked.local/users/karen",
           "context" => [],
           "eligibleLocation" => %{
-            "id" => "https://kawen.space/pub/objects/01FJQGYPB6N7XRWPBHDWGJC11N",
-            # "attributedTo" => "https://kawen.space/users/karen",
+            "id" => "https://mocked.local/pub/objects/01FJQGYPB6N7XRWPBHDWGJC11N",
+            # "attributedTo" => "https://mocked.local/users/karen",
             "latitude" => -62.7021413680051,
             "longitude" => 49.090646966696994,
             "name" => "Graham, Padberg and Hahn",
@@ -278,7 +278,7 @@ defmodule ValueFlows.Proposal.FederateTest do
           },
           "hasBeginning" => "2021-09-20T16:30:10.676375Z",
           "hasEnd" => "2022-08-02T20:28:38.097004Z",
-          "id" => "https://kawen.space/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
+          "id" => "https://mocked.local/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
           "name" => "McGlynn-King",
           "published" => "2021-10-23T21:29:51.217969Z",
           "summary" => "Sunt consequatur quia modi vero corrupti animi ut natus voluptate!",
@@ -325,55 +325,55 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates an intent with nested proposed_intent + proposal from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
 
       action = "work"
 
       to = [
-        "https://testing.kawen.dance/users/karen",
+        "https://testing.local/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
       object = %{
         "type" => "ValueFlows:Intent",
         "action" => "work",
-        "provider" => "https://kawen.space/users/karen",
+        "provider" => "https://mocked.local/users/karen",
         # "availableQuantity" => %{
         #   "hasNumericalValue" => 0.6819459786798888,
-        #   "id" => "https://kawen.space/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
+        #   "id" => "https://mocked.local/pub/objects/01FJQKZQXR0QX0PBG4EEAFGJMS",
         #   "type" => "om2:Measure"
         # },
         "context" => [],
         "due" => "2021-10-29T19:14:58.018729Z",
         # "effortQuantity" => %{
         #   "hasNumericalValue" => 0.6733462698502527,
-        #   "id" => "https://kawen.space/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
+        #   "id" => "https://mocked.local/pub/objects/01FJQKZQXP0TZN6W0SDG1J0AJE",
         #   "type" => "om2:Measure"
         # },
         "finished" => true,
-        "id" => "https://kawen.space/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
+        "id" => "https://mocked.local/pub/objects/01FJQKZQXSQN935N34ZVBK4ZED",
         "name" => "Leannon Group",
         "resourceClassifiedAs" => [],
         # "resourceQuantity" => %{
         #   "hasNumericalValue" => 0.9790977026822164,
-        #   "id" => "https://kawen.space/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
+        #   "id" => "https://mocked.local/pub/objects/01FJQKZQXQ945QAGTP457TP16D",
         #   "type" => "om2:Measure"
         # },
         "summary" => "Et eligendi at maxime voluptate.",
         "tags" => [],
         "publishedIn" => [
           %{
-            "id" => "https://kawen.space/pub/objects/01FJQGYPG9Q3HWG1BW2TS0FN86",
+            "id" => "https://mocked.local/pub/objects/01FJQGYPG9Q3HWG1BW2TS0FN86",
             "type" => "ValueFlows:ProposedIntent",
             "reciprocal" => true,
-            "attributedTo" => "https://kawen.space/users/karen",
+            "attributedTo" => "https://mocked.local/users/karen",
             "publishedIn" => %{
-              "actor" => "https://kawen.space/users/karen",
-              "attributedTo" => "https://kawen.space/users/karen",
+              "actor" => "https://mocked.local/users/karen",
+              "attributedTo" => "https://mocked.local/users/karen",
               "context" => [],
               "eligibleLocation" => %{
-                "id" => "https://kawen.space/pub/objects/01FJQGYPB6N7XRWPBHDWGJC11N",
-                # "attributedTo" => "https://kawen.space/users/karen",
+                "id" => "https://mocked.local/pub/objects/01FJQGYPB6N7XRWPBHDWGJC11N",
+                # "attributedTo" => "https://mocked.local/users/karen",
                 "latitude" => -62.7021413680051,
                 "longitude" => 49.090646966696994,
                 "name" => "Graham, Padberg and Hahn",
@@ -382,7 +382,7 @@ defmodule ValueFlows.Proposal.FederateTest do
               },
               "hasBeginning" => "2021-09-20T16:30:10.676375Z",
               "hasEnd" => "2022-08-02T20:28:38.097004Z",
-              "id" => "https://kawen.space/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
+              "id" => "https://mocked.local/pub/objects/01FJQGYPBH6G3D9F7DK5MN7C2A",
               "name" => "McGlynn-King",
               "published" => "2021-10-23T21:29:51.217969Z",
               "summary" => "Sunt consequatur quia modi vero corrupti animi ut natus voluptate!",

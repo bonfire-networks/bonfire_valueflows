@@ -10,8 +10,8 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
 
   setup do
     mock(fn
-      %{method: :get, url: "https://kawen.space/users/karen"} ->
-        json(Bonfire.Federate.ActivityPub.Simulate.actor_json("https://kawen.space/users/karen"))
+      %{method: :get, url: "https://mocked.local/users/karen"} ->
+        json(Bonfire.Federate.ActivityPub.Simulate.actor_json("https://mocked.local/users/karen"))
     end)
 
     :ok
@@ -37,17 +37,17 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
     end
 
     test "creates an intent for a basic incoming need" do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
 
       action = "produce"
 
       to = [
-        "https://testing.kawen.dance/users/karen",
+        "https://testing.local/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
       object = %{
-        "id" => "https://kawen.space/" <> Pointers.ULID.generate(),
+        "id" => "https://mocked.local/" <> Pointers.ULID.generate(),
         "name" => "title",
         "summary" => "content",
         "type" => "ValueFlows:Intent",
@@ -84,12 +84,12 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
     end
 
     test "creates an intent for an incoming need/offer with nested objects" do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://kawen.space/users/karen")
+      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
 
       action = "work"
 
       to = [
-        "https://testing.kawen.dance/users/karen",
+        "https://testing.local/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
@@ -97,10 +97,10 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         "action" => action,
         "availableQuantity" => %{
           "hasNumericalValue" => 0.1,
-          "id" => "https://kawen.space/pub/objects/01FJNJV112NT76310KWRXJZWJ0",
+          "id" => "https://mocked.local/pub/objects/01FJNJV112NT76310KWRXJZWJ0",
           "type" => "om2:Measure",
           "hasUnit" => %{
-            "id" => "https://kawen.space/pub/objects/01FMTXZV656FFKN0Y0BFPS57VA",
+            "id" => "https://mocked.local/pub/objects/01FMTXZV656FFKN0Y0BFPS57VA",
             "label" => "kilo",
             "symbol" => "kg",
             "type" => "om2:Unit"
@@ -109,11 +109,11 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         "due" => "2022-07-25T10:44:00.637055Z",
         # "effortQuantity" => %{
         #   "hasNumericalValue" => 0.2,
-        #   "id" => "https://kawen.space/pub/objects/01FJNJV110K9T6212CV24W4VCA",
+        #   "id" => "https://mocked.local/pub/objects/01FJNJV110K9T6212CV24W4VCA",
         #   "type" => "om2:Measure"
         # },
         "finished" => false,
-        "id" => "https://kawen.space/pub/objects/01FJNJV113P04FBFM20P5VZVEA",
+        "id" => "https://mocked.local/pub/objects/01FJNJV113P04FBFM20P5VZVEA",
         "inScopeOf" => [],
         "name" => "Welch and Sons",
         "summary" => "Quisquam cupiditate et minus aut cupiditate in sit.",
@@ -121,7 +121,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
         # "resourceClassifiedAs" => ["https://bonjour.bonfire.cafe/pub/actors/Needs_Offers"],
         # "resourceQuantity" => %{
         #   "hasNumericalValue" => 0.3,
-        #   "id" => "https://kawen.space/pub/objects/01FJNJV1110VYYN8AT9PPVEJ0Q",
+        #   "id" => "https://mocked.local/pub/objects/01FJNJV1110VYYN8AT9PPVEJ0Q",
         #   "type" => "om2:Measure"
         # },
         "type" => "ValueFlows:Intent"

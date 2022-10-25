@@ -8,28 +8,29 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
   import ValueFlows.Test.Faking
   alias Bonfire.Federate.ActivityPub.Simulate
   alias ValueFlows.EconomicEvent.EconomicEvents
+  alias Bonfire.Common.TestInstanceRepo
 
   @debug false
   @schema Bonfire.API.GraphQL.Schema
 
-  # uses a test instance that should also be running
-  @test_username "test"
-  @instance "localhost:4000"
-  @remote_instance "http://" <> @instance
-  @actor_name @test_username <> "@" <> @instance
-  @remote_actor @remote_instance <> "/pub/actors/" <> @test_username
-  @remote_actor_url @remote_instance <> "/@" <> @test_username
-  @webfinger @remote_instance <>
-               "/.well-known/webfinger?resource=acct:" <> @actor_name
+  setup_all do
+    {remote_user, remote_actor} =
+      TestInstanceRepo.apply(fn ->
+        # repo().delete_all(ActivityPub.Object)
+        remote_user = fake_agent!()
+        {remote_user, Bonfire.Me.Characters.character_url(remote_user)}
+      end)
 
-  # setup do
-  # # tell Tesla not to mock?
-  # Application.put_env(:tesla, :adapter, Tesla.Adapter.Hackney)
-  # end
+    [
+      # uses a test instance that should also be running
+      remote_actor: remote_actor
+    ]
+  end
 
   describe "outgoing economic event" do
-    @tag :test_instance
-    test "transfer an existing economic resource to a remote agent/actor by AP URI" do
+    @tag :skip
+    # @tag :test_instance
+    test "transfer an existing economic resource to a remote agent/actor by AP URI", context do
       Cachex.clear(:ap_actor_cache)
       Cachex.clear(:ap_object_cache)
 
@@ -71,7 +72,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
             "resourceInventoriedAs" => resource_inventoried_as.id,
             "toResourceInventoriedAs" => to_resource_inventoried_as.id,
             # "provider" => user.id,
-            "receiver" => @remote_actor
+            "receiver" => context[:remote_actor]
           })
       }
 
@@ -91,7 +92,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
       assert {:ok, local_event} = EconomicEvents.one(id: event["id"])
 
       assert Bonfire.Common.URIs.canonical_url(event["receiver"]) ==
-               @remote_actor
+               context[:remote_actor]
 
       assert {:ok, ap} =
                Bonfire.Federate.ActivityPub.Publisher.publish(
@@ -108,9 +109,9 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
 
       # assert ap.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
 
-      {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+      {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(context[:remote_actor])
 
-      assert ap.object.data["receiver"]["id"] == @remote_actor
+      assert ap.object.data["receiver"]["id"] == context[:remote_actor]
 
       assert event["resourceInventoriedAs"]["accountingQuantity"][
                "hasNumericalValue"

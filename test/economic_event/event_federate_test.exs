@@ -15,8 +15,8 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
   import Tesla.Mock
 
   # mocks used for fetch
-  @remote_instance "https://kawen.space"
-  @actor_name "karen@kawen.space"
+  @remote_instance "https://mocked.local"
+  @actor_name "karen@mocked.local"
   @remote_actor @remote_instance <> "/users/karen"
   @remote_actor_url @remote_instance <> "/@karen"
   @webfinger @remote_instance <>
@@ -36,7 +36,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
       %{
         method: :get,
-        url: "http://kawen.space/.well-known/webfinger?resource=acct:karen@kawen.space"
+        url: "http://mocked.local/.well-known/webfinger?resource=acct:karen@mocked.local"
       } ->
         json(Simulate.webfingered())
 
@@ -263,7 +263,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
 
       to = [
-        "https://testing.kawen.dance/users/karen",
+        "https://testing.local/users/karen",
         "https://www.w3.org/ns/activitystreams#Public"
       ]
 
@@ -274,24 +274,24 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         "context" => nil,
         "effortQuantity" => %{
           "hasNumericalValue" => 0.8097386376788132,
-          "hasUnit" => "https://kawen.space/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
-          "id" => "https://kawen.space/pub/objects/01FKSN9FXFXXJ74M53D1ERD3HK",
+          "hasUnit" => "https://mocked.local/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
+          "id" => "https://mocked.local/pub/objects/01FKSN9FXFXXJ74M53D1ERD3HK",
           "type" => "om2:Measure"
         },
         "hasBeginning" => "2021-09-07T03:05:58.621470Z",
         "hasEnd" => "2022-05-07T12:57:38.913080Z",
         "hasPointInTime" => "2022-04-24T00:53:19.982157Z",
-        "id" => "https://kawen.space/pub/objects/01FKSN9FXJM5M7AXR8K7S8769B",
+        "id" => "https://mocked.local/pub/objects/01FKSN9FXJM5M7AXR8K7S8769B",
         "inputOf" => %{
           "finished" => false,
-          "id" => "https://kawen.space/pub/objects/01FKSN9FKE91BVZ0FZ36PKF2AE",
+          "id" => "https://mocked.local/pub/objects/01FKSN9FKE91BVZ0FZ36PKF2AE",
           "name" => "Schaefer, Wolf and Nolan",
           "summary" => "Autem iste aut dolores explicabo dolores aut.",
           "type" => "ValueFlows:Process"
         },
         "outputOf" => %{
           "finished" => false,
-          "id" => "https://kawen.space/pub/objects/01FKSN9FP9MASJXTNA545RKG7B",
+          "id" => "https://mocked.local/pub/objects/01FKSN9FP9MASJXTNA545RKG7B",
           "name" => "Davis-Walsh",
           "summary" => "Rem nesciunt rerum necessitatibus placeat.",
           "type" => "ValueFlows:Process"
@@ -314,13 +314,13 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
           "type" => "Person"
         },
         "resourceConformsTo" => %{
-          "id" => "https://kawen.space/pub/objects/01FKSN9FQZA6REGKGJZ6W5HRDQ",
+          "id" => "https://mocked.local/pub/objects/01FKSN9FQZA6REGKGJZ6W5HRDQ",
           "name" => "Mueller LLC",
           "summary" => "Quas sit sint consequatur quasi ex quia et ab.",
           "type" => "ValueFlows:ResourceSpecification"
         },
         "resourceInventoriedAs" => %{
-          "id" => "https://kawen.space/pub/objects/01FKSN9FVMB34EHMHMED3KJV3Q",
+          "id" => "https://mocked.local/pub/objects/01FKSN9FVMB34EHMHMED3KJV3Q",
           "name" => "Kulas-Prosacco",
           "primaryAccountable" => @remote_actor,
           "summary" => "Ea esse ad blanditiis numquam dolorem fugit.",
@@ -329,13 +329,13 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
         },
         "resourceQuantity" => %{
           "hasNumericalValue" => 0.6858598450509016,
-          "hasUnit" => "https://kawen.space/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
-          "id" => "https://kawen.space/pub/objects/01FKSN9FXHN49KZXGAMD7A7W4H",
+          "hasUnit" => "https://mocked.local/pub/objects/01FKSN9FKCH25K3T75TK0BMEP2",
+          "id" => "https://mocked.local/pub/objects/01FKSN9FXHN49KZXGAMD7A7W4H",
           "type" => "om2:Measure"
         },
         "summary" => "Aut autem nesciunt culpa nostrum enim commodi qui omnis.",
         "toResourceInventoriedAs" => %{
-          "id" => "https://kawen.space/pub/objects/01FKSN9FT8AQN4ZEYRA2DVVH4J",
+          "id" => "https://mocked.local/pub/objects/01FKSN9FT8AQN4ZEYRA2DVVH4J",
           "name" => "Russel-Fahey",
           "primaryAccountable" => @remote_actor,
           "summary" => "Eos accusamus quae vitae totam rerum neque aut.",
