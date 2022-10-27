@@ -32,8 +32,6 @@ defmodule ValueFlows.Util do
     # this sets permissions & returns recipients in opts to be used for publishing
     opts = prepare_opts_and_maybe_set_boundaries(creator, thing, opts)
 
-    # ValueFlows.Util.Federation.ap_publish("create", ulid(thing), ulid(creator)) #  AP publishing is now triggered by FeedActivities.publish instead
-
     # maybe in reply to
     case opts[:attrs] do
       %{} = attrs -> maybe_apply(Bonfire.Social.Threads, :cast, [thing, attrs, creator, opts])
@@ -46,7 +44,7 @@ defmodule ValueFlows.Util do
     else
       warn("VF - No integration available to publish activity to feeds")
 
-      ValueFlows.Util.Federation.ap_publish("create", ulid(thing), ulid(creator))
+      ValueFlows.Util.Federation.ap_publish(creator, verb, thing)
 
       {:ok, nil}
     end
@@ -108,9 +106,9 @@ defmodule ValueFlows.Util do
     opts
   end
 
-  def publish(%{creator_id: creator_id, id: thing_id}, :update) do
+  def publish(%{creator: creator, creator_id: creator_id, id: _} = thing, :update) do
     # TODO: wrong if edited by admin
-    ValueFlows.Util.Federation.ap_publish("update", thing_id, creator_id)
+    ValueFlows.Util.Federation.ap_publish(creator || creator_id, :update, thing, creator_id)
   end
 
   # deprecate
@@ -118,9 +116,9 @@ defmodule ValueFlows.Util do
     publish(%{creator_id: creator_id, id: thing_id}, :update)
   end
 
-  def publish(%{creator_id: creator_id, id: thing_id}, :delete) do
+  def publish(%{creator: creator, creator_id: creator_id, id: _} = thing, :delete) do
     # TODO: wrong if edited by admin
-    ValueFlows.Util.Federation.ap_publish("delete", thing_id, creator_id)
+    ValueFlows.Util.Federation.ap_publish(creator || creator_id, :delete, thing)
   end
 
   # deprecate

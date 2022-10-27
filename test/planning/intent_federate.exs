@@ -25,7 +25,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
 
       intent = fake_intent!(user, %{}, unit)
 
-      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Publisher.publish("create", intent)
+      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(intent)
 
       # IO.inspect(published: activity) ########
 
@@ -68,7 +68,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
-      assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      assert {:ok, intent} = Bonfire.Federate.ActivityPub.Incoming.receive_activity(activity)
 
       # IO.inspect(intent: intent)
       assert object["name"] =~ intent.name
@@ -140,7 +140,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
-      assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      assert {:ok, intent} = Bonfire.Federate.ActivityPub.Incoming.receive_activity(activity)
 
       IO.inspect(intent, label: "intent created based on incoming AP")
 

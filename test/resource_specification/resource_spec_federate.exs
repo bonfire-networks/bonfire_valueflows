@@ -16,11 +16,7 @@ defmodule ValueFlows.ResourceSpecification.FederateTest do
 
       # IO.inspect(pre_fed: proposal)
 
-      assert {:ok, activity} =
-               Bonfire.Federate.ActivityPub.Publisher.publish(
-                 "create",
-                 resource_spec
-               )
+      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(resource_spec)
 
       info(activity)
 

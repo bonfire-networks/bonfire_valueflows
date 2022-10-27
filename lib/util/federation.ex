@@ -604,7 +604,7 @@ defmodule ValueFlows.Util.Federation do
 
     with {:ok, created_object} <-
            already_processed ||
-             Bonfire.Federate.ActivityPub.Receiver.receive_object(
+             Bonfire.Federate.ActivityPub.Incoming.receive_object(
                creator,
                object_or_id
              ) do
@@ -649,12 +649,9 @@ defmodule ValueFlows.Util.Federation do
   end
 
   # FIXME ?
-  def ap_publish(verb, thing_id, user_id) do
-    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.APPublishWorker) do
-      Bonfire.Federate.ActivityPub.APPublishWorker.enqueue(verb, %{
-        "context_id" => thing_id,
-        "user_id" => user_id
-      })
+  def ap_publish(user, verb, thing) do
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Outgoing) do
+      Bonfire.Federate.ActivityPub.Outgoing.maybe_federate(user, verb, thing)
     end
 
     {:ok, nil}

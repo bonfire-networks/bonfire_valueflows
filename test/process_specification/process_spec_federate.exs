@@ -17,11 +17,7 @@ defmodule ValueFlows.ProcessSpecification.FederateTest do
 
       # IO.inspect(pre_fed: proposal)
 
-      assert {:ok, activity} =
-               Bonfire.Federate.ActivityPub.Publisher.publish(
-                 "create",
-                 process_spec
-               )
+      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(process_spec)
 
       # IO.inspect(published: activity) ########
 

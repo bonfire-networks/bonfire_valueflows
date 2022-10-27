@@ -37,11 +37,7 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       # IO.inspect(pre_fed: proposal)
 
-      assert {:ok, activity} =
-               Bonfire.Federate.ActivityPub.Publisher.publish(
-                 "create",
-                 proposal
-               )
+      assert {:ok, activity} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(proposal)
 
       # IO.inspect(published: activity) ########
 
@@ -89,7 +85,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
-      assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Incoming.receive_activity(activity)
 
       # IO.inspect(proposal, label: "proposal created based on incoming AP")
 
@@ -185,7 +181,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
-      assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      assert {:ok, proposal} = Bonfire.Federate.ActivityPub.Incoming.receive_activity(activity)
 
       IO.inspect(proposal,
         label: "proposal with intent created based on incoming AP"
@@ -298,7 +294,7 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       assert actor.data["id"] == activity.data["actor"]
 
-      assert {:ok, p_intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      assert {:ok, p_intent} = Bonfire.Federate.ActivityPub.Incoming.receive_activity(activity)
 
       # IO.inspect(p_intent, label: "proposed intent created based on incoming AP")
 
@@ -405,7 +401,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
-      assert {:ok, intent} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      assert {:ok, intent} = Bonfire.Federate.ActivityPub.Incoming.receive_activity(activity)
 
       IO.inspect(intent, label: "intent created based on incoming AP")
 

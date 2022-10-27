@@ -68,7 +68,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
       info(event, "event ready to federate")
 
-      assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", event)
+      assert {:ok, ap} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(event)
 
       info(ap)
 
@@ -142,11 +142,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert Bonfire.Common.URIs.canonical_url(event["receiver"]) ==
                @remote_actor
 
-      assert {:ok, ap} =
-               Bonfire.Federate.ActivityPub.Publisher.publish(
-                 "create",
-                 local_event
-               )
+      assert {:ok, ap} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(local_event)
 
       info(ap)
 
@@ -238,11 +234,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert Bonfire.Common.URIs.canonical_url(event["receiver"]) ==
                @remote_actor
 
-      assert {:ok, ap} =
-               Bonfire.Federate.ActivityPub.Publisher.publish(
-                 "create",
-                 local_event
-               )
+      assert {:ok, ap} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(local_event)
 
       assert ap.object.pointer_id == local_event.id
       assert ap.local == true
@@ -358,7 +350,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
       assert actor.data["id"] == activity.data["actor"]
       assert object["summary"] =~ activity.object.data["summary"]
 
-      assert {:ok, event} = Bonfire.Federate.ActivityPub.Receiver.receive_activity(activity)
+      assert {:ok, event} = Bonfire.Federate.ActivityPub.Incoming.receive_activity(activity)
 
       # info(event, "event created based on incoming AP")
       # event = event.economic_event

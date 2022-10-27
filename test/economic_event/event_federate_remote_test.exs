@@ -94,11 +94,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
       assert Bonfire.Common.URIs.canonical_url(event["receiver"]) ==
                context[:remote_actor]
 
-      assert {:ok, ap} =
-               Bonfire.Federate.ActivityPub.Publisher.publish(
-                 "create",
-                 local_event
-               )
+      assert {:ok, ap} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(local_event)
 
       # info(ap)
 
@@ -181,7 +177,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
 
     #     assert Bonfire.Common.URIs.canonical_url(event["receiver"]) == @remote_actor
 
-    #     assert {:ok, ap} = Bonfire.Federate.ActivityPub.Publisher.publish("create", local_event)
+    # assert {:ok, activity} = Bonfire.Federate.ActivityPub.Outgoing.push_now!(local_event)
 
     #     assert ap.object.pointer_id == local_event.id
     #     assert ap.local == true
