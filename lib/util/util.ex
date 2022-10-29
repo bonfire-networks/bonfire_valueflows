@@ -147,7 +147,9 @@ defmodule ValueFlows.Util do
 
       id_or_uri_or_username when is_binary(id_or_uri_or_username) ->
         ulid(id_or_uri_or_username) ||
-          Bonfire.Federate.ActivityPub.Utils.get_by_url_ap_id_or_username(id_or_uri_or_username)
+          Bonfire.Federate.ActivityPub.AdapterUtils.get_by_url_ap_id_or_username(
+            id_or_uri_or_username
+          )
           |> ulid()
 
       other ->

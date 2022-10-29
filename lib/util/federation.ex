@@ -117,7 +117,7 @@ defmodule ValueFlows.Util.Federation do
                thing,
                formated_object
              ) do
-        ap_do(activity_type, activity_params, id)
+        ap_do(activity_type, activity_params)
       else
         e ->
           error(e, "Could not prepare VF object")
@@ -125,8 +125,8 @@ defmodule ValueFlows.Util.Federation do
     end
   end
 
-  def ap_do("create", activity_params, id) do
-    with {:ok, activity} <- ActivityPub.create(activity_params, id) do
+  def ap_do("create", activity_params) do
+    with {:ok, activity} <- ActivityPub.create(activity_params) do
       # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
       info(
         activity,
@@ -202,14 +202,14 @@ defmodule ValueFlows.Util.Federation do
     |> info("ValueFlows.Federation - object prepared")
   end
 
-  def ap_prepare_activity(
-        _activity_type,
-        thing,
-        ap_object,
-        author_id \\ nil,
-        object_ap_id \\ nil
-      ) do
-    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Utils) do
+  defp ap_prepare_activity(
+         _activity_type,
+         thing,
+         ap_object,
+         author_id \\ nil,
+         object_ap_id \\ nil
+       ) do
+    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.AdapterUtils) do
       thing = repo().maybe_preload(thing, creator: [character: [:peered]])
 
       # |> repo().maybe_preload(:primary_accountable)
@@ -222,8 +222,7 @@ defmodule ValueFlows.Util.Federation do
              author_id || maybe_id(thing, :creator) ||
                maybe_id(thing, :primary_accountable) ||
                maybe_id(thing, :provider),
-           actor <-
-             Bonfire.Federate.ActivityPub.Utils.get_cached_actor_by_local_id!(author),
+           actor <- ActivityPub.Actor.get_cached!(pointer: author),
            object_ap_id <- object_ap_id || URIs.canonical_url(thing),
            ap_object <-
              Map.merge(ap_object, %{
@@ -235,6 +234,7 @@ defmodule ValueFlows.Util.Federation do
            activity_params = %{
              # FIXME: handle remote objects in references
              local: true,
+             pointer: ulid(thing),
              actor: actor,
              to:
                [
@@ -245,7 +245,7 @@ defmodule ValueFlows.Util.Federation do
                      :preset_boundary,
                      "public"
                    ) == "public",
-                   do: Bonfire.Federate.ActivityPub.Utils.public_uri()
+                   do: Bonfire.Federate.ActivityPub.AdapterUtils.public_uri()
                  ),
                  context,
                  URIs.canonical_url(e(thing, :creator, nil)),
@@ -331,7 +331,7 @@ defmodule ValueFlows.Util.Federation do
   end
 
   defp maybe_get_ap_id_by_local_id(id) when is_binary(id) do
-    Bonfire.Federate.ActivityPub.Utils.get_cached_actor_by_local_id!(id)
+    ActivityPub.Actor.get_cached!(pointer: id)
     |> e(:ap_id, nil)
   end
 
@@ -552,7 +552,7 @@ defmodule ValueFlows.Util.Federation do
   # then handle any non-embeded objects
   defp from_AP_remap(val, parent_key)
        when is_binary(val) and parent_key not in @non_nested_objects do
-    with true <- Bonfire.Federate.ActivityPub.Utils.validate_url(val),
+    with true <- Bonfire.Federate.ActivityPub.AdapterUtils.validate_url(val),
          %{} = nested_object <- maybe_create_nested_object(nil, val, parent_key) do
       info(
         nested_object,
