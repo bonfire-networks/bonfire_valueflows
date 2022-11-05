@@ -38,8 +38,9 @@ defmodule ValueFlows.Proposal.ProposedTos do
   def delete(proposed_to),
     do: Bonfire.Common.Repo.Delete.soft_delete(proposed_to)
 
-  def ap_publish_activity(activity_name, thing) do
+  def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
+      subject,
       activity_name,
       :proposed_to,
       thing,

@@ -108,7 +108,7 @@ defmodule ValueFlows.Util do
 
   def publish(%{creator: creator, creator_id: creator_id, id: _} = thing, :update) do
     # TODO: wrong if edited by admin
-    ValueFlows.Util.Federation.ap_publish(creator || creator_id, :update, thing, creator_id)
+    ValueFlows.Util.Federation.ap_publish(creator || creator_id, :update, thing)
   end
 
   # deprecate

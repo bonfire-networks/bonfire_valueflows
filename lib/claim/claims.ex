@@ -88,8 +88,9 @@ defmodule ValueFlows.Claim.Claims do
     |> maybe_put(:triggered_by_id, attr_get_id(attrs, :triggered_by))
   end
 
-  def ap_publish_activity(activity_name, thing) do
+  def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
+      subject,
       activity_name,
       :claim,
       thing,

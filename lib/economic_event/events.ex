@@ -824,8 +824,9 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     }
   end
 
-  def ap_publish_activity(activity_name, thing) do
+  def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
+      subject,
       activity_name,
       :economic_event,
       thing,

@@ -228,8 +228,9 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     # |> IO.inspect
   end
 
-  def ap_publish_activity(activity_name, thing) do
+  def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
+      subject,
       activity_name,
       :economic_resource,
       thing,

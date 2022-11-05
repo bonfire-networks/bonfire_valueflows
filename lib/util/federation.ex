@@ -90,6 +90,7 @@ defmodule ValueFlows.Util.Federation do
   ]
 
   def ap_publish_activity(
+        subject,
         activity_type,
         schema_type,
         thing,
@@ -98,6 +99,7 @@ defmodule ValueFlows.Util.Federation do
       )
 
   def ap_publish_activity(
+        subject,
         activity_type,
         schema_type,
         %{id: id} = thing,
@@ -113,6 +115,7 @@ defmodule ValueFlows.Util.Federation do
            %{} = formated_object <- ap_prepare_object(api_object),
            %{} = activity_params <-
              ap_prepare_activity(
+               subject,
                activity_type,
                thing,
                formated_object
@@ -120,18 +123,35 @@ defmodule ValueFlows.Util.Federation do
         ap_do(activity_type, activity_params)
       else
         e ->
-          error(e, "Could not prepare VF object")
+          error(e, "Could not prepare VF object for federation")
       end
     end
   end
 
-  def ap_do("create", activity_params) do
+  defp ap_do(activity_type, activity_params)
+       when activity_type in ["update", "edit", "schedule", "assign", "label"] do
+    info(
+      activity_params,
+      "VF - ap_publish_activity - update"
+    )
+
+    with {:ok, activity} <- ActivityPub.update(activity_params) do
+      # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
+
+      {:ok, activity}
+    else
+      e -> error(e, "Could not update VF object for federation")
+    end
+  end
+
+  defp ap_do(activity_type, activity_params) when activity_type in ["create", "define"] do
+    info(
+      activity_params,
+      "VF - ap_publish_activity - create"
+    )
+
     with {:ok, activity} <- ActivityPub.create(activity_params) do
       # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
-      info(
-        activity,
-        "VF - ap_publish_activity - create"
-      )
 
       # IO.puts(struct_to_json(activity.data))
       # IO.puts(struct_to_json(activity.object.data))
@@ -143,33 +163,27 @@ defmodule ValueFlows.Util.Federation do
 
       {:ok, activity}
     else
-      e -> {:error, e}
+      e -> error(e, "Could not create VF object for federation")
     end
   end
 
-  def ap_do("update", activity_params, _id) do
-    with {:ok, activity} <- ActivityPub.update(activity_params) do
-      # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
-      debug(
-        activity,
-        "VF - ap_publish_activity - update"
-      )
-
-      {:ok, activity}
-    else
-      e -> {:error, e}
-    end
+  defp ap_do(
+         activity_type,
+         activity_params
+       )
+       when is_atom(activity_type) do
+    ap_do(Atom.to_string(activity_type || :create), activity_params)
   end
 
-  def ap_do(
-        activity_type,
-        _activity_params,
-        _id
-      ) do
-    throw(
-      {:error,
-       "ValueFlows.Federation - activities of type #{activity_type} are not yet supported, so skip federation"}
+  defp ap_do(
+         activity_type,
+         activity_params
+       ) do
+    warn(
+      "ValueFlows.Federation - activities of type #{activity_type} are not yet supported, will simply 'create' instead"
     )
+
+    ap_do("create", activity_params)
   end
 
   def fetch_api_object(
@@ -203,10 +217,10 @@ defmodule ValueFlows.Util.Federation do
   end
 
   defp ap_prepare_activity(
+         subject,
          _activity_type,
          thing,
          ap_object,
-         author_id \\ nil,
          object_ap_id \\ nil
        ) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.AdapterUtils) do
@@ -219,10 +233,10 @@ defmodule ValueFlows.Util.Federation do
       with context <-
              maybe_get_ap_id_by_local_id(Map.get(ap_object, "context")),
            author <-
-             author_id || maybe_id(thing, :creator) ||
+             subject || maybe_id(thing, :creator) ||
                maybe_id(thing, :primary_accountable) ||
                maybe_id(thing, :provider),
-           actor <- ActivityPub.Actor.get_cached!(pointer: author),
+           actor <- ActivityPub.Actor.get_cached!(pointer: ulid(subject)),
            object_ap_id <- object_ap_id || URIs.canonical_url(thing),
            ap_object <-
              Map.merge(ap_object, %{
@@ -272,7 +286,7 @@ defmodule ValueFlows.Util.Federation do
            } do
         debug(
           activity_params,
-          "ValueFlows.Federation - activity prepared"
+          "ValueFlows.Federation - prepared to pass to ActivityPub lib"
         )
       end
     else
@@ -652,9 +666,9 @@ defmodule ValueFlows.Util.Federation do
   def ap_publish(user, verb, thing) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Outgoing) do
       Bonfire.Federate.ActivityPub.Outgoing.maybe_federate(user, verb, thing)
+    else
+      {:ok, :skip}
     end
-
-    {:ok, nil}
   end
 
   # def ap_publish(_, _, _), do: :ok

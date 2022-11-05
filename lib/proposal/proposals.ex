@@ -181,8 +181,9 @@ defmodule ValueFlows.Proposal.Proposals do
     }
   end
 
-  def ap_publish_activity(activity_name, thing) do
+  def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
+      subject,
       activity_name,
       :proposal,
       thing,

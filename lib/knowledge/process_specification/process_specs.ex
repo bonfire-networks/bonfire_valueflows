@@ -170,8 +170,9 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     }
   end
 
-  def ap_publish_activity(activity_name, thing) do
+  def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
+      subject,
       activity_name,
       :process_specification,
       thing,
