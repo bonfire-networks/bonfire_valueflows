@@ -34,8 +34,13 @@ defmodule ValueFlows.Util do
 
     # maybe in reply to
     case opts[:attrs] do
-      %{} = attrs -> maybe_apply(Bonfire.Social.Threads, :cast, [thing, attrs, creator, opts])
-      _ -> nil
+      %{} = attrs ->
+        thing
+        |> repo().maybe_preload(:replied)
+        |> maybe_apply(Bonfire.Social.Threads, :cast, [..., attrs, creator, opts])
+
+      _ ->
+        nil
     end
 
     if module_enabled?(Bonfire.Social.FeedActivities) do
