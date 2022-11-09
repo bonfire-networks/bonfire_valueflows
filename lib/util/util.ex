@@ -95,7 +95,7 @@ defmodule ValueFlows.Util do
       opts ++
         [
           boundary: preset_boundary,
-          to_circles: to_circles,
+          to_circles: to_circles || [],
           to_feeds: to_feeds,
           activity_json: if(e(opts, :editing, nil), do: true)
         ]
