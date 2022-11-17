@@ -411,9 +411,9 @@ defmodule ValueFlows.Util do
   def try_tag_thing(user, thing, %{} = attrs) do
     if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags) do
       input_tags =
-        Map.get(attrs, :tags, []) ++
-          Map.get(attrs, :resource_classified_as, []) ++
-          Map.get(attrs, :classified_as, [])
+        List.wrap(e(attrs, :tags, [])) ++
+          List.wrap(e(attrs, :resource_classified_as, [])) ++
+          List.wrap(e(attrs, :classified_as, []))
 
       try_tag_thing(user, thing, input_tags)
     else

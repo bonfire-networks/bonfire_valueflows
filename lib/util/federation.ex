@@ -50,7 +50,8 @@ defmodule ValueFlows.Util.Federation do
     "note" => "summary",
     "icon" => "image",
     "lat" => "latitude",
-    "long" => "longitude"
+    "long" => "longitude",
+    "tags" => "tag"
   }
 
   @fields_from_AP Map.new(@fields_to_AP, fn {key, val} -> {val, key} end)
@@ -86,7 +87,9 @@ defmodule ValueFlows.Util.Federation do
     :track,
     :trace,
     # see https://www.w3.org/TR/activitystreams-core/#extensibility
-    :geom
+    :geom,
+    :parent_category_id,
+    :sub_categories
   ]
 
   def ap_publish_activity(
