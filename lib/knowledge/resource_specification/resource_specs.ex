@@ -143,7 +143,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     )
   end
 
-  defp prepare_attrs(attrs) do
+  def prepare_attrs(attrs) do
     maybe_put(
       attrs,
       :context_id,
