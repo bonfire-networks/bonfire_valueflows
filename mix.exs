@@ -1,9 +1,20 @@
-Code.eval_file("mess.exs")
+Code.eval_file("mess.exs", (if File.exists?("../../lib/mix/mess.exs"), do: "../../lib/mix/"))
 
 defmodule Bonfire.ValueFlows.MixProject do
   use Mix.Project
 
   def project do
+    if File.exists?("../../.is_umbrella.exs") do
+      [
+        build_path: "../../_build",
+        config_path: "../../config/config.exs",
+        deps_path: "../../deps",
+        lockfile: "../../mix.lock"
+      ]
+    else
+      []
+    end
+    ++
     [
       app: :bonfire_valueflows,
       version: "0.1.0",
