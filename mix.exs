@@ -4,7 +4,7 @@ defmodule Bonfire.ValueFlows.MixProject do
   use Mix.Project
 
   def project do
-    if File.exists?("../../.is_umbrella.exs") do
+    if System.get_env("AS_UMBRELLA") == "1" do
       [
         build_path: "../../_build",
         config_path: "../../config/config.exs",
