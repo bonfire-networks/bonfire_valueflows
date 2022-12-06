@@ -2,8 +2,6 @@ ecto_sql = "~> 3.8"
 faker = "~> 0.14" # fake data generation
 gettext = "~> 0.20"
 jason = "~> 1.0"
-pointers_ulid = "~> 0.2"
-pointers = "~> 0.5.1"
 postgrex = ">= 0.0.0"
 telemetry_metrics = "~> 0.6.1"
 telemetry_poller = "~> 1.0.0"
