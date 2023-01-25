@@ -15,6 +15,8 @@ defmodule ValueFlows.EconomicResource do
   # alias ValueFlows.Knowledge.ProcessSpecification
 
   alias ValueFlows.EconomicResource
+  alias Bonfire.Common
+  alias Common.Types
 
   @type t :: %__MODULE__{}
 
@@ -73,7 +75,7 @@ defmodule ValueFlows.EconomicResource do
     %EconomicResource{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      creator_id: Bonfire.Common.Utils.ulid(creator),
+      creator_id: Bonfire.Common.Types.ulid(creator),
       is_public: true
     )
     |> Changeset.validate_required(@required)

@@ -21,6 +21,8 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     alias ValueFlows.Planning.Intent.Intents
     alias ValueFlows.Planning.Intent.Queries
     alias ValueFlows.Planning.Satisfaction.Satisfactions
+    alias Bonfire.Common
+    alias Common.Types
 
     ## resolvers
 
@@ -388,7 +390,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     defp id_or_me(["me"], current_user),
-      do: Utils.ulid(current_user) || raise(Bonfire.Fail.Auth, :needs_login)
+      do: Types.ulid(current_user) || raise(Bonfire.Fail.Auth, :needs_login)
 
     defp id_or_me(id, _), do: id
 
