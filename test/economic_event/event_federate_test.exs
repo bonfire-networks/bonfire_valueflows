@@ -23,7 +23,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
                "/.well-known/webfinger?resource=acct:" <> @actor_name
 
   # TODO: move this into fixtures
-  setup do
+  setup_all do
     mock(fn
       %{method: :get, url: @remote_actor} ->
         json(Simulate.actor_json(@remote_actor))

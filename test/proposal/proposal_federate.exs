@@ -12,7 +12,7 @@ defmodule ValueFlows.Proposal.FederateTest do
   @debug false
   @schema Bonfire.API.GraphQL.Schema
 
-  setup do
+  setup_all do
     mock(fn
       %{method: :get, url: "https://mocked.local/users/karen"} ->
         json(Bonfire.Federate.ActivityPub.Simulate.actor_json("https://mocked.local/users/karen"))
