@@ -139,7 +139,7 @@ defmodule ValueFlows.Util.Federation do
     )
 
     with {:ok, activity} <- ActivityPub.update(activity_params) do
-      # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
+      # |> ActivityPub.Federator.Transformer.prepare_outgoing
 
       {:ok, activity}
     else
@@ -154,7 +154,7 @@ defmodule ValueFlows.Util.Federation do
     )
 
     with {:ok, activity} <- ActivityPub.create(activity_params) do
-      # |> ActivityPubWeb.Transmogrifier.prepare_outgoing
+      # |> ActivityPub.Federator.Transformer.prepare_outgoing
 
       # IO.puts(struct_to_json(activity.data))
       # IO.puts(struct_to_json(activity.object.data))

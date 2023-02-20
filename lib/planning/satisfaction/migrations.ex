@@ -1,4 +1,5 @@
 defmodule ValueFlows.Planning.Satisfaction.Migrations do
+  @moduledoc false
   use Ecto.Migration
 
   import Pointers.Migration

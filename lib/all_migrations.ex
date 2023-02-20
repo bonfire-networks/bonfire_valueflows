@@ -1,4 +1,5 @@
 defmodule ValueFlows.AllMigrations do
+  @moduledoc false
   @moduledoc """
   Catch-all migrations intended to be used to initialise new Bonfire apps.
   Add any new up/down ecto migrations in VF modules to the bottom of these two functions.

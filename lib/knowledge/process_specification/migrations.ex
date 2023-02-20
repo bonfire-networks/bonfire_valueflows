@@ -1,4 +1,5 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.Migrations do
+  @moduledoc false
   use Ecto.Migration
   # import Bonfire.Common.Config, only: [repo: 0]
   # alias Pointers.ULID

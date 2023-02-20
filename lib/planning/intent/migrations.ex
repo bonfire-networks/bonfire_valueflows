@@ -1,4 +1,5 @@
 defmodule ValueFlows.Planning.Intent.Migrations do
+  @moduledoc false
   use Ecto.Migration
   # alias Pointers.ULID
   import Pointers.Migration

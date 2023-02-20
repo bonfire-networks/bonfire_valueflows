@@ -1,4 +1,5 @@
 defmodule ValueFlows.EconomicResource.Migrations do
+  @moduledoc false
   use Ecto.Migration
   # alias Pointers.ULID
   import Pointers.Migration
