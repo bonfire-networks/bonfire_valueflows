@@ -1,5 +1,7 @@
 defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
   import Bonfire.Common.Config, only: [repo: 0]
+  use Bonfire.Common.Utils
+  alias Bonfire.Common.Enums
 
   alias Ecto.Changeset
   alias ValueFlows.Planning.Satisfaction
@@ -97,11 +99,9 @@ defmodule ValueFlows.Planning.Satisfaction.Satisfactions do
 
   @spec prep_attrs(attrs(), struct()) :: attrs()
   defp prep_attrs(attrs, creator) do
-    use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]
-
     attrs
-    |> maybe_put(:satisfies_id, attr_get_id(attrs, :satisfies))
-    |> maybe_put(:satisfied_by_id, attr_get_id(attrs, :satisfied_by))
+    |> Enums.maybe_put(:satisfies_id, Enums.attr_get_id(attrs, :satisfies))
+    |> Enums.maybe_put(:satisfied_by_id, Enums.attr_get_id(attrs, :satisfied_by))
     |> ValueFlows.Util.parse_measurement_attrs(creator)
   end
 end

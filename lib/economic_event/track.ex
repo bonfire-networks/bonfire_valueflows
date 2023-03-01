@@ -75,7 +75,7 @@ defmodule ValueFlows.EconomicEvent.Track do
 
   defp recurse(%{} = obj, recurse_limit, recurse_counter) do
     with {:ok, nested} <- track(obj, recurse_limit, recurse_counter) do
-      maybe_append(
+      Enums.maybe_append(
         obj,
         nested
       )
@@ -125,8 +125,8 @@ defmodule ValueFlows.EconomicEvent.Track do
       {
         :ok,
         resources
-        |> maybe_append(process)
-        |> maybe_append(to_resource)
+        |> Enums.maybe_append(process)
+        |> Enums.maybe_append(to_resource)
         |> maybe_recurse(recurse_limit, recurse_counter)
       }
     end

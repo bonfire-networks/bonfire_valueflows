@@ -5,7 +5,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     table_id: "1PEC1F1CAT10NK1ND0FRES0VRC"
 
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
-  use Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]
+  use Bonfire.Common.Utils
 
   alias Ecto.Changeset
 
@@ -77,7 +77,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     %ResourceSpecification{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      default_unit_of_effort_id: attr_get_id(attrs, :default_unit_of_effort),
+      default_unit_of_effort_id: Enums.attr_get_id(attrs, :default_unit_of_effort),
       is_public: true
     )
     |> Changeset.validate_required(@required)
@@ -93,7 +93,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       context_id: context.id,
-      default_unit_of_effort_id: attr_get_id(attrs, :default_unit_of_effort)
+      default_unit_of_effort_id: Enums.attr_get_id(attrs, :default_unit_of_effort)
     )
     |> common_changeset()
   end
@@ -101,7 +101,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   def update_changeset(%ResourceSpecification{} = resource_spec, attrs) do
     resource_spec
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(default_unit_of_effort_id: attr_get_id(attrs, :default_unit_of_effort))
+    |> Changeset.change(
+      default_unit_of_effort_id: Enums.attr_get_id(attrs, :default_unit_of_effort)
+    )
     |> common_changeset()
   end
 

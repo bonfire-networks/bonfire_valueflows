@@ -351,7 +351,7 @@ defmodule ValueFlows.Util do
               |> Map.drop([:has_unit])
 
             _ ->
-              map_key_replace(v, :has_unit, :unit_id)
+              Enums.map_key_replace(v, :has_unit, :unit_id)
           end
         )
 
@@ -364,7 +364,7 @@ defmodule ValueFlows.Util do
   #   for {k, v} <- attrs, into: %{} do
   #     v =
   #       if is_map(v) and Map.has_key?(v, :has_unit) do
-  #         map_key_replace(v, :has_unit, :unit_id)
+  #         Enums.map_key_replace(v, :has_unit, :unit_id)
   #       else
   #         v
   #       end

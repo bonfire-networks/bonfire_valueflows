@@ -5,9 +5,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 
     import Bonfire.Common.Config, only: [repo: 0]
     # TODO: don't use this
-    use Bonfire.Common.Utils,
-      only: [map_key_replace_existing: 3, map_key_replace_existing: 4]
-
+    use Bonfire.Common.Utils
     alias Bonfire.API.GraphQL
 
     alias Bonfire.API.GraphQL.ResolveField
@@ -196,11 +194,11 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 
     defp parse_search_params(search_params) do
       search_params
-      |> map_key_replace_existing(:action, :action_id)
-      |> map_key_replace_existing(:provider, :provider_id)
-      |> map_key_replace_existing(:receiver, :receiver_id)
-      |> map_key_replace_existing(:search_string, :search)
-      |> map_key_replace_existing(
+      |> Enums.map_key_replace_existing(:action, :action_id)
+      |> Enums.map_key_replace_existing(:provider, :provider_id)
+      |> Enums.map_key_replace_existing(:receiver, :receiver_id)
+      |> Enums.map_key_replace_existing(:search_string, :search)
+      |> Enums.map_key_replace_existing(
         :classified_as,
         :tag_ids,
         Util.maybe_classification_id(

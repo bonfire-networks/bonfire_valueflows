@@ -2,7 +2,7 @@
 defmodule ValueFlows.Agent.Agents do
   # alias ValueFlows.{Simulate}
   import Untangle
-  use Bonfire.Common.Utils, only: [maybe_put: 3, merge_structs_as_map: 2]
+  use Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
 
   # TODO - change approach to allow pagination
@@ -26,8 +26,8 @@ defmodule ValueFlows.Agent.Agents do
 
   def agent_to_character(a) do
     a
-    |> maybe_put(:summary, Map.get(a, :note))
-    |> maybe_put(:geolocation, Map.get(a, :primary_location))
+    |> Enums.maybe_put(:summary, Map.get(a, :note))
+    |> Enums.maybe_put(:geolocation, Map.get(a, :primary_location))
   end
 
   def character_to_agent(a) do
@@ -36,16 +36,16 @@ defmodule ValueFlows.Agent.Agents do
     a
     |> repo().maybe_preload(:shared_user, label: __MODULE__)
     # |> IO.inspect()
-    |> merge_structs_as_map(
+    |> Enums.merge_structs_as_map(
       Utils.e(a, :profile, %{
         name: Utils.e(a, :character, :username, "anonymous")
       })
     )
-    |> merge_structs_as_map(Utils.e(a, :character, %{}))
+    |> Enums.merge_structs_as_map(Utils.e(a, :character, %{}))
     |> Map.put(:image, ValueFlows.Util.image_url(a))
-    |> maybe_put(:primary_location, agent_location(a))
-    |> maybe_put(:note, Utils.e(a, :profile, :summary))
-    # |> maybe_put(:display_username, ValueFlows.Util.display_username(a))
+    |> Enums.maybe_put(:primary_location, agent_location(a))
+    |> Enums.maybe_put(:note, Utils.e(a, :profile, :summary))
+    # |> Enums.maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
 
     # |> info()

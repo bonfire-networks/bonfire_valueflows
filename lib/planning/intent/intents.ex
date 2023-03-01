@@ -2,11 +2,7 @@
 defmodule ValueFlows.Planning.Intent.Intents do
   use Bonfire.Common.Utils,
     only: [
-      maybe_put: 3,
-      attr_get_id: 2,
       maybe: 2,
-      maybe_list: 2,
-      map_key_replace: 3,
       e: 3,
       e: 4
     ]
@@ -337,27 +333,27 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(
+    |> Enums.maybe_put(
       :action_id,
       e(attrs, :action, :id, e(attrs, :action, nil))
       |> ValueFlows.Knowledge.Action.Actions.id()
     )
-    |> maybe_put(
+    |> Enums.maybe_put(
       :context_id,
-      attrs |> Map.get(:in_scope_of) |> maybe_list(&List.first/1)
+      attrs |> Map.get(:in_scope_of) |> Enums.maybe_list(&List.first/1)
     )
-    |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
+    |> Enums.maybe_put(:at_location_id, Enums.attr_get_id(attrs, :at_location))
     |> Map.put(:provider_id, Util.attr_get_agent(attrs, :provider, creator))
     |> Map.put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
-    |> maybe_put(:input_of_id, attr_get_id(attrs, :input_of))
-    |> maybe_put(:output_of_id, attr_get_id(attrs, :output_of))
-    |> maybe_put(
+    |> Enums.maybe_put(:input_of_id, Enums.attr_get_id(attrs, :input_of))
+    |> Enums.maybe_put(:output_of_id, Enums.attr_get_id(attrs, :output_of))
+    |> Enums.maybe_put(
       :resource_conforms_to_id,
-      attr_get_id(attrs, :resource_conforms_to)
+      Enums.attr_get_id(attrs, :resource_conforms_to)
     )
-    |> maybe_put(
+    |> Enums.maybe_put(
       :resource_inventoried_as_id,
-      attr_get_id(attrs, :resource_inventoried_as)
+      Enums.attr_get_id(attrs, :resource_inventoried_as)
     )
     |> Util.parse_measurement_attrs(creator)
   end

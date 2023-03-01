@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.ValueCalculation.ValueCalculations do
   use Arrows
-  use Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2, attr_get_id: 2]
+  use Bonfire.Common.Utils, only: [maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
 
@@ -117,23 +117,23 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(
+    |> Enums.maybe_put(
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
-    |> maybe_put(:value_unit_id, attr_get_id(attrs, :value_unit))
-    |> maybe_put(
+    |> Enums.maybe_put(:value_unit_id, Enums.attr_get_id(attrs, :value_unit))
+    |> Enums.maybe_put(
       :action_id,
-      attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id()
+      Enums.attr_get_id(attrs, :action) |> ValueFlows.Knowledge.Action.Actions.id()
     )
-    |> maybe_put(:value_action_id, attrs[:value_action])
-    |> maybe_put(
+    |> Enums.maybe_put(:value_action_id, attrs[:value_action])
+    |> Enums.maybe_put(
       :resource_conforms_to_id,
-      attr_get_id(attrs, :resource_conforms_to)
+      Enums.attr_get_id(attrs, :resource_conforms_to)
     )
-    |> maybe_put(
+    |> Enums.maybe_put(
       :value_resource_conforms_to_id,
-      attr_get_id(attrs, :value_resource_conforms_to)
+      Enums.attr_get_id(attrs, :value_resource_conforms_to)
     )
   end
 

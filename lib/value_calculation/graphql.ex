@@ -58,7 +58,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 
     def value_action_edge(thing, opts, info) do
       thing
-      |> Bonfire.Common.Utils.map_key_replace(:value_action_id, :action_id)
+      |> Bonfire.Common.Enums.map_key_replace(:value_action_id, :action_id)
       |> ValueFlows.Knowledge.Action.GraphQL.action_edge(opts, info)
     end
 

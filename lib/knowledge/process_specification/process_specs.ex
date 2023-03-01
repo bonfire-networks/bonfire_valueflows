@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
-  use Bonfire.Common.Utils, only: [maybe: 2, maybe_put: 3]
+  use Bonfire.Common.Utils, only: [maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
   # alias Bonfire.API.GraphQL
@@ -193,7 +193,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   end
 
   defp prepare_attrs(attrs) do
-    maybe_put(
+    Enums.maybe_put(
       attrs,
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)

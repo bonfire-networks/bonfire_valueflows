@@ -1,6 +1,9 @@
 defmodule ValueFlows.Planning.Commitment.Commitments do
   import Bonfire.Common.Config, only: [repo: 0]
 
+  use Bonfire.Common.Utils,
+    only: [maybe: 2, e: 3, e: 4]
+
   alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Planning.Commitment
   alias ValueFlows.Planning.Commitment.Queries
@@ -102,32 +105,29 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
 
   @spec prep_attrs(attrs(), struct()) :: attrs()
   def prep_attrs(attrs, creator \\ nil) do
-    use Bonfire.Common.Utils,
-      only: [maybe_put: 3, attr_get_id: 2, maybe: 2, e: 3, e: 4]
-
     attrs
-    |> maybe_put(
+    |> Enums.maybe_put(
       :action_id,
       e(attrs, :action, :id, e(attrs, :action, nil))
       |> ValueFlows.Knowledge.Action.Actions.id()
     )
-    |> maybe_put(:input_of_id, attr_get_id(attrs, :input_of))
-    |> maybe_put(:output_of_id, attr_get_id(attrs, :output_of))
-    |> maybe_put(:provider_id, Util.attr_get_agent(attrs, :provider, creator))
-    |> maybe_put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
-    |> maybe_put(
+    |> Enums.maybe_put(:input_of_id, Enums.attr_get_id(attrs, :input_of))
+    |> Enums.maybe_put(:output_of_id, Enums.attr_get_id(attrs, :output_of))
+    |> Enums.maybe_put(:provider_id, Util.attr_get_agent(attrs, :provider, creator))
+    |> Enums.maybe_put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
+    |> Enums.maybe_put(
       :resource_conforms_to_id,
-      attr_get_id(attrs, :resource_conforms_to)
+      Enums.attr_get_id(attrs, :resource_conforms_to)
     )
-    |> maybe_put(
+    |> Enums.maybe_put(
       :resource_inventoried_as_id,
-      attr_get_id(attrs, :resource_inventoried_as)
+      Enums.attr_get_id(attrs, :resource_inventoried_as)
     )
-    |> maybe_put(
+    |> Enums.maybe_put(
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
-    |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
+    |> Enums.maybe_put(:at_location_id, Enums.attr_get_id(attrs, :at_location))
     |> ValueFlows.Util.parse_measurement_attrs(creator)
   end
 end

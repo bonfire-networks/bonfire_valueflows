@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
-  use Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2]
+  use Bonfire.Common.Utils, only: [maybe: 2]
 
   import Bonfire.Common.Config, only: [repo: 0]
 
@@ -144,7 +144,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   end
 
   def prepare_attrs(attrs) do
-    maybe_put(
+    Enums.maybe_put(
       attrs,
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)

@@ -2,11 +2,7 @@
 defmodule ValueFlows.EconomicResource.EconomicResources do
   use Bonfire.Common.Utils,
     only: [
-      maybe_put: 3,
-      attr_get_id: 2,
-      ulid: 1,
       maybe: 2,
-      map_key_replace: 3,
       e: 3
     ]
 
@@ -250,19 +246,19 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
   defp prepare_attrs(attrs, creator \\ nil) do
     attrs
-    |> maybe_put(
+    |> Enums.maybe_put(
       :primary_accountable_id,
-      attr_get_id(attrs, :primary_accountable) || ulid(creator)
+      Enums.attr_get_id(attrs, :primary_accountable) || ulid(creator)
     )
-    |> maybe_put(
+    |> Enums.maybe_put(
       :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
-    |> maybe_put(:current_location_id, attr_get_id(attrs, :current_location))
-    |> maybe_put(:conforms_to_id, attr_get_id(attrs, :conforms_to))
-    |> maybe_put(:contained_in_id, attr_get_id(attrs, :contained_in))
-    |> maybe_put(:unit_of_effort_id, attr_get_id(attrs, :unit_of_effort))
-    |> maybe_put(:state_id, attr_get_id(attrs, :state))
+    |> Enums.maybe_put(:current_location_id, Enums.attr_get_id(attrs, :current_location))
+    |> Enums.maybe_put(:conforms_to_id, Enums.attr_get_id(attrs, :conforms_to))
+    |> Enums.maybe_put(:contained_in_id, Enums.attr_get_id(attrs, :contained_in))
+    |> Enums.maybe_put(:unit_of_effort_id, Enums.attr_get_id(attrs, :unit_of_effort))
+    |> Enums.maybe_put(:state_id, Enums.attr_get_id(attrs, :state))
     |> Util.parse_measurement_attrs(creator)
   end
 end
