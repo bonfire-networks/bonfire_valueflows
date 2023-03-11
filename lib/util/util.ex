@@ -80,7 +80,8 @@ defmodule ValueFlows.Util do
       e(thing, :context, nil) || e(thing, :context_id, nil),
       e(thing, :provider, nil) || e(thing, :provider_id, nil),
       e(thing, :receiver, nil) || e(thing, :receiver_id, nil),
-      e(thing, :parent_category, nil) || e(thing, :parent_category_id, nil)
+      e(thing, :parent_category, nil) || e(thing, :parent_category_id, nil) ||
+        e(thing, :tree, :parent, nil) || e(thing, :tree, :parent_id, nil)
     ]
 
     to_circles =
