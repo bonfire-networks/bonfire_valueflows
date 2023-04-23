@@ -670,7 +670,7 @@ defmodule ValueFlows.Util.Federation do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Outgoing) do
       Bonfire.Federate.ActivityPub.Outgoing.maybe_federate(user, verb, thing)
     else
-      {:ok, :skip}
+      :ignore
     end
   end
 
