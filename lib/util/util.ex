@@ -107,7 +107,7 @@ defmodule ValueFlows.Util do
     )
 
     if !e(opts, :editing, nil) and module_enabled?(Bonfire.Boundaries),
-      do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
+      do: Bonfire.Boundaries.set_boundaries(creator, thing, opts, __MODULE__)
 
     opts
   end
