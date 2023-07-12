@@ -171,13 +171,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
            intent <- preload_all(%{intent | creator: creator}),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent, attrs: inputs) do
-        Absinthe.Subscription.publish(@endpoint_module, intent, intent_created: :all)
+        # Absinthe.Subscription.publish(@endpoint_module, intent, intent_created: :all)
 
-        if intent.context_id,
-          do:
-            Absinthe.Subscription.publish(@endpoint_module, intent,
-              intent_created: intent.context_id
-            )
+        # if intent.context_id,
+        #   do:
+        #     Absinthe.Subscription.publish(@endpoint_module, intent,
+        #       intent_created: intent.context_id
+        #     )
 
         indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
 

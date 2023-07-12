@@ -156,7 +156,7 @@ defmodule ValueFlows.Util.Federation do
     with {:ok, activity} <- ActivityPub.create(activity_params) do
       # |> ActivityPub.Federator.Transformer.prepare_outgoing
 
-      # IO.puts(struct_to_json(activity.data))
+      debug(struct_to_json(activity.data), "final JSON data")
       # IO.puts(struct_to_json(activity.object.data))
 
       # if is_map_key(thing, :canonical_url) do

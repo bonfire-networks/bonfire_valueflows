@@ -98,7 +98,8 @@ defmodule ValueFlows.Util do
           boundary: preset_boundary,
           to_circles: to_circles || [],
           to_feeds: to_feeds,
-          activity_json: if(e(opts, :editing, nil), do: true)
+          activity_json: if(e(opts, :editing, nil), do: true),
+          for_module: __MODULE__
         ]
 
     debug(
@@ -107,7 +108,7 @@ defmodule ValueFlows.Util do
     )
 
     if !e(opts, :editing, nil) and module_enabled?(Bonfire.Boundaries),
-      do: Bonfire.Boundaries.set_boundaries(creator, thing, opts, __MODULE__)
+      do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
 
     opts
   end

@@ -44,11 +44,10 @@ defmodule ValueFlows.Agent.Agents do
     |> Enums.merge_structs_as_map(Utils.e(a, :character, %{}))
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> Enums.maybe_put(:primary_location, agent_location(a))
-    |> Enums.maybe_put(:note, Utils.e(a, :profile, :summary))
+    |> Enums.maybe_put(:note, Utils.e(a, :profile, :summary, nil))
     # |> Enums.maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
-
-    # |> info()
+    |> debug()
   end
 
   def agent_location(%{profile_id: profile_id} = a)
