@@ -115,13 +115,13 @@ defmodule ValueFlows.Util.Federation do
 
       with %{} = api_object <-
              fetch_api_object(id, schema_type, query_depth, extra_field_filters),
-           %{} = formated_object <- ap_prepare_object(api_object),
+           %{} = formatted_object <- ap_prepare_object(api_object),
            %{} = activity_params <-
              ap_prepare_activity(
                subject,
                activity_type,
                thing,
-               formated_object
+               formatted_object
              ) do
         ap_do(activity_type, activity_params)
       else
@@ -208,9 +208,10 @@ defmodule ValueFlows.Util.Federation do
       @log_graphql
     )
     |> debug("queried via API")
-  rescue
-    e ->
-      error(e, "Could not fetch from VF API")
+
+    # rescue
+    #   e ->
+    #     error(e, "Could not fetch from VF API")
   end
 
   def ap_prepare_object(obj) do

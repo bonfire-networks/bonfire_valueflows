@@ -76,13 +76,15 @@ defmodule ValueFlows.Util do
 
     debug(preset_boundary, "preset_boundary")
 
-    to = [
-      e(thing, :context, nil) || e(thing, :context_id, nil),
-      e(thing, :provider, nil) || e(thing, :provider_id, nil),
-      e(thing, :receiver, nil) || e(thing, :receiver_id, nil),
-      e(thing, :parent_category, nil) || e(thing, :parent_category_id, nil) ||
-        e(thing, :tree, :parent, nil) || e(thing, :tree, :parent_id, nil)
-    ]
+    to =
+      [
+        e(thing, :context, nil) || e(thing, :context_id, nil),
+        e(thing, :provider, nil) || e(thing, :provider_id, nil),
+        e(thing, :receiver, nil) || e(thing, :receiver_id, nil),
+        e(thing, :parent_category, nil) || e(thing, :parent_category_id, nil) ||
+          e(thing, :tree, :parent, nil) || e(thing, :tree, :parent_id, nil)
+      ]
+      |> Enums.filter_empty([])
 
     to_circles =
       Bonfire.Common.Config.get_ext(__MODULE__, :publish_to_default_circles, []) ++
