@@ -13,11 +13,16 @@ defmodule ValueFlows.Proposal.ProposedIntent do
 
   # table_schema "vf_proposed_intent" do
   pointable_schema do
+    # Is this a reciprocal intent of this proposal? rather than primary 
+    # Not meant to be used for intent matching.
     # Note: allows null
     field(:reciprocal, :boolean)
     field(:deleted_at, :utc_datetime_usec)
 
+    # The intent which is part of this published proposal.
     belongs_to(:publishes, Intent)
+
+    # The published proposal which this intent is part of.
     belongs_to(:published_in, Proposal)
   end
 
