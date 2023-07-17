@@ -70,11 +70,11 @@ defmodule ValueFlows.Util do
 
   def prepare_opts_and_maybe_set_boundaries(creator, thing, opts \\ []) do
     # TODO: make default audience configurable & per object audience selectable by user in API and UI (note: also in `Federation.ap_prepare_activity`)
-    preset_boundary =
+    boundary_preset =
       e(opts, :attrs, :to_boundaries, nil) ||
-        Bonfire.Common.Config.get_ext(__MODULE__, :preset_boundary, "public")
+        Bonfire.Common.Config.get_ext(__MODULE__, :boundary_preset, "public")
 
-    debug(preset_boundary, "preset_boundary")
+    debug(boundary_preset, "boundary_preset")
 
     to =
       [
@@ -97,7 +97,7 @@ defmodule ValueFlows.Util do
     opts =
       opts ++
         [
-          boundary: preset_boundary,
+          boundary: boundary_preset,
           to_circles: to_circles || [],
           to_feeds: to_feeds,
           activity_json: if(e(opts, :editing, nil), do: true),

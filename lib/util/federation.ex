@@ -260,7 +260,7 @@ defmodule ValueFlows.Util.Federation do
                  if(
                    Bonfire.Common.Config.get_ext(
                      __MODULE__,
-                     :preset_boundary,
+                     :boundary_preset,
                      "public"
                    ) == "public",
                    do: Bonfire.Federate.ActivityPub.AdapterUtils.public_uri()
