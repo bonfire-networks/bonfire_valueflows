@@ -16,8 +16,7 @@ defmodule ValueFlows.Util do
     user_id = ulid(current_user)
 
     if not is_nil(user_id) and
-         (ValueFlows.Util.is_admin?(current_user) or
-            e(object, :creator_id, nil) == user_id or
+         (e(object, :creator_id, nil) == user_id or
             e(object, :provider_id, nil) == user_id or
             Bonfire.Boundaries.can?(current_user, verb, object)) do
       :ok
@@ -287,15 +286,6 @@ defmodule ValueFlows.Util do
     |> case do
       {:error, _} = e -> e
       cs -> {:ok, cs}
-    end
-  end
-
-  def is_admin?(user) do
-    if is_map(user) and Map.get(user, :instance_admin) do
-      Map.get(user.instance_admin, :is_instance_admin, false)
-    else
-      # FIXME
-      false
     end
   end
 
