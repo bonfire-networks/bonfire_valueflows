@@ -8,7 +8,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
 
   import Tesla.Mock
 
-  setup_all do
+  setup do
     mock(fn
       %{method: :get, url: "https://mocked.local/users/karen"} ->
         json(Bonfire.Federate.ActivityPub.Simulate.actor_json("https://mocked.local/users/karen"))

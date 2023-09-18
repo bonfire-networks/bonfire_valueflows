@@ -13,7 +13,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
   @debug false
   @schema Bonfire.API.GraphQL.Schema
 
-  setup_all do
+  setup do
     {remote_user, remote_actor} =
       TestInstanceRepo.apply(fn ->
         # repo().delete_all(ActivityPub.Object)
