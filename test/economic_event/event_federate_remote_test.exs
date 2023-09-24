@@ -31,8 +31,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
     @tag :skip
     # @tag :test_instance
     test "transfer an existing economic resource to a remote agent/actor by AP URI", context do
-      Cachex.clear(:ap_actor_cache)
-      Cachex.clear(:ap_object_cache)
+      ActivityPub.Utils.cache_clear()
 
       user = fake_agent!()
 
@@ -127,8 +126,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
     end
 
     #   test "transfer an existing economic resource to a remote agent/actor by username" do
-    #     Cachex.clear(:ap_actor_cache)
-    #     Cachex.clear(:ap_object_cache)
+    #     ActivityPub.Utils.cache_clear()
 
     #     user = fake_agent!()
 

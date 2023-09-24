@@ -79,8 +79,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
     end
 
     test "transfer an existing economic resource to a remote agent/actor by AP URI" do
-      Cachex.clear(:ap_actor_cache)
-      Cachex.clear(:ap_object_cache)
+      ActivityPub.Utils.cache_clear()
 
       user = fake_agent!()
 
@@ -171,8 +170,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
     end
 
     test "transfer an existing economic resource to a mock remote agent/actor by username" do
-      Cachex.clear(:ap_actor_cache)
-      Cachex.clear(:ap_object_cache)
+      ActivityPub.Utils.cache_clear()
 
       user = fake_agent!()
 
@@ -249,8 +247,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
   describe "incoming economic event" do
     test "creates an economic event from an incoming federated activity " do
-      Cachex.clear(:ap_actor_cache)
-      Cachex.clear(:ap_object_cache)
+      ActivityPub.Utils.cache_clear()
 
       {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
 

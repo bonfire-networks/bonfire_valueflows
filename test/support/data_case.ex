@@ -29,8 +29,7 @@ defmodule Bonfire.ValueFlows.DataCase do
 
   setup tags do
     import Bonfire.Common.Config, only: [repo: 0]
-    Cachex.clear(:ap_actor_cache)
-    Cachex.clear(:ap_object_cache)
+    ActivityPub.Utils.cache_clear()
     Bonfire.Common.Test.Interactive.setup_test_repo(tags)
 
     :ok
