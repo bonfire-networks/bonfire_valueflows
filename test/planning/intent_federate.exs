@@ -37,7 +37,8 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
     end
 
     test "creates an intent for a basic incoming need" do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
+      {:ok, actor} =
+        ActivityPub.Actor.get_cached_or_fetch(ap_id: "https://mocked.local/users/karen")
 
       action = "produce"
 
@@ -84,7 +85,8 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
     end
 
     test "creates an intent for an incoming need/offer with nested objects" do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
+      {:ok, actor} =
+        ActivityPub.Actor.get_cached_or_fetch(ap_id: "https://mocked.local/users/karen")
 
       action = "work"
 

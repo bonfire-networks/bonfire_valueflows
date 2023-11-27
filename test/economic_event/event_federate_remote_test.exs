@@ -104,7 +104,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
 
       # assert ap.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
 
-      {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(context[:remote_actor])
+      {:ok, remote_actor} = ActivityPub.Actor.get_cached_or_fetch(ap_id: context[:remote_actor])
 
       assert ap.object.data["receiver"]["id"] == context[:remote_actor]
 
@@ -182,7 +182,7 @@ defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
 
     #     assert ap.object.data["summary"] =~ local_event.note
 
-    #     {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+    #     {:ok, remote_actor} = ActivityPub.Actor.get_cached_or_fetch(ap_id: @remote_actor)
     #     assert ap.object.data["receiver"]["id"] == @remote_actor
 
     #     assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :federator_outgoing)

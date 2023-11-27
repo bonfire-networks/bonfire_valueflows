@@ -152,7 +152,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
       # assert activity.data["id"] == Bonfire.Common.URIs.canonical_url(event) # FIXME?
 
-      {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+      {:ok, remote_actor} = ActivityPub.Actor.get_cached_or_fetch(ap_id: @remote_actor)
 
       assert ap.object.data["receiver"]["id"] == @remote_actor
 
@@ -239,7 +239,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
 
       assert ap.object.data["summary"] =~ local_event.note
 
-      {:ok, remote_actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+      {:ok, remote_actor} = ActivityPub.Actor.get_cached_or_fetch(ap_id: @remote_actor)
 
       assert ap.object.data["receiver"]["id"] == @remote_actor
     end
@@ -249,7 +249,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
     test "creates an economic event from an incoming federated activity " do
       ActivityPub.Utils.cache_clear()
 
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id(@remote_actor)
+      {:ok, actor} = ActivityPub.Actor.get_cached_or_fetch(ap_id: @remote_actor)
 
       to = [
         "https://testing.local/users/karen",

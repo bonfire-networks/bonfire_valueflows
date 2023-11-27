@@ -50,7 +50,8 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates a basic proposal from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
+      {:ok, actor} =
+        ActivityPub.Actor.get_cached_or_fetch(ap_id: "https://mocked.local/users/karen")
 
       action = "work"
 
@@ -101,7 +102,8 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates a proposal with nested proposed_intent + intent from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
+      {:ok, actor} =
+        ActivityPub.Actor.get_cached_or_fetch(ap_id: "https://mocked.local/users/karen")
 
       action = "work"
 
@@ -217,7 +219,8 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates a proposed_intent with nested proposal + intent from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
+      {:ok, actor} =
+        ActivityPub.Actor.get_cached_or_fetch(ap_id: "https://mocked.local/users/karen")
 
       action = "work"
 
@@ -321,7 +324,8 @@ defmodule ValueFlows.Proposal.FederateTest do
     end
 
     test "creates an intent with nested proposed_intent + proposal from an incoming federated activity " do
-      {:ok, actor} = ActivityPub.Actor.get_or_fetch_by_ap_id("https://mocked.local/users/karen")
+      {:ok, actor} =
+        ActivityPub.Actor.get_cached_or_fetch(ap_id: "https://mocked.local/users/karen")
 
       action = "work"
 
