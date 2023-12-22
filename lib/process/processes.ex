@@ -14,6 +14,7 @@ defmodule ValueFlows.Process.Processes do
   alias ValueFlows.EconomicEvent.EconomicEvents
   alias ValueFlows.Planning.Intent.Intents
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["ValueFlows:Process", "Process"]
 
   def cursor(), do: &[&1.id]

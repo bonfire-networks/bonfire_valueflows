@@ -20,6 +20,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   @endpoint_module Application.compile_env!(:bonfire, :endpoint_module)
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module,
     do: [
       "ValueFlows:Intent",

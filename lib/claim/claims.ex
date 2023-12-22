@@ -10,6 +10,7 @@ defmodule ValueFlows.Claim.Claims do
 
   alias Bonfire.Common.Pointers
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["ValueFlows:Claim", "Claim"]
 
   def one(filters), do: repo().single(Queries.query(Claim, filters))

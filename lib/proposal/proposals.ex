@@ -18,6 +18,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
   alias ValueFlows.Planning.Intent
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["ValueFlows:Proposal", "Proposal"]
 
   def cursor(), do: &[&1.id]

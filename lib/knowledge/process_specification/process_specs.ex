@@ -10,6 +10,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module,
     do: ["ValueFlows:ProcessSpecification", "ProcessSpecification"]
 

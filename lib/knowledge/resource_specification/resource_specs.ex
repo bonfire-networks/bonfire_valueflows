@@ -9,6 +9,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   @search_type "ValueFlows.ResourceSpecification"
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module,
     do: ["ValueFlows:ResourceSpecification", "ResourceSpecification"]
 

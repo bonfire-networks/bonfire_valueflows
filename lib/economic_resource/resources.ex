@@ -18,6 +18,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
 
   @search_type "ValueFlows.EconomicResource"
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["ValueFlows:EconomicResource", "EconomicResource"]
 
   def cursor(), do: &[&1.id]

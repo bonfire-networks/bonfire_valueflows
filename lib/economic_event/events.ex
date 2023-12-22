@@ -22,6 +22,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   import Untangle
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["ValueFlows:EconomicEvent", "EconomicEvent"]
 
   def cursor(), do: &[&1.id]

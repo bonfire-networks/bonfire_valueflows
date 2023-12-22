@@ -18,6 +18,7 @@ defmodule ValueFlows.Proposal.ProposedTos do
 
   alias ValueFlows.Planning.Intent
 
+  @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["ValueFlows:ProposedTo", "ProposedTo"]
 
   @spec one(filters :: [any]) :: {:ok, ProposedTo.t()} | {:error, term}
