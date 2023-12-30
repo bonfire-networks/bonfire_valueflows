@@ -1,5 +1,5 @@
 defmodule ValueFlows.Planning.Intent do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_intent",
     table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
@@ -59,7 +59,7 @@ defmodule ValueFlows.Planning.Intent do
     # belongs_to(:agreed_in, Agreement)
 
     belongs_to(:creator, ValueFlows.Util.user_schema())
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 

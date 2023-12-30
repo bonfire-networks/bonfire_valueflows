@@ -154,7 +154,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     |> group_by([resource_spec: c], c.id)
     |> having(
       [resource_spec: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Needle.ULID}), t.id)
     )
   end
 

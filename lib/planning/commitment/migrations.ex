@@ -2,7 +2,7 @@ defmodule ValueFlows.Planning.Commitment.Migrations do
   @moduledoc false
   use Ecto.Migration
 
-  import Pointers.Migration
+  import Needle.Migration
 
   alias ValueFlows.Planning.Commitment
   alias ValueFlows.Process

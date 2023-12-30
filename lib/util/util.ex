@@ -202,8 +202,8 @@ defmodule ValueFlows.Util do
     |> indexing_format_creator()
   end
 
-  def indexing_format_creator(%Pointers.Pointer{} = pointer) do
-    Bonfire.Common.Pointers.get(pointer) |> indexing_format_creator()
+  def indexing_format_creator(%Needle.Pointer{} = pointer) do
+    Bonfire.Common.Needle.get(pointer) |> indexing_format_creator()
   end
 
   def indexing_format_creator(%{id: id} = creator) when not is_nil(id) do
@@ -289,12 +289,12 @@ defmodule ValueFlows.Util do
 
   def user_schema() do
     # Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:user_schema, Bonfire.Data.Identity.User))
-    Pointers.Pointer
+    Needle.Pointer
   end
 
   def org_schema() do
     # Bonfire.Common.Extend.maybe_schema_or_pointer(Bonfire.Common.Config.get(:organisation_schema, user_schema()))
-    Pointers.Pointer
+    Needle.Pointer
   end
 
   def user_or_org_schema() do

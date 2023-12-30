@@ -1,5 +1,5 @@
 defmodule ValueFlows.EconomicEvent do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_event",
     table_id: "2CTVA10BSERVEDF10WS0FVA1VE"
@@ -47,7 +47,7 @@ defmodule ValueFlows.EconomicEvent do
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
     belongs_to(:effort_quantity, Measure, on_replace: :nilify)
 
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     belongs_to(:at_location, Bonfire.Geolocate.Geolocation)
 

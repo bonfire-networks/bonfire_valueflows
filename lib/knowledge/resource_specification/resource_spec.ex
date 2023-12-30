@@ -1,5 +1,5 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_resource_spec",
     table_id: "1PEC1F1CAT10NK1ND0FRES0VRC"
@@ -29,7 +29,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     belongs_to(:default_unit_of_effort, Unit, on_replace: :nilify)
 
     belongs_to(:creator, ValueFlows.Util.user_schema())
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)

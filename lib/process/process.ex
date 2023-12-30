@@ -1,5 +1,5 @@
 defmodule ValueFlows.Process do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_process",
     table_id: "4AYF0R1NPVTST0BEC0ME0VTPVT"
@@ -33,7 +33,7 @@ defmodule ValueFlows.Process do
 
     belongs_to(:based_on, ProcessSpecification)
 
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     has_many(:intended_inputs, Intent,
       foreign_key: :input_of_id,

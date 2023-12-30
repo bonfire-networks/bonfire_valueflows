@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Claim do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_claim",
     table_id: "40MM0NSPVBVA1VEF10WSC1A1MS"
@@ -35,7 +35,7 @@ defmodule ValueFlows.Claim do
     belongs_to(:triggered_by, EconomicEvent)
 
     # a.k.a. in_scope_of
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     # not defined in spec, used internally
     belongs_to(:creator, ValueFlows.Util.user_schema())

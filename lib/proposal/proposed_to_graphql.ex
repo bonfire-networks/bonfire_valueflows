@@ -3,7 +3,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     use Absinthe.Schema.Notation
 
     alias Bonfire.API.GraphQL
-    alias Bonfire.Common.Pointers
+    alias Bonfire.Common.Needle
     alias ValueFlows.Proposal.Proposals
 
     alias Bonfire.API.GraphQL.ResolveField
@@ -52,7 +52,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 
     def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
       with :ok <- GraphQL.is_authenticated(info),
-           {:ok, agent} <- Pointers.get(agent_id),
+           {:ok, agent} <- Needle.get(agent_id),
            {:ok, proposed} <-
              ValueFlows.Proposal.GraphQL.proposal(%{id: proposed_id}, info),
            {:ok, proposed_to} <-
@@ -70,7 +70,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     # def validate_context(pointer) do
-    #   if Pointers.table!(pointer).schema in valid_contexts() do
+    #   if Needle.Pointers.table!(pointer).schema in valid_contexts() do
     #     :ok
     #   else
     #     GraphQL.not_permitted("agent")

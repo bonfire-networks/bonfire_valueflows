@@ -3,7 +3,7 @@ defmodule ValueFlows.Claim.Migrations do
   @moduledoc false
   use Ecto.Migration
 
-  import Pointers.Migration
+  import Needle.Migration
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.EconomicEvent

@@ -1,5 +1,5 @@
 defmodule ValueFlows.Planning.Commitment do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire,
     source: "vf_commitment",
     table_id: "40MM1TMENTED95D6694555B6E8"
@@ -35,7 +35,7 @@ defmodule ValueFlows.Planning.Commitment do
     field(:has_end, :utc_datetime_usec)
     field(:has_point_in_time, :utc_datetime_usec)
     field(:due, :utc_datetime_usec)
-    # for the field `created`, use Pointers.ULID.timestamp/1
+    # for the field `created`, use Needle.ULID.timestamp/1
 
     field(:finished, :boolean, default: false)
 
@@ -46,7 +46,7 @@ defmodule ValueFlows.Planning.Commitment do
     field(:agreed_in, :string)
 
     # inScopeOf
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     # belongs_to :clause_of, Agreement
 

@@ -1,6 +1,6 @@
 defmodule ValueFlows.Proposal.ProposedTo do
   # use Bonfire.Common.Repo.Schema
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_proposed_to",
     table_id: "6R0P0SA1HASBEENADDRESSEDT0"

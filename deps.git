@@ -2,7 +2,6 @@ bonfire_valueflows_api_schema = "https://github.com/bonfire-networks/bonfire_val
 bonfire_common = "https://github.com/bonfire-networks/bonfire_common#main"
 bonfire_fail = "https://github.com/bonfire-networks/bonfire_fail#main"
 # bonfire_web_phoenix = "https://github.com/bonfire-networks/bonfire_web_phoenix#main"
-pointers = "https://github.com/bonfire-networks/pointers#main"
 bonfire_quantify = "https://github.com/bonfire-networks/bonfire_quantify#main"
 bonfire_geolocate = "https://github.com/bonfire-networks/bonfire_geolocate#main"
 bonfire_tag = "https://github.com/bonfire-networks/bonfire_tag#main"

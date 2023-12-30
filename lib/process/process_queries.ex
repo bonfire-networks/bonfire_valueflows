@@ -201,7 +201,7 @@ defmodule ValueFlows.Process.Queries do
     |> group_by([process: c], c.id)
     |> having(
       [process: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Needle.ULID}), t.id)
     )
   end
 

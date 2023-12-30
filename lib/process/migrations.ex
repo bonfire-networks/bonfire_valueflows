@@ -1,8 +1,8 @@
 defmodule ValueFlows.Process.Migrations do
   @moduledoc false
   use Ecto.Migration
-  # alias Pointers.ULID
-  import Pointers.Migration
+  # alias Needle.ULID
+  import Needle.Migration
 
   # alias ValueFlows.Process
   alias ValueFlows.Knowledge.ProcessSpecification

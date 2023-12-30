@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.ValueCalculation do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_value_calculation",
     table_id: "3A1VEF10WSVA1VECA1CV1AT10N"
@@ -16,7 +16,7 @@ defmodule ValueFlows.ValueCalculation do
     field(:resource_classified_as, {:array, :string}, virtual: true)
 
     belongs_to(:creator, ValueFlows.Util.user_schema())
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
     belongs_to(:value_unit, Bonfire.Quantify.Unit)
     belongs_to(:action, ValueFlows.Actions.Action, type: :string)
     belongs_to(:value_action, ValueFlows.Actions.Action, type: :string)

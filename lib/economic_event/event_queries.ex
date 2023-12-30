@@ -219,7 +219,7 @@ defmodule ValueFlows.EconomicEvent.Queries do
     |> group_by([event: c], c.id)
     |> having(
       [event: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Needle.ULID}), t.id)
     )
   end
 

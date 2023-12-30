@@ -8,7 +8,7 @@ defmodule ValueFlows.Claim.Claims do
   alias ValueFlows.Claim
   alias ValueFlows.Claim.Queries
 
-  alias Bonfire.Common.Pointers
+  alias Bonfire.Common.Needle
 
   @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["ValueFlows:Claim", "Claim"]
@@ -33,9 +33,9 @@ defmodule ValueFlows.Claim.Claims do
       attrs = prepare_attrs(attrs)
 
       with {:ok, provider_ptr} <-
-             Pointers.one(id: provider.id, skip_boundary_check: true),
+             Needle.one(id: provider.id, skip_boundary_check: true),
            {:ok, receiver_ptr} <-
-             Pointers.one(id: receiver.id, skip_boundary_check: true) do
+             Needle.one(id: receiver.id, skip_boundary_check: true) do
         Claim.create_changeset(creator, provider_ptr, receiver_ptr, attrs)
         |> Claim.validate_required()
         |> repo().insert()

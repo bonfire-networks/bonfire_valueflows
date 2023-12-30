@@ -159,7 +159,7 @@ defmodule ValueFlows.Planning.Commitment.Queries do
     |> group_by([commitment: c], c.id)
     |> having(
       [commitment: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Needle.ULID}), t.id)
     )
   end
 

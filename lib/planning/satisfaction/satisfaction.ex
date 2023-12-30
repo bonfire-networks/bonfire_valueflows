@@ -1,5 +1,5 @@
 defmodule ValueFlows.Planning.Satisfaction do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire,
     source: "vf_satisfaction",
     table_id: "1AT1SFACT10N4F8994AD427E7B"
@@ -10,7 +10,7 @@ defmodule ValueFlows.Planning.Satisfaction do
   alias ValueFlows.Planning.Commitment
 
   alias Bonfire.Quantify.Measure
-  alias Pointers.Pointer
+  alias Needle.Pointer
 
   @type t :: %__MODULE__{
           id: String.t(),

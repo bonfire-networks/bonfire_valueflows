@@ -1,5 +1,5 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_process_spec",
     table_id: "2SPEC1F1CAT10NF0RPR0CESSES"
@@ -18,7 +18,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
 
     field(:classified_as, {:array, :string}, virtual: true)
 
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     belongs_to(:creator, ValueFlows.Util.user_schema())
 

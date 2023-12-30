@@ -82,7 +82,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       do: {:ok, nil}
 
     def fetch_created(%{id: id}, _, _) when is_binary(id),
-      do: Pointers.ULID.timestamp(id)
+      do: Needle.ULID.timestamp(id)
 
     def fetch_created(_, _, _),
       do: {:ok, nil}

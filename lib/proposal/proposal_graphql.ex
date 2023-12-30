@@ -36,7 +36,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
         # popularity
         cursor_validators: [
           &(is_integer(&1) and &1 >= 0),
-          &Pointers.ULID.cast/1
+          &Needle.ULID.cast/1
         ]
       })
     end
@@ -276,7 +276,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     # defp validate_agent(pointer) do
-    #   if Pointers.table!(pointer).schema in valid_contexts() do
+    #   if Needle.Pointers.table!(pointer).schema in valid_contexts() do
     #     :ok
     #   else
     #     GraphQL.not_permitted()

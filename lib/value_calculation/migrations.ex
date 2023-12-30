@@ -3,7 +3,7 @@ defmodule ValueFlows.ValueCalculation.Migrations do
   @moduledoc false
   use Ecto.Migration
 
-  import Pointers.Migration
+  import Needle.Migration
 
   def up do
     create_pointable_table(ValueFlows.ValueCalculation) do

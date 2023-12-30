@@ -2,7 +2,7 @@ defmodule ValueFlows.Planning.Satisfaction.Migrations do
   @moduledoc false
   use Ecto.Migration
 
-  import Pointers.Migration
+  import Needle.Migration
 
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Satisfaction

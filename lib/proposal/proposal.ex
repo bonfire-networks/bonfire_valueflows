@@ -1,8 +1,8 @@
 defmodule ValueFlows.Proposal do
   @moduledoc """
-  Schema for proposal, using `Pointers.Pointable`
+  Schema for proposal, using `Needle.Pointable`
   """
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_valueflows,
     source: "vf_proposal",
     table_id: "6R0P0SA11SMADE0FTW01NTENTS"
@@ -40,14 +40,14 @@ defmodule ValueFlows.Proposal do
 
     belongs_to(:creator, ValueFlows.Util.user_schema())
 
-    belongs_to(:context, Pointers.Pointer)
+    belongs_to(:context, Needle.Pointer)
 
     belongs_to(:eligible_location, Bonfire.Geolocate.Geolocation)
 
     has_many(:publishes, ProposedIntent)
     many_to_many(:publishes_intents, Intent, join_through: ProposedIntent)
 
-    many_to_many(:proposed_to, Pointers.Pointer, join_through: ProposedTo)
+    many_to_many(:proposed_to, Needle.Pointer, join_through: ProposedTo)
 
     timestamps(inserted_at: false)
   end

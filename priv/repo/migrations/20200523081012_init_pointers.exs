@@ -1,8 +1,8 @@
 defmodule Bonfire.ValueFlows.Repo.Migrations.InitPointers  do
   @moduledoc false
   use Ecto.Migration
-  import Pointers.Migration
-  import Pointers.ULID.Migration
+  import Needle.Migration
+  import Needle.ULID.Migration
 
   def up(), do: init(:up)
   def down(), do: init(:down)

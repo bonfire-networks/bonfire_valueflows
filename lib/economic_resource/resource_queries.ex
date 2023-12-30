@@ -266,7 +266,7 @@ defmodule ValueFlows.EconomicResource.Queries do
     |> group_by([resource: c], c.id)
     |> having(
       [resource: c, tags: t],
-      fragment("? <@ array_agg(?)", type(^ids, {:array, Pointers.ULID}), t.id)
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Needle.ULID}), t.id)
     )
   end
 
