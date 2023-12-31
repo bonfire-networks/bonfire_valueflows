@@ -3,7 +3,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     use Absinthe.Schema.Notation
 
     alias Bonfire.API.GraphQL
-    alias Bonfire.Common.Needle
+    alias Bonfire.Common.Needles
     alias ValueFlows.Proposal.Proposals
 
     alias Bonfire.API.GraphQL.ResolveField
@@ -52,7 +52,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 
     def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
       with :ok <- GraphQL.is_authenticated(info),
-           {:ok, agent} <- Needle.get(agent_id),
+           {:ok, agent} <- Needles.get(agent_id),
            {:ok, proposed} <-
              ValueFlows.Proposal.GraphQL.proposal(%{id: proposed_id}, info),
            {:ok, proposed_to} <-

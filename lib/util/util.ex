@@ -203,7 +203,7 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_creator(%Needle.Pointer{} = pointer) do
-    Bonfire.Common.Needle.get(pointer) |> indexing_format_creator()
+    Bonfire.Common.Needles.get(pointer) |> indexing_format_creator()
   end
 
   def indexing_format_creator(%{id: id} = creator) when not is_nil(id) do

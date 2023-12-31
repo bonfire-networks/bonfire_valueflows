@@ -19,7 +19,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     # CommonResolver
 
     # alias Bonfire.Common.Enums
-    # alias Bonfire.Common.Needle
+    # alias Bonfire.Common.Needles
 
     alias ValueFlows.Util
     alias ValueFlows.Process

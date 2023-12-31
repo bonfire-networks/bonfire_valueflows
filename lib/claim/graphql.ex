@@ -5,7 +5,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 
     import Bonfire.Common.Config, only: [repo: 0]
 
-    alias Bonfire.Common.Needle
+    alias Bonfire.Common.Needles
     alias Bonfire.API.GraphQL
     alias Bonfire.API.GraphQL.FetchPage
     alias Bonfire.API.GraphQL.ResolveField
@@ -67,9 +67,9 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
         ) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, provider} <-
-             Needle.one(id: provider_id, skip_boundary_check: true),
+             Needles.one(id: provider_id, skip_boundary_check: true),
            {:ok, receiver} <-
-             Needle.one(id: receiver_id, skip_boundary_check: true),
+             Needles.one(id: receiver_id, skip_boundary_check: true),
            {:ok, claim} <- Claims.create(user, provider, receiver, attrs) do
         {:ok, %{claim: claim}}
       end

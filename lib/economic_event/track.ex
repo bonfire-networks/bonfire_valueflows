@@ -38,7 +38,7 @@ defmodule ValueFlows.EconomicEvent.Track do
 
   def track(id, recurse_limit, recurse_counter) when is_binary(id) do
     with {:ok, obj} <-
-           Bonfire.Common.Needle.get(id, skip_boundary_check: true) do
+           Bonfire.Common.Needles.get(id, skip_boundary_check: true) do
       track(obj, recurse_limit, recurse_counter)
     end
   end
