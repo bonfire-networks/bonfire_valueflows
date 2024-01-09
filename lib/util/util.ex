@@ -226,6 +226,7 @@ defmodule ValueFlows.Util do
   end
 
   def maybe_search(search, facets) do
+    # TODO: pass current_user in opts for boundaries
     maybe_apply(Bonfire.Search, :search_by_type, [search, facets], fallback_return: nil)
   end
 
