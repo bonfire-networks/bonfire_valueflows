@@ -6,7 +6,6 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   import Bonfire.Common.Config, only: [repo: 0]
 
   alias ValueFlows.ValueCalculation
-  alias ValueFlows.ValueCalculation.Formula2
   alias ValueFlows.ValueCalculation.Queries
 
   alias ValueFlows.EconomicEvent
@@ -24,12 +23,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   @doc "Apply the value calculation to a context"
-  def apply_to(%EconomicEvent{} = event, %ValueCalculation{} = calc) do
-    env = Map.merge(Formula2.default_env(), formula_env(event))
-
-    calc.formula
-    |> Formula2.parse()
-    |> Formula2.eval(env)
+  def apply_to(%EconomicEvent{} = event, %ValueCalculation{formula: formula} = _calc) do
+    Formula2.parse_and_eval(formula, formula_env(event))
     ~> Formula2.decimal_to_float()
   end
 
@@ -98,19 +93,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   defp prepare_formula(%{formula: formula}) do
-    available_vars = formula_context(:event)
-
-    formula
-    |> Formula2.parse()
-    |> Formula2.validate(
-      Formula2.default_env(),
-      available_vars,
-      formula2_options()
-    )
-    |> case do
-      {:ok, _} -> :ok
-      e -> e
-    end
+    Formula2.parse_and_validate(formula, formula_context(:event), formula2_options())
   end
 
   defp prepare_formula(_attrs), do: :ok
