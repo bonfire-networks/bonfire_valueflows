@@ -24,6 +24,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
 
   @doc "Apply the value calculation to a context"
   def apply_to(%EconomicEvent{} = event, %ValueCalculation{formula: formula} = _calc) do
+    # TODO: consider other libs like https://github.com/narrowtux/abacus
+    # see https://elixirforum.com/t/expression-evaluate-user-input-expressions/61126
     Formula2.parse_and_eval(formula, formula_env(event))
     ~> Formula2.decimal_to_float()
   end
