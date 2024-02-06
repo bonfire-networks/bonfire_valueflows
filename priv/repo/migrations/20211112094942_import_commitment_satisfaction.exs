@@ -1,4 +1,4 @@
-defmodule Bonfire.Repo.Migrations.ImportCommitmentSatisfaction  do
+defmodule Bonfire.Repo.Migrations.ImportCommitmentSatisfaction do
   @moduledoc false
   use Ecto.Migration
 
@@ -8,9 +8,7 @@ defmodule Bonfire.Repo.Migrations.ImportCommitmentSatisfaction  do
   end
 
   def down do
-    if Code.ensure_loaded?(ValueFlows.Planning.Commitment.Migrations) do
-      ValueFlows.Planning.Satisfaction.Migrations.down()
-      ValueFlows.Planning.Commitment.Migrations.down()
-    end
+    ValueFlows.Planning.Satisfaction.Migrations.down()
+    ValueFlows.Planning.Commitment.Migrations.down()
   end
 end

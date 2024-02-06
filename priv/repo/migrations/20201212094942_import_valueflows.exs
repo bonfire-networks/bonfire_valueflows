@@ -1,4 +1,4 @@
-defmodule Bonfire.Repo.Migrations.ImportValueFlows  do
+defmodule Bonfire.Repo.Migrations.ImportValueFlows do
   @moduledoc false
   use Ecto.Migration
 
