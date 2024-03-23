@@ -32,7 +32,7 @@ defmodule Bonfire.ValueFlows.MixProject do
            optional: true},
           {:activity_pub,
            git: "https://github.com/bonfire-networks/activitypub",
-           branch: "main",
+           branch: "develop",
            optional: true},
           {:bonfire_search,
            git: "https://github.com/bonfire-networks/bonfire_search",
