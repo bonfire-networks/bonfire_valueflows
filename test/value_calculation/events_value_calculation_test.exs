@@ -122,6 +122,7 @@ defmodule ValueFlows.EventsValueCalculationTest do
     @skip
     test "side effects are computed correctly" do
       user = fake_agent!()
+      action = action()
       calc = fake_value_calculation!(user, %{formula: "(* 0.5 effortQuantity)"})
       event = fake_economic_event!(user, %{action: action.id})
 
