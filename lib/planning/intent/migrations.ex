@@ -63,7 +63,21 @@ defmodule ValueFlows.Planning.Intent.Migrations do
   end
 
   def add_references do
-    alter table(intent_table()) do
+    table = intent_table()
+
+    # needed to avoid error: constraint x for relation "vf_intent" already exists
+    execute("ALTER TABLE #{table} DROP CONSTRAINT IF EXISTS vf_intent_input_of_id_fkey;")
+    execute("ALTER TABLE #{table} DROP CONSTRAINT IF EXISTS vf_intent_output_of_id_fkey;")
+
+    execute(
+      "ALTER TABLE #{table} DROP CONSTRAINT IF EXISTS vf_intent_resource_conforms_to_id_fkey;"
+    )
+
+    execute(
+      "ALTER TABLE #{table} DROP CONSTRAINT IF EXISTS vf_intent_resource_inventoried_as_id_fkey;"
+    )
+
+    alter table(table) do
       add_if_not_exists(:input_of_id, weak_pointer(Process), null: true)
       add_if_not_exists(:output_of_id, weak_pointer(Process), null: true)
 
