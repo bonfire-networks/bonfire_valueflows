@@ -5,5 +5,3 @@ bonfire_fail = "https://github.com/bonfire-networks/bonfire_fail#main"
 bonfire_quantify = "https://github.com/bonfire-networks/bonfire_quantify#main"
 bonfire_geolocate = "https://github.com/bonfire-networks/bonfire_geolocate#main"
 bonfire_tag = "https://github.com/bonfire-networks/bonfire_tag#main"
-
-# absinthe = "https://github.com/absinthe-graphql/absinthe"
