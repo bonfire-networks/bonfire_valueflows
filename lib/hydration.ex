@@ -1,4 +1,4 @@
-if Code.ensure_loaded?(Bonfire.API.GraphQL) do
+if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
   defmodule ValueFlows.Hydration do
     import ValueFlows.Util.GraphQL
     alias Bonfire.API.GraphQL.CommonResolver

@@ -1,4 +1,5 @@
-if Code.ensure_loaded?(Bonfire.API.GraphQL) do
+if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled and
+     Code.ensure_loaded?(Absinthe.Schema.Notation) do
   defmodule ValueFlows.Proposal.ProposedToGraphQL do
     use Absinthe.Schema.Notation
 

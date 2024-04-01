@@ -29,15 +29,15 @@ defmodule Bonfire.ValueFlows.MixProject do
           {:bonfire_api_graphql,
            git: "https://github.com/bonfire-networks/bonfire_api_graphql",
            branch: "main",
-           optional: true},
+           optional: true, runtime: false},
           {:activity_pub,
            git: "https://github.com/bonfire-networks/activitypub",
            branch: "develop",
-           optional: true},
+           optional: true, runtime: false},
           {:bonfire_search,
            git: "https://github.com/bonfire-networks/bonfire_search",
            branch: "main",
-           optional: true},
+           optional: true, runtime: false},
           {:zest, "~> 0.1", only: :test}
         ])
     ]
