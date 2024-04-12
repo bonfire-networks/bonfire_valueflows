@@ -184,11 +184,11 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
     def image_content_url(_, _, _), do: {:ok, nil}
 
     def maybe_upload(user, changes, info) do
-      if module_enabled?(Bonfire.Files.GraphQL) do
-        Bonfire.Files.GraphQL.upload(user, changes, info)
+      if module = maybe_module(Bonfire.Files.GraphQL) do
+        module.upload(user, changes, info)
       else
-        if module_enabled?(CommonsPub.Web.GraphQL.UploadResolver) do
-          CommonsPub.Web.GraphQL.UploadResolver.upload(user, changes, info)
+        if module = maybe_module(CommonsPub.Web.GraphQL.UploadResolver) do
+          module.upload(user, changes, info)
         else
           error("VF - upload via GraphQL is not implemented")
           {:ok, %{}}
@@ -197,8 +197,8 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
     end
 
     def tags_edges(a, b, c) do
-      if module_enabled?(Bonfire.Tag.GraphQL.TagResolver) do
-        Bonfire.Tag.GraphQL.TagResolver.tags_edges(a, b, c)
+      if module = maybe_module(Bonfire.Tag.GraphQL.TagResolver) do
+        module.tags_edges(a, b, c)
       else
         warn("Cannot resolve tags")
         {:ok, nil}

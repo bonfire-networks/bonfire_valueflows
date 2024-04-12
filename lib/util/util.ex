@@ -42,7 +42,7 @@ defmodule ValueFlows.Util do
         nil
     end
 
-    if module_enabled?(Bonfire.Social.FeedActivities) do
+    if module_enabled?(Bonfire.Social.FeedActivities, creator) do
       # add to activity feed + maybe federate
       maybe_apply(Bonfire.Social.FeedActivities, :publish, [creator, verb, thing, opts])
     else
@@ -90,7 +90,7 @@ defmodule ValueFlows.Util do
         to
 
     to_feeds =
-      if module_enabled?(Bonfire.Social.Feeds),
+      if module_enabled?(Bonfire.Social.Feeds, creator),
         do: Bonfire.Social.Feeds.feed_ids(:notifications, to)
 
     opts =
@@ -402,7 +402,7 @@ defmodule ValueFlows.Util do
   end
 
   def try_tag_thing(user, thing, %{} = attrs) do
-    if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags) do
+    if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags, user) do
       input_tags =
         List.wrap(e(attrs, :tags, [])) ++
           List.wrap(e(attrs, :resource_classified_as, [])) ++
@@ -416,7 +416,7 @@ defmodule ValueFlows.Util do
 
   def try_tag_thing(user, thing, tags) when is_list(tags) do
     # debug(thing)
-    if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags) do
+    if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags, user) do
       Bonfire.Tag.Tags.maybe_tag(user, thing, tags)
     else
       {:ok, thing}

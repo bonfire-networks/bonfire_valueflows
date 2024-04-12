@@ -227,7 +227,8 @@ defmodule ValueFlows.Util.Federation do
          ap_object,
          object_ap_id \\ nil
        ) do
-    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.AdapterUtils) do
+    if module_enabled?(Bonfire.Federate.ActivityPub.AdapterUtils, subject) and
+         module_exists?(ActivityPub.Actor) do
       thing = repo().maybe_preload(thing, creator: [character: [:peered]])
 
       # |> repo().maybe_preload(:primary_accountable)
@@ -668,8 +669,8 @@ defmodule ValueFlows.Util.Federation do
 
   # FIXME ?
   def ap_publish(user, verb, thing) do
-    if Bonfire.Common.Extend.module_enabled?(Bonfire.Federate.ActivityPub.Outgoing) do
-      Bonfire.Federate.ActivityPub.Outgoing.maybe_federate(user, verb, thing)
+    if module = maybe_module(Bonfire.Federate.ActivityPub.Outgoing, user) do
+      module.maybe_federate(user, verb, thing)
     else
       :ignore
     end
