@@ -218,10 +218,10 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_tags(obj) do
-    if module_enabled?(Bonfire.Tag.Tags) do
+    if module_enabled?(Bonfire.Tag) do
       repo().maybe_preload(obj, tags: [:profile])
       |> Map.get(:tags, [])
-      |> Enum.map(&Bonfire.Tag.Tags.indexing_object_format_name/1)
+      |> Enum.map(&Bonfire.Tag.indexing_object_format_name/1)
     end
   end
 
@@ -388,7 +388,7 @@ defmodule ValueFlows.Util do
     do: maybe_classification(user, tag)
 
   def maybe_classification(user, tag) do
-    with {:ok, c} <- Bonfire.Tag.Tags.maybe_find_tag(user, tag) do
+    with {:ok, c} <- Bonfire.Tag.maybe_find_tag(user, tag) do
       c
     end
   end
@@ -402,7 +402,7 @@ defmodule ValueFlows.Util do
   end
 
   def try_tag_thing(user, thing, %{} = attrs) do
-    if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags, user) do
+    if not is_nil(thing) and module_enabled?(Bonfire.Tag, user) do
       input_tags =
         List.wrap(e(attrs, :tags, [])) ++
           List.wrap(e(attrs, :resource_classified_as, [])) ++
@@ -416,8 +416,8 @@ defmodule ValueFlows.Util do
 
   def try_tag_thing(user, thing, tags) when is_list(tags) do
     # debug(thing)
-    if not is_nil(thing) and module_enabled?(Bonfire.Tag.Tags, user) do
-      Bonfire.Tag.Tags.maybe_tag(user, thing, tags)
+    if not is_nil(thing) and module_enabled?(Bonfire.Tag, user) do
+      Bonfire.Tag.maybe_tag(user, thing, tags)
     else
       {:ok, thing}
     end
