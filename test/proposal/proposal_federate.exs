@@ -1,5 +1,6 @@
 defmodule ValueFlows.Proposal.FederateTest do
   use Bonfire.ValueFlows.DataCase
+  use Bonfire.Common.E
 
   alias Bonfire.Common.Utils
   import Bonfire.Common.Simulation
@@ -96,7 +97,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert actor.data["id"] ==
                proposal
                |> repo().maybe_preload(creator: [character: [:peered]])
-               |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+               |> e(:creator, :character, :peered, :canonical_uri, nil)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end
@@ -315,7 +316,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert actor.data["id"] ==
                proposal
                |> repo().maybe_preload(creator: [character: [:peered]])
-               |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+               |> e(:creator, :character, :peered, :canonical_uri, nil)
 
       assert intent_object["name"] =~ intent.name
       assert intent_object["action"] == intent.action_id
@@ -423,7 +424,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       assert actor.data["id"] ==
                proposal
                |> repo().maybe_preload(creator: [character: [:peered]])
-               |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+               |> e(:creator, :character, :peered, :canonical_uri, nil)
 
       assert object["name"] =~ intent.name
       assert object["action"] == intent.action_id

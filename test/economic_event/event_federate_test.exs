@@ -2,6 +2,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
   use Bonfire.ValueFlows.ConnCase
 
   alias Bonfire.Common.Utils
+  use Bonfire.Common.E
   import Bonfire.Common.Simulation
   import Bonfire.Geolocate.Simulate
   import ValueFlows.Simulate
@@ -375,7 +376,7 @@ defmodule ValueFlows.EconomicEvent.FederateTest do
                Bonfire.Common.URIs.canonical_url(event.output_of.id)
 
       assert object["resourceQuantity"]["hasNumericalValue"] ==
-               Utils.e(event, :resource_quantity, :has_numerical_value, nil)
+               e(event, :resource_quantity, :has_numerical_value, nil)
 
       # assert object["resourceQuantity"]["hasUnit"]["symbol"] == event.resource_quantity.unit.symbol
 

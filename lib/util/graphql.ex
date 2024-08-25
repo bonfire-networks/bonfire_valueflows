@@ -80,7 +80,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
       thing = repo().maybe_preload(thing, tags: [:peered])
 
       urls =
-        Utils.e(thing, :tags, [])
+        e(thing, :tags, [])
         |> Enum.map(&Bonfire.Common.URIs.canonical_url(&1))
 
       {:ok, urls}

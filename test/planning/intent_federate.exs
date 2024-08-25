@@ -1,6 +1,7 @@
 defmodule ValueFlows.Planning.Intent.FederateTest do
   use Bonfire.ValueFlows.DataCase
   alias Bonfire.Common.Utils
+  use Bonfire.Common.E
   import Bonfire.Common.Simulation
   import Bonfire.Geolocate.Simulate
   import ValueFlows.Simulate
@@ -79,7 +80,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       assert actor.data["id"] ==
                intent
                |> repo().maybe_preload(creator: [character: [:peered]])
-               |> Utils.e(:creator, :character, :peered, :canonical_uri, nil)
+               |> e(:creator, :character, :peered, :canonical_uri, nil)
 
       # assert Bonfire.Boundaries.Circles.circles[:guest] in Bonfire.Social.FeedActivities.feeds_for_activity(post.activity)
     end

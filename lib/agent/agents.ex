@@ -37,14 +37,14 @@ defmodule ValueFlows.Agent.Agents do
     |> repo().maybe_preload(:shared_user, label: __MODULE__)
     # |> IO.inspect()
     |> Enums.merge_structs_as_map(
-      Utils.e(a, :profile, %{
-        name: Utils.e(a, :character, :username, "anonymous")
+      e(a, :profile, %{
+        name: e(a, :character, :username, "anonymous")
       })
     )
-    |> Enums.merge_structs_as_map(Utils.e(a, :character, %{}))
+    |> Enums.merge_structs_as_map(e(a, :character, %{}))
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> Enums.maybe_put(:primary_location, agent_location(a))
-    |> Enums.maybe_put(:note, Utils.e(a, :profile, :summary, nil))
+    |> Enums.maybe_put(:note, e(a, :profile, :summary, nil))
     # |> Enums.maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
     |> debug()
