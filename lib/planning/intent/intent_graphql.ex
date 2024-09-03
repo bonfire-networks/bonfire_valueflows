@@ -390,7 +390,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     defp id_or_me(["me"], current_user),
-      do: Types.ulid(current_user) || raise(Bonfire.Fail.Auth, :needs_login)
+      do: Types.uid(current_user) || raise(Bonfire.Fail.Auth, :needs_login)
 
     defp id_or_me(id, _), do: id
 

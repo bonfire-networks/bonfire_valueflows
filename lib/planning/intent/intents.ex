@@ -196,7 +196,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def update(current_user, id, changes, verb) when is_binary(id) or is_map(id) do
-    with {:ok, intent} <- by_id(Types.ulid(id), current_user) do
+    with {:ok, intent} <- by_id(Types.uid(id), current_user) do
       update(current_user, intent, changes, verb)
     end
   end

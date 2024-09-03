@@ -241,7 +241,7 @@ defmodule ValueFlows.Util.Federation do
              subject || maybe_id(thing, :creator) ||
                maybe_id(thing, :primary_accountable) ||
                maybe_id(thing, :provider),
-           actor <- ActivityPub.Actor.get_cached!(pointer: ulid(subject)),
+           actor <- ActivityPub.Actor.get_cached!(pointer: uid(subject)),
            object_ap_id <- object_ap_id || URIs.canonical_url(thing),
            ap_object <-
              Map.merge(ap_object, %{
@@ -253,7 +253,7 @@ defmodule ValueFlows.Util.Federation do
            activity_params = %{
              # FIXME: handle remote objects in references
              local: true,
-             pointer: ulid(thing),
+             pointer: uid(thing),
              actor: actor,
              to:
                [

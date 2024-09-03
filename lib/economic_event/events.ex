@@ -153,7 +153,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   def inputs_of(attrs, action_id \\ nil)
 
   def inputs_of(process, action_id) when not is_nil(action_id) do
-    case ulid(process) do
+    case uid(process) do
       id when is_binary(id) ->
         many([:default, input_of_id: id, action_id: action_id])
 
@@ -163,7 +163,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   def inputs_of(process, _) do
-    case ulid(process) do
+    case uid(process) do
       id when is_binary(id) -> many([:default, input_of_id: id])
       _ -> {:ok, nil}
     end
@@ -172,7 +172,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   def outputs_of(attrs, action_id \\ nil)
 
   def outputs_of(process, action_id) when not is_nil(action_id) do
-    case ulid(process) do
+    case uid(process) do
       id when is_binary(id) ->
         many([:default, output_of_id: id, action_id: action_id])
 
@@ -182,7 +182,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
   end
 
   def outputs_of(process, _) do
-    case ulid(process) do
+    case uid(process) do
       id when is_binary(id) -> many([:default, output_of_id: id])
       _ -> {:ok, nil}
     end
@@ -384,7 +384,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
           note: Map.get(event_attrs, :resource_note, nil),
           name: Map.get(event_attrs, :resource_name, nil),
           image_id:
-            ulid(
+            uid(
               Map.get(event_attrs, :resource_image_id, nil) ||
                 Map.get(event_attrs, :resource_image, nil)
             )

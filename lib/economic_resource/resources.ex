@@ -121,11 +121,11 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
   end
 
   def inputs_of(process) when not is_nil(process) do
-    many([:default, [join: [event_input: ulid(process)]]])
+    many([:default, [join: [event_input: uid(process)]]])
   end
 
   def outputs_of(process) when not is_nil(process) do
-    many([:default, join: [event_output: ulid(process)]])
+    many([:default, join: [event_output: uid(process)]])
   end
 
   defdelegate trace(
@@ -249,7 +249,7 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     attrs
     |> Enums.maybe_put(
       :primary_accountable_id,
-      Enums.attr_get_id(attrs, :primary_accountable) || ulid(creator)
+      Enums.attr_get_id(attrs, :primary_accountable) || uid(creator)
     )
     |> Enums.maybe_put(
       :context_id,

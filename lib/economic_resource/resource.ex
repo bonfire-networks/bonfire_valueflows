@@ -75,7 +75,7 @@ defmodule ValueFlows.EconomicResource do
     %EconomicResource{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      creator_id: Bonfire.Common.Types.ulid(creator),
+      creator_id: Bonfire.Common.Types.uid(creator),
       is_public: true
     )
     |> Changeset.validate_required(@required)

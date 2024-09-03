@@ -92,7 +92,7 @@ defmodule ValueFlows.EconomicEvent.Track do
 
   def resource(resource_or_id, recurse_limit, recurse_counter) do
     with {:ok, events} <-
-           EconomicEvents.many([:default, track_resource: ulid(resource_or_id)]) do
+           EconomicEvents.many([:default, track_resource: uid(resource_or_id)]) do
       {:ok, maybe_recurse(events, recurse_limit, recurse_counter)}
 
       # |> IO.inspect(label: "resource_track")

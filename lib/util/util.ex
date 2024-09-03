@@ -13,7 +13,7 @@ defmodule ValueFlows.Util do
 
   def can?(current_user, verb \\ :update, object) do
     # TODO check also based on the scope / context / user's organisation etc?
-    user_id = ulid(current_user)
+    user_id = uid(current_user)
 
     if not is_nil(user_id) and
          (e(object, :creator_id, nil) == user_id or
@@ -151,17 +151,17 @@ defmodule ValueFlows.Util do
   def attr_get_agent(attrs, field, creator) do
     case Map.get(attrs, field) do
       "me" ->
-        ulid(creator)
+        uid(creator)
 
       id_or_uri_or_username when is_binary(id_or_uri_or_username) ->
-        ulid(id_or_uri_or_username) ||
+        uid(id_or_uri_or_username) ||
           Bonfire.Federate.ActivityPub.AdapterUtils.get_by_url_ap_id_or_username(
             id_or_uri_or_username
           )
-          |> ulid()
+          |> uid()
 
       other ->
-        ulid(other)
+        uid(other)
     end
   end
 
@@ -332,7 +332,7 @@ defmodule ValueFlows.Util do
         Map.put(
           acc,
           k,
-          with false <- is_ulid?(unit),
+          with false <- is_uid?(unit),
                {:error, e} <- Bonfire.Quantify.Units.get_or_create(unit, user) do
             error(e)
             raise {:error, "Invalid unit used for quantity"}

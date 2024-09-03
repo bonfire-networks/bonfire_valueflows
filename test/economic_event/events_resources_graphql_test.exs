@@ -540,7 +540,7 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
               Bonfire.Quantify.Simulate.measure_input(unit, %{
                 "hasNumericalValue" => 42
               }),
-            "resourceInventoriedAs" => ulid()
+            "resourceInventoriedAs" => uid()
           })
       }
 
