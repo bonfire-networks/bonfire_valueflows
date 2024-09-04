@@ -27,7 +27,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
         info: info,
         cursor_validators: [
           &(is_integer(&1) and &1 >= 0),
-          &Needle.ULID.cast/1
+          &Needle.UID.cast/1
         ]
       })
     end

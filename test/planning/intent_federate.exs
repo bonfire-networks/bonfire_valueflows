@@ -49,7 +49,7 @@ defmodule ValueFlows.Planning.Intent.FederateTest do
       ]
 
       object = %{
-        "id" => "https://mocked.local/" <> Needle.ULID.generate(),
+        "id" => "https://mocked.local/" <> Needle.UID.generate(),
         "name" => "title",
         "summary" => "content",
         "type" => "ValueFlows:Intent",
