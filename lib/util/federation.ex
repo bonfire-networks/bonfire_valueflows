@@ -571,7 +571,7 @@ defmodule ValueFlows.Util.Federation do
   # then handle any non-embeded objects
   defp from_AP_remap(val, parent_key)
        when is_binary(val) and parent_key not in @non_nested_objects do
-    with true <- Bonfire.Federate.ActivityPub.AdapterUtils.validate_url(val),
+    with true <- Bonfire.Common.URIs.valid_url?(val),
          %{} = nested_object <- maybe_create_nested_object(nil, val, parent_key) do
       info(
         nested_object,
