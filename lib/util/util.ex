@@ -195,7 +195,8 @@ defmodule ValueFlows.Util do
     repo().maybe_preload(obj,
       creator: [
         :character,
-        profile: [:icon]
+        :profile
+        # : [:icon]
       ]
     )
     |> Map.get(:creator)
@@ -207,10 +208,7 @@ defmodule ValueFlows.Util do
   end
 
   def indexing_format_creator(%{id: id} = creator) when not is_nil(id) do
-    Bonfire.Me.Integration.indexing_format_creator(
-      maybe_get(creator, :profile),
-      maybe_get(creator, :character)
-    )
+    Bonfire.Me.Integration.indexing_format_creator(creator)
   end
 
   def indexing_format_creator(_) do
