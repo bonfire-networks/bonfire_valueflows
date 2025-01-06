@@ -9,7 +9,7 @@ defmodule ValueFlows.Proposal.ProposedIntent do
   alias ValueFlows.Proposal
   alias ValueFlows.Planning.Intent
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   # table_schema "vf_proposed_intent" do
   pointable_schema do

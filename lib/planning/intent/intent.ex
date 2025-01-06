@@ -17,7 +17,7 @@ defmodule ValueFlows.Planning.Intent do
   alias ValueFlows.EconomicResource
   alias ValueFlows.Process
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:name, :string)

@@ -8,7 +8,7 @@ defmodule ValueFlows.Proposal.ProposedTo do
   alias Ecto.Changeset
   alias ValueFlows.Proposal
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   # table_schema "vf_proposed_to" do
   pointable_schema do

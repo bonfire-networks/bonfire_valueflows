@@ -15,7 +15,7 @@ defmodule ValueFlows.Claim do
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.EconomicEvent
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:note, :string)

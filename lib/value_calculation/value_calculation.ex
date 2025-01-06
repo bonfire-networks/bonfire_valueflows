@@ -7,7 +7,7 @@ defmodule ValueFlows.ValueCalculation do
 
   alias Ecto.Changeset
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:name, :string)

@@ -10,7 +10,7 @@ defmodule ValueFlows.Knowledge.Action do
 
   # defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   @primary_key {:id, :string, autogenerate: false}
   embedded_schema do

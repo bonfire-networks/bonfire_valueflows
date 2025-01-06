@@ -17,7 +17,7 @@ defmodule ValueFlows.EconomicEvent do
 
   alias Bonfire.Quantify.Measure
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:note, :string)

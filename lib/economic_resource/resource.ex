@@ -18,7 +18,7 @@ defmodule ValueFlows.EconomicResource do
   alias Bonfire.Common
   alias Common.Types
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:name, :string)

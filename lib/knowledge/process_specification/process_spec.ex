@@ -10,7 +10,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
 
   alias ValueFlows.Knowledge.ProcessSpecification
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:name, :string)

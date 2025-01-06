@@ -13,7 +13,7 @@ defmodule ValueFlows.Planning.Commitment do
   alias ValueFlows.EconomicResource
   alias ValueFlows.Process
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     belongs_to(:action, Action, type: :string)

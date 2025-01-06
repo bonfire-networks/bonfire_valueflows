@@ -12,26 +12,26 @@ defmodule ValueFlows.Planning.Satisfaction do
   alias Bonfire.Quantify.Measure
   alias Needle.Pointer
 
-  @type t :: %__MODULE__{
-          id: String.t(),
-          satisfies: Intent.t(),
-          satisfies_id: String.t(),
-          satisfied_by: EconomicEvent.t() | Commitment.t(),
-          satisfied_by_id: String.t(),
-          resource_quantity: Measure.t(),
-          resource_quantity_id: String.t(),
-          effort_quantity: Measure.t(),
-          effort_quantity: String.t(),
-          note: String.t(),
-          creator: struct(),
-          creator_id: String.t(),
-          is_public: boolean(),
-          is_disabled: boolean(),
-          published_at: DateTime.t(),
-          deleted_at: DateTime.t(),
-          disabled_at: DateTime.t(),
-          updated_at: DateTime.t()
-        }
+  # @type t :: %__MODULE__{
+  #         id: String.t(),
+  #         satisfies: Intent.t(),
+  #         satisfies_id: String.t(),
+  #         satisfied_by: EconomicEvent.t() | Commitment.t(),
+  #         satisfied_by_id: String.t(),
+  #         resource_quantity: Measure.t(),
+  #         resource_quantity_id: String.t(),
+  #         effort_quantity: Measure.t(),
+  #         effort_quantity: String.t(),
+  #         note: String.t(),
+  #         creator: struct(),
+  #         creator_id: String.t(),
+  #         is_public: boolean(),
+  #         is_disabled: boolean(),
+  #         published_at: DateTime.t(),
+  #         deleted_at: DateTime.t(),
+  #         disabled_at: DateTime.t(),
+  #         updated_at: DateTime.t()
+  #       }
 
   pointable_schema do
     belongs_to(:satisfies, Intent)
