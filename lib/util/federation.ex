@@ -228,7 +228,7 @@ defmodule ValueFlows.Util.Federation do
          object_ap_id \\ nil
        ) do
     if module_enabled?(Bonfire.Federate.ActivityPub.AdapterUtils, subject) and
-         module_exists?(ActivityPub.Actor) do
+         module_enabled?(ActivityPub.Actor) do
       thing = repo().maybe_preload(thing, creator: [character: [:peered]])
 
       # |> repo().maybe_preload(:primary_accountable)
