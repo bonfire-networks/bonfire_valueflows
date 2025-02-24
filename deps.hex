@@ -3,8 +3,8 @@ faker = "~> 0.14" # fake data generation
 gettext = "~> 0.20"
 jason = "~> 1.0"
 postgrex = ">= 0.0.0"
-telemetry_metrics = "~> 0.6.1"
-telemetry_poller = "~> 1.0.0"
+telemetry_metrics = "~> 1.0"
+telemetry_poller = "~> 1.1"
 # for this extension:
 formula2 = "~> 0.1"
 decimal = "~> 1.6 or ~> 2.0"
