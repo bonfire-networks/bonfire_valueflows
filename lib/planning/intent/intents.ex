@@ -180,7 +180,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
         #       intent_created: intent.context_id
         #     )
 
-        indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
+        indexing_object_format(intent) |> ValueFlows.Util.index_for_search(creator)
 
         {:ok, intent}
       end

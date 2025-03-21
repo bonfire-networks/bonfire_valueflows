@@ -120,7 +120,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
            item <- %{item | creator: creator},
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :define, item, attrs: attrs) do
-        indexing_object_format(item) |> ValueFlows.Util.index_for_search()
+        indexing_object_format(item) |> ValueFlows.Util.index_for_search(creator)
 
         {:ok, item}
       end

@@ -183,9 +183,9 @@ defmodule ValueFlows.Util do
     Bonfire.Search.Fuzzy.search(name) || Bonfire.Search.Fuzzy.search(note)
   end
 
-  def index_for_search(object) do
-    if module_enabled?(Bonfire.Search.Indexer) do
-      Bonfire.Search.Indexer.maybe_index_object(object)
+  def index_for_search(object, creator) do
+    if module = maybe_module(Bonfire.Search) do
+      module.maybe_index(object, nil, creator)
     else
       :ok
     end

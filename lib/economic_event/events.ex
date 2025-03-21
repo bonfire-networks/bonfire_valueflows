@@ -543,7 +543,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
          {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, attrs),
          {:ok, activity} <-
            ValueFlows.Util.publish(creator, event.action_id, event, attrs: attrs) do
-      indexing_object_format(event) |> ValueFlows.Util.index_for_search()
+      indexing_object_format(event) |> ValueFlows.Util.index_for_search(creator)
       {:ok, event}
     end
   end
