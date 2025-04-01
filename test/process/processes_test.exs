@@ -1,5 +1,5 @@
 defmodule ValueFlows.Process.ProcessesTest do
-  use Bonfire.ValueFlows.ConnCase, async: true
+  use Bonfire.ValueFlows.DataCase, async: true
 
   import Bonfire.Common.Simulation
 
