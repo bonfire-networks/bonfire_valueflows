@@ -1,5 +1,6 @@
 defmodule ValueFlows.EconomicEvent.FederateRemoteTest do
   use Bonfire.ValueFlows.ConnCase
+  @moduletag :federation
 
   alias Bonfire.Common.Utils
   import Bonfire.Common.Simulation

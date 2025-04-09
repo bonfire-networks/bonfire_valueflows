@@ -1,5 +1,7 @@
 defmodule ValueFlows.Planning.Intent.FederateTest do
   use Bonfire.ValueFlows.DataCase
+  @moduletag :federation
+
   alias Bonfire.Common.Utils
   use Bonfire.Common.E
   import Bonfire.Common.Simulation

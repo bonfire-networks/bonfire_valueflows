@@ -24,6 +24,8 @@ defmodule Bonfire.ValueFlows.DataCase do
       # import Bonfire.ValueFlows.DataCase
       import Untangle
       import Bonfire.Common.Config, only: [repo: 0]
+
+      @moduletag :backend
     end
   end
 

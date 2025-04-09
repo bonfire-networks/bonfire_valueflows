@@ -1,5 +1,6 @@
 defmodule ValueFlows.Process.FederateTest do
   use Bonfire.ValueFlows.DataCase
+  @moduletag :federation
 
   import Bonfire.Common.Simulation
   import Bonfire.Geolocate.Simulate
