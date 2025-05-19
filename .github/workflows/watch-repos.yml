@@ -1,0 +1,375 @@
+name: Process Repository Changes
+'on':
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      full_ingest:
+        description: Perform full repository ingestion
+        required: true
+        type: boolean
+        default: false
+jobs:
+  process-changes:
+    if: >-
+      github.event_name == 'push' || (github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true) || github.event_name ==
+      'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install yq
+        run: >
+          sudo wget
+          https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64
+          -O /usr/local/bin/yq
+
+          sudo chmod +x /usr/local/bin/yq
+
+          yq --version
+      - name: Load Configuration
+        id: config
+        env:
+          OSIRIS_URL: 'https://osiris-server.vercel.app'
+        run: >
+          # Install yq if not present
+
+          # sudo wget
+          https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64
+          -O /usr/local/bin/yq
+
+          # sudo chmod +x /usr/local/bin/yq
+
+
+          # Get config from API endpoint
+
+          CONFIG=$(curl -s "$OSIRIS_URL/api/config")
+
+
+          if [ -z "$CONFIG" ]; then
+            echo "::error::Failed to fetch configuration from osiris-server"
+            exit 1
+          fi
+
+
+          # Parse the YAML into JSON for the repository
+
+          REPO_CONFIG=$(echo "$CONFIG" | yq -o=json ".repositories[\"${{
+          github.repository }}\"]")
+
+
+          if [ "$REPO_CONFIG" == "null" ]; then
+            echo "Repository ${{ github.repository }} not configured for watching"
+            exit 0
+          fi
+
+
+          # Log for debugging
+
+          echo "Repository config:"
+
+          echo "$REPO_CONFIG" | jq '.'
+
+
+          # Export config
+
+          echo 'CONFIG<<EOF' >> $GITHUB_ENV
+
+          echo "$REPO_CONFIG" >> $GITHUB_ENV
+
+          echo 'EOF' >> $GITHUB_ENV
+
+
+          {
+            echo "config<<EOF"
+            echo "$REPO_CONFIG"
+            echo "EOF"
+            echo "osiris_url=$OSIRIS_URL"
+            echo "config_exists=true"
+          } >> $GITHUB_OUTPUT
+      - name: Setup API Helper
+        if: steps.config.outputs.config_exists == 'true'
+        run: |
+          cat << \EOF > api_helper.sh
+          #!/bin/bash
+
+          call_api() {
+            local url="$1"
+            local data="$2"
+            local retries=5
+            local wait=5
+            local timeout=60
+            
+            for i in $(seq 1 $retries); do
+                echo "DEBUG: API call attempt $i of $retries"
+                
+                # Make the API call
+                local response=$(curl -X POST "$url" \
+                    -H "Content-Type: application/json" \
+                    -H "Accept: application/json" \
+                    --silent \
+                    --max-time $timeout \
+                    --retry 3 \
+                    --retry-delay 2 \
+                    --data-raw "$data")
+                
+                echo "DEBUG: Testing if response is valid JSON"
+                if echo "$response" | jq '.' >/dev/null 2>&1; then
+                    echo "DEBUG: Response is valid JSON"
+                    echo "$response"
+                    return 0
+                else
+                    echo "DEBUG: Response is not valid JSON or empty"
+                    echo "Raw response: $response"
+                fi
+                
+                echo "Waiting ${wait}s before retry..."
+                sleep $wait
+                wait=$((wait * 2))
+            done
+            
+            return 1
+          }
+          EOF
+
+          chmod +x api_helper.sh
+      - name: Full Repository Ingestion
+        if: >-
+            steps.config.outputs.config_exists == 'true' && 
+            github.event_name == 'workflow_dispatch' && 
+            github.event.inputs.full_ingest == 'true'
+        run: |
+            # Create the request JSON using jq
+            REQUEST_BODY=$(jq -n \
+              --arg repo "${{ github.repository }}" \
+              --arg branch "${{ github.ref_name }}" \
+              --arg event "${{ github.event_name }}" \
+              --arg sha "${{ github.sha }}" \
+              --argjson config "$CONFIG" \
+              '{
+                repo: $repo,
+                branch: $branch,
+                metadata: {
+                  repository: $repo,
+                  branch: $branch,
+                  event_type: $event,
+                  commit_sha: $sha,
+                  process_timestamp: (now | strftime("%Y-%m-%dT%H:%M:%SZ")),
+                  config: $config
+                },
+                maxFileSize: 100000,
+                maxTokens: 50000,
+                forceReplace: true
+              }'
+            )
+            
+            echo "DEBUG: Generated request JSON:"
+            echo "$REQUEST_BODY" | jq '.'
+            
+            # Make the API call
+            echo "Making API call to ${{ steps.config.outputs.osiris_url }}/api/ingest-repo"
+            
+            response=$(curl -X POST "${{ steps.config.outputs.osiris_url }}/api/ingest-repo" \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              -d "$REQUEST_BODY" \
+              --fail \
+              --silent \
+              --show-error \
+              --max-time 60)
+            
+            status=$?
+            
+            if [ $status -ne 0 ]; then
+              echo "::error::API call failed with status $status"
+              echo "Response: $response"
+              exit 1
+            fi
+            
+            echo "API Response:"
+            echo "$response" | jq '.'
+            # Parse and display results
+            processed=$(echo "$response" | jq -r '.processed')
+            errors=$(echo "$response" | jq -r '.errors')
+            skipped=$(echo "$response" | jq -r '.skipped')
+            total_chunks=$(echo "$response" | jq -r '.totalChunks')
+
+            echo "Repository ingestion summary:"
+            echo "- Processed: $processed"
+            echo "- Errors: $errors"
+            echo "- Skipped: $skipped"
+            echo "- Total chunks: $total_chunks"
+            
+            # Exit with error if no files were processed successfully
+            if [ "$processed" -eq 0 ]; then
+              echo "::error::No files were processed successfully"
+              exit 1
+            fi
+            
+            # Exit with warning if there were errors
+            if [ "$errors" -gt 0 ]; then
+              echo "::warning::Completed with $errors errors"
+            fi
+      - name: Process Incremental Changes
+        if: >-
+          steps.config.outputs.config_exists == 'true' &&  !(github.event_name
+          == 'workflow_dispatch' && github.event.inputs.full_ingest == 'true')
+        run: >
+          source ./api_helper.sh
+
+
+          # Debug: Print full config at start
+
+          echo "Full Configuration from env:"
+
+          echo "$CONFIG" | jq '.'
+
+
+          # Create extensions file
+
+          echo "$CONFIG" | jq -r '.included_extensions[]' | tr -d '\r' >
+          included_extensions.txt
+
+
+          echo "Available extensions:"
+
+          cat included_extensions.txt
+
+
+          # Get commit range
+
+          if [ "${{ github.event_name }}" == "push" ]; then
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.event.after }}"
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA=$(git rev-parse HEAD^)
+            HEAD_SHA=$(git rev-parse HEAD)
+          fi
+
+
+          echo "Base SHA: $BASE_SHA"
+
+          echo "Head SHA: $HEAD_SHA"
+
+
+          # Process changes with improved debug output
+
+          echo "Starting to process changed files..."
+
+
+          # Create temporary directory for processing
+
+          TEMP_DIR=$(mktemp -d)
+
+          trap 'rm -rf "$TEMP_DIR"' EXIT
+
+
+          # Process each changed file
+
+          git diff --name-status --no-renames $BASE_SHA $HEAD_SHA | while read
+          -r status filepath; do
+            echo "Processing: $filepath (Status: $status)"
+            
+            [ -z "$filepath" ] && continue
+            
+            ext=$(echo "${filepath##*.}" | tr -d '[:space:]')
+            echo "File extension: '$ext'"
+            
+            if grep -ixFq "$ext" included_extensions.txt; then
+              echo "Extension '$ext' IS included"
+              if [ "$status" = "M" ] || [ "$status" = "A" ]; then
+                content=$(git show "$HEAD_SHA:$filepath" 2>/dev/null | jq -Rs) || continue
+                echo "$status $filepath $content" >> "$TEMP_DIR/changes.txt"
+              elif [ "$status" = "D" ]; then
+                echo "$status $filepath" >> "$TEMP_DIR/changes.txt"
+              fi
+            else
+              echo "Extension '$ext' is NOT included"
+            fi
+          done
+
+
+          # Process collected changes
+
+          if [ -f "$TEMP_DIR/changes.txt" ]; then
+            echo "Found changes to process"
+            
+            # Build changes object
+            changes_json="{\"added\":["
+            first=true
+            while IFS=' ' read -r status filepath content; do
+              if [ "$status" = "A" ]; then
+                [ "$first" = true ] && first=false || changes_json+=","
+                changes_json+="{\"path\":\"$filepath\",\"content\":$content}"
+              fi
+            done < "$TEMP_DIR/changes.txt"
+            
+            changes_json+="],\"modified\":["
+            first=true
+            while IFS=' ' read -r status filepath content; do
+              if [ "$status" = "M" ]; then
+                [ "$first" = true ] && first=false || changes_json+=","
+                changes_json+="{\"path\":\"$filepath\",\"content\":$content}"
+              fi
+            done < "$TEMP_DIR/changes.txt"
+            
+            changes_json+="],\"removed\":["
+            first=true
+            while IFS=' ' read -r status filepath content; do
+              if [ "$status" = "D" ]; then
+                [ "$first" = true ] && first=false || changes_json+=","
+                changes_json+="{\"path\":\"$filepath\"}"
+              fi
+            done < "$TEMP_DIR/changes.txt"
+            
+            changes_json+="]}"
+            
+            # Call ingest-changes endpoint
+            if ! call_api "${{ steps.config.outputs.osiris_url }}/api/ingest-changes" "{
+              \"repository\": {
+                \"fullName\": \"${{ github.repository }}\",
+                \"defaultBranch\": \"${{ github.ref_name }}\"
+              },
+              \"changes\": $changes_json,
+              \"metadata\": {
+                \"repository\": \"${{ github.repository }}\",
+                \"branch\": \"${{ github.ref_name }}\",
+                \"event_type\": \"${{ github.event_name }}\",
+                \"commit_sha\": \"${{ github.sha }}\",
+                \"base_sha\": \"$BASE_SHA\",
+                \"head_sha\": \"$HEAD_SHA\",
+                \"max_file_size\": $(echo "$CONFIG" | jq .max_file_size),
+                \"max_tokens\": $(echo "$CONFIG" | jq .max_tokens),
+                \"process_timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\"
+              }
+            }"; then
+              echo "::error::Failed to process changes"
+              exit 1
+            fi
+          else
+            echo "No relevant file changes detected"
+          fi
+      - name: Report Status
+        if: always()
+        run: |
+          if [ "${{ steps.config.outputs.config_exists }}" != "true" ]; then
+            echo "::notice::Repository not configured for watching"
+          elif [ "${{ job.status }}" == "success" ]; then
+            if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ "${{ github.event.inputs.full_ingest }}" == "true" ]; then
+              echo "::notice::Successfully completed full repository ingestion"
+            else
+              echo "::notice::Successfully processed changes"
+            fi
+          else
+            echo "::error::Failed to process changes"
+          fi
