@@ -35,6 +35,7 @@ concurrency:
 jobs:
   build_and_test:
     name: Prepare Localisation, Test, Lint
+    if: ${{ !contains(github.ref, 'update_translations') }}
     runs-on: ubuntu-latest
     
     steps:
