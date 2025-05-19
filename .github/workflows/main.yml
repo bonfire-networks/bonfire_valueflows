@@ -19,7 +19,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 # Stop previous jobs if they are still running.
 # https://docs.github.com/en/actions/learn-github-actions/expressions
