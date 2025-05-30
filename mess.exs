@@ -12,14 +12,14 @@ if not Code.ensure_loaded?(Mess) do
     defp parser, do: ~r/^(?<indent>\s*)((?<package>[a-z_][a-z0-9_]+)\s*=\s*"(?<value>[^"]+)")?(?<post>.*)/
     defp git_branch, do: ~r/(?<repo>[^#]+)(#(?<branch>.+))?/
 
-    def deps(sources \\ @sources, deps),
-      do: deps(Enum.flat_map(sources, fn {k, v} -> read(v, k) end), deps, :deps)
+    def deps(sources \\ @sources, extra_deps \\ []),
+      do: deps(Enum.flat_map(sources, fn {k, v} -> read(v, k) end), extra_deps, :deps)
 
-    defp deps(packages, deps, :deps),
-      do: deps(Enum.flat_map(packages, &dep_spec/1), deps, :uniq)
+    defp deps(packages, extra_deps, :deps),
+      do: deps(Enum.flat_map(packages, &dep_spec/1), extra_deps, :uniq)
 
-    defp deps(packages, deps, :uniq),
-      do: Enum.uniq_by(deps ++ packages, &elem(&1, 0))
+    defp deps(packages, extra_deps, :uniq),
+      do: Enum.uniq_by(packages ++ extra_deps, &elem(&1, 0))
 
     defp read(path, kind) when is_binary(path), do: read(File.read(path), kind)
     defp read({:error, :enoent}, _kind), do: []
