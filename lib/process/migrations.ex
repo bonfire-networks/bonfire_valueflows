@@ -21,14 +21,9 @@ defmodule ValueFlows.Process.Migrations do
 
       add(:finished, :boolean, default: false)
 
-      # add(:resource_classified_as, {:array, :string}, virtual: true)
-
-      add(:based_on_id, weak_pointer(ProcessSpecification), null: true)
-
-      # optional context as in_scope_of
-      add(:context_id, weak_pointer(), null: true)
-
-      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
+      add_pointer(:based_on_id, :weak, ProcessSpecification, null: true)
+      add_pointer(:context_id, :weak, Needle.Pointer, null: true)
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema(), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

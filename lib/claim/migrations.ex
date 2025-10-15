@@ -18,19 +18,14 @@ defmodule ValueFlows.Claim.Migrations do
       add(:created, :timestamptz)
       add(:due, :timestamptz)
 
-      add(:provider_id, weak_pointer(), null: true)
-      add(:receiver_id, weak_pointer(), null: true)
-
-      add(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
-
-      add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
-
-      add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
-
-      add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
-
-      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
-      add(:context_id, weak_pointer(), null: true)
+      add_pointer(:provider_id, :weak, Needle.Pointer, null: true)
+      add_pointer(:receiver_id, :weak, Needle.Pointer, null: true)
+      add_pointer(:resource_conforms_to_id, :weak, ResourceSpecification, null: true)
+      add_pointer(:triggered_by_id, :weak, EconomicEvent, null: true)
+      add_pointer(:resource_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
+      add_pointer(:effort_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema(), null: true)
+      add_pointer(:context_id, :weak, Needle.Pointer, null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

@@ -12,16 +12,14 @@ defmodule ValueFlows.Planning.Satisfaction.Migrations do
 
   def up() do
     create_pointable_table(Satisfaction) do
-      add(:satisfies_id, weak_pointer(Intent))
-      # EconomicEvent or Commitment
-      add(:satisfied_by_id, weak_pointer())
-
-      add(:resource_quantity_id, weak_pointer(Measure))
-      add(:effort_quantity_id, weak_pointer(Measure))
+      add_pointer(:satisfies_id, :weak, Intent)
+      add_pointer(:satisfied_by_id, :weak, Needle.Pointer)
+      add_pointer(:resource_quantity_id, :weak, Measure)
+      add_pointer(:effort_quantity_id, :weak, Measure)
 
       add(:note, :text)
 
-      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()))
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema())
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

@@ -8,12 +8,9 @@ defmodule ValueFlows.Proposal.Migrations do
       add(:name, :string)
       add(:note, :text)
 
-      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
-
-      add(:eligible_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
-
-      # optional context as scope
-      add(:context_id, weak_pointer(), null: true)
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema(), null: true)
+      add_pointer(:eligible_location_id, :weak, Bonfire.Geolocate.Geolocation, null: true)
+      add_pointer(:context_id, :weak, Needle.Pointer, null: true)
 
       add(:unit_based, :boolean, default: false)
 
@@ -29,19 +26,17 @@ defmodule ValueFlows.Proposal.Migrations do
     end
 
     create_pointable_table(ValueFlows.Proposal.ProposedIntent) do
-      # Note: null allowed
       add(:reciprocal, :boolean, null: true)
       add(:deleted_at, :timestamptz)
 
-      add(:publishes_id, strong_pointer(ValueFlows.Planning.Intent), null: false)
-
-      add(:published_in_id, strong_pointer(ValueFlows.Proposal), null: false)
+      add_pointer(:publishes_id, :strong, ValueFlows.Planning.Intent, null: false)
+      add_pointer(:published_in_id, :strong, ValueFlows.Proposal, null: false)
     end
 
     create_pointable_table(ValueFlows.Proposal.ProposedTo) do
       add(:deleted_at, :timestamptz)
-      add(:proposed_to_id, weak_pointer(), null: false)
-      add(:proposed_id, weak_pointer(), null: false)
+      add_pointer(:proposed_to_id, :weak, Needle.Pointer, null: false)
+      add_pointer(:proposed_id, :weak, Needle.Pointer, null: false)
     end
   end
 

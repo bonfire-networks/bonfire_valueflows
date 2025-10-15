@@ -18,33 +18,26 @@ defmodule ValueFlows.EconomicResource.Migrations do
       add(:note, :text)
       add(:tracking_identifier, :text)
 
-      add(:image_id, weak_pointer(ValueFlows.Util.image_schema()), null: true)
-
-      add(:conforms_to_id, weak_pointer(ResourceSpecification), null: true)
-
-      # add(:resource_classified_as, {:array, :string}, virtual: true)
-
-      add(:current_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
-
-      add(:contained_in_id, weak_pointer(EconomicResource), null: true)
+      add_pointer(:image_id, :weak, ValueFlows.Util.image_schema(), null: true)
+      add_pointer(:conforms_to_id, :weak, ResourceSpecification, null: true)
+      add_pointer(:current_location_id, :weak, Bonfire.Geolocate.Geolocation, null: true)
+      add_pointer(:contained_in_id, :weak, EconomicResource, null: true)
 
       add(:state_id, :string)
 
       # usually linked to Agent
-      add(:primary_accountable_id, weak_pointer(), null: true)
+      add_pointer(:primary_accountable_id, :weak, Needle.Pointer, null: true)
 
-      add(:accounting_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+      add_pointer(:accounting_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
+      add_pointer(:onhand_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
+      add_pointer(:unit_of_effort_id, :weak, Bonfire.Quantify.Unit, null: true)
 
-      add(:onhand_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
-
-      add(:unit_of_effort_id, weak_pointer(Bonfire.Quantify.Unit), null: true)
-
-      add(:stage_id, weak_pointer(ProcessSpecification), null: true)
+      add_pointer(:stage_id, :weak, ProcessSpecification, null: true)
 
       # optional context as in_scope_of
-      add(:context_id, weak_pointer(), null: true)
+      add_pointer(:context_id, :weak, Needle.Pointer, null: true)
 
-      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema(), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

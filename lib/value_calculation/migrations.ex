@@ -11,21 +11,19 @@ defmodule ValueFlows.ValueCalculation.Migrations do
       add(:note, :text, null: true)
       add(:formula, :text, null: false)
 
-      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
-      add(:context_id, weak_pointer(), null: true)
-      add(:value_unit_id, weak_pointer(Bonfire.Quantify.Unit), null: false)
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema(), null: true)
+      add_pointer(:context_id, :weak, Needle.Pointer, null: true)
+      add_pointer(:value_unit_id, :weak, Bonfire.Quantify.Unit, null: false)
 
       add(:action_id, :string, null: false)
       add(:value_action_id, :string, null: false)
 
-      add(
-        :resource_conforms_to_id,
-        weak_pointer(ValueFlows.Knowledge.ResourceSpecification)
-      )
+      add_pointer(:resource_conforms_to_id, :weak, ValueFlows.Knowledge.ResourceSpecification)
 
-      add(
+      add_pointer(
         :value_resource_conforms_to_id,
-        weak_pointer(ValueFlows.Knowledge.ResourceSpecification)
+        :weak,
+        ValueFlows.Knowledge.ResourceSpecification
       )
 
       add(:deleted_at, :timestamptz)

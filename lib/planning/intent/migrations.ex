@@ -21,23 +21,15 @@ defmodule ValueFlows.Planning.Intent.Migrations do
 
       add(:action_id, :string)
 
-      add(:image_id, weak_pointer(ValueFlows.Util.image_schema()), null: true)
-
-      add(:provider_id, weak_pointer(), null: true)
-      add(:receiver_id, weak_pointer(), null: true)
-
-      add(:at_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
-
-      add(:available_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
-
-      add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
-
-      add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
-
-      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
-
-      # optional context as scope
-      add(:context_id, weak_pointer(), null: true)
+      add_pointer(:image_id, :weak, ValueFlows.Util.image_schema(), null: true)
+      add_pointer(:provider_id, :weak, Needle.Pointer, null: true)
+      add_pointer(:receiver_id, :weak, Needle.Pointer, null: true)
+      add_pointer(:at_location_id, :weak, Bonfire.Geolocate.Geolocation, null: true)
+      add_pointer(:available_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
+      add_pointer(:resource_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
+      add_pointer(:effort_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema(), null: true)
+      add_pointer(:context_id, :weak, Needle.Pointer, null: true)
 
       add(:finished, :boolean, default: false)
 
@@ -78,18 +70,20 @@ defmodule ValueFlows.Planning.Intent.Migrations do
     )
 
     alter table(table) do
-      add_if_not_exists(:input_of_id, weak_pointer(Process), null: true)
-      add_if_not_exists(:output_of_id, weak_pointer(Process), null: true)
+      add_pointer(:input_of_id, :weak, Process, null: true)
+      add_pointer(:output_of_id, :weak, Process, null: true)
 
-      add_if_not_exists(
+      add_pointer(
         :resource_conforms_to_id,
-        weak_pointer(ResourceSpecification),
+        :weak,
+        ResourceSpecification,
         null: true
       )
 
-      add_if_not_exists(
+      add_pointer(
         :resource_inventoried_as_id,
-        weak_pointer(EconomicResource),
+        :weak,
+        EconomicResource,
         null: true
       )
     end
