@@ -611,7 +611,7 @@ defmodule ValueFlows.Util.Federation do
 
     already_processed =
       if id do
-        case Process.get("uri_object:#{id}", false) do
+        case ProcessTree.get("uri_object:#{id}", false) do
           false ->
             nil
 
