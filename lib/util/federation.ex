@@ -3,9 +3,11 @@ defmodule ValueFlows.Util.Federation do
   alias Bonfire.Common.URIs
   import Bonfire.Common.Config, only: [repo: 0]
   import Untangle
+  import ActivityPub.Config, only: [is_in: 2]
 
   @log_graphql true
 
+  # TODO: reuse from ActivityPub.Config
   @actor_types Application.compile_env(:bonfire, :actor_AP_types, [
                  "Person",
                  "Group",
@@ -415,7 +417,7 @@ defmodule ValueFlows.Util.Federation do
     |> Enum.map(fn v -> to_AP_deep_remap(v, parent_key) end)
   end
 
-  defp to_AP_deep_remap(type, "__typename") when type in @types_to_translate do
+  defp to_AP_deep_remap(type, "__typename") when is_in(type, @types_to_translate) do
     @types_to_AP[type]
   end
 
@@ -555,7 +557,7 @@ defmodule ValueFlows.Util.Federation do
 
   # then create agents
   defp from_AP_remap(%{"type" => type, "id" => _} = object, parent_key)
-       when type in @actor_types do
+       when is_in(type, @actor_types) do
     maybe_create_nested_object(nil, object, parent_key)
   end
 
