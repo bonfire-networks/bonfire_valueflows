@@ -71,7 +71,7 @@ defmodule ValueFlows.Util do
     # TODO: make default audience configurable & per object audience selectable by user in API and UI (note: also in `Federation.ap_prepare_activity`)
     boundary_preset =
       e(opts, :attrs, :to_boundaries, nil) ||
-        Bonfire.Common.Config.get_ext(__MODULE__, :boundary_preset, "public")
+        Bonfire.Common.Config.get_ext(__MODULE__, :default_boundary_preset, "public")
 
     debug(boundary_preset, "boundary_preset")
 
