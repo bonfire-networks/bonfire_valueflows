@@ -1,5 +1,5 @@
 ecto_sql = "~> 3.8"
-faker = "~> 0.14" # fake data generation
+faker_fork = "~> 0.19" # fake data generation
 gettext = "~> 0.20"
 jason = "~> 1.0"
 postgrex = ">= 0.0.0"
