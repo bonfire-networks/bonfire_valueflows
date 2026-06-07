@@ -581,7 +581,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, uploads} <-
-               ValueFlows.Util.GraphQL.maybe_upload(user, intent_attrs, info),
+               Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, intent_attrs, info),
              intent_attrs = Map.merge(intent_attrs, uploads),
              intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
              {:ok, intent} <- Intents.create(user, intent_attrs) do
@@ -595,7 +595,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
            {:ok, intent} <- Intents.by_id(id, user),
            :ok <- ValueFlows.Util.can?(user, intent),
            {:ok, uploads} <-
-             ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
+             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
            changes = Map.merge(changes, uploads),
            {:ok, intent} <- Intents.update(user, intent, changes) do
         {:ok, %{intent: intent}}

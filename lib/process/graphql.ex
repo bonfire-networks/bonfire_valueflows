@@ -305,7 +305,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
           user: GraphQL.current_user(info)
         ],
         data_filters:
-          ValueFlows.Util.GraphQL.fetch_data_filters(
+          Bonfire.API.GraphQL.fetch_data_filters(
             [paginate_id: page_opts],
             info
           )
@@ -316,7 +316,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, uploads} <-
-               ValueFlows.Util.GraphQL.maybe_upload(user, process_attrs, info),
+               Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, process_attrs, info),
              process_attrs = Map.merge(process_attrs, uploads),
              process_attrs = Map.merge(process_attrs, %{is_public: true}),
              {:ok, process} <- Processes.create(user, process_attrs) do
@@ -330,7 +330,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
            {:ok, process} <- process(%{id: id}, info),
            :ok <- ValueFlows.Util.can?(user, process),
            {:ok, uploads} <-
-             ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
+             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
            changes = Map.merge(changes, uploads),
            {:ok, process} <- Processes.update(process, changes) do
         {:ok, %{process: process}}

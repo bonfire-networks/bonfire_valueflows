@@ -458,7 +458,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, uploads} <-
-               ValueFlows.Util.GraphQL.maybe_upload(user, resource_attrs, info),
+               Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, resource_attrs, info),
              resource_attrs = Map.merge(resource_attrs, uploads),
              resource_attrs = Map.merge(resource_attrs, %{is_public: true}),
              {:ok, resource} <- EconomicResources.create(user, resource_attrs) do
@@ -480,7 +480,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
            {:ok, resource} <- resource(%{id: id}, info),
            :ok <- ValueFlows.Util.can?(user, resource),
            {:ok, uploads} <-
-             ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
+             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
            changes = Map.merge(changes, uploads),
            {:ok, resource} <- update_fn.(resource, changes) do
         {:ok, %{economic_resource: resource}}

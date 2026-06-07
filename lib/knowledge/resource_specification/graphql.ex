@@ -222,7 +222,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
           user: GraphQL.current_user(info)
         ],
         data_filters:
-          ValueFlows.Util.GraphQL.fetch_data_filters(
+          Bonfire.API.GraphQL.fetch_data_filters(
             [paginate_id: page_opts],
             info
           )
@@ -236,7 +236,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, uploads} <-
-               ValueFlows.Util.GraphQL.maybe_upload(
+               Bonfire.API.GraphQL.CommonResolver.maybe_upload(
                  user,
                  resource_spec_attrs,
                  info
@@ -258,7 +258,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
            {:ok, resource_spec} <- resource_spec(%{id: id}, info),
            :ok <- ValueFlows.Util.can?(user, resource_spec),
            {:ok, uploads} <-
-             ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
+             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
            changes = Map.merge(changes, uploads),
            {:ok, resource_spec} <-
              ResourceSpecifications.update(resource_spec, changes) do

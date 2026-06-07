@@ -7,59 +7,6 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
 
     import Untangle
 
-    # use Absinthe.Schema.Notation
-    # import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
-
-    # object :page_info do
-    #   field :start_cursor, list_of(non_null(:cursor))
-    #   field :end_cursor, list_of(non_null(:cursor))
-    #   field :has_previous_page, non_null(:boolean)
-    #   field :has_next_page, non_null(:boolean)
-    # end
-
-    # convert URIs into string
-    def parse_cool_scalar(%Absinthe.Blueprint.Input.String{
-          schema_node: %Absinthe.Type.Scalar{name: "URI"},
-          value: v
-        }) do
-      {:ok, v}
-    end
-
-    # convert non-null URIs into string
-    def parse_cool_scalar(%Absinthe.Blueprint.Input.String{
-          schema_node: %Absinthe.Type.NonNull{
-            of_type: %Absinthe.Type.Scalar{name: "URI"}
-          },
-          value: v
-        }) do
-      {:ok, v}
-    end
-
-    def parse_cool_scalar(value), do: {:ok, value}
-
-    def serialize_cool_scalar(%{value: value}), do: value
-    def serialize_cool_scalar(value), do: value
-
-    def fetch_data_filters(fetch_function_filters \\ [], info) do
-      api_query_filters = for {k, v} <- Map.get(info, :data_filters, %{}), into: [], do: {k, v}
-
-      [api_query_filters ++ fetch_function_filters]
-    end
-
-    def scope_edge(%{in_scope_of: ids}, page_opts, info),
-      do:
-        Bonfire.API.GraphQL.CommonResolver.context_edges(
-          %{context_ids: ids},
-          page_opts,
-          info
-        )
-
-    def scope_edge(%{context_id: id}, page_opts, info),
-      do: scope_edge(%{in_scope_of: [id]}, page_opts, info)
-
-    def scope_edge(_, _, _),
-      do: {:ok, nil}
-
     def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
       {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
     end
@@ -87,30 +34,6 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
     end
 
     def fetch_classifications_edge(_, _, _) do
-      {:ok, nil}
-    end
-
-    def current_location_edge(%{current_location_id: id} = thing, _, _)
-        when not is_nil(id) do
-      thing = repo().preload(thing, :current_location)
-
-      {:ok,
-       Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(thing, :current_location, nil))}
-    end
-
-    def current_location_edge(_, _, _) do
-      {:ok, nil}
-    end
-
-    def at_location_edge(%{at_location_id: id} = thing, _, _)
-        when not is_nil(id) do
-      thing = repo().preload(thing, :at_location)
-
-      {:ok,
-       Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(thing, :at_location, nil))}
-    end
-
-    def at_location_edge(_, _, _) do
       {:ok, nil}
     end
 
@@ -182,27 +105,5 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
     end
 
     def image_content_url(_, _, _), do: {:ok, nil}
-
-    def maybe_upload(user, changes, info) do
-      if module = maybe_module(Bonfire.Files.GraphQL) do
-        module.upload(user, changes, info)
-      else
-        if module = maybe_module(CommonsPub.Web.GraphQL.UploadResolver) do
-          module.upload(user, changes, info)
-        else
-          error("VF - upload via GraphQL is not implemented")
-          {:ok, %{}}
-        end
-      end
-    end
-
-    def tags_edges(a, b, c) do
-      if module = maybe_module(Bonfire.Tag.GraphQL.TagResolver) do
-        module.tags_edges(a, b, c)
-      else
-        warn("Cannot resolve tags")
-        {:ok, nil}
-      end
-    end
   end
 end

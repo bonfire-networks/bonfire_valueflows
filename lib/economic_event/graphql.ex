@@ -385,7 +385,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, uploads} <-
-               ValueFlows.Util.GraphQL.maybe_upload(user, event_attrs, info),
+               Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, event_attrs, info),
              event_attrs = Map.merge(event_attrs, uploads),
              event_attrs = Map.merge(event_attrs, %{is_public: true}) do
           EconomicEvents.create(user, event_attrs, params)
@@ -398,7 +398,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
            {:ok, event} <- event(%{id: id}, info),
            :ok <- ValueFlows.Util.can?(user, event),
            {:ok, uploads} <-
-             ValueFlows.Util.GraphQL.maybe_upload(user, changes, info),
+             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
            changes = Map.merge(changes, uploads),
            {:ok, event} <- EconomicEvents.update(user, event, changes) do
         {:ok, %{economic_event: event}}

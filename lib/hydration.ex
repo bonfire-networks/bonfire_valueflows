@@ -1,6 +1,19 @@
 if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
   defmodule ValueFlows.Hydration do
     import ValueFlows.Util.GraphQL
+
+    import Bonfire.API.GraphQL,
+      only: [parse_cool_scalar: 1, serialize_cool_scalar: 1]
+
+    import Bonfire.API.GraphQL.CommonResolver,
+      only: [
+        scope_edge: 3,
+        current_location_edge: 3,
+        at_location_edge: 3,
+        tags_edges: 3,
+        maybe_upload: 3
+      ]
+
     alias Bonfire.API.GraphQL.CommonResolver
 
     def hydrate() do
