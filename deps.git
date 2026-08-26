@@ -7,3 +7,6 @@ bonfire_quantify = "https://github.com/bonfire-networks/bonfire_quantify"
 bonfire_geolocate = "https://github.com/bonfire-networks/bonfire_geolocate"
 bonfire_tag = "https://github.com/bonfire-networks/bonfire_tag"
 
+# the only hex release (0.1.0) requires `stream_data ~> 0.5`, which can't co-exist with the 1.x the rest of the app is on. Git has 0.1.1, which relaxes it to `~> 0.5 or ~> 1.0`
+formula2 = "https://github.com/bonfire-networks/formula2"
+
