@@ -207,7 +207,6 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
         )
       )
       |> Keyword.new()
-      |> IO.inspect()
     end
 
     def inputs(process, %{action: action_id}, _) when is_binary(action_id) do

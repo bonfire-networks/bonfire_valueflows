@@ -35,7 +35,7 @@ defmodule ValueFlows.Agent.Agents do
 
     a
     |> repo().maybe_preload(:shared_user, label: __MODULE__)
-    # |> IO.inspect()
+    # 
     |> Enums.merge_structs_as_map(
       e(a, :profile, %{
         name: e(a, :character, :username, "anonymous")

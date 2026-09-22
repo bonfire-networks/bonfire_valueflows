@@ -92,7 +92,6 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
 
       resource_conforms_to =
         fake_resource_specification!(user, %{name: "resource specified"})
-        |> IO.inspect()
 
       q =
         create_economic_event_mutation_without_new_inventoried_resource(

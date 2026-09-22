@@ -23,7 +23,7 @@
 #         fields: ValueFlows.Simulate.proposal_fields(eligible_location: [:name])
 #       )
 #     )
-#     |> IO.inspect()
+#     
 
 #   with {:ok, g} <-
 #          """
@@ -53,7 +53,7 @@
 # def graphql_document_for(schema, type, nesting, override_fun \\ []) do
 #   schema
 #   |> Bonfire.API.GraphQL.QueryHelper.fields_for(type, nesting)
-#   # |> IO.inspect()
+#   # 
 #   |> Bonfire.API.GraphQL.QueryHelper.apply_overrides(override_fun)
 #   |> Bonfire.API.GraphQL.QueryHelper.format_fields(type, 10, schema)
 #   |> List.to_string()
