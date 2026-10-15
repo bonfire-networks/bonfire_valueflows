@@ -58,9 +58,10 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       )
     end
 
-    def intents_filtered(args, _) do
+    def intents_filtered(args, info) do
       Intents.many([
         :default,
+        user: GraphQL.current_user(info),
         limit: Map.get(args, :limit, 10),
         offset: Map.get(args, :start, 0)
       ])
@@ -337,7 +338,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
            current_user
          ) do
       # finally, if there's no more known params to acumulate, query with the filters
-      Intents.many([:default] ++ filters_acc)
+      Intents.many([:default, user: current_user] ++ filters_acc)
     end
 
     defp intents_filter_next(

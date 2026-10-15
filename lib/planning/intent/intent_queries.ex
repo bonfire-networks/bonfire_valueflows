@@ -4,6 +4,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # alias ValueFlows.Planning.Intents
 
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
+  import Bonfire.Boundaries.Queries, only: [boundarise: 3]
   alias Bonfire.Common.Utils
   import Ecto.Query
   import Geo.PostGIS
@@ -110,17 +111,21 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
+  # `published_at` says nothing about who may read an intent (`is_public` is always set), so its boundaries decide
   def filter(q, {:user, nil}) do
-    filter(q, ~w(disabled private)a)
+    q
+    |> filter(~w(disabled private)a)
+    |> boundarise(intent.id, current_user: nil)
   end
 
-  def filter(q, {:user, %{id: user_id}}) do
+  def filter(q, {:user, %{id: user_id} = user}) do
     q
     |> where(
       [intent: c],
       not is_nil(c.published_at) or c.creator_id == ^user_id
     )
     |> filter(~w(disabled)a)
+    |> boundarise(intent.id, current_user: user)
   end
 
   ## by status
@@ -203,6 +208,15 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:provider_id, ids}) when is_list(ids) do
     where(q, [intent: c], c.provider_id in ^ids)
+  end
+
+  def filter(q, {:provider_id, :none}) do
+    where(q, [intent: c], is_nil(c.provider_id))
+  end
+
+  # someone else is doing it: unassigned intents are left out too, said explicitly rather than left to how SQL compares NULL (which is also why `ids` can't contain nil: `NOT IN` with a NULL in it matches nothing)
+  def filter(q, {:provider_id, {:not, ids}}) when is_list(ids) do
+    where(q, [intent: c], not is_nil(c.provider_id) and c.provider_id not in ^ids)
   end
 
   def filter(q, {:receiver_id, id}) when is_binary(id) do
@@ -288,6 +302,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
     )
   end
 
+  def filter(q, {:due_before, %DateTime{} = date}) do
+    where(q, [intent: c], c.due < ^date)
+  end
+
   ## by ordering
 
   def filter(q, {:order, [desc: key]}) when is_atom(key) do
@@ -296,6 +314,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:order, [asc: key]}) when is_atom(key) do
     order_by(q, [intent: c], asc: field(c, ^key))
+  end
+
+  def filter(q, {:order, [asc_nulls_last: key]}) when is_atom(key) do
+    order_by(q, [intent: c], asc_nulls_last: field(c, ^key))
   end
 
   def filter(q, {:order, :default}) do

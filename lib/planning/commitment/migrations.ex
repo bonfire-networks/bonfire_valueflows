@@ -40,7 +40,7 @@ defmodule ValueFlows.Planning.Commitment.Migrations do
       add_pointer(:context_id, :weak, Needle.Pointer)
       add_pointer(:at_location_id, :weak, Geolocation)
 
-      add_pointer(:at_location_id, :weak, ValueFlows.Util.user_schema())
+      add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema())
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

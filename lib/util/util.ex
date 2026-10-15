@@ -6,7 +6,6 @@ defmodule ValueFlows.Util do
   import Untangle
 
   def common_filters(q, unknown_filter) do
-    # TODO: implement boundary checking here
     error(unknown_filter, "Unknown query filter, skipping")
     q
   end
