@@ -344,8 +344,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
       attrs |> Map.get(:in_scope_of) |> Enums.maybe_list(&List.first/1)
     )
     |> Enums.maybe_put(:at_location_id, Enums.attr_get_id(attrs, :at_location))
-    |> Map.put(:provider_id, Util.attr_get_agent(attrs, :provider, creator))
-    |> Map.put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
+    # only when given, so a partial update (eg. marking finished) doesn't unassign; an explicit `provider: nil` still unsets
+    |> maybe_put_agent(:provider_id, attrs, :provider, creator)
+    |> maybe_put_agent(:receiver_id, attrs, :receiver, creator)
     |> Enums.maybe_put(:input_of_id, Enums.attr_get_id(attrs, :input_of))
     |> Enums.maybe_put(:output_of_id, Enums.attr_get_id(attrs, :output_of))
     |> Enums.maybe_put(
@@ -357,5 +358,11 @@ defmodule ValueFlows.Planning.Intent.Intents do
       Enums.attr_get_id(attrs, :resource_inventoried_as)
     )
     |> Util.parse_measurement_attrs(creator)
+  end
+
+  defp maybe_put_agent(prepared, key, attrs, field, creator) do
+    if Map.has_key?(attrs, field),
+      do: Map.put(prepared, key, Util.attr_get_agent(attrs, field, creator)),
+      else: prepared
   end
 end

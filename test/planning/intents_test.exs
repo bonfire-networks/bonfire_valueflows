@@ -134,5 +134,28 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
 
       assert action == intent.action
     end
+
+    # the task UI marks a task done by sending only the status change (see `ValueFlows.Planning.Intent.LiveHandler`)
+    test "marking an assigned intent finished keeps its provider and receiver" do
+      user = fake_agent!()
+      assignee = fake_agent!()
+      intent = fake_intent!(user, %{provider: assignee.id, receiver: user.id})
+      assert intent.provider_id == assignee.id
+
+      assert {:ok, updated} = Intents.update(user, intent, %{finished: true}, :label)
+
+      assert updated.finished
+      assert updated.provider_id == assignee.id
+      assert updated.receiver_id == user.id
+    end
+
+    test "unassigning with an explicit nil provider still unsets it" do
+      user = fake_agent!()
+      intent = fake_intent!(user, %{provider: fake_agent!().id})
+
+      assert {:ok, updated} = Intents.update(user, intent, %{provider: nil}, :assign)
+
+      assert is_nil(updated.provider_id)
+    end
   end
 end
