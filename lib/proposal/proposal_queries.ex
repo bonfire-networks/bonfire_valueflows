@@ -5,6 +5,7 @@ defmodule ValueFlows.Proposal.Queries do
   # alias ValueFlows.Proposal.Proposals
 
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
+  import Bonfire.Boundaries.Queries, only: [boundarise: 3]
   import Ecto.Query
   import Geo.PostGIS
   import Untangle
@@ -66,17 +67,21 @@ defmodule ValueFlows.Proposal.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
+  # `published_at` says nothing about who may read a proposal (`is_public` is always set), so its boundaries decide
   def filter(q, {:user, nil}) do
-    filter(q, ~w(disabled private)a)
+    q
+    |> filter(~w(disabled private)a)
+    |> boundarise(proposal.id, current_user: nil)
   end
 
-  def filter(q, {:user, %{id: user_id}}) do
+  def filter(q, {:user, %{id: user_id} = user}) do
     q
     |> where(
       [proposal: c],
       not is_nil(c.published_at) or c.creator_id == ^user_id
     )
     |> filter(~w(disabled)a)
+    |> boundarise(proposal.id, current_user: user)
   end
 
   ## by status

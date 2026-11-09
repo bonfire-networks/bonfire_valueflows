@@ -41,8 +41,8 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       })
     end
 
-    def all_proposals(_page_opts, _info) do
-      Proposals.many()
+    def all_proposals(_page_opts, info) do
+      Proposals.many(user: GraphQL.current_user(info))
     end
 
     def eligible_location_edge(%{eligible_location_id: id} = proposal, _, _)
@@ -58,6 +58,9 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     def eligible_location_edge(_, _, _), do: {:ok, nil}
+
+    def fetch_created(%{created_at: created_at}, _, _), do: {:ok, created_at}
+    def fetch_created(_, _, _), do: {:ok, nil}
 
     ## fetchers
 
@@ -87,9 +90,9 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       })
     end
 
-    def proposals_filtered(page_opts, _ \\ nil) do
+    def proposals_filtered(page_opts, info \\ nil) do
       # IO.inspect(proposals_filtered: page_opts)
-      proposals_filter(page_opts, [])
+      proposals_filter(page_opts, user: info && GraphQL.current_user(info))
     end
 
     # def proposals_filtered(page_opts, _) do
@@ -239,8 +242,8 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       proposals_filter_next([param_remove], filter_add, page_opts, filters_acc)
     end
 
-    def agent_proposals(%{id: agent}, %{} = _page_opts, _info) do
-      proposals_filtered(%{agent: agent})
+    def agent_proposals(%{id: agent}, %{} = _page_opts, info) do
+      proposals_filtered(%{agent: agent}, info)
     end
 
     def agent_proposals(_, _page_opts, _info) do

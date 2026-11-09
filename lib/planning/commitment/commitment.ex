@@ -1,6 +1,6 @@
 defmodule ValueFlows.Planning.Commitment do
   use Needle.Pointable,
-    otp_app: :bonfire,
+    otp_app: :bonfire_valueflows,
     source: "vf_commitment",
     table_id: "40MM1TMENTED95D6694555B6E8"
 

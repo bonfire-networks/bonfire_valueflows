@@ -22,7 +22,8 @@ defmodule ValueFlows.Proposal do
     field(:name, :string)
     field(:note, :string)
 
-    field(:created, :utc_datetime_usec)
+    # not `:created`, which everywhere else in Bonfire is the creator mixin: `Bonfire.Social.Objects.preload_creator/2` matches on that key and preloads it as an association
+    field(:created_at, :utc_datetime_usec, source: :created)
 
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
@@ -63,7 +64,7 @@ defmodule ValueFlows.Proposal do
     %Proposal{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      created: DateTime.utc_now(),
+      created_at: DateTime.utc_now(),
       creator_id: creator.id,
       is_public: true
     )

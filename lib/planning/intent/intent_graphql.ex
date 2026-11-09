@@ -521,8 +521,8 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       {:ok, nil}
     end
 
-    def fetch_satisfied_by_edge(%{id: id}, _, _) when is_binary(id),
-      do: Satisfactions.many([:default, satisfies_id: id])
+    def fetch_satisfied_by_edge(%{id: id}, _, info) when is_binary(id),
+      do: Satisfactions.many([:default, user: GraphQL.current_user(info), satisfies_id: id])
 
     def fetch_satisfied_by_edge(_, _, _),
       do: {:ok, nil}

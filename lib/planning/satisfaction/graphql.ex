@@ -20,10 +20,12 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       })
     end
 
-    def satisfactions_filtered(args, _info) do
+    def satisfactions_filtered(args, info) do
+      import Bonfire.API.GraphQL, only: [current_user: 1]
+
       limit = Map.get(args, :limit, 10)
       offset = Map.get(args, :start, 0)
-      Satisfactions.many([:default, limit: limit, offset: offset])
+      Satisfactions.many([:default, user: current_user(info), limit: limit, offset: offset])
     end
 
     def fetch_satisfaction(info, id) do

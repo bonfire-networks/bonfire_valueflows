@@ -17,17 +17,18 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       })
     end
 
-    def commitments_filtered(%{filter: filts} = args, _info)
+    def commitments_filtered(%{filter: filts} = args, info)
         when is_map(filts) do
       limit = Map.get(args, :limit, 10)
       offset = Map.get(args, :start, 0)
       filts = Enum.reduce(filts, [limit: limit, offset: offset], &filter/2)
-      Commitments.many([:default] ++ filts)
+      Commitments.many([:default, user: GraphQL.current_user(info)] ++ filts)
     end
 
-    def commitments_filtered(args, _) do
+    def commitments_filtered(args, info) do
       Commitments.many([
         :default,
+        user: GraphQL.current_user(info),
         limit: Map.get(args, :limit, 10),
         offset: Map.get(args, :start, 0)
       ])
@@ -87,8 +88,8 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     def fetch_created(_, _, _),
       do: {:ok, nil}
 
-    def fetch_satisfies_edge(%{id: id}, _, _) when is_binary(id),
-      do: Satisfactions.many([:default, satisfied_by_id: id])
+    def fetch_satisfies_edge(%{id: id}, _, info) when is_binary(id),
+      do: Satisfactions.many([:default, user: GraphQL.current_user(info), satisfied_by_id: id])
 
     def fetch_satisfies_edge(_, _, _),
       do: {:ok, nil}

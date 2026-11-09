@@ -1,4 +1,6 @@
 defmodule ValueFlows.Planning.Satisfaction.Queries do
+  import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
+  import Bonfire.Boundaries.Queries, only: [boundarise: 3]
   import Ecto.Query
   import Untangle
 
@@ -64,13 +66,23 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
     do: where(q, [satisfaction: s], ilike(s.note, ^"%#{text}%"))
 
   # user
-  def filter(q, {:user, %{id: user_id}}) do
+  def filter(q, {:user, match_admin()}), do: q
+
+  # a satisfaction has no boundaries of its own, so whoever may read the intent it satisfies may read it
+  def filter(q, {:user, nil}) do
+    q
+    |> filter([:disabled, :private])
+    |> boundarise(satisfaction.satisfies_id, current_user: nil)
+  end
+
+  def filter(q, {:user, %{id: user_id} = user}) do
     q
     |> where(
       [satisfaction: s],
       not is_nil(s.published_at) or s.creator_id == ^user_id
     )
     |> filter([:disabled])
+    |> boundarise(satisfaction.satisfies_id, current_user: user)
   end
 
   # field

@@ -80,6 +80,9 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
           canonical_url: [
             resolve: &CommonResolver.canonical_url_edge/3
           ],
+          created: [
+            resolve: &ValueFlows.Proposal.GraphQL.fetch_created/3
+          ],
           in_scope_of: [
             resolve: &scope_edge/3
           ],

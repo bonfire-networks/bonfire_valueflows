@@ -2,6 +2,8 @@
 defmodule ValueFlows.Planning.Commitment.Queries do
   alias ValueFlows.Planning.Commitment
 
+  import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
+  import Bonfire.Boundaries.Queries, only: [boundarise: 3]
   import Ecto.Query
   import Geo.PostGIS
   import Untangle
@@ -82,13 +84,23 @@ defmodule ValueFlows.Planning.Commitment.Queries do
     do: join_to(q, join)
 
   # user
-  def filter(q, {:user, %{id: user_id}}) do
+  def filter(q, {:user, match_admin()}), do: q
+
+  # `published_at` says nothing about who may read a commitment (`is_public` is always set), so its boundaries decide
+  def filter(q, {:user, nil}) do
+    q
+    |> filter(~w(disabled private)a)
+    |> boundarise(commitment.id, current_user: nil)
+  end
+
+  def filter(q, {:user, %{id: user_id} = user}) do
     q
     |> where(
       [commitment: c],
       not is_nil(c.published_at) or c.creator_id == ^user_id
     )
     |> filter(~w(disabled)a)
+    |> boundarise(commitment.id, current_user: user)
   end
 
   # field
