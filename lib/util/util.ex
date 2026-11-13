@@ -10,10 +10,20 @@ defmodule ValueFlows.Util do
     q
   end
 
+  @doc """
+  The subject to hand to core (boundaries, feeds, federation) for an agent: the user or organisation struct that `ValueFlows.Agent.Agents.character_to_agent/1` keeps under `:user`, since core refuses the agent map itself. It preloads nothing: whoever binds the acting user loads its `character: [:peered]`, once, and core raises if that was missed.
+  """
+
+  # real callers pass the acting user as a struct; only the test fake handed agent maps here
+  # def as_subject(%_{} = subject), do: subject
+  # def as_subject(%{user: %_{} = user}), do: user
+  # def as_subject(other), do: other
+
   def can?(current_user, verb \\ :update, object) do
     # TODO check also based on the scope / context / user's organisation etc?
     user_id = uid(current_user)
 
+    # Bonfire.Boundaries.can?(as_subject(current_user), verb, object)) do
     if not is_nil(user_id) and
          (e(object, :creator_id, nil) == user_id or
             e(object, :provider_id, nil) == user_id or
@@ -27,6 +37,7 @@ defmodule ValueFlows.Util do
   def publish(creator, verb, thing, opts \\ [])
 
   def publish(creator, verb, thing, opts) do
+    # creator = as_subject(creator)
     # this sets permissions & returns recipients in opts to be used for publishing
     opts = prepare_opts_and_maybe_set_boundaries(creator, thing, opts)
 
@@ -98,7 +109,8 @@ defmodule ValueFlows.Util do
           boundary: boundary_preset,
           to_circles: to_circles || [],
           to_feeds: to_feeds,
-          activity_json: if(e(opts, :editing, nil), do: true),
+          # TODO: disabled with the rest of ValueFlows' outgoing federation until it is refactored: it makes an edit go through `Bonfire.Social.APActivities.ap_receive`, the fallback for incoming ActivityPub, which cannot classify a local verb with a bare object id
+          # activity_json: if(e(opts, :editing, nil), do: true),
           for_module: __MODULE__
         ]
 
@@ -119,9 +131,11 @@ defmodule ValueFlows.Util do
   end
 
   # deprecate
-  def publish(%{creator_id: creator_id, id: thing_id}, :updated) do
-    publish(%{creator_id: creator_id, id: thing_id}, :update)
-  end
+  # def publish(%{creator_id: creator_id, id: thing_id}, :updated) do
+  #   publish(%{creator_id: creator_id, id: thing_id}, :update)
+  # end
+  # passes the thing on whole: a map with only `creator_id` and `id` has no `creator` key, so it skipped the clause above and reached `FeedActivities.publish` with a bare creator id
+  def publish(%{creator_id: _, id: _} = thing, :updated), do: publish(thing, :update)
 
   def publish(%{creator: creator, creator_id: creator_id, id: _} = thing, :delete) do
     # TODO: wrong if edited by admin
@@ -129,9 +143,11 @@ defmodule ValueFlows.Util do
   end
 
   # deprecate
-  def publish(%{creator_id: creator_id, id: thing_id}, :deleted) do
-    publish(%{creator_id: creator_id, id: thing_id}, :delete)
-  end
+  # def publish(%{creator_id: creator_id, id: thing_id}, :deleted) do
+  #   publish(%{creator_id: creator_id, id: thing_id}, :delete)
+  # end
+  # passes the thing on whole, as for `:updated` above
+  def publish(%{creator_id: _, id: _} = thing, :deleted), do: publish(thing, :delete)
 
   def publish(thing, verb) do
     publish(creator_or_provider(thing), verb, thing, editing: true)
@@ -415,6 +431,7 @@ defmodule ValueFlows.Util do
     # debug(thing)
     if not is_nil(thing) and module_enabled?(Bonfire.Tag, user) do
       Bonfire.Tag.maybe_tag(user, thing, tags)
+      # Bonfire.Tag.maybe_tag(as_subject(user), thing, tags)
     else
       {:ok, thing}
     end

@@ -4,19 +4,27 @@ defmodule ValueFlows.Planning.Commitment.Migrations do
 
   import Needle.Migration
 
-  alias ValueFlows.Planning.Commitment
-  alias ValueFlows.Process
+  # alias ValueFlows.Planning.Commitment
+  # alias ValueFlows.Process
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.EconomicResource
   alias Bonfire.Quantify.Measure
   alias Bonfire.Geolocate.Geolocation
 
+  # the tables, named here because the schemas' sources are views over them, and a foreign key cannot reference a view
+  @commitment_table "vf_commitment"
+  @commitment_table_id "40MM1TMENTED95D6694555B6E8"
+  @process_table "vf_process"
+
   def up() do
-    create_pointable_table(Commitment) do
+    # create_pointable_table(Commitment) do
+    create_pointable_table(@commitment_table, @commitment_table_id) do
       add(:action_id, :string, null: false)
 
-      add_pointer(:input_of_id, :weak, Process)
-      add_pointer(:output_of_id, :weak, Process)
+      # add_pointer(:input_of_id, :weak, Process)
+      # add_pointer(:output_of_id, :weak, Process)
+      add_pointer(:input_of_id, :weak, @process_table)
+      add_pointer(:output_of_id, :weak, @process_table)
 
       add_pointer(:provider_id, :weak, Needle.Pointer)
       add_pointer(:receiver_id, :weak, Needle.Pointer)
@@ -50,6 +58,8 @@ defmodule ValueFlows.Planning.Commitment.Migrations do
     end
   end
 
+  # def down(),
+  #   do: drop_pointable_table(Commitment)
   def down(),
-    do: drop_pointable_table(Commitment)
+    do: drop_pointable_table(@commitment_table, @commitment_table_id)
 end

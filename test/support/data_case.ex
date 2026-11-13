@@ -25,6 +25,9 @@ defmodule Bonfire.ValueFlows.DataCase do
       import Untangle
       import Bonfire.Common.Config, only: [repo: 0]
 
+      # the GraphQL API tests use this case (to be tagged backend rather than ui) and call `user_conn` and `grumble_post_key`
+      import Bonfire.ValueFlows.Test.ConnHelpers
+
       @moduletag :backend
     end
   end

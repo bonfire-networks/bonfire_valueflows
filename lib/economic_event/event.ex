@@ -1,7 +1,9 @@
 defmodule ValueFlows.EconomicEvent do
   use Needle.Pointable,
     otp_app: :bonfire_valueflows,
-    source: "vf_event",
+    # source: "vf_event",
+    # a writable view joining the `vf_event` table with the mixins its fields moved to; migrations name the table itself
+    source: "vf_event_view",
     table_id: "2CTVA10BSERVEDF10WS0FVA1VE"
 
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]

@@ -3,8 +3,13 @@ defmodule ValueFlows.Proposal.Migrations do
   use Ecto.Migration
   import Needle.Migration
 
+  @proposal_table "vf_proposal"
+  @proposal_table_id "6R0P0SA11SMADE0FTW01NTENTS"
+
   def up do
-    create_pointable_table(ValueFlows.Proposal) do
+    # create_pointable_table(ValueFlows.Proposal) do
+    # the table, named here because Proposal's source is a view over it
+    create_pointable_table(@proposal_table, @proposal_table_id) do
       add(:name, :string)
       add(:note, :text)
 
@@ -29,8 +34,11 @@ defmodule ValueFlows.Proposal.Migrations do
       add(:reciprocal, :boolean, null: true)
       add(:deleted_at, :timestamptz)
 
-      add_pointer(:publishes_id, :strong, ValueFlows.Planning.Intent, null: false)
-      add_pointer(:published_in_id, :strong, ValueFlows.Proposal, null: false)
+      # add_pointer(:publishes_id, :strong, ValueFlows.Planning.Intent, null: false)
+      # the table, as Intent's source is a view over it and a foreign key cannot reference a view
+      add_pointer(:publishes_id, :strong, "vf_intent", null: false)
+      # add_pointer(:published_in_id, :strong, ValueFlows.Proposal, null: false)
+      add_pointer(:published_in_id, :strong, @proposal_table, null: false)
     end
 
     create_pointable_table(ValueFlows.Proposal.ProposedTo) do
@@ -43,6 +51,7 @@ defmodule ValueFlows.Proposal.Migrations do
   def down do
     drop_pointable_table(ValueFlows.Proposal.ProposedTo)
     drop_pointable_table(ValueFlows.Proposal.ProposedIntent)
-    drop_pointable_table(ValueFlows.Proposal)
+    # drop_pointable_table(ValueFlows.Proposal)
+    drop_pointable_table(@proposal_table, @proposal_table_id)
   end
 end

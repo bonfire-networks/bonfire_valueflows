@@ -354,6 +354,18 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     create_event(creator, event_attrs)
   end
 
+  # producing or raising into an existing resource increments that resource (`EventSideEffects`), rather than making a new one beside it, which a trace of the existing resource would not find
+  defp create_with_action(
+         creator,
+         %{resource_inventoried_as: existing_resource} = event_attrs,
+         %{resource_effect: "increment"} = _action
+       )
+       when not is_nil(existing_resource) do
+    debug("Events.create_with_action: incrementing an existing resource")
+
+    create_event(creator, event_attrs)
+  end
+
   defp create_with_action(
          creator,
          event_attrs,
@@ -369,7 +381,10 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     resource_conforms_to = ResourceSpecifications.maybe_get(event_attrs)
 
     attrs = %{
-      name: Map.get(event_attrs, :note, "Unknown Resource"),
+      # name: Map.get(event_attrs, :note, "Unknown Resource"),
+      # the note can be longer than the name column (255)
+      name:
+        Bonfire.Common.Text.truncate(Map.get(event_attrs, :note, "Unknown Resource"), 255, "…"),
       current_location: Map.get(event_attrs, :at_location),
       conforms_to: resource_conforms_to
       # note: Map.get(event_attrs, :resource_note, "")
@@ -380,15 +395,26 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     create_somethings(creator, event_attrs, %{
       new_inventoried_resource:
         maybe_to_map(Map.merge(attrs, resource_conforms_to || %{}))
-        |> Map.merge(%{
-          note: Map.get(event_attrs, :resource_note, nil),
-          name: Map.get(event_attrs, :resource_name, nil),
-          image_id:
-            uid(
-              Map.get(event_attrs, :resource_image_id, nil) ||
-                Map.get(event_attrs, :resource_image, nil)
-            )
-        })
+        # |> Map.merge(%{
+        #   note: Map.get(event_attrs, :resource_note, nil),
+        #   name: Map.get(event_attrs, :resource_name, nil),
+        #   image_id: ...
+        # })
+        # only the values given replace the defaults above, so a resource with no `resource_name` keeps the name from the event's note or the resource specification rather than a nil that fails the required check
+        |> Map.merge(
+          Bonfire.Common.Enums.filter_empty(
+            %{
+              note: Map.get(event_attrs, :resource_note, nil),
+              name: Map.get(event_attrs, :resource_name, nil),
+              image_id:
+                uid(
+                  Map.get(event_attrs, :resource_image_id, nil) ||
+                    Map.get(event_attrs, :resource_image, nil)
+                )
+            },
+            %{}
+          )
+        )
     })
   end
 
@@ -406,7 +432,10 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     # IO.inspect(create_with_action: event_attrs)
 
     attrs = %{
-      name: Map.get(event_attrs, :note, "Unknown Resource"),
+      # name: Map.get(event_attrs, :note, "Unknown Resource"),
+      # the note can be longer than the name column (255)
+      name:
+        Bonfire.Common.Text.truncate(Map.get(event_attrs, :note, "Unknown Resource"), 255, "…"),
       current_location: Map.get(event_attrs, :at_location)
     }
 
@@ -451,7 +480,10 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     # IO.inspect(create_with_action: event_attrs)
 
     attrs = %{
-      name: Map.get(event_attrs, :note, "Unknown Resource"),
+      # name: Map.get(event_attrs, :note, "Unknown Resource"),
+      # the note can be longer than the name column (255)
+      name:
+        Bonfire.Common.Text.truncate(Map.get(event_attrs, :note, "Unknown Resource"), 255, "…"),
       current_location: Map.get(event_attrs, :at_location)
     }
 
@@ -719,10 +751,16 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
       :ok
     else
       # IO.inspect(resource.primary_accountable)
+      # {:error,
+      #  error(
+      #    403,
+      #    "You cannot do this because you are not accountable for that resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)}"
+      #  )}
+      # Untangle's `error/2` only logs the 403 and returns the text, which the API then reports as a 500
       {:error,
-       error(
-         403,
-         "You cannot do this because you are not accountable for that resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)}"
+       Bonfire.Fail.fail(
+         :not_permitted,
+         "to do this, as you are not accountable for that resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)}"
        )}
     end
   end
@@ -746,10 +784,16 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            provider_id == resource.primary_accountable_id do
         :ok
       else
+        # {:error,
+        #  fail(
+        #    403,
+        #    "You cannot do this because you are not accountable for the target resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)})"
+        #  )}
+        # `fail/2` with a bare 403 takes the message of whichever error is registered first with that status
         {:error,
-         fail(
-           403,
-           "You cannot do this because you are not accountable for the target resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)})"
+         Bonfire.Fail.fail(
+           :not_permitted,
+           "to do this, as you are not accountable for the target resource. Please contact #{e(resource, :primary_accountable, :character, :username, resource.primary_accountable_id)}"
          )}
       end
     end

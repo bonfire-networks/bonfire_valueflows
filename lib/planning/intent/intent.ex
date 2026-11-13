@@ -1,7 +1,9 @@
 defmodule ValueFlows.Planning.Intent do
   use Needle.Pointable,
     otp_app: :bonfire_valueflows,
-    source: "vf_intent",
+    # source: "vf_intent",
+    # a writable view joining the `vf_intent` table with the mixins its fields moved to, so reads, writes, joins and preloads all go through it; migrations name the table itself
+    source: "vf_intent_view",
     table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
 
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]

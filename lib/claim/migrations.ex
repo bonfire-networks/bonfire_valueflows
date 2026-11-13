@@ -6,7 +6,7 @@ defmodule ValueFlows.Claim.Migrations do
   import Needle.Migration
 
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.EconomicEvent
+  # alias ValueFlows.EconomicEvent
 
   def up do
     create_pointable_table(ValueFlows.Claim) do
@@ -21,7 +21,9 @@ defmodule ValueFlows.Claim.Migrations do
       add_pointer(:provider_id, :weak, Needle.Pointer, null: true)
       add_pointer(:receiver_id, :weak, Needle.Pointer, null: true)
       add_pointer(:resource_conforms_to_id, :weak, ResourceSpecification, null: true)
-      add_pointer(:triggered_by_id, :weak, EconomicEvent, null: true)
+      # add_pointer(:triggered_by_id, :weak, EconomicEvent, null: true)
+      # the table, as EconomicEvent's source is a view over it and a foreign key cannot reference a view
+      add_pointer(:triggered_by_id, :weak, "vf_event", null: true)
       add_pointer(:resource_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
       add_pointer(:effort_quantity_id, :weak, Bonfire.Quantify.Measure, null: true)
       add_pointer(:creator_id, :weak, ValueFlows.Util.user_schema(), null: true)

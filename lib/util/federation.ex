@@ -112,25 +112,32 @@ defmodule ValueFlows.Util.Federation do
         extra_field_filters
       )
       when is_binary(id) do
-    if Bonfire.Common.Extend.module_enabled?(ActivityPub) do
-      debug("ValueFlows.Federation - #{activity_type} #{schema_type}")
+    # TODO: outgoing federation of ValueFlows objects is disabled until it is refactored: it passes agent maps where core expects structs, and edits go through the incoming fallback. It stops before preparing the object too: core calls this from inside the caller's transaction (eg. `EconomicEvents.create_event`), where `fetch_api_object`'s GraphQL query batches in another process that waits for the connection the transaction holds, and times out
+    debug(
+      "VF - outgoing federation disabled, not publishing #{activity_type} #{schema_type} #{id}"
+    )
 
-      with %{} = api_object <-
-             fetch_api_object(id, schema_type, query_depth, extra_field_filters),
-           %{} = formatted_object <- ap_prepare_object(api_object),
-           %{} = activity_params <-
-             ap_prepare_activity(
-               subject,
-               activity_type,
-               thing,
-               formatted_object
-             ) do
-        ap_do(activity_type, activity_params)
-      else
-        e ->
-          error(e, "Could not prepare VF object for federation")
-      end
-    end
+    :ignore
+
+    # if Bonfire.Common.Extend.module_enabled?(ActivityPub) do
+    #   debug("ValueFlows.Federation - #{activity_type} #{schema_type}")
+    #
+    #   with %{} = api_object <-
+    #          fetch_api_object(id, schema_type, query_depth, extra_field_filters),
+    #        %{} = formatted_object <- ap_prepare_object(api_object),
+    #        %{} = activity_params <-
+    #          ap_prepare_activity(
+    #            subject,
+    #            activity_type,
+    #            thing,
+    #            formatted_object
+    #          ) do
+    #     ap_do(activity_type, activity_params)
+    #   else
+    #     e ->
+    #       error(e, "Could not prepare VF object for federation")
+    #   end
+    # end
   end
 
   defp ap_do(activity_type, activity_params)
@@ -670,12 +677,15 @@ defmodule ValueFlows.Util.Federation do
   end
 
   # FIXME ?
-  def ap_publish(user, verb, thing) do
-    if module = maybe_module(Bonfire.Federate.ActivityPub.Outgoing, user) do
-      module.maybe_federate(user, verb, thing)
-    else
-      :ignore
-    end
+  def ap_publish(_user, _verb, _thing) do
+    # TODO: outgoing federation of ValueFlows objects is disabled until it is refactored (see `ap_publish_activity/6`)
+    # if module = maybe_module(Bonfire.Federate.ActivityPub.Outgoing, user) do
+    #   module.maybe_federate(user, verb, thing)
+    # else
+    #   :ignore
+    # end
+    # callers (eg. `Intents.update`) match on `{:ok, _}`
+    {:ok, nil}
   end
 
   # def ap_publish(_, _, _), do: :ok

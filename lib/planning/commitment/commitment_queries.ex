@@ -100,6 +100,7 @@ defmodule ValueFlows.Planning.Commitment.Queries do
       not is_nil(c.published_at) or c.creator_id == ^user_id
     )
     |> filter(~w(disabled)a)
+    # |> boundarise(commitment.id, current_user: ValueFlows.Util.as_subject(user))
     |> boundarise(commitment.id, current_user: user)
   end
 

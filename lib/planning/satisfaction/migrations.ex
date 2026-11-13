@@ -4,7 +4,7 @@ defmodule ValueFlows.Planning.Satisfaction.Migrations do
 
   import Needle.Migration
 
-  alias ValueFlows.Planning.Intent
+  # alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Satisfaction
 
   alias ValueFlows.EconomicEvent
@@ -12,7 +12,9 @@ defmodule ValueFlows.Planning.Satisfaction.Migrations do
 
   def up() do
     create_pointable_table(Satisfaction) do
-      add_pointer(:satisfies_id, :weak, Intent)
+      # add_pointer(:satisfies_id, :weak, Intent)
+      # the table, as Intent's source is a view over it and a foreign key cannot reference a view
+      add_pointer(:satisfies_id, :weak, "vf_intent")
       add_pointer(:satisfied_by_id, :weak, Needle.Pointer)
       add_pointer(:resource_quantity_id, :weak, Measure)
       add_pointer(:effort_quantity_id, :weak, Measure)

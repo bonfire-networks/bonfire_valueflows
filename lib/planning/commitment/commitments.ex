@@ -113,8 +113,11 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
     )
     |> Enums.maybe_put(:input_of_id, Enums.attr_get_id(attrs, :input_of))
     |> Enums.maybe_put(:output_of_id, Enums.attr_get_id(attrs, :output_of))
-    |> Enums.maybe_put(:provider_id, Util.attr_get_agent(attrs, :provider, creator))
-    |> Enums.maybe_put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
+    # |> Enums.maybe_put(:provider_id, Util.attr_get_agent(attrs, :provider, creator))
+    # |> Enums.maybe_put(:receiver_id, Util.attr_get_agent(attrs, :receiver, creator))
+    # `Util` is not aliased here, so every create raised
+    |> Enums.maybe_put(:provider_id, ValueFlows.Util.attr_get_agent(attrs, :provider, creator))
+    |> Enums.maybe_put(:receiver_id, ValueFlows.Util.attr_get_agent(attrs, :receiver, creator))
     |> Enums.maybe_put(
       :resource_conforms_to_id,
       Enums.attr_get_id(attrs, :resource_conforms_to)

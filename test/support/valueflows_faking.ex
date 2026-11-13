@@ -122,8 +122,18 @@ defmodule ValueFlows.Test.Faking do
     )
   end
 
+  # def assert_proposal(%Proposal{} = proposal) do
+  #   assert_proposal(Map.from_struct(proposal))
+  # end
   def assert_proposal(%Proposal{} = proposal) do
-    assert_proposal(Map.from_struct(proposal))
+    assert_proposal(proposal_as_api_map(proposal))
+  end
+
+  # the struct's field is `created_at` (its column and the GraphQL field are `created`), so the assertions check it under the API's name
+  defp proposal_as_api_map(%Proposal{} = proposal) do
+    proposal
+    |> Map.from_struct()
+    |> Map.put(:created, proposal.created_at)
   end
 
   def assert_proposal(proposal) do
@@ -142,8 +152,11 @@ defmodule ValueFlows.Test.Faking do
     assert_proposals_eq(proposal, assert_proposal(proposal2))
   end
 
+  # def assert_proposal_full(%Proposal{} = proposal) do
+  #   assert_proposal_full(Map.from_struct(proposal))
+  # end
   def assert_proposal_full(%Proposal{} = proposal) do
-    assert_proposal_full(Map.from_struct(proposal))
+    assert_proposal_full(proposal_as_api_map(proposal))
   end
 
   def assert_proposal_full(proposal) do
@@ -163,7 +176,8 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def assert_proposals_eq(%Proposal{} = proposal, %{} = proposal2) do
-    assert_maps_eq(proposal, proposal2, :assert_proposal, [
+    # assert_maps_eq(proposal, proposal2, :assert_proposal, [
+    assert_maps_eq(proposal_as_api_map(proposal), proposal2, :assert_proposal, [
       :name,
       :note,
       :unit_based,

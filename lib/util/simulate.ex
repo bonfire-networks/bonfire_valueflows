@@ -86,7 +86,9 @@ defmodule ValueFlows.Simulate do
       when is_map(overrides) and is_list(opts) do
     ValueFlows.Agent.Agents.agent_to_character(agent(overrides))
     |> maybe_fake_user()
-    |> fake_agent_from_user!()
+
+    # |> fake_agent_from_user!()
+    # the user struct, as real callers pass the acting user; `fake_agent_from_user!/1` gives the API's agent map where a test needs that shape
   end
 
   def fake_agent_from_user!(user) do
@@ -207,8 +209,8 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     # |> Map.put_new_lazy(:image, &icon/0)
-    # |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
-    # |> Map.put_new_lazy(:has_end, &future_datetime/0)
+    |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
+    |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:created, &future_datetime/0)
     |> Map.put_new_lazy(:unit_based, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
@@ -410,7 +412,11 @@ defmodule ValueFlows.Simulate do
 
   def some_fake_categories(user, num \\ 5) do
     if Bonfire.Common.Extend.module_enabled?(Bonfire.Classify.Simulate),
-      do: some(num, fn -> Bonfire.Classify.Simulate.fake_category!(user).id end),
+      do:
+        some(num, fn ->
+          # Bonfire.Classify.Simulate.fake_category!(ValueFlows.Util.as_subject(user)).id
+          Bonfire.Classify.Simulate.fake_category!(user).id
+        end),
       else: []
   end
 

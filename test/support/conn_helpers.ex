@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.ValueFlows.Test.ConnHelpers do
   require Phoenix.ConnTest
+  # `Config.get` is a macro
+  require Bonfire.Common.Config
   alias Phoenix.ConnTest
   alias Phoenix.Controller
 

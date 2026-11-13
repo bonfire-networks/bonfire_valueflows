@@ -45,6 +45,8 @@ defmodule ValueFlows.Agent.Agents do
     |> Map.put(:image, ValueFlows.Util.image_url(a))
     |> Enums.maybe_put(:primary_location, agent_location(a))
     |> Enums.maybe_put(:note, e(a, :profile, :summary, nil))
+    # # the user (or organisation) itself, kept so that `ValueFlows.Util.as_subject/1` can hand core a struct when it checks permissions or publishes: the merges above make a plain map, which boundaries and federation refuse as a subject
+    # |> Map.put(:user, a)
     # |> Enums.maybe_put(:display_username, ValueFlows.Util.display_username(a))
     |> add_type()
     |> debug()

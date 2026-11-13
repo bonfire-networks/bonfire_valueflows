@@ -5,14 +5,20 @@ defmodule ValueFlows.EconomicEvent.Migrations do
   import Needle.Migration
 
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.EconomicEvent
+  # alias ValueFlows.EconomicEvent
   alias ValueFlows.EconomicResource
-  alias ValueFlows.Process
+  # alias ValueFlows.Process
 
   # defp event_table(), do: EconomicEvent.__schema__(:source)
 
+  # the tables, named here because the schemas' sources are views over them, and a foreign key cannot reference a view
+  @event_table "vf_event"
+  @event_table_id "2CTVA10BSERVEDF10WS0FVA1VE"
+  @process_table "vf_process"
+
   def up do
-    create_pointable_table(ValueFlows.EconomicEvent) do
+    # create_pointable_table(ValueFlows.EconomicEvent) do
+    create_pointable_table(@event_table, @event_table_id) do
       # add(:name, :string)
       add(:note, :text)
 
@@ -20,8 +26,10 @@ defmodule ValueFlows.EconomicEvent.Migrations do
 
       add(:action_id, :string)
 
-      add_pointer(:input_of_id, :weak, Process, null: true)
-      add_pointer(:output_of_id, :weak, Process, null: true)
+      # add_pointer(:input_of_id, :weak, Process, null: true)
+      # add_pointer(:output_of_id, :weak, Process, null: true)
+      add_pointer(:input_of_id, :weak, @process_table, null: true)
+      add_pointer(:output_of_id, :weak, @process_table, null: true)
 
       add_pointer(:provider_id, :weak, Needle.Pointer, null: true)
       add_pointer(:receiver_id, :weak, Needle.Pointer, null: true)
@@ -51,7 +59,8 @@ defmodule ValueFlows.EconomicEvent.Migrations do
 
       add_pointer(:at_location_id, :weak, Bonfire.Geolocate.Geolocation, null: true)
 
-      add_pointer(:triggered_by_id, :weak, EconomicEvent, null: true)
+      # add_pointer(:triggered_by_id, :weak, EconomicEvent, null: true)
+      add_pointer(:triggered_by_id, :weak, @event_table, null: true)
 
       add_pointer(:calculated_using_id, :weak, ValueFlows.ValueCalculation, null: true)
 
@@ -66,6 +75,7 @@ defmodule ValueFlows.EconomicEvent.Migrations do
   end
 
   def down do
-    drop_pointable_table(ValueFlows.EconomicEvent)
+    # drop_pointable_table(ValueFlows.EconomicEvent)
+    drop_pointable_table(@event_table, @event_table_id)
   end
 end

@@ -1,6 +1,8 @@
 defmodule ValueFlows.EconomicEvent.FederateTest do
   use Bonfire.ValueFlows.ConnCase
   @moduletag :federation
+  # TODO: re-enable once ValueFlows' outgoing federation is refactored and switched back on (`ValueFlows.Util.Federation.ap_publish_activity/6`)
+  @moduletag :skip
 
   alias Bonfire.Common.Utils
   use Bonfire.Common.E

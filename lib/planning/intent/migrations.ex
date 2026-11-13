@@ -6,13 +6,18 @@ defmodule ValueFlows.Planning.Intent.Migrations do
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.EconomicResource
-  alias ValueFlows.Process
+  # alias ValueFlows.Process
   # alias ValueFlows.Proposal
 
-  defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
+  # defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
+  # the table, named here because Intent's source is a view over it
+  @intent_table "vf_intent"
+  @intent_table_id "1NTENTC0V1DBEAN0FFER0RNEED"
+  defp intent_table(), do: @intent_table
 
   def up do
-    create_pointable_table(ValueFlows.Planning.Intent) do
+    # create_pointable_table(ValueFlows.Planning.Intent) do
+    create_pointable_table(@intent_table, @intent_table_id) do
       add(:name, :string)
       add(:note, :text)
 
@@ -70,8 +75,11 @@ defmodule ValueFlows.Planning.Intent.Migrations do
     )
 
     alter table(table) do
-      add_pointer(:input_of_id, :weak, Process, null: true)
-      add_pointer(:output_of_id, :weak, Process, null: true)
+      # add_pointer(:input_of_id, :weak, Process, null: true)
+      # add_pointer(:output_of_id, :weak, Process, null: true)
+      # the table, as Process's source is a view over it and a foreign key cannot reference a view
+      add_pointer(:input_of_id, :weak, "vf_process", null: true)
+      add_pointer(:output_of_id, :weak, "vf_process", null: true)
 
       add_pointer(
         :resource_conforms_to_id,
@@ -90,6 +98,7 @@ defmodule ValueFlows.Planning.Intent.Migrations do
   end
 
   def down do
-    drop_pointable_table(ValueFlows.Planning.Intent)
+    # drop_pointable_table(ValueFlows.Planning.Intent)
+    drop_pointable_table(@intent_table, @intent_table_id)
   end
 end

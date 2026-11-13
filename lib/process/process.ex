@@ -1,7 +1,9 @@
 defmodule ValueFlows.Process do
   use Needle.Pointable,
     otp_app: :bonfire_valueflows,
-    source: "vf_process",
+    # source: "vf_process",
+    # a writable view joining the `vf_process` table with the mixins its fields moved to; migrations name the table itself
+    source: "vf_process_view",
     table_id: "4AYF0R1NPVTST0BEC0ME0VTPVT"
 
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]

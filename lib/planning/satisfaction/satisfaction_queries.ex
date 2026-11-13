@@ -82,6 +82,7 @@ defmodule ValueFlows.Planning.Satisfaction.Queries do
       not is_nil(s.published_at) or s.creator_id == ^user_id
     )
     |> filter([:disabled])
+    # |> boundarise(satisfaction.satisfies_id, current_user: ValueFlows.Util.as_subject(user))
     |> boundarise(satisfaction.satisfies_id, current_user: user)
   end
 

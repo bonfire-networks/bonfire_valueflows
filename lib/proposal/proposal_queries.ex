@@ -81,6 +81,7 @@ defmodule ValueFlows.Proposal.Queries do
       not is_nil(c.published_at) or c.creator_id == ^user_id
     )
     |> filter(~w(disabled)a)
+    # |> boundarise(proposal.id, current_user: ValueFlows.Util.as_subject(user))
     |> boundarise(proposal.id, current_user: user)
   end
 

@@ -4,7 +4,9 @@ defmodule ValueFlows.Proposal do
   """
   use Needle.Pointable,
     otp_app: :bonfire_valueflows,
-    source: "vf_proposal",
+    # source: "vf_proposal",
+    # a writable view joining the `vf_proposal` table with the mixins its fields moved to; migrations name the table itself
+    source: "vf_proposal_view",
     table_id: "6R0P0SA11SMADE0FTW01NTENTS"
 
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]

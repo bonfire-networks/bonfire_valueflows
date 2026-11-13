@@ -9,8 +9,13 @@ defmodule ValueFlows.Process.Migrations do
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 
+  # the table, named here because Process's source is a view over it
+  @process_table "vf_process"
+  @process_table_id "4AYF0R1NPVTST0BEC0ME0VTPVT"
+
   def up do
-    create_pointable_table(ValueFlows.Process) do
+    # create_pointable_table(ValueFlows.Process) do
+    create_pointable_table(@process_table, @process_table_id) do
       add(:name, :string)
       add(:note, :text)
 
@@ -34,6 +39,7 @@ defmodule ValueFlows.Process.Migrations do
   end
 
   def down do
-    drop_pointable_table(ValueFlows.Process)
+    # drop_pointable_table(ValueFlows.Process)
+    drop_pointable_table(@process_table, @process_table_id)
   end
 end

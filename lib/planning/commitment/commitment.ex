@@ -1,7 +1,9 @@
 defmodule ValueFlows.Planning.Commitment do
   use Needle.Pointable,
     otp_app: :bonfire_valueflows,
-    source: "vf_commitment",
+    # source: "vf_commitment",
+    # a writable view joining the `vf_commitment` table with the mixins its fields moved to; migrations name the table itself
+    source: "vf_commitment_view",
     table_id: "40MM1TMENTED95D6694555B6E8"
 
   alias Ecto.Changeset

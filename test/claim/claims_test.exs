@@ -234,11 +234,19 @@ defmodule ValueFlows.Claim.ClaimsTest do
       assert claim.deleted_at
     end
 
-    test "fails if the claim doesn't exist" do
+    # test "fails if the claim doesn't exist" do
+    #   claim = fake_claim!(fake_agent!())
+    #
+    #   assert {:ok, claim} = Claims.soft_delete(claim)
+    #   assert {:error, _} = Claims.soft_delete(claim)
+    # end
+    # soft deleting an already deleted row is not an error (`Bonfire.Common.Repo.Delete.soft_delete_changeset/4`)
+    test "deleting an already deleted claim succeeds and it stays deleted" do
       claim = fake_claim!(fake_agent!())
 
       assert {:ok, claim} = Claims.soft_delete(claim)
-      assert {:error, _} = Claims.soft_delete(claim)
+      assert {:ok, claim} = Claims.soft_delete(claim)
+      assert claim.deleted_at
     end
   end
 end

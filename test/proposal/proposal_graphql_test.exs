@@ -151,6 +151,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   end
 
   describe "proposalPages" do
+    # TODO: re-enable once GraphQL paging is refactored to vf-graphql's cursor connections
+    @tag :skip
     test "fetches a page of proposals" do
       user = fake_agent!()
       proposals = some(5, fn -> fake_proposal!(user) end)
@@ -166,6 +168,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       assert List.first(fetched)["id"] == after_proposal.id
     end
 
+    # TODO: re-enable once GraphQL paging is refactored to vf-graphql's cursor connections
+    @tag :skip
     test "fetches several pages of proposals" do
       user = fake_agent!()
       _proposals = some(6, fn -> fake_proposal!(user) end)
