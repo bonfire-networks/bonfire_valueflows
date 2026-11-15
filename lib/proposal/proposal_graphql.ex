@@ -261,8 +261,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     def update_proposal(%{proposal: %{id: id} = changes}, info) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, proposal} <- proposal(%{id: id}, info),
-           :ok <- ValueFlows.Util.can?(user, proposal),
-           {:ok, proposal} <- Proposals.update(proposal, changes) do
+           {:ok, proposal} <- Proposals.update(proposal, changes, current_user: user) do
         {:ok, %{proposal: proposal}}
       end
     end

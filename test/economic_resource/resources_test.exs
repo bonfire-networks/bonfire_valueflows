@@ -126,12 +126,38 @@ defmodule ValueFlows.EconomicResource.EconomicResourcesTest do
         onhand_quantity: Bonfire.Quantify.Simulate.measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, updated} = EconomicResources.update(resource, economic_resource(attrs))
+      assert {:ok, updated} =
+               EconomicResources.update(resource, economic_resource(attrs), current_user: user)
 
       assert_economic_resource(updated)
       assert resource != updated
       assert resource.accounting_quantity_id != updated.accounting_quantity_id
       assert resource.onhand_quantity_id != updated.onhand_quantity_id
+    end
+
+    test "someone who may not update it stores no upload" do
+      owner = fake_agent!()
+      stranger = fake_agent!()
+      resource = fake_economic_resource!(owner)
+      parent = self()
+      upload = fn _attrs -> send(parent, :uploaded) && {:ok, %{}} end
+
+      # control: whoever may update it has their upload run
+      assert {:ok, _} =
+               EconomicResources.update(resource, economic_resource(%{}),
+                 current_user: owner,
+                 upload: upload
+               )
+
+      assert_received :uploaded
+
+      assert {:error, :not_permitted} =
+               EconomicResources.update(resource, economic_resource(%{}),
+                 current_user: stranger,
+                 upload: upload
+               )
+
+      refute_received :uploaded
     end
   end
 

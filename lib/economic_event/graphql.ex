@@ -396,11 +396,10 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     def update_event(%{event: %{id: id} = changes}, info) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, event} <- event(%{id: id}, info),
-           :ok <- ValueFlows.Util.can?(user, event),
-           {:ok, uploads} <-
-             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
-           changes = Map.merge(changes, uploads),
-           {:ok, event} <- EconomicEvents.update(user, event, changes) do
+           {:ok, event} <-
+             EconomicEvents.update(user, event, changes,
+               upload: &Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, &1, info)
+             ) do
         {:ok, %{economic_event: event}}
       end
     end

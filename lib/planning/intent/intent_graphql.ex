@@ -594,11 +594,10 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     def update_intent(%{intent: %{id: id} = changes}, info) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, intent} <- Intents.by_id(id, user),
-           :ok <- ValueFlows.Util.can?(user, intent),
-           {:ok, uploads} <-
-             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
-           changes = Map.merge(changes, uploads),
-           {:ok, intent} <- Intents.update(user, intent, changes) do
+           {:ok, intent} <-
+             Intents.update(user, intent, changes, :update,
+               upload: &Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, &1, info)
+             ) do
         {:ok, %{intent: intent}}
       end
     end

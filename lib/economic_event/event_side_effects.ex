@@ -1,12 +1,16 @@
 defmodule ValueFlows.EconomicEvent.EventSideEffects do
   # import Logger
 
+  use Bonfire.Common.Utils
   import Bonfire.Common.Config, only: [repo: 0]
 
   alias ValueFlows.EconomicEvent
   # alias ValueFlows.EconomicEvent.EconomicEvents
   alias ValueFlows.EconomicResource.EconomicResources
   # alias ValueFlows.EconomicEvent.Queries
+
+  @doc "Applies the event's effects on its resources. The resource updates among them are made as the person acting (`current_user:`, else the event's creator), so they are checked against the resource, not against the event."
+  def event_side_effects(event, opts \\ [])
 
   def event_side_effects(
         %EconomicEvent{
@@ -16,7 +20,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
             resource_effect: resource_effect
           },
           resource_quantity: quantity
-        } = event
+        } = event,
+        opts
       ) do
     event =
       repo().preload(event,
@@ -25,10 +30,22 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
       )
 
     resource = event.resource_inventoried_as
+
+    # TODO: the destination resource's quantity changes with no check on that resource, so anyone naming someone as receiver can add to their inventory unasked; decide whether it needs `:edit` on it, the receiver acting, or the receiver's acceptance
     to_resource = event.to_resource_inventoried_as
+
+    # the person acting: never read as anyone else when missing, so the resource update is refused
+    opts = [current_user: Keyword.get(opts, :current_user) || e(event, :creator, nil)]
 
     # REFERENCE ISSUE:  https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4
     cond do
+      # the event's own checks only ask that its creator is involved in it and accountable for the resource, so the quantity of the resource the event takes from or adds to is changed only by someone who may update that resource
+      not is_nil(resource) and
+        (resource_effect in ["increment", "decrement", "decrementIncrement"] or
+           onhand_effect == "decrementIncrement") and
+          ValueFlows.Util.can?(opts[:current_user], :edit, resource) != :ok ->
+        {:error, :not_permitted}
+
       #     If action.resourceEffect is "+" or "-"
       resource_effect == "increment" or
           (resource_effect == "decrement" and
@@ -39,11 +56,12 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
             :accounting_quantity,
             resource,
             quantity,
-            resource_effect
+            resource_effect,
+            opts
           )
 
         #         Add event resourceQuantity to onhandQuantity
-        resource = quantity_effect(:onhand_quantity, resource, quantity, resource_effect)
+        resource = quantity_effect(:onhand_quantity, resource, quantity, resource_effect, opts)
 
         return_updated_event(event, resource)
 
@@ -56,14 +74,15 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           action == "transfer" or action == "move" ->
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.onhandQuantity and accountingQuantity
-            resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
+            resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement", opts)
 
             resource =
               quantity_effect(
                 :accounting_quantity,
                 resource,
                 quantity,
-                "decrement"
+                "decrement",
+                opts
               )
 
             #     If the to-resource exists
@@ -73,7 +92,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
                 :onhand_quantity,
                 to_resource,
                 quantity,
-                "increment"
+                "increment",
+                opts
               )
 
             to_resource =
@@ -81,7 +101,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
                 :accounting_quantity,
                 to_resource,
                 quantity,
-                "increment"
+                "increment",
+                opts
               )
 
             return_updated_event(event, resource, to_resource)
@@ -89,7 +110,7 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           action == "transfer-custody" ->
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.onhandQuantity
-            resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
+            resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement", opts)
 
             #     If the to-resource exists
             #         Add event resourceQuantity to to_resource.onhandQuantity
@@ -98,7 +119,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
                 :onhand_quantity,
                 to_resource,
                 quantity,
-                "increment"
+                "increment",
+                opts
               )
 
             return_updated_event(event, resource, to_resource)
@@ -112,7 +134,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
                 :accounting_quantity,
                 resource,
                 quantity,
-                "decrement"
+                "decrement",
+                opts
               )
 
             #     If the to-resource exists
@@ -122,7 +145,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
                 :accounting_quantity,
                 to_resource,
                 quantity,
-                "increment"
+                "increment",
+                opts
               )
 
             return_updated_event(event, resource, to_resource)
@@ -138,13 +162,16 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
     end
   end
 
+  def quantity_effect(field, resource, quantity, operation, opts \\ [])
+
   def quantity_effect(
         :onhand_quantity,
         %{
           onhand_quantity: %{unit_id: onhand_unit} = _onhand_quantity
         } = _resource,
         %{unit_id: event_unit},
-        _
+        _,
+        _opts
       )
       when onhand_unit != event_unit do
     {:error,
@@ -157,7 +184,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           accounting_quantity: %{unit_id: accounting_unit} = _accounting_quantity
         } = _resource,
         %{unit_id: event_unit},
-        _
+        _,
+        _opts
       )
       when accounting_unit != event_unit do
     {:error,
@@ -170,7 +198,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
         } = resource,
         %{unit_id: event_unit, has_numerical_value: amount} = _by_quantity,
-        operation
+        operation,
+        _opts
       )
       when onhand_unit == event_unit do
     onhand_quantity = measurement_effect(operation, onhand_quantity, amount)
@@ -184,7 +213,8 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
         } = resource,
         %{unit_id: event_unit, has_numerical_value: amount} = _by_quantity,
-        operation
+        operation,
+        _opts
       )
       when accounting_unit == event_unit do
     accounting_quantity = measurement_effect(operation, accounting_quantity, amount)
@@ -198,13 +228,17 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           onhand_quantity_id: existing_quantity
         } = resource,
         by_quantity,
-        _
+        _,
+        opts
       )
       when is_nil(existing_quantity) do
     new_quantity = Bonfire.Quantify.Measure.copy(by_quantity)
-    # Set onhandQuantity on a resource with no previous onhandQuantity
+
+    # Set onhandQuantity on a resource with no previous onhandQuantity, as the person acting: they must be allowed to update the resource itself
     with {:ok, resource} <-
-           EconomicResources.update(resource, %{onhand_quantity: new_quantity}) do
+           EconomicResources.update(resource, %{onhand_quantity: new_quantity},
+             current_user: opts[:current_user]
+           ) do
       resource
     end
   end
@@ -215,20 +249,22 @@ defmodule ValueFlows.EconomicEvent.EventSideEffects do
           accounting_quantity_id: existing_quantity
         } = resource,
         by_quantity,
-        _
+        _,
+        opts
       )
       when is_nil(existing_quantity) do
     new_quantity = Bonfire.Quantify.Measure.copy(by_quantity)
-    # Set accountingQuantity on a resource with no previous accountingQuantity
+
+    # Set accountingQuantity on a resource with no previous accountingQuantity, as the person acting: they must be allowed to update the resource itself
     with {:ok, resource} <-
-           EconomicResources.update(resource, %{
-             accounting_quantity: new_quantity
-           }) do
+           EconomicResources.update(resource, %{accounting_quantity: new_quantity},
+             current_user: opts[:current_user]
+           ) do
       resource
     end
   end
 
-  def quantity_effect(_, resource, _, _) do
+  def quantity_effect(_, resource, _, _, _opts) do
     resource
   end
 

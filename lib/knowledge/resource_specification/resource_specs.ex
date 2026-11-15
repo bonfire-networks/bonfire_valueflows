@@ -72,9 +72,20 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     end)
   end
 
-  # TODO: take the user who is performing the update
-  # @spec update(%ResourceSpecification{}, attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
-  def update(%ResourceSpecification{} = resource_spec, attrs) do
+  @doc "Updates a resource specification. Needs `current_user:` who created it or may update it, or an explicit `skip_boundary_check: true`; otherwise `{:error, :not_permitted}`."
+  # @spec update(%ResourceSpecification{}, attrs :: map, opts :: keyword) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
+  def update(%ResourceSpecification{} = resource_spec, attrs, opts) do
+    if opts[:skip_boundary_check] == true or
+         (not is_nil(opts[:current_user]) and
+            ValueFlows.Util.can?(opts[:current_user], :edit, resource_spec) == :ok) do
+      with {:ok, attrs} <- ValueFlows.Util.apply_upload(attrs, opts),
+           do: do_update(resource_spec, attrs, opts)
+    else
+      {:error, :not_permitted}
+    end
+  end
+
+  defp do_update(%ResourceSpecification{} = resource_spec, attrs, opts) do
     repo().transact_with(fn ->
       resource_spec =
         repo().preload(resource_spec, [
@@ -86,7 +97,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
       with {:ok, resource_spec} <-
              repo().update(ResourceSpecification.update_changeset(resource_spec, attrs)),
            {:ok, resource_spec} <-
-             ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs) do
+             ValueFlows.Util.try_tag_thing(
+               opts[:current_user],
+               resource_spec,
+               attrs,
+               Keyword.take(opts, [:skip_boundary_check])
+             ) do
         ValueFlows.Util.publish(resource_spec, :update)
 
         {:ok, resource_spec}

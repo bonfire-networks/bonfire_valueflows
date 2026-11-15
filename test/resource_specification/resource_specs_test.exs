@@ -73,10 +73,36 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       user = fake_agent!()
       spec = fake_resource_specification!(user)
 
-      assert {:ok, updated} = ResourceSpecifications.update(spec, resource_specification())
+      assert {:ok, updated} =
+               ResourceSpecifications.update(spec, resource_specification(), current_user: user)
 
       assert_resource_specification(updated)
       assert updated.updated_at != spec.updated_at
+    end
+
+    test "someone who may not update it stores no upload" do
+      owner = fake_agent!()
+      stranger = fake_agent!()
+      spec = fake_resource_specification!(owner)
+      parent = self()
+      upload = fn _attrs -> send(parent, :uploaded) && {:ok, %{}} end
+
+      # control: whoever may update it has their upload run
+      assert {:ok, _} =
+               ResourceSpecifications.update(spec, resource_specification(),
+                 current_user: owner,
+                 upload: upload
+               )
+
+      assert_received :uploaded
+
+      assert {:error, :not_permitted} =
+               ResourceSpecifications.update(spec, resource_specification(),
+                 current_user: stranger,
+                 upload: upload
+               )
+
+      refute_received :uploaded
     end
   end
 

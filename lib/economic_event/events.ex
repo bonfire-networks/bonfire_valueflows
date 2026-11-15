@@ -570,8 +570,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   defp post_create_event(event, creator, attrs) do
     with event = preload_all(event),
-         {:ok, event} <- maybe_transfer_resource(event),
-         {:ok, event} <- EventSideEffects.event_side_effects(event),
+         {:ok, event} <- maybe_transfer_resource(event, creator),
+         {:ok, event} <- EventSideEffects.event_side_effects(event, current_user: creator),
          {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, attrs),
          {:ok, activity} <-
            ValueFlows.Util.publish(creator, event.action_id, event, attrs: attrs) do
@@ -634,18 +634,31 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
 
   defp reciprocal_event_quantity_context(_calc), do: :resource_quantity
 
-  # TODO: take the user who is performing the update
+  @doc "Updates an event. The user must be involved in it (provider or receiver) or be allowed to `:edit` it (creator, or granted `:edit`). An `upload:` option runs only after that check."
   # @spec update(%EconomicEvent{}, attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
-  def update(user, %EconomicEvent{} = event, attrs) do
+  def update(user, %EconomicEvent{} = event, attrs, opts \\ []) do
+    event = preload_all(event)
+
+    with :ok <- validate_may_update(user, event),
+         {:ok, attrs} <- ValueFlows.Util.apply_upload(attrs, opts) do
+      do_update(user, event, attrs)
+    end
+  end
+
+  defp validate_may_update(user, event) do
+    with {:error, _} <- validate_user_involvement(user, event) do
+      ValueFlows.Util.can?(user, :edit, event)
+    end
+  end
+
+  defp do_update(user, event, attrs) do
     repo().transact_with(fn ->
-      event = preload_all(event)
       attrs = prepare_attrs(attrs, e(event, :creator, nil))
 
-      with :ok <- validate_user_involvement(user, event),
-           {:ok, event} <-
+      with {:ok, event} <-
              repo().update(EconomicEvent.update_changeset(event, attrs)),
-           {:ok, event} <- maybe_transfer_resource(event),
-           {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
+           {:ok, event} <- maybe_transfer_resource(event, user),
+           {:ok, event} <- ValueFlows.Util.try_tag_thing(user, event, attrs),
            {:ok, _} <- ValueFlows.Util.publish(event, :update) do
         {:ok, event}
       end
@@ -658,7 +671,8 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
            provider_id: provider_id,
            receiver_id: receiver_id,
            action_id: action_id
-         } = event
+         } = event,
+         user
        )
        when action_id in ["transfer", "transfer-all-rights"] and
               not is_nil(to_resource_id) and
@@ -670,10 +684,13 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
              id: to_resource_id
            ]),
          :ok <- validate_provider_is_primary_accountable(event),
+         # as the person acting, who must be allowed to update the resource itself: the event's own check does not cover that
          {:ok, to_resource} <-
-           EconomicResources.update(to_resource, %{
-             primary_accountable: receiver_id
-           }) do
+           EconomicResources.update(
+             to_resource,
+             %{primary_accountable: receiver_id},
+             current_user: user
+           ) do
       debug("Events.maybe_transfer_resource: updated the primary_accountable of the to_resource")
 
       {:ok, %{event | to_resource_inventoried_as: to_resource}}
@@ -687,7 +704,7 @@ defmodule ValueFlows.EconomicEvent.EconomicEvents do
     end
   end
 
-  defp maybe_transfer_resource(event) do
+  defp maybe_transfer_resource(event, _user) do
     debug("Events.maybe_transfer_resource: did not transfer the resource (criteria not met)")
 
     {:ok, event}

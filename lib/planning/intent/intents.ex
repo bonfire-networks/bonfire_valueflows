@@ -170,7 +170,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       with {:ok, intent} <-
              repo().insert(Intent.create_changeset(creator, attrs)),
            intent <- preload_all(%{intent | creator: creator}),
-           {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
+           {:ok, intent} <- ValueFlows.Util.try_tag_thing(creator, intent, attrs),
            {:ok, activity} <- ValueFlows.Util.publish(creator, :intend, intent, attrs: inputs) do
         # Absinthe.Subscription.publish(@endpoint_module, intent, intent_created: :all)
 
@@ -187,28 +187,31 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  def update(current_user, id, changes, verb \\ :update)
+  @doc "Updates an intent. `verb` is only what gets published; the user must be allowed to `:edit` the intent (creator, provider, or granted `:edit`). An `upload:` option runs only after that check."
+  def update(current_user, id, changes, verb \\ :update, opts \\ [])
 
-  def update(current_user, %Intent{} = intent, changes, verb) do
-    with :ok <- ValueFlows.Util.can?(current_user, verb, intent) do
-      do_update(intent, changes, verb)
+  def update(current_user, %Intent{} = intent, changes, verb, opts) do
+    # TODO: decide whether the intent page's `:schedule`, `:assign` and `:label` actions should check their own verb instead of `:edit`
+    with :ok <- ValueFlows.Util.can?(current_user, :edit, intent),
+         {:ok, changes} <- ValueFlows.Util.apply_upload(changes, opts) do
+      do_update(current_user, intent, changes, verb)
     end
   end
 
-  def update(current_user, id, changes, verb) when is_binary(id) or is_map(id) do
+  def update(current_user, id, changes, verb, opts) when is_binary(id) or is_map(id) do
     with {:ok, intent} <- by_id(Types.uid(id), current_user) do
-      update(current_user, intent, changes, verb)
+      update(current_user, intent, changes, verb, opts)
     end
   end
 
-  defp do_update(%Intent{} = intent, attrs, verb \\ :update) do
+  defp do_update(current_user, %Intent{} = intent, attrs, verb) do
     attrs = prepare_attrs(attrs, e(intent, :creator, nil))
 
     repo().transact_with(fn ->
       with {:ok, intent} <-
              repo().update(Intent.update_changeset(intent, attrs)),
            intent <- preload_all(intent),
-           {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
+           {:ok, intent} <- ValueFlows.Util.try_tag_thing(current_user, intent, attrs),
            {:ok, _} <- ValueFlows.Util.publish(intent, verb) do
         {:ok, intent}
       end

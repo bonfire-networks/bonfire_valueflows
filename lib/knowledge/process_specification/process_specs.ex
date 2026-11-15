@@ -127,16 +127,32 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     end)
   end
 
-  # TODO: take the user who is performing the update
-  # @spec update(%ProcessSpecification{}, attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
-  def update(%ProcessSpecification{} = process_spec, attrs) do
+  @doc "Updates a process specification. Needs `current_user:` who created it or may update it, or an explicit `skip_boundary_check: true`; otherwise `{:error, :not_permitted}`."
+  # @spec update(%ProcessSpecification{}, attrs :: map, opts :: keyword) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
+  def update(%ProcessSpecification{} = process_spec, attrs, opts) do
+    if opts[:skip_boundary_check] == true or
+         (not is_nil(opts[:current_user]) and
+            ValueFlows.Util.can?(opts[:current_user], :edit, process_spec) == :ok) do
+      with {:ok, attrs} <- ValueFlows.Util.apply_upload(attrs, opts),
+           do: do_update(process_spec, attrs, opts)
+    else
+      {:error, :not_permitted}
+    end
+  end
+
+  defp do_update(%ProcessSpecification{} = process_spec, attrs, opts) do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
       with {:ok, process_spec} <-
              repo().update(ProcessSpecification.update_changeset(process_spec, attrs)),
            {:ok, process_spec} <-
-             ValueFlows.Util.try_tag_thing(nil, process_spec, attrs),
+             ValueFlows.Util.try_tag_thing(
+               opts[:current_user],
+               process_spec,
+               attrs,
+               Keyword.take(opts, [:skip_boundary_check])
+             ),
            {:ok, _} <- ValueFlows.Util.publish(process_spec, :update) do
         {:ok, process_spec}
       end

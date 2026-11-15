@@ -179,16 +179,32 @@ defmodule ValueFlows.EconomicResource.EconomicResources do
     end)
   end
 
-  # TODO: take the user who is performing the update
-  # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
-  def update(%EconomicResource{} = resource, attrs) do
+  @doc "Updates a resource. Needs `current_user:` who created it or may update it, or an explicit `skip_boundary_check: true`; otherwise `{:error, :not_permitted}`."
+  # @spec update(%EconomicResource{}, attrs :: map, opts :: keyword) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
+  def update(%EconomicResource{} = resource, attrs, opts) do
+    if opts[:skip_boundary_check] == true or
+         (not is_nil(opts[:current_user]) and
+            ValueFlows.Util.can?(opts[:current_user], :edit, resource) == :ok) do
+      with {:ok, attrs} <- ValueFlows.Util.apply_upload(attrs, opts),
+           do: do_update(resource, attrs, opts)
+    else
+      {:error, :not_permitted}
+    end
+  end
+
+  defp do_update(%EconomicResource{} = resource, attrs, opts) do
     repo().transact_with(fn ->
       attrs = prepare_attrs(attrs, e(resource, :creator, nil))
 
       with {:ok, resource} <-
              repo().update(EconomicResource.update_changeset(resource, attrs)),
            {:ok, resource} <-
-             ValueFlows.Util.try_tag_thing(nil, resource, attrs) do
+             ValueFlows.Util.try_tag_thing(
+               opts[:current_user],
+               resource,
+               attrs,
+               Keyword.take(opts, [:skip_boundary_check])
+             ) do
         #  {:ok, _} <- ValueFlows.Util.publish(resource, :update) # Do not publish resource update since that's done via Economic Events
         {:ok, preload_all(resource)}
       end

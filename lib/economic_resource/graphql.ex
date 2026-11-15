@@ -469,8 +469,11 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
 
     def update_resource(%{resource: changes}, info) do
       repo().transact_with(fn ->
-        do_update(changes, info, fn resource, changes ->
-          EconomicResources.update(resource, changes)
+        do_update(changes, info, fn resource, changes, user ->
+          EconomicResources.update(resource, changes,
+            current_user: user,
+            upload: &Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, &1, info)
+          )
         end)
       end)
     end
@@ -478,11 +481,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
     defp do_update(%{id: id} = changes, info, update_fn) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, resource} <- resource(%{id: id}, info),
-           :ok <- ValueFlows.Util.can?(user, resource),
-           {:ok, uploads} <-
-             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
-           changes = Map.merge(changes, uploads),
-           {:ok, resource} <- update_fn.(resource, changes) do
+           {:ok, resource} <- update_fn.(resource, changes, user) do
         {:ok, %{economic_resource: resource}}
       end
     end

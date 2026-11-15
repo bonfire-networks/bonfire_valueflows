@@ -36,7 +36,7 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
       with {:ok, comm} <-
              Commitment.create_changeset(creator, attrs) |> repo().insert(),
            comm <- preload_all(%{comm | creator: creator}),
-           {:ok, comm} <- ValueFlows.Util.try_tag_thing(nil, comm, attrs) do
+           {:ok, comm} <- ValueFlows.Util.try_tag_thing(creator, comm, attrs) do
         {:ok, comm}
       end
     end)
@@ -46,7 +46,7 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
           {:ok, Commitment.t()} | {:error, any()}
   def update(user, id, changes) when is_binary(id) do
     with {:ok, comm} <- by_id(id, user) do
-      do_update(comm, changes)
+      do_update(user, comm, changes)
     end
   end
 
@@ -56,20 +56,20 @@ defmodule ValueFlows.Planning.Commitment.Commitments do
     import ValueFlows.Util, only: [can?: 2]
 
     with :ok <- can?(user, comm) do
-      do_update(comm, changes)
+      do_update(user, comm, changes)
     end
   end
 
-  @spec do_update(Commitment.t(), attrs()) ::
+  @spec do_update(struct(), Commitment.t(), attrs()) ::
           {:ok, Commitment.t()} | {:error, any()}
-  defp do_update(comm, attrs) do
+  defp do_update(user, comm, attrs) do
     attrs = prep_attrs(attrs, Map.get(comm, :creator))
 
     repo().transact_with(fn ->
       with {:ok, comm} <-
              Commitment.update_changeset(comm, attrs) |> repo().update(),
            comm <- preload_all(comm),
-           {:ok, comm} <- ValueFlows.Util.try_tag_thing(nil, comm, attrs) do
+           {:ok, comm} <- ValueFlows.Util.try_tag_thing(user, comm, attrs) do
         {:ok, comm}
       end
     end)

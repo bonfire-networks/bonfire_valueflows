@@ -68,10 +68,36 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       user = fake_agent!()
       spec = fake_process_specification!(user)
 
-      assert {:ok, updated} = ProcessSpecifications.update(spec, process_specification())
+      assert {:ok, updated} =
+               ProcessSpecifications.update(spec, process_specification(), current_user: user)
 
       assert_process_specification(updated)
       assert updated.updated_at != spec.updated_at
+    end
+
+    test "someone who may not update it stores no upload" do
+      owner = fake_agent!()
+      stranger = fake_agent!()
+      spec = fake_process_specification!(owner)
+      parent = self()
+      upload = fn _attrs -> send(parent, :uploaded) && {:ok, %{}} end
+
+      # control: whoever may update it has their upload run
+      assert {:ok, _} =
+               ProcessSpecifications.update(spec, process_specification(),
+                 current_user: owner,
+                 upload: upload
+               )
+
+      assert_received :uploaded
+
+      assert {:error, :not_permitted} =
+               ProcessSpecifications.update(spec, process_specification(),
+                 current_user: stranger,
+                 upload: upload
+               )
+
+      refute_received :uploaded
     end
   end
 

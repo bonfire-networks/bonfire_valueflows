@@ -256,12 +256,11 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
         ) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, resource_spec} <- resource_spec(%{id: id}, info),
-           :ok <- ValueFlows.Util.can?(user, resource_spec),
-           {:ok, uploads} <-
-             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
-           changes = Map.merge(changes, uploads),
            {:ok, resource_spec} <-
-             ResourceSpecifications.update(resource_spec, changes) do
+             ResourceSpecifications.update(resource_spec, changes,
+               current_user: user,
+               upload: &Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, &1, info)
+             ) do
         {:ok, %{resource_specification: resource_spec}}
       end
     end

@@ -327,11 +327,11 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
     def update_process(%{process: %{id: id} = changes}, info) do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, process} <- process(%{id: id}, info),
-           :ok <- ValueFlows.Util.can?(user, process),
-           {:ok, uploads} <-
-             Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
-           changes = Map.merge(changes, uploads),
-           {:ok, process} <- Processes.update(process, changes) do
+           {:ok, process} <-
+             Processes.update(process, changes,
+               current_user: user,
+               upload: &Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, &1, info)
+             ) do
         {:ok, %{process: process}}
       end
     end

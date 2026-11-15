@@ -1101,7 +1101,7 @@ defmodule ValueFlows.Test.Faking do
 
   def update_economic_event_mutation(options \\ []) do
     gen_mutation(
-      [economic_event: type!(:economic_event_update_params)],
+      [event: type!(:economic_event_update_params)],
       &update_economic_event_submutation/1,
       options
     )
@@ -1109,7 +1109,7 @@ defmodule ValueFlows.Test.Faking do
 
   def update_economic_event_submutation(options \\ []) do
     gen_submutation(
-      [economic_event: var(:economic_event)],
+      [event: var(:event)],
       :update_economic_event,
       &economic_event_response_fields/1,
       options

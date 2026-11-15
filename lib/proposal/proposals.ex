@@ -141,10 +141,20 @@ defmodule ValueFlows.Proposal.Proposals do
     end)
   end
 
-  # TODO: take the user who is performing the update
-  @spec update(%Proposal{}, attrs :: map) ::
-          {:ok, Proposal.t()} | {:error, Changeset.t()}
-  def update(%Proposal{} = proposal, attrs) do
+  @doc "Updates a proposal. Needs `current_user:` who created it or may edit it, or an explicit `skip_boundary_check: true`; otherwise `{:error, :not_permitted}`."
+  @spec update(%Proposal{}, attrs :: map, opts :: Keyword.t()) ::
+          {:ok, Proposal.t()} | {:error, Changeset.t() | :not_permitted}
+  def update(%Proposal{} = proposal, attrs, opts) do
+    if opts[:skip_boundary_check] == true or
+         (not is_nil(opts[:current_user]) and
+            ValueFlows.Util.can?(opts[:current_user], :edit, proposal) == :ok) do
+      do_update(proposal, attrs)
+    else
+      {:error, :not_permitted}
+    end
+  end
+
+  defp do_update(proposal, attrs) do
     attrs = prepare_attrs(attrs)
 
     repo().transact_with(fn ->

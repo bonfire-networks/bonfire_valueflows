@@ -222,12 +222,11 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       repo().transact_with(fn ->
         with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
              {:ok, process_spec} <- process_spec(%{id: id}, info),
-             :ok <- ValueFlows.Util.can?(user, process_spec),
-             {:ok, uploads} <-
-               Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, changes, info),
-             changes = Map.merge(changes, uploads),
              {:ok, process_spec} <-
-               ProcessSpecifications.update(process_spec, changes) do
+               ProcessSpecifications.update(process_spec, changes,
+                 current_user: user,
+                 upload: &Bonfire.API.GraphQL.CommonResolver.maybe_upload(user, &1, info)
+               ) do
           {:ok, %{process_specification: process_spec}}
         end
       end)

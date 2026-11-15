@@ -63,9 +63,26 @@ defmodule ValueFlows.Process.ProcessesTest do
       user = fake_agent!()
       spec = fake_process!(user)
 
-      assert {:ok, updated} = Processes.update(spec, process())
+      assert {:ok, updated} = Processes.update(spec, process(), current_user: user)
       assert_process(updated)
       assert updated.updated_at != spec.updated_at
+    end
+
+    test "someone who may not update it stores no upload" do
+      owner = fake_agent!()
+      stranger = fake_agent!()
+      spec = fake_process!(owner)
+      parent = self()
+      upload = fn _attrs -> send(parent, :uploaded) && {:ok, %{}} end
+
+      # control: whoever may update it has their upload run
+      assert {:ok, _} = Processes.update(spec, process(), current_user: owner, upload: upload)
+      assert_received :uploaded
+
+      assert {:error, :not_permitted} =
+               Processes.update(spec, process(), current_user: stranger, upload: upload)
+
+      refute_received :uploaded
     end
   end
 

@@ -60,7 +60,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposal = fake_proposal!(user)
       new_attrs = proposal()
 
-      assert {:ok, updated} = Proposals.update(proposal, new_attrs)
+      assert {:ok, updated} = Proposals.update(proposal, new_attrs, current_user: user)
       assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
       assert updated.unit_based == new_attrs[:unit_based]
@@ -76,7 +76,8 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       assert {:ok, updated} =
                Proposals.update(
                  proposal,
-                 proposal(%{in_scope_of: [new_context.id]})
+                 proposal(%{in_scope_of: [new_context.id]}),
+                 current_user: user
                )
 
       assert_proposal_full(updated)

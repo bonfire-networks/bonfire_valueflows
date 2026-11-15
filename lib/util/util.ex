@@ -34,6 +34,17 @@ defmodule ValueFlows.Util do
     end
   end
 
+  @doc "Runs the `upload:` function of an update's options, if any, on its attributes and merges what it returns in. Updates call it only after their permission check, so a caller who may not update stores no file."
+  def apply_upload(attrs, opts) do
+    case opts[:upload] do
+      upload when is_function(upload, 1) ->
+        with {:ok, uploads} <- upload.(attrs), do: {:ok, Map.merge(attrs, uploads)}
+
+      _ ->
+        {:ok, attrs}
+    end
+  end
+
   def publish(creator, verb, thing, opts \\ [])
 
   def publish(creator, verb, thing, opts) do
@@ -120,6 +131,7 @@ defmodule ValueFlows.Util do
     )
 
     if !e(opts, :editing, nil) and module_enabled?(Bonfire.Boundaries),
+      # the creator is the one acting, and is refused if they may not configure the thing; a caller with no creator passes `skip_boundary_check: true`
       do: Bonfire.Boundaries.set_boundaries(creator, thing, opts)
 
     opts
@@ -414,23 +426,29 @@ defmodule ValueFlows.Util do
     maybe_classification(user, tag) |> e(:id, nil)
   end
 
-  def try_tag_thing(user, thing, %{} = attrs) do
+  @doc "Tags a thing, as the user may (`:tag` on it, or its creator). With no user, pass `skip_boundary_check: true` in `opts` for a system path, or it is refused."
+  def try_tag_thing(user, thing, attrs_or_tags, opts \\ [])
+
+  def try_tag_thing(user, thing, %{} = attrs, opts) do
     if not is_nil(thing) and module_enabled?(Bonfire.Tag, user) do
       input_tags =
         List.wrap(e(attrs, :tags, [])) ++
           List.wrap(e(attrs, :resource_classified_as, [])) ++
           List.wrap(e(attrs, :classified_as, []))
 
-      try_tag_thing(user, thing, input_tags)
+      try_tag_thing(user, thing, input_tags, opts)
     else
       {:ok, thing}
     end
   end
 
-  def try_tag_thing(user, thing, tags) when is_list(tags) do
+  # nothing to tag, so nothing to check
+  def try_tag_thing(_user, thing, [], _opts), do: {:ok, thing}
+
+  def try_tag_thing(user, thing, tags, opts) when is_list(tags) do
     # debug(thing)
     if not is_nil(thing) and module_enabled?(Bonfire.Tag, user) do
-      Bonfire.Tag.maybe_tag(user, thing, tags)
+      Bonfire.Tag.maybe_tag(user, thing, tags, true, opts)
       # Bonfire.Tag.maybe_tag(as_subject(user), thing, tags)
     else
       {:ok, thing}
