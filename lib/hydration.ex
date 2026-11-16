@@ -525,30 +525,39 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled do
           economic_resources_filtered: [
             resolve: &ValueFlows.EconomicResource.GraphQL.resources_filtered/2
           ],
+          # processes and tasks (intents) are shown to guests in the web UI, so guests may query them too (still subject to boundaries); the other root queries need a login
           process: [
+            meta: [public: true],
             resolve: &ValueFlows.Process.GraphQL.process/2
           ],
           processes: [
+            meta: [public: true],
             resolve: &ValueFlows.Process.GraphQL.all_processes/2
           ],
           processes_pages: [
+            meta: [public: true],
             resolve: &ValueFlows.Process.GraphQL.processes/2
           ],
 
           # Planning
           intent: [
+            meta: [public: true],
             resolve: &ValueFlows.Planning.Intent.GraphQL.intent/2
           ],
           intents: [
+            meta: [public: true],
             resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
           ],
           intents_pages: [
+            meta: [public: true],
             resolve: &ValueFlows.Planning.Intent.GraphQL.intents/2
           ],
           offers_pages: [
+            meta: [public: true],
             resolve: &ValueFlows.Planning.Intent.GraphQL.offers/2
           ],
           needs_pages: [
+            meta: [public: true],
             resolve: &ValueFlows.Planning.Intent.GraphQL.needs/2
           ],
           # intents_filtered: [

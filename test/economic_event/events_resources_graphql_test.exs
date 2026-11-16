@@ -414,7 +414,9 @@ defmodule ValueFlows.EconomicEvent.EventsResourcesGraphQLTest do
       # now transfer it
       q_b = create_economic_event_mutation(event_fields, resource_fields)
 
-      conn_b = user_conn(bob)
+      # the provider (who may edit the resource) gives part of it to bob; bob can't take from alice's resource himself
+      # conn_b = user_conn(bob)
+      conn_b = user_conn(alice)
 
       vars_b = %{
         event:

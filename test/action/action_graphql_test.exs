@@ -20,18 +20,19 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
     end
 
     test "fetches an existing action by label (via Absinthe.run)" do
-      # user = fake_agent!()
+      user = fake_agent!()
       action = action()
 
-      assert queried =
-               Bonfire.API.GraphQL.QueryHelper.run_query_id(
-                 action.label,
-                 @schema,
-                 :action,
-                 3,
-                 nil,
-                 @debug
+      # root queries need a login, and run_query_id passes no context
+      q = Bonfire.API.GraphQL.QueryHelper.query_with_id(@schema, :action, 3)
+
+      assert {:ok, %{data: %{"action" => queried}}} =
+               Absinthe.run(q, @schema,
+                 variables: %{"id" => action.label},
+                 context: %{current_user: user}
                )
+
+      assert queried
 
       assert_action(queried)
     end

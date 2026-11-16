@@ -64,6 +64,7 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
                   trace {
                     __typename
                     ... on EconomicEvent {
+                      id
                       trace {
                         __typename
                       }
@@ -88,7 +89,13 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
       }
       """
 
-      q = Absinthe.run(query, @schema, variables: %{"id" => resource.id})
+      # ValueFlows root queries need a login (guests have no web page for resources)
+      q =
+        Absinthe.run(query, @schema,
+          variables: %{"id" => resource.id},
+          context: %{current_user: user}
+        )
+
       # IO.inspect(q: q)
       assert {:ok, %{data: result}} = q
       assert result["economicResource"]["id"] == resource.id
@@ -162,6 +169,7 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
                   track {
                     __typename
                     ... on EconomicEvent {
+                      id
                       track {
                         __typename
                       }
@@ -186,7 +194,13 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
       }
       """
 
-      q = Absinthe.run(query, @schema, variables: %{"id" => other_resource.id})
+      # ValueFlows root queries need a login (guests have no web page for resources)
+      q =
+        Absinthe.run(query, @schema,
+          variables: %{"id" => other_resource.id},
+          context: %{current_user: user}
+        )
+
       # IO.inspect(q: q)
       assert {:ok, %{data: result}} = q
 

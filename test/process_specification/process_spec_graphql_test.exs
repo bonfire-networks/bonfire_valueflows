@@ -28,15 +28,16 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
       user = fake_agent!()
       spec = fake_process_specification!(user)
 
-      assert queried =
-               Bonfire.API.GraphQL.QueryHelper.run_query_id(
-                 spec.id,
-                 @schema,
-                 :process_specification,
-                 4,
-                 nil,
-                 @debug
+      # root queries need a login, and run_query_id passes no context
+      q = Bonfire.API.GraphQL.QueryHelper.query_with_id(@schema, :process_specification, 4)
+
+      assert {:ok, %{data: %{"process_specification" => queried}}} =
+               Absinthe.run(q, @schema,
+                 variables: %{"id" => spec.id},
+                 context: %{current_user: user}
                )
+
+      assert queried
 
       assert_process_specification(queried)
     end
